@@ -11,15 +11,15 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 13
-    "Dalam Proses (In Progress)" : 2
+    "Selesai (Completed)" : 14
+    "Dalam Proses (In Progress)" : 1
     "Belum Dimulai (Pending)" : 15
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
 | 1. Keamanan, Infrastruktur & Performa | 7 | 5 | 0 | 2 |
-| 2. Core Presensi & Validasi | 7 | 1 | 1 | 5 |
+| 2. Core Presensi & Validasi | 7 | 2 | 0 | 5 |
 | 3. Payroll & Honorarium | 4 | 0 | 0 | 4 |
 | 4. Integrasi & Notifikasi | 4 | 0 | 0 | 4 |
 | 5. Executive Dashboard | 3 | 0 | 0 | 3 |
@@ -70,9 +70,13 @@ pie title Status Fitur & Pengkondisian Sistem
     - Menambahkan Eloquent Accessors (`$user->foto_url`, `$presensi->foto_mulai_url`, `$presensi->foto_selesai_url`) pada model `User`, `Presensi`, dan `PresensiKaryawan` untuk menjamin 100% *backward compatibility*.
 
 #### 2.2 Workflow Digital Lupa Lapor (Retroactive Attendance Approval)
-- 🟡 **Persetujuan Interaktif Kepala Sekolah**
-  - **Status:** **DALAM PROSES**
-  - **Rincian Implementasi:** Model `Lapor_Lapor`, controller `Tutor\LupaLaporController`, dan tabel migrasi sudah tersedia. Selanjutnya menyempurnakan alur pengajuan oleh Tutor serta persetujuan Kepala Sekolah untuk auto-upsert rekapitulasi kehadiran pada tabel `presensis`.
+- 🟢 **Persetujuan Interaktif Kepala Sekolah**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** 
+    - Restrukturisasi dan standardisasi nama model menjadi **`PengajuanLupaLapor`** dengan tabel **`pengajuan_lupa_lapor`** (menggantikan nama legacy `Lapor_Lapor` / `lapor__lapors`).
+    - Menambahkan status persetujuan (`pending`, `disetujui`, `ditolak`) dan kolom `catatan_kepsek`.
+    - Menyempurnakan alur pengajuan oleh Tutor serta persetujuan interaktif oleh Kepala Sekolah.
+    - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah mengklik "Setujui", sistem secara otomatis melakukan *upsert* (membuat/memperbarui) data kehadiran pada tabel `presensis` (`status = 'hadir'`).
 
 #### 2.3 Validasi Lokasi & Fitur Lanjutan
 - ⚪ **Kalkulasi Radius Geofencing (Rumus Haversine)**
@@ -175,7 +179,7 @@ pie title Status Fitur & Pengkondisian Sistem
 #### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
 - 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (4 tests, 16 assertions OK) dan kompilasi build produksi Vite `npm run build`.
+  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (6 tests, 21 assertions OK) dan kompilasi build produksi Vite `npm run build`.
 - 🟡 **Penerapan Pattern DRY (Service & Repository Pattern)**
   - **Status:** **DALAM PROSES**
   - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (misal: `PresensiService`, `PayrollService`) untuk menghindari kode berulang (*DRY - Don't Repeat Yourself*).
@@ -197,4 +201,4 @@ pie title Status Fitur & Pengkondisian Sistem
 
 ### Item yang Siap Dikerjakan Berikutnya (Next Immediate Tasks):
 1. **[Fase 1 & 2] Secure Storage Foto Presensi**: Membuat private disk dan endpoint pengaksesan foto berbasis *Signed URL*.
-2. **[Fase 2] Penyempurnaan Workflow Lupa Lapor**: Menghubungkan persetujuan Lupa Lapor oleh Kepala Sekolah langsung ke pembaruan (*upsert*) tabel `presensis`.
+2. **[Fase 2] Kalkulasi Radius Geofencing**: Membatasi lokasi presensi tutor berdasarkan radius GPS menggunakan rumus Haversine.

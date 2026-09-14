@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Kepsek;
 
 use App\Http\Controllers\Controller;
-use App\Models\Lapor_Lapor;
+use App\Models\PengajuanLupaLapor;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
 use App\Models\Siswa;
 use App\Models\Tutor;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -256,7 +257,7 @@ class KepsekDashboardController extends Controller
         // Waktu cetak eksplisit WIB (timezone app default sering UTC)
         $tanggalCetak = Carbon::now('Asia/Jakarta');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('kepsek.laporan_pdf', compact(
+        $pdf = Pdf::loadView('kepsek.laporan_pdf', compact(
             'rekapTutor', 'totalHadir', 'totalSesi', 'totalTutorAktif',
             'startDate', 'endDate', 'tanggalCetak'
         ))->setPaper('a4', 'portrait');
@@ -267,13 +268,17 @@ class KepsekDashboardController extends Controller
     }
 
     /* ─────────────────────────────────────────────
-     |  KELOLA LUPA LAPOR
+     |  KELOLA LUPA LAPOR (Interactive Approval Workflow)
      ───────────────────────────────────────────── */
     public function lupaLapor(Request $request)
     {
-        $query = Lapor_Lapor::with(['tutor', 'siswa'])
+        $query = PengajuanLupaLapor::with(['tutor', 'siswa'])
             ->orderByDesc('tanggal')
             ->orderByDesc('id');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
 
         if ($request->filled('tanggal')) {
             $query->whereDate('tanggal', $request->tanggal);
@@ -288,14 +293,50 @@ class KepsekDashboardController extends Controller
         }
 
         $total = (clone $query)->count();
+        $totalPending = PengajuanLupaLapor::where('status', 'pending')->count();
         $items = $query->paginate(15);
 
-        return view('kepsek.lupa_lapor', compact('items', 'total'));
+        return view('kepsek.lupa_lapor', compact('items', 'total', 'totalPending'));
+    }
+
+    public function setujuiLupaLapor(Request $request, int $id)
+    {
+        $item = PengajuanLupaLapor::findOrFail($id);
+        $item->status = 'disetujui';
+        $item->catatan_kepsek = $request->input('catatan_kepsek', 'Pengajuan disetujui');
+        $item->save();
+
+        // Auto-upsert ke tabel presensis
+        Presensi::updateOrCreate(
+            [
+                'tutor_id' => $item->tutor_id,
+                'siswa_id' => $item->siswa_id,
+                'tgl_presensi' => $item->tanggal,
+            ],
+            [
+                'jam_mulai' => $item->jam_mulai,
+                'jam_selesai' => $item->jam_selesai,
+                'status' => 'hadir',
+                'materi' => 'Pengajuan Lupa Lapor Disetujui: '.$item->alasan,
+            ]
+        );
+
+        return back()->with('success', 'Pengajuan Lupa Lapor disetujui & data presensi berhasil dicatat.');
+    }
+
+    public function tolakLupaLapor(Request $request, int $id)
+    {
+        $item = PengajuanLupaLapor::findOrFail($id);
+        $item->status = 'ditolak';
+        $item->catatan_kepsek = $request->input('catatan_kepsek', 'Pengajuan ditolak oleh Kepala Sekolah');
+        $item->save();
+
+        return back()->with('warning', 'Pengajuan Lupa Lapor ditolak.');
     }
 
     public function lupaLaporDestroy(int $id)
     {
-        Lapor_Lapor::findOrFail($id)->delete();
+        PengajuanLupaLapor::findOrFail($id)->delete();
 
         return back()->with('success', 'Pengajuan berhasil dihapus.');
     }

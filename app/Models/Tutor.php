@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Model Tutor — Data Profil Detail Tutor
@@ -67,7 +69,7 @@ class Tutor extends Model
      * Digunakan untuk mengakses data akun login dari tutor.
      * Contoh: $tutor->user->email
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function user()
     {
@@ -79,7 +81,7 @@ class Tutor extends Model
      * Satu tutor bisa punya banyak sesi mengajar yang terekam sebagai presensi.
      * Contoh: $tutor->presensis()->whereDate('tgl_presensi', today())->get()
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function presensis()
     {
@@ -88,13 +90,11 @@ class Tutor extends Model
 
     /**
      * Relasi: Tutor memiliki banyak pengajuan Lupa Lapor (One-to-Many / HasMany).
-     * Digunakan ketika tutor lupa melakukan presensi dan mengajukan laporan manual.
-     * Contoh: $tutor->lapor_lapors()->orderByDesc('tanggal')->get()
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
-    public function lapor_lapors()
+    public function pengajuanLupaLapor()
     {
-        return $this->hasMany(Lapor_Lapor::class);
+        return $this->hasMany(PengajuanLupaLapor::class);
     }
 }

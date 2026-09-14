@@ -78,5 +78,7 @@ Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('keps
     Route::post('/presensi', [KaryawanPresensiController::class, 'store'])->name('presensi.store');
     Route::get('/presensi-tutor', [KepsekDashboardController::class, 'presensi'])->name('presensi-tutor');
     Route::get('/lupa-lapor', [KepsekDashboardController::class, 'lupaLapor'])->name('lupa-lapor');
+    Route::patch('/lupa-lapor/{id}/setujui', [KepsekDashboardController::class, 'setujuiLupaLapor'])->name('lupa-lapor.setujui');
+    Route::patch('/lupa-lapor/{id}/tolak', [KepsekDashboardController::class, 'tolakLupaLapor'])->name('lupa-lapor.tolak');
     Route::delete('/lupa-lapor/{id}', [KepsekDashboardController::class, 'lupaLaporDestroy'])->name('lupa-lapor.destroy');
 });

@@ -30,7 +30,11 @@
   - Menambahkan Eloquent Accessors (`$user->foto_url`, `$presensi->foto_mulai_url`, `$presensi->foto_selesai_url`) pada model `User`, `Presensi`, dan `PresensiKaryawan` untuk menjamin 100% *backward compatibility*.
 
 ### 2.2 Workflow Digital Lupa Lapor (Retroactive Attendance Approval)
-* 🟡 **Persetujuan Interaktif Kepala Sekolah:** [DALAM PROSES] Model `Lapor_Lapor`, controller `Tutor\LupaLaporController`, dan tabel migrasi sudah tersedia. Selanjutnya menyempurnakan alur pengajuan oleh Tutor serta persetujuan Kepala Sekolah untuk auto-upsert rekapitulasi kehadiran pada tabel `presensis`.
+* 🟢 **Persetujuan Interaktif Kepala Sekolah:** [SELESAI] 
+  - Restrukturisasi dan standardisasi nama model menjadi **`PengajuanLupaLapor`** dengan tabel **`pengajuan_lupa_lapor`** (menggantikan nama legacy `Lapor_Lapor` / `lapor__lapors`).
+  - Menambahkan status persetujuan (`pending`, `disetujui`, `ditolak`) dan kolom `catatan_kepsek`.
+  - Menyempurnakan alur pengajuan oleh Tutor serta persetujuan interaktif oleh Kepala Sekolah.
+  - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah mengklik "Setujui", sistem secara otomatis melakukan *upsert* (membuat/memperbarui) data kehadiran pada tabel `presensis` (`status = 'hadir'`).
 
 ### 2.3 Validasi Lokasi & Fitur Lanjutan
 * ⚪ **Kalkulasi Radius Geofencing (Rumus Haversine):** [PENDING] Membatasi absen masuk/pulang berdasarkan koordinat GPS tutor dengan toleransi radius $\le 100$ meter dari titik lokasi PKBM Pikat menggunakan algoritma rumus Haversine.
@@ -91,7 +95,7 @@
   - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
 
 ### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
-* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (4 tests, 16 assertions OK) serta kompilasi produksi Vite `npm run build`.
+* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (6 tests, 22 assertions OK) serta kompilasi produksi Vite `npm run build`.
 * 🟡 **Penerapan Pattern DRY (Service & Repository Pattern):** [DALAM PROSES] Mengeluarkan logika berulang ke dalam Service Classes.
 
 ---
@@ -100,7 +104,7 @@
 
 | Tahap | Fokus Utama | Target Hasil | Estimasi Dampak | Status |
 |---|---|---|---|---|
-| **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Bugfix Lupa Lapor | Sistem stabil di Laravel 13, tampilan konsisten Bahasa Indonesia, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟡 Dalam Proses |
+| **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟡 Dalam Proses |
 | **Fase 2 (Jangka Pendek)** | Geofencing GPS, Secure Storage Foto, & Refactoring | Data presensi terverifikasi valid secara lokasi dan berkas aman | 🟡 Tinggi (Integritas Data) | ⚪ Pending |
 | **Fase 3 (Jangka Menengah)** | PWA / Mobile Mode, WhatsApp Gateway, & Modul Honor | Penggunaan mobile mudah, notifikasi otomatis, & honor terhitung | 🟢 Sedang (Efisiensi Operasional) | ⚪ Pending |
 | **Fase 4 (Jangka Panjang)** | Single Sign-On (SIM), Face AI, & Business Intelligence | Ekosistem aplikasi terintegrasi utuh dengan analitik eksekutif | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |

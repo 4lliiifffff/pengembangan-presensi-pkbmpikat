@@ -139,17 +139,30 @@
                         </div>
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                        @if(($item->status ?? 'pending') === 'disetujui')
+                            <span class="badge" style="background:#10b981;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;">🟢 Disetujui</span>
+                        @elseif(($item->status ?? 'pending') === 'ditolak')
+                            <span class="badge" style="background:#ef4444;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;">🔴 Ditolak</span>
+                        @else
+                            <span class="badge" style="background:#f59e0b;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;">🟡 Menunggu</span>
+                        @endif
                         <div class="llJam">{{ $jMulai }} – {{ $jSelesai }}</div>
-                        <form method="POST"
-                              action="{{ route('tutor.lupa-lapor.destroy', $item->id) }}"
-                              onsubmit="return confirm('Hapus pengajuan ini?');">
-                            @csrf @method('DELETE')
-                            <button type="submit" class="deleteBtn">Hapus</button>
-                        </form>
+                        @if(($item->status ?? 'pending') === 'pending')
+                            <form method="POST"
+                                  action="{{ route('tutor.lupa-lapor.destroy', $item->id) }}"
+                                  onsubmit="return confirm('Hapus pengajuan ini?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="deleteBtn">Hapus</button>
+                            </form>
+                        @endif
                     </div>
                 </div>
-                <div class="llAlasanLabel">Alasan</div>
+                <div class="llAlasanLabel">Alasan / Keterangan</div>
                 <div class="llAlasan">{{ $item->alasan }}</div>
+                @if($item->catatan_kepsek)
+                    <div class="llAlasanLabel" style="margin-top:6px;color:#0284c7;">Catatan Kepala Sekolah</div>
+                    <div class="llAlasan" style="font-style:italic;color:#334155;">{{ $item->catatan_kepsek }}</div>
+                @endif
             </div>
             @endforeach
         </div>
