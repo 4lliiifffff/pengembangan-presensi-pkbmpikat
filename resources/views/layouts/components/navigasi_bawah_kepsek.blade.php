@@ -8,7 +8,8 @@
 
     <a href="{{ route('kepsek.laporan') }}"
        class="{{ request()->routeIs('kepsek.laporan*') ? 'active' : '' }}"
-       aria-label="Laporan">
+       aria-label="Laporan Presensi KBM"
+       title="Laporan Presensi KBM">
         <ion-icon name="{{ request()->routeIs('kepsek.laporan*') ? 'bar-chart' : 'bar-chart-outline' }}"></ion-icon>
         <span>Laporan</span>
     </a>
@@ -43,7 +44,8 @@
 
     <a href="{{ route('kepsek.payroll.index') }}"
        class="{{ request()->routeIs('kepsek.payroll*') ? 'active' : '' }}"
-       aria-label="Payroll">
+       aria-label="Payroll & Honorarium"
+       title="Payroll & Honorarium Tutor">
         <ion-icon name="{{ request()->routeIs('kepsek.payroll*') ? 'wallet' : 'wallet-outline' }}"></ion-icon>
         <span>Payroll</span>
     </a>

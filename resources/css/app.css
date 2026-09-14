@@ -2127,4 +2127,646 @@ button, a, input, select, textarea {
     }
 }
 
+/* ==========================================
+   PAYROLL & SLIP GAJI DIGITAL MODULE
+   ========================================== */
+.payroll-container {
+    padding: 20px 16px 90px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.payroll-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.payroll-title-box h2 {
+    margin: 4px 0 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.payroll-title-box p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.payroll-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.kpi-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.kpi-card.emerald::before { background: linear-gradient(90deg, #059669, #10b981); }
+.kpi-card.blue::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.kpi-card.amber::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.kpi-card.indigo::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+
+.kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+
+.kpi-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted);
+}
+
+.kpi-icon-wrap {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.kpi-card.emerald .kpi-icon-wrap { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.kpi-card.blue .kpi-icon-wrap { background: rgba(2, 132, 199, 0.12); color: #0284c7; }
+.kpi-card.amber .kpi-icon-wrap { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.kpi-card.indigo .kpi-icon-wrap { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+
+.kpi-val {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+}
+
+.kpi-card.emerald .kpi-val { color: #059669; }
+.kpi-card.blue .kpi-val { color: #0284c7; }
+.kpi-card.amber .kpi-val { color: #d97706; }
+.kpi-card.indigo .kpi-val { color: #4f46e5; }
+
+.kpi-sub {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.filter-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.filter-form {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 140px;
+}
+
+.filter-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.filter-select {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 600;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.filter-select:focus {
+    border-color: #0284c7;
+    box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);
+}
+
+.table-container {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+}
+
+.table-header-bar {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    background: var(--card-alt);
+}
+
+.table-header-title {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+}
+
+.modern-table th {
+    background: var(--card-alt);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+}
+
+.modern-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text);
+}
+
+.modern-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.modern-table tbody tr:hover {
+    background: rgba(2, 132, 199, 0.04);
+}
+
+.badge-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.badge-chip.hadir { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.badge-chip.izin { background: rgba(100, 116, 139, 0.12); color: #475569; }
+.badge-chip.jam {
+    background: rgba(2, 132, 199, 0.12);
+    color: #0284c7;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.badge-chip.jam:hover {
+    background: #0284c7;
+    color: #ffffff;
+}
+
+/* Mobile Card View for Screens < 768px */
+.mobile-payroll-list {
+    display: none;
+    padding: 12px;
+    gap: 12px;
+    flex-direction: column;
+}
+
+.payroll-mobile-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.pmc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.pmc-name {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+
+.pmc-nik {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.pmc-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    background: var(--card-alt);
+    padding: 10px;
+    border-radius: 10px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.pmc-stat-item .val {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.pmc-stat-item .lbl {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.pmc-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--border);
+}
+
+.pmc-honor-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.pmc-honor-val {
+    font-size: 17px;
+    font-weight: 800;
+    color: #059669;
+}
+
+/* Detail Slip View */
+.show-payroll-container {
+    padding: 20px 16px 90px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.back-nav-link {
+    font-size: 13px;
+    color: #0284c7;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    transition: color 0.2s;
+}
+
+.back-nav-link:hover {
+    color: #0369a1;
+}
+
+.show-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.show-title-box h2 {
+    margin: 2px 0 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.02em;
+}
+
+.show-title-box p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.show-header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.content-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    margin-bottom: 24px;
+    overflow: hidden;
+}
+
+.content-box-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--card-alt);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.mobile-siswa-cards {
+    display: none;
+    padding: 12px;
+    gap: 10px;
+    flex-direction: column;
+}
+
+.siswa-card-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.sci-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.sci-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.sci-subtotal {
+    font-size: 15px;
+    font-weight: 800;
+    color: #059669;
+}
+
+.sci-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--card-alt);
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+
+/* Tutor Slip Mobile Page */
+.tutor-payroll-container {
+    padding: 16px 16px 90px;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+.filter-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.hero-slip-card {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    padding: 22px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-slip-card::after {
+    content: '';
+    position: absolute;
+    bottom: -30px;
+    right: -30px;
+    width: 140px;
+    height: 140px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+}
+
+.hero-slip-badge {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.hero-slip-amount {
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.hero-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+}
+
+.hm-item .val {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.hm-item .lbl {
+    font-size: 11px;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+.section-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.section-card-title {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.student-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.student-item-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.sir-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.sir-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.sir-price {
+    font-weight: 800;
+    color: #059669;
+    font-size: 15px;
+    text-align: right;
+}
+
+.session-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+.session-item-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+@media (min-width: 768px) {
+    .payroll-container,
+    .show-payroll-container {
+        padding: 28px 24px 100px;
+    }
+    .tutor-payroll-container {
+        padding: 24px 20px 100px;
+    }
+}
+
+@media (max-width: 768px) {
+    .table-responsive-desktop {
+        display: none !important;
+    }
+    .mobile-payroll-list {
+        display: flex !important;
+    }
+    .mobile-siswa-cards {
+        display: flex !important;
+    }
+    .payroll-actions, .show-header-actions {
+        width: 100%;
+    }
+    .payroll-actions a, .payroll-actions button, .show-header-actions a {
+        flex: 1 1 calc(50% - 4px);
+        justify-content: center;
+        text-align: center;
+    }
+    .filter-form {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .filter-group {
+        width: 100%;
+    }
+}
+
+
 

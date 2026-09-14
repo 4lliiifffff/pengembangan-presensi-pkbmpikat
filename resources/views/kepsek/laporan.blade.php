@@ -1,6 +1,6 @@
 @extends('layouts.kepsek')
 
-@section('title', 'Laporan Kehadiran Tutor')
+@section('title', 'Laporan Presensi & KBM — Kepala Sekolah')
 
 @section('content')
 
@@ -12,11 +12,19 @@
     ];
 @endphp
 
-
-
 <div class="lp-header">
-    <h1 class="lp-title">Laporan Perhitungan</h1>
-    <p class="lp-sub">Periode: {{ $namaBulan[$bulan] }} {{ $tahun }}</p>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+        <div>
+            <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#0284c7;text-transform:uppercase;">Laporan Operasional Akademik</span>
+            <h1 class="lp-title" style="margin-top:2px;">Laporan Presensi &amp; KBM Tutor</h1>
+            <p class="lp-sub">Periode: {{ $namaBulan[$bulan] }} {{ $tahun }} • Monitoring kehadiran, moda belajar, dan jam mengajar</p>
+        </div>
+        <div>
+            <a href="{{ route('kepsek.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="filterBtn" style="background:#4f46e5;text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:13px;border-radius:8px;color:#fff;box-shadow:0 4px 12px rgba(79,70,229,0.25);">
+                <ion-icon name="wallet-outline" style="font-size:16px;"></ion-icon> Buka Rekapitulasi Payroll ({{ $namaBulan[$bulan] }})
+            </a>
+        </div>
+    </div>
 </div>
 
 {{-- ── Filter Bulan / Tahun ── --}}

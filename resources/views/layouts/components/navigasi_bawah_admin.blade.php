@@ -43,14 +43,16 @@
 
     <a href="{{ route('admin.laporan.index') }}"
        class="{{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}"
-       aria-label="Laporan">
+       aria-label="Laporan Presensi KBM"
+       title="Laporan Presensi KBM">
         <ion-icon name="{{ request()->routeIs('admin.laporan.*') ? 'bar-chart' : 'bar-chart-outline' }}"></ion-icon>
         <span>Laporan</span>
     </a>
 
     <a href="{{ route('admin.payroll.index') }}"
        class="{{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
-       aria-label="Payroll">
+       aria-label="Payroll & Honorarium"
+       title="Payroll & Honorarium Tutor">
         <ion-icon name="{{ request()->routeIs('admin.payroll.*') ? 'wallet' : 'wallet-outline' }}"></ion-icon>
         <span>Payroll</span>
     </a>

@@ -2,112 +2,182 @@
 
 @php
     $rolePrefix = auth()->user()->role === 'kepala_sekolah' ? 'kepsek' : 'admin';
+    $startDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
+    $endDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
+    $logPresensiUrl = $rolePrefix === 'admin'
+        ? route('admin.laporan.index', ['tutor_id' => $tutor->id, 'start_date' => $startDateMonth, 'end_date' => $endDateMonth])
+        : route('kepsek.laporan', ['tutor_id' => $tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]);
 @endphp
 
-@section('title', 'Detail Slip Gaji Tutor')
+@section('title', 'Detail Slip Gaji: ' . $tutor->nama_lengkap)
 
 @section('content')
-<div class="pageHeaderRow" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="show-payroll-container">
+    {{-- ── Top Navigation & Header ── --}}
     <div>
-        <a href="{{ route($rolePrefix . '.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" style="font-size:13px;color:#0284c7;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;">
-            <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Rekap Payroll
-        </a>
-        <h2 style="margin:0;font-size:20px;">Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h2>
-        <p style="margin:2px 0 0;color:#64748b;font-size:13px;">Periode {{ $payroll['periode_label'] }} • NIK: {{ $tutor->nik }}</p>
-    </div>
-
-    <div>
-        <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 16px;background:#059669;">
-            <ion-icon name="download-outline"></ion-icon> Cetak Slip Gaji PDF
+        <a href="{{ route($rolePrefix . '.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="back-nav-link">
+            <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Rekapitulasi Payroll
         </a>
     </div>
-</div>
 
-{{-- ── Summary Card ── --}}
-<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:12px;margin-bottom:20px;">
-    <div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #e2e8f0;border-left:4px solid #10b981;">
-        <div style="font-size:12px;color:#64748b;font-weight:600;">Total Take Home Pay (Honorarium)</div>
-        <div style="font-size:22px;font-weight:800;color:#059669;margin-top:4px;">{{ $payroll['formatted_total_honor'] }}</div>
-    </div>
-    <div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #e2e8f0;border-left:4px solid #0284c7;">
-        <div style="font-size:12px;color:#64748b;font-weight:600;">Total Akumulasi Jam Mengajar</div>
-        <div style="font-size:22px;font-weight:800;color:#0284c7;margin-top:4px;">{{ $payroll['total_jam'] }} Jam</div>
-    </div>
-    <div style="background:#fff;padding:16px;border-radius:10px;border:1px solid #e2e8f0;border-left:4px solid #6366f1;">
-        <div style="font-size:12px;color:#64748b;font-weight:600;">Total Sesi Mengajar Valid</div>
-        <div style="font-size:22px;font-weight:800;color:#4f46e5;margin-top:4px;">{{ $payroll['total_sesi_hadir'] }} Sesi</div>
-    </div>
-</div>
+    <div class="show-header-row">
+        <div class="show-title-box">
+            <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#059669;text-transform:uppercase;">Rincian Slip Gaji Personal</span>
+            <h2>Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h2>
+            <p>Periode {{ $payroll['periode_label'] }} • NIK: {{ $tutor->nik }}</p>
+        </div>
 
-{{-- ── Breakdown Per Siswa Table ── --}}
-<div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:20px;overflow:hidden;">
-    <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:15px;color:#1e293b;">
-        Rincian Honorarium Berdasarkan Tarif Masing-Masing Siswa
+        <div class="show-header-actions">
+            <a href="{{ $logPresensiUrl }}" class="btnOutline" style="padding:9px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;">
+                <ion-icon name="bar-chart-outline" style="font-size:16px;color:#0284c7;"></ion-icon> Buka Log Presensi KBM
+            </a>
+            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:9px 16px;background:linear-gradient(135deg,#059669,#10b981);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;">
+                <ion-icon name="download-outline" style="font-size:16px;"></ion-icon> Cetak Slip Gaji PDF
+            </a>
+        </div>
     </div>
-    <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:13px;">
-            <thead>
-                <tr style="background:#f8fafc;color:#475569;border-bottom:1px solid #e2e8f0;">
-                    <th style="padding:10px 14px;">Nama Siswa</th>
-                    <th style="padding:10px 14px;">Total Sesi</th>
-                    <th style="padding:10px 14px;">Total Jam</th>
-                    <th style="padding:10px 14px;">Tarif Per Jam</th>
-                    <th style="padding:10px 14px;text-align:right;">Subtotal Honor</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($payroll['siswa_summary'] as $s)
-                <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:12px 14px;font-weight:600;color:#0f172a;">{{ $s['nama_siswa'] }}</td>
-                    <td style="padding:12px 14px;">{{ $s['total_sesi'] }} kali</td>
-                    <td style="padding:12px 14px;color:#0284c7;font-weight:600;">{{ $s['total_jam'] }} Jam</td>
-                    <td style="padding:12px 14px;color:#475569;">{{ $s['formatted_tarif'] }} / jam</td>
-                    <td style="padding:12px 14px;text-align:right;font-weight:700;color:#059669;">{{ $s['formatted_subtotal'] }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="text-align:center;padding:24px;color:#94a3b8;">Belum ada rincian mengajar siswa.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-</div>
 
-{{-- ── Rincian Log Sesi Mengajar ── --}}
-<div style="background:#fff;border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;">
-    <div style="padding:14px 16px;border-bottom:1px solid #e2e8f0;font-weight:700;font-size:15px;color:#1e293b;">
-        Log Rincian Sesi Kehadiran Terverifikasi
+    {{-- ── Summary KPI Cards ── --}}
+    <div class="kpi-grid">
+        <div class="kpi-card emerald">
+            <div class="kpi-label">Total Take Home Pay</div>
+            <div class="kpi-val">{{ $payroll['formatted_total_honor'] }}</div>
+            <div style="font-size:12px;color:var(--muted,#64748b);margin-top:4px;">Honorarium Terakumulasi</div>
+        </div>
+        <div class="kpi-card blue">
+            <div class="kpi-label">Total Jam Mengajar</div>
+            <div class="kpi-val">{{ $payroll['total_jam'] }} Jam</div>
+            <div style="font-size:12px;color:var(--muted,#64748b);margin-top:4px;">Durasi Sesi Tervalidasi</div>
+        </div>
+        <div class="kpi-card indigo">
+            <div class="kpi-label">Sesi Kehadiran Valid</div>
+            <div class="kpi-val">{{ $payroll['total_sesi_hadir'] }} Sesi</div>
+            <div style="font-size:12px;color:var(--muted,#64748b);margin-top:4px;">Izin/Sakit: {{ $payroll['total_izin_sakit'] }} Hari</div>
+        </div>
     </div>
-    <div style="overflow-x:auto;">
-        <table style="width:100%;border-collapse:collapse;text-align:left;font-size:13px;">
-            <thead>
-                <tr style="background:#f8fafc;color:#475569;border-bottom:1px solid #e2e8f0;">
-                    <th style="padding:10px 14px;">Tanggal</th>
-                    <th style="padding:10px 14px;">Siswa</th>
-                    <th style="padding:10px 14px;">Jam Sesi</th>
-                    <th style="padding:10px 14px;">Durasi</th>
-                    <th style="padding:10px 14px;">Moda</th>
-                    <th style="padding:10px 14px;text-align:right;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($payroll['session_rows'] as $row)
-                <tr style="border-bottom:1px solid #f1f5f9;">
-                    <td style="padding:12px 14px;color:#334155;">{{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}</td>
-                    <td style="padding:12px 14px;font-weight:600;">{{ $row['nama_siswa'] }}</td>
-                    <td style="padding:12px 14px;color:#64748b;">{{ $row['jam_mulai'] }} s/d {{ $row['jam_selesai'] }}</td>
-                    <td style="padding:12px 14px;color:#0284c7;font-weight:600;">{{ $row['durasi_jam'] }} Jam</td>
-                    <td style="padding:12px 14px;color:#475569;">{{ $row['moda_label'] }}</td>
-                    <td style="padding:12px 14px;text-align:right;font-weight:700;color:#059669;">{{ $row['formatted_subtotal'] }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" style="text-align:center;padding:24px;color:#94a3b8;">Belum ada log sesi mengajar.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+
+    {{-- ── Rincian Per Siswa ── --}}
+    <div class="content-box">
+        <div class="content-box-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <ion-icon name="school-outline" style="font-size:18px;color:#0284c7;"></ion-icon>
+                Rincian Honorarium Berdasarkan Tarif Siswa
+            </div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted,#64748b);">
+                {{ count($payroll['siswa_summary']) }} Siswa Diajar
+            </div>
+        </div>
+
+        {{-- Desktop View --}}
+        <div class="table-responsive-desktop" style="overflow-x:auto;">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Nama Siswa</th>
+                        <th style="text-align:center;">Total Sesi</th>
+                        <th style="text-align:center;">Total Jam</th>
+                        <th>Tarif Per Jam</th>
+                        <th style="text-align:right;">Subtotal Honor</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($payroll['siswa_summary'] as $s)
+                    <tr>
+                        <td>
+                            <strong style="color:var(--text,#0f172a);font-size:14px;">{{ $s['nama_siswa'] }}</strong>
+                        </td>
+                        <td style="text-align:center;">{{ $s['total_sesi'] }} kali</td>
+                        <td style="text-align:center;color:#0284c7;font-weight:700;">{{ $s['total_jam'] }} Jam</td>
+                        <td style="color:var(--muted,#475569);font-weight:600;">{{ $s['formatted_tarif'] }} / jam</td>
+                        <td style="text-align:right;font-weight:800;color:#059669;font-size:14px;">{{ $s['formatted_subtotal'] }}</td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" style="text-align:center;padding:30px;color:var(--muted,#94a3b8);">Belum ada rincian mengajar siswa.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        {{-- Mobile Cards --}}
+        <div class="mobile-siswa-cards">
+            @forelse($payroll['siswa_summary'] as $s)
+                <div class="siswa-card-item">
+                    <div class="sci-header">
+                        <div class="sci-name">{{ $s['nama_siswa'] }}</div>
+                        <div class="sci-subtotal">{{ $s['formatted_subtotal'] }}</div>
+                    </div>
+                    <div class="sci-meta">
+                        <div><strong>{{ $s['total_sesi'] }}</strong> Sesi</div>
+                        <div>•</div>
+                        <div style="color:#0284c7;"><strong>{{ $s['total_jam'] }}</strong> Jam</div>
+                        <div>•</div>
+                        <div>{{ $s['formatted_tarif'] }}/jam</div>
+                    </div>
+                </div>
+            @empty
+                <div style="text-align:center;padding:24px;color:var(--muted,#94a3b8);">Belum ada rincian mengajar siswa.</div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- ── Log Rincian Sesi Mengajar ── --}}
+    <div class="content-box">
+        <div class="content-box-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+                <ion-icon name="time-outline" style="font-size:18px;color:#059669;"></ion-icon>
+                Log Sesi Kehadiran Terverifikasi (KBM)
+            </div>
+            <div style="font-size:12px;font-weight:700;color:var(--muted,#64748b);">
+                {{ count($payroll['session_rows']) }} Sesi Masuk
+            </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+            <table class="modern-table">
+                <thead>
+                    <tr>
+                        <th>Tanggal</th>
+                        <th>Siswa</th>
+                        <th>Waktu Mengajar</th>
+                        <th style="text-align:center;">Durasi</th>
+                        <th>Moda Belajar</th>
+                        <th style="text-align:right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($payroll['session_rows'] as $row)
+                    <tr>
+                        <td style="color:var(--text,#1e293b);font-weight:600;white-space:nowrap;">
+                            {{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}
+                        </td>
+                        <td>
+                            <strong style="color:var(--text,#0f172a);">{{ $row['nama_siswa'] }}</strong>
+                        </td>
+                        <td style="color:var(--muted,#64748b);font-size:12px;white-space:nowrap;">
+                            {{ $row['jam_mulai'] }} s/d {{ $row['jam_selesai'] }}
+                        </td>
+                        <td style="text-align:center;color:#0284c7;font-weight:700;">
+                            {{ $row['durasi_jam'] }} Jam
+                        </td>
+                        <td>
+                            <span style="font-size:11px;padding:3px 8px;border-radius:6px;background:var(--card-alt,#f1f5f9);font-weight:700;color:var(--text,#334155);">
+                                {{ $row['moda_label'] }}
+                            </span>
+                        </td>
+                        <td style="text-align:right;font-weight:800;color:#059669;">
+                            {{ $row['formatted_subtotal'] }}
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" style="text-align:center;padding:30px;color:var(--muted,#94a3b8);">Belum ada log sesi mengajar terverifikasi.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 @endsection
