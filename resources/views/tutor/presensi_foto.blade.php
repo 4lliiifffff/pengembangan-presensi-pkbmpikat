@@ -3,6 +3,10 @@
 @section('title', 'Presensi Tutor')
 
 @section('content')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
     @php
         $user = auth()->user();
         $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Tutor'));
@@ -179,18 +183,19 @@
 
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius Geofence
                     </div>
-                    <div class="mapBox" id="mapBox">
-                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat lokasi…</div>
-                        <iframe id="gmapFrame" class="gmapFrame" title="Peta lokasi" loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="display:none;"></iframe>
+                    <div class="mapBox" id="mapBox" style="position:relative;">
+                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
+                        <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
                     </div>
-                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif.</div>
+                    <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ config('lokasi.radius_meter', 100) }} meter.</div>
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
                     </div>
                 </div>
+
 
                 <div class="card">
                     <div class="cardTitle">
@@ -304,18 +309,19 @@
 
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Radius Geofence
                     </div>
-                    <div class="mapBox" id="mapBox">
-                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat lokasi…</div>
-                        <iframe id="gmapFrame" class="gmapFrame" title="Peta lokasi" loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="display:none;"></iframe>
+                    <div class="mapBox" id="mapBox" style="position:relative;">
+                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
+                        <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
                     </div>
-                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif.</div>
+                    <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ config('lokasi.radius_meter', 100) }} meter.</div>
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
                     </div>
                 </div>
+
 
                 <div class="card">
                     <div class="cardTitle">
@@ -489,44 +495,151 @@
             @endif
         });
 
-        /* ══════════════════ MAP ══════════════════ */
+        /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */
+        const GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
+        const GEOFENCE_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
+        const GEOFENCE_RADIUS = {{ config('lokasi.radius_meter', 100) }};
+        const GEOFENCE_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
+
+        let leafletMap = null;
+        let geofenceCircle = null;
+        let sekolahMarker = null;
+        let tutorMarker = null;
+
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function initLeafletMap() {
+            var mapEl = document.getElementById('leafletMap');
+            if (!mapEl || leafletMap || typeof L === 'undefined') return;
+
+            mapEl.style.display = 'block';
+
+            leafletMap = L.map('leafletMap').setView([GEOFENCE_LAT, GEOFENCE_LNG], 17);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(leafletMap);
+
+            // Marker Sekolah (Merah)
+            var redIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            sekolahMarker = L.marker([GEOFENCE_LAT, GEOFENCE_LNG], { icon: redIcon }).addTo(leafletMap);
+            sekolahMarker.bindPopup('<b>🏢 ' + GEOFENCE_NAMA + '</b><br>Titik Pusat Geofence Radius (' + GEOFENCE_RADIUS + ' meter)');
+
+            // Lingkaran Toleransi Radius Geofence
+            geofenceCircle = L.circle([GEOFENCE_LAT, GEOFENCE_LNG], {
+                color: '#0284c7',
+                fillColor: '#38bdf8',
+                fillOpacity: 0.25,
+                radius: GEOFENCE_RADIUS
+            }).addTo(leafletMap);
+        }
+
         function setMapFromLatLng(lat, lng) {
             var lokasiEl = document.getElementById('lokasi');
-            var frame = document.getElementById('gmapFrame');
             var ph = document.getElementById('mapPlaceholder');
             var hint = document.getElementById('mapHint');
-            if (!lokasiEl || !frame) return;
-            lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
-            var q = encodeURIComponent(lat + ',' + lng);
-            frame.src = 'https://www.google.com/maps?q=' + q + '&z=17&hl=id&output=embed';
-            frame.style.display = 'block';
+            var badge = document.getElementById('geofenceBadge');
+
+            if (lokasiEl) {
+                lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
+            }
+
+            initLeafletMap();
+
             if (ph) ph.classList.add('hidden');
-            if (hint) hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — Google Maps';
+
+            if (leafletMap) {
+                var dist = haversineDistance(lat, lng, GEOFENCE_LAT, GEOFENCE_LNG);
+                var distFormatted = dist.toFixed(1);
+
+                // Marker Tutor (Biru)
+                var blueIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+
+                if (tutorMarker) {
+                    tutorMarker.setLatLng([lat, lng]);
+                } else {
+                    tutorMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(leafletMap);
+                }
+                tutorMarker.bindPopup('<b>📍 Lokasi Anda Saat Ini</b><br>Jarak ke ' + GEOFENCE_NAMA + ': ' + distFormatted + ' meter');
+
+                // Zoom fit agar titik sekolah dan posisi tutor terlihat bersamaan
+                var bounds = L.latLngBounds([[GEOFENCE_LAT, GEOFENCE_LNG], [lat, lng]]);
+                leafletMap.fitBounds(bounds, { padding: [35, 35] });
+
+                // Update status badge & warna lingkaran radius
+                var selectModa = document.getElementById('selectModa');
+                var isSekolahModa = !selectModa || selectModa.value === 'sekolah';
+
+                if (badge) {
+                    badge.style.display = 'block';
+                    if (dist <= GEOFENCE_RADIUS) {
+                        geofenceCircle.setStyle({ color: '#16a34a', fillColor: '#4ade80', fillOpacity: 0.3 });
+                        badge.style.background = 'rgba(22, 163, 74, 0.12)';
+                        badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
+                        badge.style.color = '#15803d';
+                        badge.innerHTML = '🟢 <b>Di Dalam Radius Sekolah</b> (' + distFormatted + ' m dari ' + GEOFENCE_NAMA + ' — Maks: ' + GEOFENCE_RADIUS + 'm)';
+                    } else if (isSekolahModa) {
+                        geofenceCircle.setStyle({ color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.3 });
+                        badge.style.background = 'rgba(220, 38, 38, 0.12)';
+                        badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
+                        badge.style.color = '#dc2626';
+                        badge.innerHTML = '🔴 <b>Di Luar Radius Sekolah</b> (' + distFormatted + ' m dari ' + GEOFENCE_NAMA + ' — Maks: ' + GEOFENCE_RADIUS + 'm)';
+                    } else {
+                        geofenceCircle.setStyle({ color: '#0284c7', fillColor: '#38bdf8', fillOpacity: 0.2 });
+                        badge.style.background = 'rgba(2, 132, 199, 0.12)';
+                        badge.style.border = '1px solid rgba(2, 132, 199, 0.35)';
+                        badge.style.color = '#0369a1';
+                        badge.innerHTML = 'ℹ️ <b>Bypass Radius (Moda Non-Sekolah)</b> — Jarak dari sekolah: ' + distFormatted + ' m';
+                    }
+                }
+
+                if (hint) {
+                    hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' (Jarak: ' + distFormatted + 'm dari ' + GEOFENCE_NAMA + ')';
+                }
+            }
         }
 
         function refreshLocation() {
             var ph = document.getElementById('mapPlaceholder');
-            var frame = document.getElementById('gmapFrame');
-            if (!ph || !frame) return;
+            if (!ph) return;
             if (!navigator.geolocation) {
                 ph.textContent = 'Geolocation tidak didukung.';
                 return;
             }
             ph.classList.remove('hidden');
-            ph.textContent = 'Mencari lokasi…';
-            frame.style.display = 'none';
+            ph.textContent = 'Mencari lokasi GPS…';
             navigator.geolocation.getCurrentPosition(
                 function(pos) {
                     // Deteksi heuristik Fake GPS
-                    // Aplikasi Fake GPS sering mengirimkan altitude 0, speed 0, heading 0, atau akurasi yang sangat bulat/sempurna
                     var isFake = false;
-                    
-                    // Property 'mocked' kadang disuntikkan oleh beberapa WebView Android
                     if (pos.coords.mocked === true) {
                         isFake = true;
-                    } 
-                    // Cek nilai yang dicurigai sebagai hasil dari aplikasi Mock Location
-                    else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
+                    } else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
                         isFake = true;
                     }
                     
@@ -549,6 +662,7 @@
                 }
             );
         }
+
 
         /* ══════════════════ CAMERA ══════════════════ */
         let mediaStream = null;

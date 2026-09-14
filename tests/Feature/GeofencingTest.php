@@ -64,9 +64,10 @@ class GeofencingTest extends TestCase
             'nama_wali' => 'Wali Geofence',
         ]);
 
-        // Titik sekolah PKBM Pikat: -7.8011945, 110.364917
-        // Koordinat tutor ~20m dari sekolah
-        $lokasiValid = '-7.801300,110.364917';
+        // Titik sekolah PKBM Pikat dari config
+        $lat = config('lokasi.sekolah_lat', -7.8011945);
+        $lng = config('lokasi.sekolah_lng', 110.364917);
+        $lokasiValid = $lat.','.$lng;
 
         $response = $this->actingAs($user)->post(route('tutor.presensi.store'), [
             'siswa_id' => [$siswa->id],
