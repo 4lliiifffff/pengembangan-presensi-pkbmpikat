@@ -1,6 +1,19 @@
 @extends('layouts.presensi')
 
-@section('title', 'Presensi Tutor')
+@php
+    $roleTitle = match ($user?->role) {
+        'admin' => 'Presensi Admin',
+        'kepala_sekolah' => 'Presensi Kepala Sekolah',
+        default => 'Presensi Karyawan',
+    };
+@endphp
+
+@section('title', $roleTitle)
+
+@push('head')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
 
 @section('content')
     @php
@@ -54,7 +67,7 @@
             </div>
             <div>
                 <div class="headName">{{ $displayName }}</div>
-                <div class="headSub">Presensi • {{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</div>
+                <div class="headSub">{{ $roleTitle }} • {{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</div>
             </div>
         </div>
         <div style="display: flex; align-items: center; gap: 8px;">
@@ -78,8 +91,8 @@
             <div style="font-size:11px; color:#b45309; margin-top:2px;" id="permWarnDesc">Kamera dan lokasi diperlukan untuk absen.</div>
         </div>
         <button onclick="checkPermissions()" style="border:none; background:#f59e0b; color:#fff; border-radius:10px;
-            padding:7px 12px; font-size:11px; font-weight:900; cursor:pointer; white-space:nowrap;">
-            🔄 Coba Lagi
+            padding:7px 12px; font-size:11px; font-weight:900; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
+            <ion-icon name="refresh-outline" style="font-size:14px;"></ion-icon> Coba Lagi
         </button>
     </div>
 
@@ -107,7 +120,7 @@
                     @endphp
                     <div style="padding:8px 0; border-bottom:1px solid #f1f5f9;">
                         <div style="font-size:12px; font-weight:900; color:#0f172a;">
-                            Presensi Karyawan</div>
+                            {{ $roleTitle }}</div>
                         <div style="font-size:11px; color:#64748b;">{{ $jm }} - {{ $js }}
                             ({{ $durLabel }})
                         </div>
@@ -178,17 +191,19 @@
                 @csrf
                 <input type="hidden" name="mode" value="selesai">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
+                <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
+                <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius Geofence
                     </div>
-                    <div class="mapBox" id="mapBox">
-                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat lokasi…</div>
-                        <iframe id="gmapFrame" class="gmapFrame" title="Peta lokasi" loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="display:none;"></iframe>
+                    <div class="mapBox" id="mapBox" style="position:relative;">
+                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
+                        <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
                     </div>
-                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif.</div>
+                    <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ config('lokasi.radius_meter', 100) }} meter.</div>
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
                     </div>
@@ -198,13 +213,44 @@
                     <div class="cardTitle">
                         <ion-icon name="camera-outline"></ion-icon>Foto Presensi Pulang
                     </div>
-                    <div class="photoFrame">
+                    <div class="photoFrame" style="position:relative; overflow:hidden;">
                         <video id="videoPreview" playsinline muted></video>
                         <img id="previewImg" alt="Preview foto" />
+
+                        {{-- Grid Overlay --}}
+                        <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                            <div class="gridBox">
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                            </div>
+                        </div>
+
+                        {{-- Floating Camera Toolbar Overlay --}}
+                        <div id="camControlBar" class="camControlBar" style="display:none;">
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                    <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                    <ion-icon name="camera-reverse-outline"></ion-icon> Switch
+                                </button>
+                            </div>
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                    <ion-icon name="grid-outline"></ion-icon> Grid
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                    <ion-icon name="flash-outline"></ion-icon> Flash
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="photoPlaceholder" id="placeholder">
                             Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Selesai</b>.
                         </div>
                     </div>
+
                     <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                     <div class="camActions" id="camActions">
                         <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
@@ -230,8 +276,8 @@
                     </button>
 
                     @if (!$bisaPulang)
-                        <div class="hint" style="color:#d97706;">
-                            ⏳ Tombol aktif setelah {{ number_format($sisaDetik / 60, 0) }} menit lagi
+                        <div class="hint" style="color:#d97706; display:flex; align-items:center; justify-content:center; gap:4px;">
+                            <ion-icon name="time-outline" style="font-size:16px;"></ion-icon> Tombol aktif setelah {{ number_format($sisaDetik / 60, 0) }} menit lagi
                             (minimal 1 jam setelah masuk).
                         </div>
                     @else
@@ -245,7 +291,7 @@
             @else
                 {{-- Belum 1 jam: tampilkan info saja, tanpa form --}}
                 <div class="card" style="text-align:center; padding:20px;">
-                    <div style="font-size:32px; margin-bottom:8px;">⏳</div>
+                    <div style="font-size:32px; margin-bottom:8px; color:var(--primary);"><ion-icon name="time-outline"></ion-icon></div>
                     <div style="font-size:13px; font-weight:900; color:#d97706;">Form absen pulang muncul setelah 1 jam</div>
                     <div style="font-size:11px; color:#64748b; margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi</div>
                 </div>
@@ -269,17 +315,19 @@
                 @csrf
                 <input type="hidden" name="mode" value="mulai">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
+                <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
+                <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Radius Geofence
                     </div>
-                    <div class="mapBox" id="mapBox">
-                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat lokasi…</div>
-                        <iframe id="gmapFrame" class="gmapFrame" title="Peta lokasi" loading="lazy"
-                            referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="display:none;"></iframe>
+                    <div class="mapBox" id="mapBox" style="position:relative;">
+                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
+                        <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
                     </div>
-                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif.</div>
+                    <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ config('lokasi.radius_meter', 100) }} meter.</div>
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
                     </div>
@@ -289,13 +337,44 @@
                     <div class="cardTitle">
                         <ion-icon name="camera-outline"></ion-icon>Foto Presensi Masuk
                     </div>
-                    <div class="photoFrame">
+                    <div class="photoFrame" style="position:relative; overflow:hidden;">
                         <video id="videoPreview" playsinline muted></video>
                         <img id="previewImg" alt="Preview foto" />
+
+                        {{-- Grid Overlay --}}
+                        <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                            <div class="gridBox">
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                            </div>
+                        </div>
+
+                        {{-- Floating Camera Toolbar Overlay --}}
+                        <div id="camControlBar" class="camControlBar" style="display:none;">
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                    <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                    <ion-icon name="camera-reverse-outline"></ion-icon> Switch
+                                </button>
+                            </div>
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                    <ion-icon name="grid-outline"></ion-icon> Grid
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                    <ion-icon name="flash-outline"></ion-icon> Flash
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="photoPlaceholder" id="placeholder">
                             Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Absen</b>.
                         </div>
                     </div>
+
                     <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                     <div class="camActions" id="camActions">
                         <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
@@ -457,44 +536,158 @@
             @endif
         });
 
-        /* ══════════════════ MAP ══════════════════ */
+        /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */
+        const GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
+        const GEOFENCE_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
+        const GEOFENCE_RADIUS = {{ config('lokasi.radius_meter', 100) }};
+        const GEOFENCE_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
+
+        let leafletMap = null;
+        let geofenceCircle = null;
+        let sekolahMarker = null;
+        let karyawanMarker = null;
+
+        function haversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function initLeafletMap() {
+            var mapEl = document.getElementById('leafletMap');
+            if (!mapEl || leafletMap || typeof L === 'undefined') return;
+
+            mapEl.style.display = 'block';
+
+            leafletMap = L.map('leafletMap').setView([GEOFENCE_LAT, GEOFENCE_LNG], 17);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(leafletMap);
+
+            // Marker Sekolah (Merah)
+            var redIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            sekolahMarker = L.marker([GEOFENCE_LAT, GEOFENCE_LNG], { icon: redIcon }).addTo(leafletMap);
+            sekolahMarker.bindPopup('<b>' + GEOFENCE_NAMA + '</b><br>Titik Pusat Geofence Radius (' + GEOFENCE_RADIUS + ' meter)');
+
+            // Lingkaran Toleransi Radius Geofence
+            geofenceCircle = L.circle([GEOFENCE_LAT, GEOFENCE_LNG], {
+                color: '#0284c7',
+                fillColor: '#38bdf8',
+                fillOpacity: 0.25,
+                radius: GEOFENCE_RADIUS
+            }).addTo(leafletMap);
+        }
+
         function setMapFromLatLng(lat, lng) {
             var lokasiEl = document.getElementById('lokasi');
-            var frame = document.getElementById('gmapFrame');
             var ph = document.getElementById('mapPlaceholder');
             var hint = document.getElementById('mapHint');
-            if (!lokasiEl || !frame) return;
-            lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
-            var q = encodeURIComponent(lat + ',' + lng);
-            frame.src = 'https://www.google.com/maps?q=' + q + '&z=17&hl=id&output=embed';
-            frame.style.display = 'block';
+            var badge = document.getElementById('geofenceBadge');
+
+            if (lokasiEl) {
+                lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
+            }
+
+            initLeafletMap();
+
             if (ph) ph.classList.add('hidden');
-            if (hint) hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' — Google Maps';
+
+            if (leafletMap) {
+                var dist = haversineDistance(lat, lng, GEOFENCE_LAT, GEOFENCE_LNG);
+                var distFormatted = dist.toFixed(1);
+
+                // Marker Karyawan (Biru)
+                var blueIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+
+                if (karyawanMarker) {
+                    karyawanMarker.setLatLng([lat, lng]);
+                } else {
+                    karyawanMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(leafletMap);
+                }
+                karyawanMarker.bindPopup('<b>Lokasi Anda Saat Ini</b><br>Jarak ke ' + GEOFENCE_NAMA + ': ' + distFormatted + ' meter');
+
+                // Zoom fit agar titik sekolah dan posisi terlihat bersamaan
+                var bounds = L.latLngBounds([[GEOFENCE_LAT, GEOFENCE_LNG], [lat, lng]]);
+                leafletMap.fitBounds(bounds, { padding: [35, 35] });
+
+                if (badge) {
+                    badge.style.display = 'block';
+                    if (dist <= GEOFENCE_RADIUS) {
+                        geofenceCircle.setStyle({ color: '#16a34a', fillColor: '#4ade80', fillOpacity: 0.3 });
+                        badge.style.background = 'rgba(22, 163, 74, 0.12)';
+                        badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
+                        badge.style.color = '#15803d';
+                        badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;"><ion-icon name="checkmark-circle-outline"></ion-icon> <b>Di Dalam Radius Sekolah</b> (' + distFormatted + ' m dari ' + GEOFENCE_NAMA + ' — Maks: ' + GEOFENCE_RADIUS + 'm)</span>';
+                    } else {
+                        geofenceCircle.setStyle({ color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.3 });
+                        badge.style.background = 'rgba(220, 38, 38, 0.12)';
+                        badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
+                        badge.style.color = '#dc2626';
+                        badge.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;"><ion-icon name="close-circle-outline"></ion-icon> <b>Di Luar Radius Sekolah</b> (' + distFormatted + ' m dari ' + GEOFENCE_NAMA + ' — Maks: ' + GEOFENCE_RADIUS + 'm)</span>';
+                    }
+                }
+
+                if (hint) {
+                    hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' (Jarak: ' + distFormatted + 'm dari ' + GEOFENCE_NAMA + ')';
+                }
+            }
         }
 
         function refreshLocation() {
             var ph = document.getElementById('mapPlaceholder');
-            var frame = document.getElementById('gmapFrame');
-            if (!ph || !frame) return;
+            if (!ph) return;
             if (!navigator.geolocation) {
                 ph.textContent = 'Geolocation tidak didukung.';
                 return;
             }
             ph.classList.remove('hidden');
-            ph.textContent = 'Mencari lokasi…';
-            frame.style.display = 'none';
+            ph.textContent = 'Mencari lokasi GPS…';
             navigator.geolocation.getCurrentPosition(
                 function(pos) {
                     var isFake = false;
+                    var accuracy = pos.coords.accuracy || 0;
+
+                    // Simpan data akurasi & mock location ke hidden input form
+                    var akurasiEls = document.querySelectorAll('input[name="lokasi_akurasi"]');
+                    var mockEls = document.querySelectorAll('input[name="is_mock_location"]');
+
+                    akurasiEls.forEach(function(el) { el.value = accuracy; });
+
+                    // Deteksi heuristik Fake GPS
                     if (pos.coords.mocked === true) {
                         isFake = true;
-                    } 
-                    else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
+                    } else if (accuracy === 0) {
+                        isFake = true;
+                    } else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
                         isFake = true;
                     }
+
+                    mockEls.forEach(function(el) { el.value = isFake ? '1' : '0'; });
                     
                     if (isFake) {
-                        ph.textContent = 'Terdeteksi penggunaan Fake GPS. Matikan aplikasi Fake GPS Anda!';
+                        ph.textContent = 'Terdeteksi penggunaan Fake GPS / Mock Location. Matikan aplikasi Fake GPS Anda!';
                         ph.style.color = '#ef4444';
                         alert('Peringatan: Sistem mendeteksi kemungkinan penggunaan aplikasi Fake GPS atau Mock Location. Harap matikan aplikasi tersebut untuk dapat melanjutkan presensi.');
                         return;
@@ -504,7 +697,7 @@
                     setMapFromLatLng(pos.coords.latitude, pos.coords.longitude);
                 },
                 function() {
-                    ph.textContent = 'Gagal mengambil lokasi.';
+                    ph.textContent = 'Gagal mengambil lokasi. Pastikan izin GPS aktif.';
                 }, {
                     enableHighAccuracy: true,
                     timeout: 12000,
@@ -513,49 +706,157 @@
             );
         }
 
-        /* ══════════════════ CAMERA ══════════════════ */
+        /* ══════════════════ ADVANCED CAMERA CONTROLS ══════════════════ */
         let mediaStream = null;
+        let currentFacingMode = 'user'; // 'user' (depan) atau 'environment' (belakang)
+        let isMirrored = true;          // default mirror kamera depan
+        let isGridActive = false;
+        let isTorchOn = false;
+
+        function updateCameraTransform() {
+            var video = document.getElementById('videoPreview');
+            if (video) {
+                video.style.transform = isMirrored ? 'scaleX(-1)' : 'scaleX(1)';
+            }
+            var btnMirror = document.getElementById('btnToggleMirror');
+            if (btnMirror) {
+                if (isMirrored) {
+                    btnMirror.classList.add('active');
+                } else {
+                    btnMirror.classList.remove('active');
+                }
+            }
+        }
+
+        function toggleCameraMirror() {
+            isMirrored = !isMirrored;
+            updateCameraTransform();
+        }
+
+        function toggleCameraGrid() {
+            isGridActive = !isGridActive;
+            var gridEl = document.getElementById('cameraGrid');
+            var btnGrid = document.getElementById('btnToggleGrid');
+            if (gridEl) {
+                gridEl.style.display = isGridActive ? 'block' : 'none';
+            }
+            if (btnGrid) {
+                if (isGridActive) {
+                    btnGrid.classList.add('active');
+                } else {
+                    btnGrid.classList.remove('active');
+                }
+            }
+        }
+
+        function toggleCameraTorch() {
+            if (!mediaStream) return;
+            var videoTrack = mediaStream.getVideoTracks()[0];
+            if (!videoTrack) return;
+
+            var btnTorch = document.getElementById('btnToggleTorch');
+
+            isTorchOn = !isTorchOn;
+            videoTrack.applyConstraints({
+                advanced: [{ torch: isTorchOn }]
+            }).then(function() {
+                if (btnTorch) {
+                    if (isTorchOn) {
+                        btnTorch.classList.add('active');
+                    } else {
+                        btnTorch.classList.remove('active');
+                    }
+                }
+            }).catch(function(err) {
+                console.log('Flash/Torch error or not supported:', err);
+                isTorchOn = false;
+                if (btnTorch) btnTorch.classList.remove('active');
+            });
+        }
+
+        function checkTorchSupport() {
+            var btnTorch = document.getElementById('btnToggleTorch');
+            if (!btnTorch) return;
+            if (!mediaStream) {
+                btnTorch.style.display = 'none';
+                return;
+            }
+            var videoTrack = mediaStream.getVideoTracks()[0];
+            if (videoTrack && typeof videoTrack.getCapabilities === 'function') {
+                var capabilities = videoTrack.getCapabilities();
+                if (capabilities.torch) {
+                    btnTorch.style.display = 'inline-flex';
+                    return;
+                }
+            }
+            btnTorch.style.display = 'none';
+        }
+
+        function switchCameraFacing() {
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            
+            // Kamera belakang secara alami tidak di-mirror
+            isMirrored = (currentFacingMode === 'user');
+
+            var btnSwitch = document.getElementById('btnToggleSwitch');
+            if (btnSwitch) {
+                if (currentFacingMode === 'environment') {
+                    btnSwitch.classList.add('active');
+                } else {
+                    btnSwitch.classList.remove('active');
+                }
+            }
+
+            if (mediaStream) {
+                stopCameraStream();
+                openLiveCamera();
+            }
+        }
 
         function openLiveCamera() {
-
             if (!navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
                 alert('Peramban tidak mendukung kamera langsung. Gunakan Chrome/Safari terbaru.');
                 return;
             }
+
             var video = document.getElementById('videoPreview');
             var tryCamera = function() {
                 return navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: {
-                                ideal: 'user'
-                            },
-                            width: {
-                                ideal: 1280
-                            },
-                            height: {
-                                ideal: 720
-                            }
-                        },
+                    video: {
+                        facingMode: { ideal: currentFacingMode },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                }).catch(function() {
+                    return navigator.mediaDevices.getUserMedia({
+                        video: true,
                         audio: false
-                    })
-                    .catch(function() {
-                        return navigator.mediaDevices.getUserMedia({
-                            video: true,
-                            audio: false
-                        });
                     });
+                });
             };
+
             tryCamera().then(function(stream) {
                 mediaStream = stream;
                 video.srcObject = stream;
                 video.classList.add('active');
+                
+                updateCameraTransform();
+                checkTorchSupport();
+
                 document.getElementById('placeholder').classList.add('hidden');
+                
+                var bar = document.getElementById('camControlBar');
+                if (bar) bar.style.display = 'flex';
+
                 var img = document.getElementById('previewImg');
                 img.classList.remove('visible');
                 img.removeAttribute('src');
+
                 document.getElementById('btnBukaKamera').style.display = 'none';
                 document.getElementById('camRowStreaming').style.display = 'flex';
                 document.getElementById('btnUlangi').style.display = 'none';
+
                 return video.play();
             }).catch(function(err) {
                 alert('Tidak bisa membuka kamera: ' + (err && err.message ? err.message : 'izin ditolak.'));
@@ -571,6 +872,8 @@
             }
             var video = document.getElementById('videoPreview');
             if (video) video.srcObject = null;
+            var bar = document.getElementById('camControlBar');
+            if (bar) bar.style.display = 'none';
         }
 
         function cancelCamera() {
@@ -590,10 +893,20 @@
                 alert('Kamera belum siap, tunggu sebentar.');
                 return;
             }
+
             var canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            var ctx = canvas.getContext('2d');
+
+            // Tangkap gambar dengan memperhatikan status mirror
+            if (isMirrored) {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            ctx.drawImage(video, 0, 0);
+
             canvas.toBlob(function(blob) {
                 if (!blob) {
                     alert('Gagal membuat gambar.');
@@ -610,22 +923,20 @@
                     alert('Coba Chrome/Safari terbaru.');
                     return;
                 }
+
                 var url = URL.createObjectURL(blob);
                 var img = document.getElementById('previewImg');
                 img.src = url;
                 img.classList.add('visible');
+
                 stopCameraStream();
+
                 document.getElementById('videoPreview').classList.remove('active');
                 document.getElementById('camRowStreaming').style.display = 'none';
                 document.getElementById('btnBukaKamera').style.display = 'none';
                 document.getElementById('btnUlangi').style.display = 'flex';
                 document.getElementById('placeholder').classList.add('hidden');
 
-                // Aktifkan tombol submit pulang jika sudah bisa pulang
-                var submitBtn = document.getElementById('btnSubmit');
-                if (submitBtn && submitBtn.disabled) {
-                    // jangan aktifkan — pulang belum boleh
-                }
             }, 'image/jpeg', 0.88);
         }
 
@@ -650,5 +961,4 @@
             });
         }
     </script>
-
 @endsection

@@ -2,9 +2,12 @@
 
 @section('title', 'Presensi Tutor')
 
-@section('content')
+@push('head')
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
+
+@section('content')
 
 
     @php
@@ -37,6 +40,16 @@
 
         // Mode otomatis: mulai (belum/sudah selesai) atau selesai (sedang berjalan)
         $autoMode = $activeSesi ? 'selesai' : 'mulai';
+        $dashRoute = match ($user?->role) {
+            'admin' => route('admin.dashboard'),
+            'kepala_sekolah' => route('kepsek.dashboard'),
+            default => route('tutor.dashboard'),
+        };
+        $storeRoute = match ($user?->role) {
+            'admin' => route('admin.presensi.store'),
+            'kepala_sekolah' => route('kepsek.presensi.store'),
+            default => route('tutor.presensi.store'),
+        };
         $adminWa = config('app.admin_wa', '6281234567890');
     @endphp
 
@@ -60,7 +73,7 @@
             <button class="theme-btn" type="button" aria-label="Tema" id="themeToggleBtn">
                 <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
             </button>
-            <a href="{{ route('tutor.dashboard') }}" class="badge" style="text-decoration:none;">
+            <a href="{{ $dashRoute }}" class="badge" style="text-decoration:none;">
                 <ion-icon name="grid-outline"></ion-icon>
                 Dashboard
             </a>
@@ -77,8 +90,8 @@
             <div style="font-size:11px; color:#b45309; margin-top:2px;" id="permWarnDesc">Kamera dan lokasi diperlukan untuk absen.</div>
         </div>
         <button onclick="checkPermissions()" style="border:none; background:#f59e0b; color:#fff; border-radius:10px;
-            padding:7px 12px; font-size:11px; font-weight:900; cursor:pointer; white-space:nowrap;">
-            🔄 Coba Lagi
+            padding:7px 12px; font-size:11px; font-weight:900; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
+            <ion-icon name="refresh-outline" style="font-size:14px;"></ion-icon> Coba Lagi
         </button>
     </div>
 
@@ -174,7 +187,7 @@
 
             {{-- Form absen PULANG: hanya tampil jika sudah bisa pulang --}}
             @if ($bisaPulang)
-            <form method="POST" action="{{ route('tutor.presensi.store') }}" enctype="multipart/form-data"
+            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data"
                 id="presensiForm">
                 @csrf
                 <input type="hidden" name="mode" value="selesai">
@@ -269,8 +282,8 @@
                     </button>
 
                     @if (!$bisaPulang)
-                        <div class="hint" style="color:#d97706;">
-                            ⏳ Tombol aktif setelah {{ number_format($sisaDetik / 60, 0) }} menit lagi
+                        <div class="hint" style="color:#d97706; display:flex; align-items:center; justify-content:center; gap:4px;">
+                            <ion-icon name="time-outline" style="font-size:16px;"></ion-icon> Tombol aktif setelah {{ number_format($sisaDetik / 60, 0) }} menit lagi
                             (minimal 1 jam setelah masuk).
                         </div>
                     @else
@@ -284,7 +297,7 @@
             @else
                 {{-- Belum 1 jam: tampilkan info saja, tanpa form --}}
                 <div class="card" style="text-align:center; padding:20px;">
-                    <div style="font-size:32px; margin-bottom:8px;">⏳</div>
+                    <div style="font-size:32px; margin-bottom:8px; color:var(--primary);"><ion-icon name="time-outline"></ion-icon></div>
                     <div style="font-size:13px; font-weight:900; color:#d97706;">Form absen pulang muncul setelah 1 jam</div>
                     <div style="font-size:11px; color:#64748b; margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi</div>
                 </div>
@@ -303,7 +316,7 @@
             </div>
 
             {{-- Form absen MASUK (tombol "Mulai") --}}
-            <form method="POST" action="{{ route('tutor.presensi.store') }}" enctype="multipart/form-data"
+            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data"
                 id="presensiForm">
                 @csrf
                 <input type="hidden" name="mode" value="mulai">
@@ -315,9 +328,9 @@
                 <div style="margin-bottom:12px;">
                     <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:var(--text);">Moda Pembelajaran <span style="color:#ef4444;">*</span></div>
                     <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);" onchange="toggleModaDaring(this.value)">
-                        <option value="sekolah">🏢 Sekolah (Tatap Muka di Gedung PKBM Pikat)</option>
-                        <option value="kunjungan_rumah">🏡 Kunjungan Rumah (Home Visit / Les Privat)</option>
-                        <option value="online">💻 Pembelajaran Online (Daring via Zoom/GMeet/WA)</option>
+                        <option value="sekolah">Sekolah (Tatap Muka di Gedung PKBM Pikat)</option>
+                        <option value="kunjungan_rumah">Kunjungan Rumah (Home Visit / Les Privat)</option>
+                        <option value="online">Pembelajaran Online (Daring via Zoom/GMeet/WA)</option>
                     </select>
                 </div>
 
@@ -334,7 +347,7 @@
                                 $p = collect($presensiToday)->get($siswa->id);
                                 $badge = '';
                                 if ($p?->foto_mulai && !$p?->foto_selesai) {
-                                    $badge = ' <span style="color:#d97706; font-size:10px;">(⏳ Berjalan)</span>';
+                                    $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
                                 }
                                 $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
                             @endphp
@@ -457,7 +470,7 @@
 
             // Tampilkan alert JS native. Saat diklik OK, redirect ke dashboard
             alert("Akses Ditolak\n\n" + msg.replace(/<[^>]+>/g, '')); // hapus tag html untuk alert
-            window.location.href = '{{ route('tutor.dashboard') }}';
+            window.location.href = '{{ $dashRoute }}';
         }
 
         function showMainContent() {
