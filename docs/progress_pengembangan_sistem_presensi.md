@@ -1,8 +1,8 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
 **Tanggal Pembaruan:** 14 September 2026  
-**Status Proyek:** Fase 1 (Keamanan, Infrastruktur & Fondasi Sistem)  
-**Versi Framework:** Laravel 12.52.0 (PHP 8.5.1)  
+**Status Proyek:** Fase 1 (Keamanan, Infrastruktur, Standardisasi & Fondasi Sistem)  
+**Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,52 +11,61 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 6
+    "Selesai (Completed)" : 12
     "Dalam Proses (In Progress)" : 2
-    "Belum Dimulai (Pending)" : 14
+    "Belum Dimulai (Pending)" : 16
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
-| 1. Keamanan & Infrastruktur | 5 | 2 | 1 | 2 |
-| 2. Core Presensi & Validasi | 7 | 0 | 1 | 6 |
+| 1. Keamanan & Infrastruktur | 5 | 3 | 0 | 2 |
+| 2. Core Presensi & Validasi | 7 | 1 | 1 | 5 |
 | 3. Payroll & Honorarium | 4 | 0 | 0 | 4 |
 | 4. Integrasi & Notifikasi | 4 | 0 | 0 | 4 |
 | 5. Executive Dashboard | 3 | 0 | 0 | 3 |
-| 6. Codebase & Testing | 3 | 1 | 1 | 1 |
-| **Tambahan (Di Luar Roadmap)** | **5** | **5** | **0** | **0** |
+| 6. Codebase, Standardisasi & QA | 6 | 5 | 1 | 0 |
+| **Tambahan (Infrastruktur Teknis)** | **3** | **3** | **0** | **0** |
 
 ---
 
 ## 🚀 1. DETAIL PROGRESS BERDASARKAN ROADMAP PENGEMBANGAN
 
 ### 1. Keamanan, Infrastruktur & Performa (System Hardening)
-- 🟢 **1.1 (Partial) Perbaikan Deprecation Warning PHP 8.5**
+- 🟢 **1.1 Perbaikan Deprecation Warning PHP 8.5**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Memperbarui `config/database.php` pada opsi koneksi `mysql` dan `mariadb` menggunakan pengecekan dinamis `(defined('Pdo\Mysql::ATTR_SSL_CA') ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)` untuk menggantikan konstanta `PDO::MYSQL_ATTR_SSL_CA` yang *deprecated* di PHP 8.5.
-- 🟢 **1.2 (Partial) Pembersihan Log & Pengamanan File Server**
+- 🟢 **1.2 Pembersihan Log & Pengamanan File Server**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Membuang file `error_log` liar bawaan server Apache/CPanel dari seluruh sub-direktori proyek dan memperbarui `.gitignore` agar tidak melacak file log/temporary.
-- ⚪ **1.1 Rate Limiting Login**
+  - **Rincian Implementasi:** Membuang file `error_log` liar bawaan server Apache/cPanel dari seluruh sub-direktori proyek dan memperbarui `.gitignore` agar tidak melacak file log/temporary.
+- 🟢 **1.3 Perbaikan Environment Server Worker & Configuration**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Mengatur `PHP_CLI_SERVER_WORKERS=1` dan memperbarui `APP_URL=http://localhost` pada file `.env` untuk memastikan pengujian rute HTTP dan server reloader berjalan lancar.
+- ⚪ **1.4 Rate Limiting Login**
   - **Status:** *Pending* (Rencana penerapan Laravel `RateLimiter` pada rute autentikasi).
-- ⚪ **1.1 Secure Storage Foto Presensi (Private Storage & Signed URLs)**
-  - **Status:** *Pending* (Rencana pemindahan lokasi foto dari `public/uploads/` ke `storage/app/private/`).
-- ⚪ **1.2 Script Deployment Otomatis (CI/CD Pipeline)**
+- ⚪ **1.5 Secure Storage Foto Presensi (Private Storage & Signed URLs)**
+  - **Status:** *Pending* (Rencana pemindahan foto presensi sensitif ke `storage/app/private/` dengan akses URL bertanda tangan).
+- ⚪ **1.6 Script Deployment Otomatis (CI/CD Pipeline)**
   - **Status:** *Pending* (Rencana setup GitHub Actions workflow).
 
 ---
 
 ### 2. Pengembangan Fitur Inti Presensi (Attendance Core Enhancement)
-- 🟡 **2.3 Workflow Digital Lupa Lapor (Approval Kepala Sekolah)**
-  - **Status:** **DALAM PROSES (Struktur awal disalin dari baseline)**
+- 🟢 **2.1 Standardisasi Storage Abstraction & Management Foto Presensi**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** 
+    - Mengabstraksi seluruh controller upload foto (`ProfileController`, `KaryawanController`, `PresensiFotoController`, `KaryawanPresensiController`) menggunakan Laravel `Storage::disk('public')->putFileAs()`.
+    - Memindahkan seluruh foto legacy dari `public/uploads/` ke `storage/app/public/uploads/` dan menghapus direktori `public/uploads/` sepenuhnya dari web root.
+    - Menambahkan Eloquent Accessors (`$user->foto_url`, `$presensi->foto_mulai_url`, `$presensi->foto_selesai_url`) pada model `User`, `Presensi`, dan `PresensiKaryawan` untuk menjamin 100% *backward compatibility*.
+- 🟡 **2.2 Workflow Digital Lupa Lapor (Approval Kepala Sekolah)**
+  - **Status:** **DALAM PROSES**
   - **Rincian Implementasi:** Model `Lapor_Lapor`, controller `Tutor\LupaLaporController`, dan tabel migrasi sudah tersedia. Selanjutnya akan disempurnakan untuk auto-upsert rekapitulasi kehadiran dan notifikasi Kepala Sekolah.
-- ⚪ **2.1 Geofencing & Validasi Lokasi (Haversine & Anti Fake GPS)**
+- ⚪ **2.3 Geofencing & Validasi Lokasi (Haversine & Anti Fake GPS)**
   - **Status:** *Pending*.
-- ⚪ **2.2 Verifikasi Wajah Otomatis (Face AI / Gemini Vision)**
+- ⚪ **2.4 Verifikasi Wajah Otomatis (Face AI / Gemini Vision)**
   - **Status:** *Pending*.
-- ⚪ **2.4 PWA (Progressive Web App) & Offline Mode**
+- ⚪ **2.5 PWA (Progressive Web App) & Offline Mode**
   - **Status:** *Pending*.
-- ⚪ **2.5 Pengajuan Izin & Sakit Mandiri oleh Tutor**
+- ⚪ **2.6 Pengajuan Izin & Sakit Mandiri oleh Tutor**
   - **Status:** *Pending*.
 
 ---
@@ -87,32 +96,39 @@ pie title Status Fitur & Pengkondisian Sistem
 
 ---
 
-### 6. Refactored Codebase & Quality Assurance
+### 6. Refactored Codebase, Standardisasi & Quality Assurance
 - 🟢 **6.1 Formatting Standard Codebase (Laravel Pint)**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan `vendor/bin/pint` pada seluruh file controller, model, seeder, dan migration untuk memastikan kesesuaian gaya penulisan kode (*PSR-12 / Laravel Code Style*).
-- 🟡 **6.1 Refactoring Pattern DRY (Service & Repository Classes)**
+  - **Rincian Implementasi:** Menjalankan `vendor/bin/pint` pada seluruh file controller, model, view, seeder, dan migration untuk memastikan kesesuaian gaya penulisan kode (*PSR-12 / Laravel Code Style*).
+- 🟢 **6.2 Standardisasi Bahasa Indonesia & Lokalisasi Sistem**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Melakukan standardisasi seluruh teks UI, nama modul, format tanggal (Carbon locale `id`), status presensi, dan pesan validasi/flash message ke dalam Bahasa Indonesia yang baku dan konsisten.
+- 🟢 **6.3 Sentralisasi Design System via `resources/css/app.css`**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Menyatukan seluruh styling CSS komponen ke dalam `resources/css/app.css`, menghapus seluruh inline `<style>` dari view Blade, membuang folder CSS statis redundan (`public/css/` & `public/assets/css/`), dan merapikan rujukan layout agar 100% Vite native (`@vite(['resources/css/app.css', 'resources/js/app.js'])`).
+- 🟢 **6.4 Restrukturisasi & Standardisasi Folder Views (`resources/views/layouts/`)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** 
+    - Mengonsolidasikan folder `layout/` (singular) dan `layouts/` (plural) menjadi `resources/views/layouts/`.
+    - Memisahkan komponen partial navigasi berbahasa Indonesia di [`resources/views/layouts/components/`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/layouts/components) (`navigasi_atas.blade.php`, `navigasi_bawah_admin.blade.php`, `navigasi_bawah_kepsek.blade.php`, `navigasi_bawah_tutor.blade.php`).
+    - Memperbarui 29 file view Blade ke `@extends('layouts.x')`.
+    - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
+- 🟢 **6.5 Automated Testing & Verification Suite**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (2 tests, 2 assertions OK) dan kompilasi build produksi Vite `npm run build`.
+- 🟡 **6.6 Refactoring Pattern DRY (Service & Repository Classes)**
   - **Status:** **DALAM PROSES**
-- ⚪ **6.2 Automated Testing Suite (PHPUnit / Pest)**
-  - **Status:** *Pending*.
 
 ---
 
-## 🛠️ 2. PERUBAHAN & PENGKONDISIAN TEKNIS (DI LUAR ROADMAP UTAMA)
-
-Berikut adalah daftar pekerjaan dan penyesuaian infrastruktur teknis yang telah dikerjakan di luar daftar roadmap awal:
+## 🛠️ 2. PERUBAHAN & PENGKONDISIAN TEKNIS (INFRASTRUKTUR & VCS)
 
 | No | Nama Perubahan / Fitur | Kategori | Deskripsi & Dampak | Status |
 |---|---|---|---|---|
 | 1 | **Inisialisasi Remote Repositori Git** | Git & VCS | Membuat repositori Git baru, mengatur branch utama ke `main`, menambahkan remote `origin` (`https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git`), dan melakukan commit/push awal. | 🟢 Selesai |
 | 2 | **Migrasi Baseline Codebase `presensi-pkbmpikat`** | Core Setup | Memindahkan seluruh kode proyek lama (Controller, Models, Views, Migrations, Seeders, Assets, Config) ke dalam repositori pengembangan baru `pengembangan-presensi-pikat`. | 🟢 Selesai |
 | 3 | **Penyesuaian Kompatibilitas Dependensi PHP 8.5** | Environment | Mengonfigurasi `composer.json` dan menjalankan `composer install --ignore-platform-req=php` agar paket-paket seperti `phpoffice/phpspreadsheet`, `maatwebsite/excel`, dan `barryvdh/laravel-dompdf` berjalan lancar di PHP 8.5. | 🟢 Selesai |
-| 4 | **Pengaturan Variabel Environment Server Worker** | Performance / Fix | Mengubah `PHP_CLI_SERVER_WORKERS=4` menjadi `PHP_CLI_SERVER_WORKERS=1` pada file `.env` untuk menghilangkan peringatan (*warning*) reloader saat perintah `php artisan serve` dijalankan. | 🟢 Selesai |
-| 5 | **Pemasangan & Konfigurasi Laravel Boost MCP** | AI & Tooling | Menginstal dependensi dev `laravel/boost` dan mengonfigurasi file `AGENTS.md` serta aturan pendukung untuk integrasi AI coding assistant yang optimal. | 🟢 Selesai |
-| 6 | **Standardisasi Bahasa Indonesia** | Localization | Melakukan standardisasi seluruh teks UI, nama modul, format tanggal (Carbon locale 'id'), status presensi, dan pesan validasi ke dalam Bahasa Indonesia yang baku dan konsisten di seluruh halaman aplikasi. | 🟢 Selesai |
-| 7 | **Centralisasi & Standardisasi Design System via `app.css`** | UI/UX & Refactoring | Menyatukan seluruh styling CSS komponen ke dalam `resources/css/app.css`, menghapus seluruh inline `<style>` dari view Blade, serta merapikan rujukan layout agar 100% Vite native (`@vite(['resources/css/app.css', 'resources/js/app.js'])`) tanpa duplikasi stylesheet statis. | 🟢 Selesai |
-| 8 | **Refactoring Upload & Storage Abstraction via `Storage::disk('public')`** | Architecture & Refactoring | Mengabstraksi seluruh proses upload foto (Profil Karyawan, Presensi Tutor, Presensi Karyawan) ke Laravel `Storage` disk `public`, memindahkan seluruh isi folder `public/uploads/` ke `storage/app/public/uploads/` lalu menghapus folder `public/uploads/` sepenuhnya, serta menambahkan accessor URL pada Model (`User`, `Presensi`, `PresensiKaryawan`) demi menjamin 100% backward compatibility untuk foto lama. | 🟢 Selesai |
-| 9 | **Restrukturisasi & Standardisasi Folder Views (`resources/views/layouts/`)** | Architecture & UI/UX | Mengonsolidasikan folder `layout/` dan `layouts/` menjadi `resources/views/layouts/`, merapikan komponen partial berbahasa Indonesia (`navigasi_atas`, `navigasi_bawah_*`), memperbarui 29 view Blade ke `@extends('layouts.x')`, serta membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`). | 🟢 Selesai |
+| 4 | **Pemasangan & Konfigurasi Laravel Boost MCP** | AI & Tooling | Menginstal dependensi dev `laravel/boost` dan mengonfigurasi file `AGENTS.md` serta aturan pendukung untuk integrasi AI coding assistant yang optimal. | 🟢 Selesai |
 
 ---
 
