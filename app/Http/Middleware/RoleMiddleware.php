@@ -51,9 +51,17 @@ class RoleMiddleware
         }
 
         // Langkah 2: Cek apakah role pengguna saat ini ada dalam daftar role yang diizinkan
-        // Jika role tidak cocok, tolak akses dengan HTTP 403 Forbidden
+        // Jika role tidak cocok, arahkan ke dashboard masing-masing sesuai role dengan pesan peringatan
         if (! in_array(auth()->user()->role, $roles)) {
-            abort(403);
+            $userRole = auth()->user()->role;
+            $targetRoute = match ($userRole) {
+                'admin' => route('admin.dashboard'),
+                'kepala_sekolah' => route('kepsek.dashboard'),
+                'tutor' => route('tutor.dashboard'),
+                default => route('login'),
+            };
+
+            return redirect($targetRoute)->with('warning', 'Anda tidak memiliki hak akses ke halaman tersebut.');
         }
 
         // Langkah 3: Semua pengecekan lolos, lanjutkan request ke controller tujuan

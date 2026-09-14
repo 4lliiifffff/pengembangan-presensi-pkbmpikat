@@ -235,6 +235,13 @@ pie title Status Fitur & Pengkondisian Sistem
     - Memisahkan komponen partial navigasi berbahasa Indonesia di [`resources/views/layouts/components/`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/layouts/components) (`navigasi_atas`, `navigasi_bawah_admin`, `navigasi_bawah_kepsek`, `navigasi_bawah_tutor`).
     - Memperbarui 29 file view Blade ke `@extends('layouts.x')`.
     - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
+- 🟢 **Perbaikan Alur Autentikasi Role & Navigasi Bawah Dinamis**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Mengoreksi pengalihan login `AuthWebController` dan `RoleMiddleware` agar pengguna terisolasi 100% pada rute dan dashboard sesuai perannya (`admin`, `kepala_sekolah`, `tutor`), serta mencegah kebocoran URL `intended`.
+    - Menjadikan navigasi bawah pada [`layouts/presensi.blade.php`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/layouts/presensi.blade.php) dinamis sesuai role pengguna (`admin`, `kepsek`, `tutor`).
+    - Menyelaraskan seluruh item navigasi bottom bar untuk seluruh role (`Absen`, `Laporan`, `Payroll`, `Dashboard`).
+    - Memastikan pengujian otomatis `RoleFlowAndNavigationTest.php` (31 tests, 147 assertions OK 100%).
 
 #### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
 - 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**

@@ -30,7 +30,15 @@
         @yield('content')
     </div>
 
-    @include('layouts.components.navigasi_bawah_tutor')
+    @if (auth()->check())
+        @if (auth()->user()->role === 'admin')
+            @include('layouts.components.navigasi_bawah_admin')
+        @elseif (auth()->user()->role === 'kepala_sekolah')
+            @include('layouts.components.navigasi_bawah_kepsek')
+        @else
+            @include('layouts.components.navigasi_bawah_tutor')
+        @endif
+    @endif
 
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>

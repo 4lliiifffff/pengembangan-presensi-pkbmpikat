@@ -27,9 +27,16 @@
 
         // Mode otomatis: mulai (belum/sudah selesai) atau selesai (sedang berjalan)
         $autoMode = $activeSesi ? 'selesai' : 'mulai';
-        $dashRoute = $user->role === 'admin' ? route('admin.dashboard') : route('kepsek.dashboard');
-        // Route store presensi karyawan sesuai role
-        $storeRoute = $user->role === 'admin' ? route('admin.presensi.store') : route('kepsek.presensi.store');
+        $dashRoute = match ($user?->role) {
+            'admin' => route('admin.dashboard'),
+            'kepala_sekolah' => route('kepsek.dashboard'),
+            default => route('tutor.dashboard'),
+        };
+        $storeRoute = match ($user?->role) {
+            'admin' => route('admin.presensi.store'),
+            'kepala_sekolah' => route('kepsek.presensi.store'),
+            default => route('tutor.presensi.store'),
+        };
         // Nomor WA admin dari env (aman dipakai di @php, bukan langsung di HTML)
         $adminWa = config('app.admin_wa', '6281234567890');
     @endphp

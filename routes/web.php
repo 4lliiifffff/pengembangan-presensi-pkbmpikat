@@ -28,10 +28,28 @@ Route::get('/sw.js', function () {
 });
 
 Route::get('/', function () {
+    if (auth()->check()) {
+        return match (auth()->user()->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
+            'tutor' => redirect()->route('tutor.dashboard'),
+            default => view('auth.login'),
+        };
+    }
+
     return view('auth.login');
 })->name('login');
 
 Route::get('/login', function () {
+    if (auth()->check()) {
+        return match (auth()->user()->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
+            'tutor' => redirect()->route('tutor.dashboard'),
+            default => view('auth.login'),
+        };
+    }
+
     return view('auth.login');
 });
 

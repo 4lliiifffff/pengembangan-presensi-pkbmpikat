@@ -90,19 +90,18 @@ class AuthWebController extends Controller
         $role = Auth::user()?->role;
 
         // Redirect ke dashboard yang sesuai berdasarkan role
-        // Metode intended() memastikan pengguna diarahkan ke URL yang mereka tuju sebelum login
         if ($role === 'admin') {
-            return redirect()->intended(route('admin.dashboard'))
+            return redirect()->route('admin.dashboard')
                 ->with('success', 'Login berhasil. Selamat datang!');
         }
 
         if ($role === 'tutor') {
-            return redirect()->intended(route('tutor.dashboard'))
+            return redirect()->route('tutor.dashboard')
                 ->with('success', 'Login berhasil. Selamat datang!');
         }
 
         if ($role === 'kepala_sekolah') {
-            return redirect()->intended(route('kepsek.dashboard'))
+            return redirect()->route('kepsek.dashboard')
                 ->with('success', 'Login berhasil. Selamat datang!');
         }
 
