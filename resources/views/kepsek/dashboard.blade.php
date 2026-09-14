@@ -1,43 +1,7 @@
 @extends('layout.kepsek')
 
 @section('content')
-    {{-- Sisipkan CSS di sini agar langsung terbaca di dalam halaman --}}
-    <style>
-        .barChart {
-            display: flex;
-            align-items: flex-end;
-            justify-content: space-between;
-            height: 110px;
-            padding-top: 20px;
-        }
 
-        .barCol {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 12%;
-        }
-
-        .bar {
-            width: 28px;
-            background-color: #e0e0e0;
-            border-radius: 6px 6px 0 0;
-            transition: height 0.3s ease;
-            max-height: 85px;
-            /* Kunci pembatas tinggi agar bar tidak offside */
-        }
-
-        .bar.active {
-            background-color: #248bf5;
-        }
-
-        .barDay {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #4a5568;
-            font-weight: 600;
-        }
-    </style>
 
     <div class="page-wrapper">
 
