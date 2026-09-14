@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\PresensiKaryawan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class KaryawanPresensiController extends Controller
@@ -63,12 +64,7 @@ class KaryawanPresensiController extends Controller
 
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
-            $fullDir = public_path($dir);
-            if (! is_dir($fullDir)) {
-                mkdir($fullDir, 0755, true);
-            }
-            $file->move($fullDir, $filename);
-            $path = $dir.'/'.$filename;
+            $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
             PresensiKaryawan::create([
                 'user_id' => $user->id,
@@ -102,12 +98,7 @@ class KaryawanPresensiController extends Controller
 
         $file = $request->file('foto');
         $filename = 'keluar_'.time().'_'.$file->getClientOriginalName();
-        $fullDir = public_path($dir);
-        if (! is_dir($fullDir)) {
-            mkdir($fullDir, 0755, true);
-        }
-        $file->move($fullDir, $filename);
-        $path = $dir.'/'.$filename;
+        $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
         $activeSesi->update([
             'jam_selesai' => $waktuServer,

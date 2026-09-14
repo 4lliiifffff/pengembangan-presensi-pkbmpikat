@@ -125,4 +125,28 @@ class User extends Authenticatable
         // Cast ke boolean: 1 = true (aktif), 0 = false (nonaktif)
         return (bool) $value;
     }
+
+    /**
+     * Accessor: Mengembalikan URL foto profil dengan backward compatibility.
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        if (! $this->foto) {
+            return null;
+        }
+
+        if (str_starts_with($this->foto, 'http://') || str_starts_with($this->foto, 'https://')) {
+            return $this->foto;
+        }
+
+        if (str_starts_with($this->foto, 'storage/')) {
+            return asset($this->foto);
+        }
+
+        if (file_exists(public_path($this->foto))) {
+            return asset($this->foto);
+        }
+
+        return asset('storage/'.ltrim($this->foto, '/'));
+    }
 }

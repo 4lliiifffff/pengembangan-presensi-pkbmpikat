@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class KaryawanController extends Controller
 {
@@ -77,14 +78,10 @@ class KaryawanController extends Controller
 
         // Upload foto jika ada
         if ($request->hasFile('foto') && Schema::hasColumn('users', 'foto')) {
-            $uploadDir = public_path('uploads/foto_karyawan');
-            if (! File::exists($uploadDir)) {
-                File::makeDirectory($uploadDir, 0755, true);
-            }
             $file = $request->file('foto');
             $filename = 'foto_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-            $file->move($uploadDir, $filename);
-            $data['foto'] = 'uploads/foto_karyawan/'.$filename;
+            $path = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+            $data['foto'] = $path;
         }
 
         // Hapus field yang tidak ada di kolom tabel users
@@ -130,19 +127,18 @@ class KaryawanController extends Controller
         if ($request->hasFile('foto') && Schema::hasColumn('users', 'foto')) {
             // Hapus foto lama jika ada
             if ($karyawan->foto) {
-                $oldPath = public_path($karyawan->foto);
-                if (File::exists($oldPath)) {
-                    File::delete($oldPath);
+                $cleanPath = ltrim(str_replace('storage/', '', $karyawan->foto), '/');
+                if (Storage::disk('public')->exists($cleanPath)) {
+                    Storage::disk('public')->delete($cleanPath);
                 }
-            }
-            $uploadDir = public_path('uploads/foto_karyawan');
-            if (! File::exists($uploadDir)) {
-                File::makeDirectory($uploadDir, 0755, true);
+                if (File::exists(public_path($karyawan->foto))) {
+                    File::delete(public_path($karyawan->foto));
+                }
             }
             $file = $request->file('foto');
             $filename = 'foto_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-            $file->move($uploadDir, $filename);
-            $payload['foto'] = 'uploads/foto_karyawan/'.$filename;
+            $path = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+            $payload['foto'] = $path;
         }
 
         foreach (array_keys($payload) as $key) {

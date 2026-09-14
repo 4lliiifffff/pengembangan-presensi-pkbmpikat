@@ -9,6 +9,7 @@ use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 /**
@@ -37,10 +38,9 @@ use Illuminate\Validation\Rule;
  *      melakukan clock-in dan clock-out dalam waktu singkat. Ini adalah aturan bisnis
  *      yang ditetapkan oleh lembaga untuk menjamin kualitas mengajar.
  *
- *   Q: Mengapa foto disimpan di public/uploads/ bukan di storage/?
- *   A: Folder public/ dapat diakses langsung melalui URL browser tanpa memerlukan
- *      konfigurasi symbolic link (php artisan storage:link). Ini lebih kompatibel
- *      dengan shared hosting yang sering membatasi akses artisan command.
+ *   Q: Mengapa foto disimpan menggunakan Storage::disk('public')?
+ *   A: Menggunakan Storage facade adalah standar Laravel agar file tersimpan di storage/app/public/
+ *      dan dapat diakses melalui symlink public/storage, serta memudahkan migrasi ke S3/Cloud Storage.
  *
  *   Q: Bagaimana sistem mencegah kecurangan (fraud) dalam presensi?
  *   A: Sistem memerlukan:
@@ -180,15 +180,10 @@ class PresensiFotoController extends Controller
                 }
             }
 
-            // Upload foto masuk ke direktori
+            // Upload foto masuk ke storage disk 'public'
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
-            $fullDir = public_path($dir);
-            if (! is_dir($fullDir)) {
-                mkdir($fullDir, 0755, true);
-            }
-            $file->move($fullDir, $filename);
-            $path = $dir.'/'.$filename;
+            $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
             $waktuServer = $now->format('H:i:s');
 
             // Buat record presensi baru untuk tiap siswa
@@ -257,12 +252,7 @@ class PresensiFotoController extends Controller
         // Jika semua validasi lulus, baru proses upload foto dan update data
         $file = $request->file('foto');
         $filename = 'keluar_'.time().'_'.$file->getClientOriginalName();
-        $fullDir = public_path($dir);
-        if (! is_dir($fullDir)) {
-            mkdir($fullDir, 0755, true);
-        }
-        $file->move($fullDir, $filename);
-        $path = $dir.'/'.$filename;
+        $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
         $waktuServer = $now->format('H:i:s');
 
         foreach ($presensisToUpdate as $presensi) {

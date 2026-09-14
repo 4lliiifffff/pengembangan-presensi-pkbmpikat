@@ -61,26 +61,21 @@ class ProfileController extends Controller
         }
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama
+            // Hapus foto lama jika ada
             if ($user->foto) {
-                // Hapus dari public/uploads/ (foto baru)
-                if (str_starts_with($user->foto, 'uploads/') && File::exists(public_path($user->foto))) {
+                $cleanPath = ltrim(str_replace('storage/', '', $user->foto), '/');
+                if (Storage::disk('public')->exists($cleanPath)) {
+                    Storage::disk('public')->delete($cleanPath);
+                }
+                if (File::exists(public_path($user->foto))) {
                     File::delete(public_path($user->foto));
                 }
-                // Hapus dari storage/public jika ada (foto lama)
-                elseif (Storage::disk('public')->exists($user->foto)) {
-                    Storage::disk('public')->delete($user->foto);
-                }
             }
-            // Simpan langsung ke public/uploads/foto_karyawan/
-            $uploadDir = public_path('uploads/foto_karyawan');
-            if (! File::exists($uploadDir)) {
-                File::makeDirectory($uploadDir, 0755, true);
-            }
+            // Simpan foto menggunakan Laravel Storage disk 'public'
             $file = $request->file('foto');
             $filename = 'foto_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-            $file->move($uploadDir, $filename);
-            $data['foto'] = 'uploads/foto_karyawan/'.$filename;
+            $path = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+            $data['foto'] = $path;
         }
 
         $user->update($data);

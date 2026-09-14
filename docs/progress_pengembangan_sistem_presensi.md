@@ -111,6 +111,7 @@ Berikut adalah daftar pekerjaan dan penyesuaian infrastruktur teknis yang telah 
 | 5 | **Pemasangan & Konfigurasi Laravel Boost MCP** | AI & Tooling | Menginstal dependensi dev `laravel/boost` dan mengonfigurasi file `AGENTS.md` serta aturan pendukung untuk integrasi AI coding assistant yang optimal. | 🟢 Selesai |
 | 6 | **Standardisasi Bahasa Indonesia** | Localization | Melakukan standardisasi seluruh teks UI, nama modul, format tanggal (Carbon locale 'id'), status presensi, dan pesan validasi ke dalam Bahasa Indonesia yang baku dan konsisten di seluruh halaman aplikasi. | 🟢 Selesai |
 | 7 | **Centralisasi & Standardisasi Design System via `app.css`** | UI/UX & Refactoring | Menyatukan seluruh styling CSS komponen ke dalam `resources/css/app.css`, menghapus seluruh inline `<style>` dari view Blade, serta merapikan rujukan layout agar 100% Vite native (`@vite(['resources/css/app.css', 'resources/js/app.js'])`) tanpa duplikasi stylesheet statis. | 🟢 Selesai |
+| 8 | **Refactoring Upload & Storage Abstraction via `Storage::disk('public')`** | Architecture & Refactoring | Mengabstraksi seluruh proses upload foto (Profil Karyawan, Presensi Tutor, Presensi Karyawan) ke Laravel `Storage` disk `public`, membersihkan direktori CSS statis yang redundan, serta menambahkan accessor URL pada Model (`User`, `Presensi`, `PresensiKaryawan`) demi menjamin 100% backward compatibility untuk foto lama. | 🟢 Selesai |
 
 ---
 
