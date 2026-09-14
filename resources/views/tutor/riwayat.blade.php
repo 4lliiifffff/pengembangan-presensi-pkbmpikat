@@ -11,26 +11,10 @@
     $initial = strtoupper(substr($displayName, 0, 1));
 @endphp
 
-<div class="tutorTop">
-    <div class="tutorTopRow">
-        <div class="tutorLeft">
-            <a href="{{ route('profil.index') }}" style="text-decoration: none;">
-                @if(auth()->user()->foto)
-                    <img src="{{ str_starts_with(auth()->user()->foto, 'uploads/') ? asset(auth()->user()->foto) : asset('storage/' . auth()->user()->foto) }}" class="tutorAvatar" alt="Avatar" style="object-fit:cover;" />
-                @else
-                    <div class="tutorAvatar" aria-label="Avatar">{{ $initial }}</div>
-                @endif
-            </a>
-            <div class="tutorMeta">
-                <div class="tutorName">{{ $displayName }}</div>
-                <div class="tutorSub">Tutor</div>
-            </div>
-        </div>
-        <button class="tutorIconBtn" type="button" aria-label="Tema" id="themeToggleBtn">
-            <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
-        </button>
-    </div>
-</div>
+@include('layouts.components.navigasi_atas', [
+    'titleName' => $displayName,
+    'subTitle' => 'Tutor'
+])
 
 <div class="header">
     <div class="title">Riwayat Kehadiran</div>

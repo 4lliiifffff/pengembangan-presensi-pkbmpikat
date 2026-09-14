@@ -54,44 +54,21 @@
         $adminWa = config('app.admin_wa', '6281234567890');
     @endphp
 
-    {{-- ── Head Bar ── --}}
-    <div class="headRow">
-        <div class="headLeft">
-            <div class="headAvatar">
-                @if ($user->foto)
-                    <img src="{{ str_starts_with($user->foto, 'uploads/') ? asset($user->foto) : asset('storage/' . $user->foto) }}" alt="Avatar"
-                        style="width:100%;height:100%;object-fit:cover;" />
-                @else
-                    {{ $initial }}
-                @endif
-            </div>
-            <div>
-                <div class="headName">{{ $displayName }}</div>
-                <div class="headSub">{{ $roleTitle }} • {{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</div>
-            </div>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="theme-btn" type="button" aria-label="Tema" id="themeToggleBtn">
-                <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
-            </button>
-            <a href="{{ $dashRoute }}" class="badge" style="text-decoration:none;">
-                <ion-icon name="grid-outline"></ion-icon>
-                Dashboard
-            </a>
-        </div>
-    </div>
+    {{-- ── Standard Top Navigation Bar ── --}}
+    @include('layouts.components.navigasi_atas', [
+        'titleName' => $displayName,
+        'subTitle' => $roleTitle . ' • ' . \Carbon\Carbon::parse($today)->translatedFormat('d M Y'),
+        'dashRoute' => $dashRoute
+    ])
 
     {{-- ── Warning Banner Izin ── --}}
-    <div id="permWarning" style="display:none; margin:10px 14px 0; padding:12px 14px; border-radius:14px;
-        background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35);
-        display:none; align-items:center; gap:10px; flex-wrap:wrap;">
+    <div id="permWarning" class="permWarning">
         <ion-icon name="warning-outline" style="font-size:20px; color:#d97706; flex-shrink:0;"></ion-icon>
         <div style="flex:1; min-width:0;">
-            <div style="font-size:12px; font-weight:900; color:#92400e;" id="permWarnTitle">Izin belum diberikan</div>
-            <div style="font-size:11px; color:#b45309; margin-top:2px;" id="permWarnDesc">Kamera dan lokasi diperlukan untuk absen.</div>
+            <div class="permWarnTitle" id="permWarnTitle">Izin belum diberikan</div>
+            <div class="permWarnDesc" id="permWarnDesc">Kamera dan lokasi diperlukan untuk absen.</div>
         </div>
-        <button onclick="checkPermissions()" style="border:none; background:#f59e0b; color:#fff; border-radius:10px;
-            padding:7px 12px; font-size:11px; font-weight:900; cursor:pointer; white-space:nowrap; display:inline-flex; align-items:center; gap:4px;">
+        <button onclick="checkPermissions()" class="permWarnBtn">
             <ion-icon name="refresh-outline" style="font-size:14px;"></ion-icon> Coba Lagi
         </button>
     </div>
