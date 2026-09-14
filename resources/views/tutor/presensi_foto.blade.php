@@ -180,6 +180,9 @@
                 <input type="hidden" name="siswa_id[]" value="{{ $sesi->siswa_id }}">
                 @endforeach
                 <input type="hidden" name="lokasi" id="lokasi" value="">
+                <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
+                <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
+
 
                 <div class="card">
                     <div class="cardTitle">
@@ -303,6 +306,9 @@
                 @csrf
                 <input type="hidden" name="mode" value="mulai">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
+                <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
+                <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
+
 
                 <div style="margin-bottom:12px;">
                     <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:var(--text);">Moda Pembelajaran <span style="color:#ef4444;">*</span></div>
@@ -697,16 +703,28 @@
             ph.textContent = 'Mencari lokasi GPS…';
             navigator.geolocation.getCurrentPosition(
                 function(pos) {
-                    // Deteksi heuristik Fake GPS
                     var isFake = false;
+                    var accuracy = pos.coords.accuracy || 0;
+
+                    // Simpan data akurasi & mock location ke hidden input form
+                    var akurasiEls = document.querySelectorAll('input[name="lokasi_akurasi"]');
+                    var mockEls = document.querySelectorAll('input[name="is_mock_location"]');
+
+                    akurasiEls.forEach(function(el) { el.value = accuracy; });
+
+                    // Deteksi heuristik Fake GPS
                     if (pos.coords.mocked === true) {
+                        isFake = true;
+                    } else if (accuracy === 0) {
                         isFake = true;
                     } else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
                         isFake = true;
                     }
+
+                    mockEls.forEach(function(el) { el.value = isFake ? '1' : '0'; });
                     
                     if (isFake) {
-                        ph.textContent = 'Terdeteksi penggunaan Fake GPS. Matikan aplikasi Fake GPS Anda!';
+                        ph.textContent = 'Terdeteksi penggunaan Fake GPS / Mock Location. Matikan aplikasi Fake GPS Anda!';
                         ph.style.color = '#ef4444';
                         alert('Peringatan: Sistem mendeteksi kemungkinan penggunaan aplikasi Fake GPS atau Mock Location. Harap matikan aplikasi tersebut untuk dapat melanjutkan presensi.');
                         return;
@@ -716,7 +734,7 @@
                     setMapFromLatLng(pos.coords.latitude, pos.coords.longitude);
                 },
                 function() {
-                    ph.textContent = 'Gagal mengambil lokasi.';
+                    ph.textContent = 'Gagal mengambil lokasi. Pastikan izin GPS aktif.';
                 }, {
                     enableHighAccuracy: true,
                     timeout: 12000,
@@ -724,6 +742,7 @@
                 }
             );
         }
+
 
 
         /* ══════════════════ ADVANCED CAMERA CONTROLS ══════════════════ */

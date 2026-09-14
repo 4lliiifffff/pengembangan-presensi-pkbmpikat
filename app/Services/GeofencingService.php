@@ -119,4 +119,52 @@ class GeofencingService
             'message' => $message,
         ];
     }
+
+    /**
+     * Memvalidasi integritas GPS dari manipulasi Fake GPS / Mock Location dan batas akurasi sinyal.
+     *
+     * @param  string|null  $lokasi  Koordinat "lat,lng"
+     * @param  float|null  $accuracy  Tingkat akurasi GPS perangkat (meter)
+     * @param  bool  $isMocked  Flag terdeteksi provider lokasi buatan
+     * @param  float|null  $maxAccuracy  Batas toleransi akurasi maksimal (default: dari config lokasi.max_accuracy_meter)
+     * @return array{is_valid: bool, message: string|null}
+     */
+    public function validateGpsIntegrity(
+        ?string $lokasi,
+        ?float $accuracy = null,
+        bool $isMocked = false,
+        ?float $maxAccuracy = null
+    ): array {
+        $maxAccuracy ??= (float) config('lokasi.max_accuracy_meter', 200);
+
+        if ($isMocked) {
+            return [
+                'is_valid' => false,
+                'message' => 'Terdeteksi penggunaan aplikasi Fake GPS / Mock Location pada perangkat Anda. Harap matikan aplikasi tersebut untuk melanjutkan presensi.',
+            ];
+        }
+
+        if ($accuracy !== null) {
+            if ($accuracy <= 0) {
+                return [
+                    'is_valid' => false,
+                    'message' => 'Sinyal GPS terdeteksi tidak valid (akurasi 0 meter). Harap gunakan sinyal GPS fisik perangkat asli.',
+                ];
+            }
+
+            if ($accuracy > $maxAccuracy) {
+                $formattedAccuracy = round($accuracy, 1);
+
+                return [
+                    'is_valid' => false,
+                    'message' => "Akurasi GPS perangkat Anda terlalu rendah ({$formattedAccuracy} meter, maksimal toleransi {$maxAccuracy} meter). Pastikan lokasi/GPS HP aktif dalam mode Akurasi Tinggi dan berada di area terbuka.",
+                ];
+            }
+        }
+
+        return [
+            'is_valid' => true,
+            'message' => null,
+        ];
+    }
 }

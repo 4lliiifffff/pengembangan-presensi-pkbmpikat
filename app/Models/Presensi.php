@@ -34,6 +34,8 @@ class Presensi extends Model
             'foto_selesai',      // Path foto bukti absen pulang — null jika belum selesai
             'lokasi_mulai',      // Koordinat GPS / deskripsi lokasi saat masuk (opsional)
             'lokasi_selesai',    // Koordinat GPS / deskripsi lokasi saat pulang (opsional)
+            'lokasi_akurasi',    // Akurasi sinyal GPS dalam meter
+            'is_mocked',         // Flag terdeteksi Fake GPS / mock location
             'status',             // Status: 'hadir', 'izin', atau 'alpha'
         ];
 

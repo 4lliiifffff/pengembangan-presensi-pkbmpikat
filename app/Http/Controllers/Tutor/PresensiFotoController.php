@@ -156,7 +156,18 @@ class PresensiFotoController extends Controller
             'link_daring' => ['nullable', 'string', 'max:255'],
             'foto' => ['required', 'image', 'max:5120'],        // Foto wajib, maks 5MB (5120KB)
             'lokasi' => ['nullable', 'string', 'max:255'],        // Lokasi GPS opsional
+            'lokasi_akurasi' => ['nullable', 'numeric', 'min:0'],
+            'is_mock_location' => ['nullable', 'boolean'],
         ]);
+
+        // Validasi Anti Fake GPS & Integrity Sinyal GPS
+        $isMocked = (bool) ($validated['is_mock_location'] ?? false);
+        $accuracy = isset($validated['lokasi_akurasi']) ? (float) $validated['lokasi_akurasi'] : null;
+
+        $gpsIntegrity = $geofencingService->validateGpsIntegrity($validated['lokasi'] ?? null, $accuracy, $isMocked);
+        if (! $gpsIntegrity['is_valid']) {
+            return back()->with('warning', $gpsIntegrity['message']);
+        }
 
         // Gunakan waktu Jakarta untuk semua perhitungan waktu
         $now = Carbon::now('Asia/Jakarta');
@@ -214,6 +225,8 @@ class PresensiFotoController extends Controller
                 $presensi->jam_mulai = $waktuServer;
                 $presensi->foto_mulai = $path;
                 $presensi->lokasi_mulai = $validated['lokasi'] ?? null;
+                $presensi->lokasi_akurasi = $accuracy;
+                $presensi->is_mocked = $isMocked;
                 $presensi->status = 'hadir';
                 $presensi->save();
             }
@@ -285,6 +298,8 @@ class PresensiFotoController extends Controller
             $presensi->jam_selesai = $waktuServer;
             $presensi->foto_selesai = $path;
             $presensi->lokasi_selesai = $validated['lokasi'] ?? null;
+            $presensi->lokasi_akurasi = $accuracy;
+            $presensi->is_mocked = $isMocked;
             $presensi->save();
         }
 
