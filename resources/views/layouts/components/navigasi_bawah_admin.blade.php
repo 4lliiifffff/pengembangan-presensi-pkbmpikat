@@ -47,4 +47,11 @@
         <ion-icon name="{{ request()->routeIs('admin.laporan.*') ? 'bar-chart' : 'bar-chart-outline' }}"></ion-icon>
         <span>Laporan</span>
     </a>
+
+    <a href="{{ route('admin.payroll.index') }}"
+       class="{{ request()->routeIs('admin.payroll.*') ? 'active' : '' }}"
+       aria-label="Payroll">
+        <ion-icon name="{{ request()->routeIs('admin.payroll.*') ? 'wallet' : 'wallet-outline' }}"></ion-icon>
+        <span>Payroll</span>
+    </a>
 </nav>

@@ -9,6 +9,8 @@ use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
 use App\Models\Siswa;
 use App\Models\Tutor;
+use App\Services\LaporanPresensiService;
+use App\Services\PresensiService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -17,6 +19,11 @@ use Illuminate\Support\Facades\Schema;
 
 class KepsekDashboardController extends Controller
 {
+    public function __construct(
+        protected LaporanPresensiService $laporanService,
+        protected PresensiService $presensiService
+    ) {}
+
     /* ─────────────────────────────────────────────
      |  DASHBOARD
      ───────────────────────────────────────────── */
@@ -64,101 +71,21 @@ class KepsekDashboardController extends Controller
      ───────────────────────────────────────────── */
     public function laporan(Request $request)
     {
-        // Default: bulan berjalan
         $bulan = (int) $request->get('bulan', Carbon::now()->month);
         $tahun = (int) $request->get('tahun', Carbon::now()->year);
-        $tutorId = $request->get('tutor_id');
-        $siswaId = $request->get('siswa_id');
+        $tutorId = $request->get('tutor_id') ? (int) $request->get('tutor_id') : null;
+        $siswaId = $request->get('siswa_id') ? (int) $request->get('siswa_id') : null;
 
-        $startDate = Carbon::createFromDate($tahun, $bulan, 1)->startOfDay();
-        $endDate = $startDate->copy()->endOfMonth()->endOfDay();
+        $rekapData = $this->laporanService->getRekapTutorBulanan($bulan, $tahun, $tutorId, $siswaId);
 
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $startDate = $rekapData['startDate'];
+        $endDate = $rekapData['endDate'];
+        $totalHadir = $rekapData['totalHadir'];
+        $totalIzin = 0;
+        $totalSesi = $rekapData['totalSesi'];
+        $rekapTutor = $rekapData['rekapTutor'];
+        $totalTutorAktif = $rekapData['totalTutorAktif'];
 
-        // Summary global
-        $baseQuery = Presensi::whereBetween('tgl_presensi', [$startDate, $endDate]);
-        if ($tutorId) {
-            $baseQuery->where('tutor_id', $tutorId);
-        }
-        if ($siswaId) {
-            $baseQuery->where('siswa_id', $siswaId);
-        }
-
-        $totalHadir = (clone $baseQuery)->whereNotNull('jam_selesai')->count();
-        $totalIzin = 0; // izin via WA, tidak tercatat di DB
-        $totalSesi = (clone $baseQuery)->count();
-
-        // Hari kerja dalam rentang (Senin–Sabtu)
-        $hariKerja = 0;
-        $cursor = $startDate->copy();
-        while ($cursor->lte($endDate)) {
-            if ($cursor->dayOfWeek !== Carbon::SUNDAY) {
-                $hariKerja++;
-            }
-            $cursor->addDay();
-        }
-
-        // Rekap per tutor
-        $tutorsQuery = Tutor::orderBy('nama_lengkap');
-        if ($tutorId) {
-            $tutorsQuery->where('id', $tutorId);
-        }
-        $tutors = $tutorsQuery->get();
-
-        $rekapTutor = $tutors->map(function (Tutor $tutor) use ($startDate, $endDate, $hariKerja, $hasJamMulai, $siswaId) {
-            $tutorPresensi = Presensi::where('tutor_id', $tutor->id)
-                ->whereBetween('tgl_presensi', [$startDate, $endDate]);
-
-            if ($siswaId) {
-                $tutorPresensi->where('siswa_id', $siswaId);
-            }
-
-            $totalSesiTutor = (clone $tutorPresensi)->count();
-
-            // Hitung hadir: punya jam_selesai
-            $hadirCount = (clone $tutorPresensi)->whereNotNull('jam_selesai')->count();
-
-            // Hitung total jam mengajar (jam_mulai → jam_selesai)
-            $jamMengajar = 0;
-            if ($hasJamMulai) {
-                $rows = (clone $tutorPresensi)
-                    ->whereNotNull('jam_mulai')
-                    ->whereNotNull('jam_selesai')
-                    ->get(['jam_mulai', 'jam_selesai']);
-
-                foreach ($rows as $row) {
-                    try {
-                        $mulai = Carbon::parse($row->jam_mulai);
-                        $selesai = Carbon::parse($row->jam_selesai);
-                        if ($selesai->gt($mulai)) {
-                            $jamMengajar += $mulai->diffInMinutes($selesai);
-                        }
-                    } catch (\Throwable) {
-                    }
-                }
-            }
-            $jamMengajarJam = round($jamMengajar / 60, 1);
-
-            // Persentase kehadiran terhadap total sesi yg dijadwalkan
-            $pctHadir = $totalSesiTutor > 0
-                ? round($hadirCount / $totalSesiTutor * 100)
-                : 0;
-
-            return [
-                'tutor' => $tutor,
-                'total_sesi' => $totalSesiTutor,
-                'hadir' => $hadirCount,
-                'pct_hadir' => $pctHadir,
-                'jam_mengajar' => $jamMengajarJam,
-                'hari_kerja' => $hariKerja,
-            ];
-        })->filter(fn ($r) => $r['total_sesi'] > 0)
-            ->sortByDesc('hadir')
-            ->values();
-
-        $totalTutorAktif = $rekapTutor->count();
-
-        // Tahun opsi untuk filter
         $tahunOptions = range(Carbon::now()->year, Carbon::now()->year - 3);
 
         $allTutors = Tutor::orderBy('nama_lengkap')->get();
@@ -308,19 +235,14 @@ class KepsekDashboardController extends Controller
         $item->catatan_kepsek = $request->input('catatan_kepsek', 'Pengajuan disetujui');
         $item->save();
 
-        // Auto-upsert ke tabel presensis
-        Presensi::updateOrCreate(
-            [
-                'tutor_id' => $item->tutor_id,
-                'siswa_id' => $item->siswa_id,
-                'tgl_presensi' => $item->tanggal,
-            ],
-            [
-                'jam_mulai' => $item->jam_mulai,
-                'jam_selesai' => $item->jam_selesai,
-                'status' => 'hadir',
-                'materi' => 'Pengajuan Lupa Lapor Disetujui: '.$item->alasan,
-            ]
+        $this->presensiService->syncApprovedAttendance(
+            tutorId: $item->tutor_id,
+            siswaIds: $item->siswa_id,
+            startDateStr: $item->tanggal,
+            status: 'hadir',
+            jamMulai: $item->jam_mulai,
+            jamSelesai: $item->jam_selesai,
+            materi: 'Pengajuan Lupa Lapor Disetujui: '.$item->alasan
         );
 
         return back()->with('success', 'Pengajuan Lupa Lapor disetujui & data presensi berhasil dicatat.');
@@ -380,28 +302,13 @@ class KepsekDashboardController extends Controller
         $item->catatan_verifikasi = $request->input('catatan_verifikasi', 'Pengajuan disetujui');
         $item->save();
 
-        $startDate = Carbon::parse($item->tgl_mulai);
-        $endDate = Carbon::parse($item->tgl_selesai);
-
-        $siswaIds = Presensi::where('tutor_id', $item->tutor_id)->distinct()->pluck('siswa_id');
-        if ($siswaIds->isEmpty()) {
-            $siswaIds = Siswa::pluck('id')->take(1);
-        }
-
-        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            foreach ($siswaIds as $siswaId) {
-                Presensi::updateOrCreate(
-                    [
-                        'tutor_id' => $item->tutor_id,
-                        'siswa_id' => $siswaId,
-                        'tgl_presensi' => $date->toDateString(),
-                    ],
-                    [
-                        'status' => $item->jenis,
-                    ]
-                );
-            }
-        }
+        $this->presensiService->syncApprovedAttendance(
+            tutorId: $item->tutor_id,
+            siswaIds: [],
+            startDateStr: $item->tgl_mulai,
+            endDateStr: $item->tgl_selesai,
+            status: $item->jenis
+        );
 
         return back()->with('success', 'Pengajuan '.ucfirst($item->jenis).' disetujui & data presensi disinkronkan.');
     }

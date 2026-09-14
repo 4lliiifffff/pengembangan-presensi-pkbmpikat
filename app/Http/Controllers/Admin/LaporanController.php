@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\PresensiExport;
 use App\Http\Controllers\Controller;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
 use App\Models\Siswa;
 use App\Models\Tutor;
+use App\Services\LaporanPresensiService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
 {
+    public function __construct(protected LaporanPresensiService $laporanService) {}
+
     public function index(Request $request)
     {
         $startDateStr = $request->get('start_date', Carbon::now('Asia/Jakarta')->toDateString());
@@ -166,8 +172,8 @@ class LaporanController extends Controller
         $tutorId = $request->get('tutor_id');
         $siswaId = $request->get('siswa_id');
 
-        return \Maatwebsite\Excel\Facades\Excel::download(
-            new \App\Exports\PresensiExport($startDate, $endDate, $tutorId, $siswaId),
+        return Excel::download(
+            new PresensiExport($startDate, $endDate, $tutorId, $siswaId),
             'Laporan_Presensi_'.$startDate->format('Ymd').'_'.$endDate->format('Ymd').'.xlsx'
         );
     }
@@ -225,7 +231,7 @@ class LaporanController extends Controller
             $p->calculated_status = ucfirst($status);
         }
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.laporan.pdf', compact(
+        $pdf = Pdf::loadView('admin.laporan.pdf', compact(
             'presensis', 'startDate', 'endDate', 'totalHadir', 'totalIzin', 'totalAlpha'
         ));
 

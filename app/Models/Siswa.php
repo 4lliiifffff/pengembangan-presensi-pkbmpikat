@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Model Siswa — Data Murid/Peserta Didik
@@ -60,7 +62,16 @@ class Siswa extends Model
         'nama_wali',  // Nama orang tua/wali yang dapat dihubungi
         'kelas_id',   // ID kelas yang diikuti siswa (foreign key)
         'tutor_id',    // ID tutor yang mengajar siswa ini
+        'tarif_per_jam', // Nominal tarif honor mengajar per jam per siswa
     ];
+
+    /**
+     * Accessor: Format rupiah untuk tarif per jam siswa.
+     */
+    public function getFormattedTarifPerJamAttribute(): string
+    {
+        return 'Rp '.number_format($this->tarif_per_jam ?? 50000, 0, ',', '.');
+    }
 
     /**
      * Relasi: Siswa terdaftar di satu Kelas (Many-to-One / BelongsTo).
@@ -68,7 +79,7 @@ class Siswa extends Model
      * konflik nama dengan class lain.
      * Contoh: $siswa->relKelas->nama_kelas
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function relKelas()
     {
@@ -80,7 +91,7 @@ class Siswa extends Model
      * Setiap kali seorang tutor mengajar siswa ini, muncul satu record presensi.
      * Contoh: $siswa->presensis()->whereBetween('tgl_presensi', [$awal, $akhir])->get()
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function presensis()
     {

@@ -40,4 +40,11 @@
         <ion-icon name="{{ request()->routeIs('kepsek.presensi') || request()->routeIs('kepsek.presensi.store') ? 'camera' : 'camera-outline' }}"></ion-icon>
         <span>Absen</span>
     </a>
+
+    <a href="{{ route('kepsek.payroll.index') }}"
+       class="{{ request()->routeIs('kepsek.payroll*') ? 'active' : '' }}"
+       aria-label="Payroll">
+        <ion-icon name="{{ request()->routeIs('kepsek.payroll*') ? 'wallet' : 'wallet-outline' }}"></ion-icon>
+        <span>Payroll</span>
+    </a>
 </nav>

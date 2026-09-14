@@ -5,20 +5,25 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Presensi;
 use App\Models\Siswa;
-use App\Models\Tutor;
+use App\Services\PresensiService;
+use App\Services\TutorService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class IzinController extends Controller
 {
+    public function __construct(
+        protected TutorService $tutorService,
+        protected PresensiService $presensiService
+    ) {}
+
     /**
      * Tampilkan halaman Kelola Izin.
      */
     public function index(Request $request)
     {
-        $tutors = Tutor::orderBy('nama_lengkap')->get();
+        $tutors = $this->tutorService->getAssignableTutors();
 
-        // Riwayat izin: semua presensi dengan status izin, terbaru di atas
         $riwayatIzin = Presensi::with(['tutor', 'siswa'])
             ->where('status', 'izin')
             ->orderByDesc('tgl_presensi')
@@ -34,7 +39,6 @@ class IzinController extends Controller
      */
     public function getSiswaByTutor($tutorId)
     {
-        // Ambil siswa_id unik dari riwayat presensi tutor ini
         $siswaIds = Presensi::where('tutor_id', $tutorId)
             ->distinct()
             ->pluck('siswa_id');
@@ -47,7 +51,7 @@ class IzinController extends Controller
     }
 
     /**
-     * Beri izin: buat atau update record presensi untuk tutor + siswa[] + tanggal.
+     * Beri izin: buat atau update record presensi untuk tutor + siswa[] + tanggal via PresensiService.
      */
     public function store(Request $request)
     {
@@ -62,37 +66,15 @@ class IzinController extends Controller
             'tanggal.required' => 'Tanggal wajib diisi.',
         ]);
 
-        $tutorId = $request->tutor_id;
+        $tutorId = (int) $request->tutor_id;
         $tanggal = Carbon::parse($request->tanggal)->toDateString();
-        $count = 0;
 
-        foreach ($request->siswa_ids as $siswaId) {
-            // Cek apakah sudah ada record untuk tutor + siswa + tanggal ini
-            $presensi = Presensi::where('tutor_id', $tutorId)
-                ->where('siswa_id', $siswaId)
-                ->whereDate('tgl_presensi', $tanggal)
-                ->first();
-
-            if ($presensi) {
-                // Update status saja
-                $presensi->update(['status' => 'izin']);
-            } else {
-                // Buat record baru
-                Presensi::create([
-                    'tutor_id' => $tutorId,
-                    'siswa_id' => $siswaId,
-                    'tgl_presensi' => $tanggal,
-                    'jam_mulai' => null,
-                    'jam_selesai' => null,
-                    'foto_mulai' => null,
-                    'foto_selesai' => null,
-                    'lokasi_mulai' => null,
-                    'lokasi_selesai' => null,
-                    'status' => 'izin',
-                ]);
-            }
-            $count++;
-        }
+        $count = $this->presensiService->syncApprovedAttendance(
+            tutorId: $tutorId,
+            siswaIds: $request->siswa_ids,
+            startDateStr: $tanggal,
+            status: 'izin'
+        );
 
         return redirect()->route('admin.izin.index')
             ->with('success', "Berhasil memberikan Izin untuk {$count} siswa pada tanggal {$tanggal}.");

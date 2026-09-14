@@ -147,20 +147,33 @@ pie title Status Fitur & Pengkondisian Sistem
 ### 3. Integrasi Manajemen Penggajian & Honorarium (Payroll System)
 
 #### 3.1 Otomatisasi Perhitungan Honor Mengajar Tutor
-- ⚪ **Kalkulasi Honorarium Berbasis Presensi Valid**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Menghitung akumulasi jam mengajar terverifikasi secara otomatis per periode bulan dikalikan dengan besaran tarif honor per jam / per sesi kehadiran.
-- ⚪ **Dukungan Multitarif**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Fleksibilitas konfigurasi tarif honorarium yang bervariasi berdasarkan jenjang kelas (PAUD/Kesetaraan), kategori mata pelajaran, dan kualifikasi Tutor.
+- 🟢 **Kalkulasi Honorarium Berbasis Presensi Valid**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat service class `App\Services\PayrollService` dengan method `calculateTutorPayroll()` untuk menghitung akumulasi jam mengajar terverifikasi (status `'hadir'`, `jam_mulai` & `jam_selesai` valid) dikalikan tarif per jam spesifik masing-masing siswa yang diajar.
+    - Menghitung breakdown honorarium per siswa, durasi jam presisi, dan total take-home pay per bulan/tahun.
+    - Automated feature testing pada `tests/Feature/PayrollTest.php`.
+
+- 🟢 **Dukungan Tarif Spesifik Per Siswa (Student-Based Hourly Rate)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Menambahkan kolom `tarif_per_jam` (`decimal(12,2)`, default `50000.00`) pada tabel `siswas` via migrasi `2026_09_14_000005_add_tarif_per_jam_to_siswas_table.php`.
+    - Memperbarui model `App\Models\Siswa` (`$fillable` & accessor `$siswa->formatted_tarif_per_jam`).
+    - Memperbarui Admin `SiswaController` dan tampilan kelola siswa (`index.blade.php`, `create.blade.php`, `edit.blade.php`) untuk fleksibilitas pengaturan nominal tarif honorarium per siswa.
 
 #### 3.2 Slip Gaji Digital & Generasi Laporan Keuangan
-- ⚪ **Ekspor Slip Gaji PDF**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Otomatisasi pembentukan dokumen Slip Gaji individual Tutor dalam format PDF (menggunakan `barryvdh/laravel-dompdf`) yang dapat diunduh langsung dari dashboard Tutor.
-- ⚪ **Modul Rekapitulasi Anggaran**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Laporan komprehensif pengeluaran anggaran honorarium tutor harian, mingguan, dan bulanan bagi manajemen lembaga.
+- 🟢 **Ekspor Slip Gaji PDF**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat controller `App\Http\Controllers\Tutor\TutorPayrollController` dan view `resources/views/tutor/payroll.blade.php` bagi Tutor untuk melihat rincian slip gaji digital bulanan.
+    - Membuat template layout PDF [`slip_pdf.blade.php`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/admin/payroll/slip_pdf.blade.php) menggunakan `barryvdh/laravel-dompdf` yang dapat diunduh langsung oleh Tutor maupun Admin/Kepala Sekolah.
+
+- 🟢 **Modul Rekapitulasi Anggaran**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat controller `App\Http\Controllers\Admin\PayrollController` dan views (`admin/payroll/index.blade.php`, `show.blade.php`).
+    - Menampilkan ringkasan total anggaran honorarium sekolah, total jam mengajar, dan rekapitulasi pembayaran per tutor per periode bulan/tahun.
+    - Membuat template layout PDF [`rekap_pdf.blade.php`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/admin/payroll/rekap_pdf.blade.php) untuk mengunduh laporan rekapitulasi anggaran penggajian sekolah.
 
 ---
 
@@ -229,9 +242,9 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (15 tests, 61 assertions OK) dan kompilasi build produksi Vite `npm run build`.
 
 
-- 🟡 **Penerapan Pattern DRY (Service & Repository Pattern)**
-  - **Status:** **DALAM PROSES**
-  - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (misal: `PresensiService`, `PayrollService`) untuk menghindari kode berulang (*DRY - Don't Repeat Yourself*).
+- 🟢 **Penerapan Pattern DRY (Service & Repository Pattern)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`) untuk mengeliminasi kode berulang (*DRY - Don't Repeat Yourself*). Dilengkapi dengan pengujian otomatis `DryServicePatternTest.php` (25 tests, 101 assertions OK 100%).
 
 ---
 

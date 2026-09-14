@@ -76,12 +76,12 @@
 ## 3. INTEGRASI MANAJEMEN PENGGAJIAN & HONORARIUM (PAYROLL SYSTEM)
 
 ### 3.1 Otomatisasi Perhitungan Honor Mengajar Tutor
-* ⚪ **Kalkulasi Honorarium Berbasis Presensi Valid:** [PENDING] Menghitung akumulasi jam mengajar terverifikasi secara otomatis per periode bulan dikalikan dengan besaran tarif honor per jam / per sesi kehadiran.
-* ⚪ **Dukungan Multitarif:** [PENDING] Fleksibilitas konfigurasi tarif honorarium yang bervariasi berdasarkan jenjang kelas (PAUD/Kesetaraan), kategori mata pelajaran, dan kualifikasi Tutor.
+* 🟢 **Kalkulasi Honorarium Berbasis Presensi Valid:** [SELESAI] Menghitung akumulasi jam mengajar terverifikasi secara otomatis per periode bulan dikalikan dengan tarif honor per jam spesifik dari masing-masing siswa yang diajar dalam setiap sesi presensi (`PayrollService`).
+* 🟢 **Dukungan Tarif Spesifik Per Siswa (Student-Based Hourly Rate):** [SELESAI] Konfigurasi nominal tarif honorarium individual yang bervariasi untuk setiap siswa (`tarif_per_jam` pada tabel `siswas` & form kelola siswa).
 
 ### 3.2 Slip Gaji Digital & Generasi Laporan Keuangan
-* ⚪ **Ekspor Slip Gaji PDF:** [PENDING] Otomatisasi pembentukan dokumen Slip Gaji individual Tutor dalam format PDF (menggunakan `barryvdh/laravel-dompdf`) yang dapat diunduh langsung dari dashboard Tutor.
-* ⚪ **Modul Rekapitulasi Anggaran:** [PENDING] Laporan komprehensif pengeluaran anggaran honorarium tutor harian, mingguan, dan bulanan bagi manajemen lembaga.
+* 🟢 **Ekspor Slip Gaji PDF:** [SELESAI] Otomatisasi pembentukan dokumen Slip Gaji individual Tutor dalam format PDF (`barryvdh/laravel-dompdf`) yang dapat diunduh langsung dari dashboard Tutor maupun Admin/Kepsek.
+* 🟢 **Modul Rekapitulasi Anggaran:** [SELESAI] Laporan komprehensif pengeluaran anggaran honorarium tutor bulanan/tahunan bagi manajemen lembaga beserta ekspor Laporan Rekapitulasi Anggaran PDF.
 
 ---
 
@@ -126,7 +126,7 @@
 * 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (15 tests, 61 assertions OK) serta kompilasi produksi Vite `npm run build`.
 
 
-* 🟡 **Penerapan Pattern DRY (Service & Repository Pattern):** [DALAM PROSES] Mengeluarkan logika berulang ke dalam Service Classes.
+* 🟢 **Penerapan Pattern DRY (Service & Repository Pattern):** [SELESAI] Mengelompokkan dan mengekstrak logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`) untuk mengeliminasi duplikasi kode (*Don't Repeat Yourself*). Dilengkapi pengujian otomatis `DryServicePatternTest.php` (25 tests, 101 assertions OK 100%).
 
 ---
 

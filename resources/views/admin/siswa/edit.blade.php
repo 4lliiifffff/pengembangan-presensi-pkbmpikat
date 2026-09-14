@@ -47,6 +47,11 @@
             </div>
 
             <div class="formRow">
+                <div class="fieldLabel">Tarif Honor Per Jam (Rp)</div>
+                <input class="input" type="number" step="1000" name="tarif_per_jam" value="{{ old('tarif_per_jam', $siswa->tarif_per_jam ?? 50000) }}" required placeholder="Contoh: 50000" />
+            </div>
+
+            <div class="formRow">
                 <div class="fieldLabel">Kelas</div>
                 @if ($kelas->isEmpty())
                     <div class="input" style="border: 1px solid #ccc; ">

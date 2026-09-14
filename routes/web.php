@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\AuthWebController;
 use App\Http\Controllers\DashboardController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Tutor\LupaLaporController;
 use App\Http\Controllers\Tutor\PengajuanIzinController;
 use App\Http\Controllers\Tutor\PresensiFotoController;
 use App\Http\Controllers\Tutor\TutorDashboardController;
+use App\Http\Controllers\Tutor\TutorPayrollController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/manifest.json', function () {
@@ -66,6 +68,12 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/izin', [IzinController::class, 'store'])->name('izin.store');
     Route::delete('/izin/{id}', [IzinController::class, 'destroy'])->name('izin.destroy');
     Route::get('/izin/siswa/{tutorId}', [IzinController::class, 'getSiswaByTutor'])->name('izin.siswa');
+
+    // Modul Payroll & Honorarium
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/rekap/pdf', [PayrollController::class, 'exportRekapPdf'])->name('payroll.rekap-pdf');
+    Route::get('/payroll/{tutorId}', [PayrollController::class, 'show'])->name('payroll.show');
+    Route::get('/payroll/{tutorId}/slip-pdf', [PayrollController::class, 'exportSlipPdf'])->name('payroll.slip-pdf');
 });
 
 Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
@@ -80,6 +88,8 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::get('/pengajuan-izin', [PengajuanIzinController::class, 'index'])->name('pengajuan-izin');
     Route::post('/pengajuan-izin', [PengajuanIzinController::class, 'store'])->name('pengajuan-izin.store');
     Route::delete('/pengajuan-izin/{id}', [PengajuanIzinController::class, 'destroy'])->name('pengajuan-izin.destroy');
+    Route::get('/payroll', [TutorPayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/pdf', [TutorPayrollController::class, 'exportPdf'])->name('payroll.pdf');
 });
 
 Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('kepsek.')->group(function () {
@@ -97,4 +107,8 @@ Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('keps
     Route::patch('/pengajuan-izin/{id}/setujui', [KepsekDashboardController::class, 'setujuiPengajuanIzin'])->name('pengajuan-izin.setujui');
     Route::patch('/pengajuan-izin/{id}/tolak', [KepsekDashboardController::class, 'tolakPengajuanIzin'])->name('pengajuan-izin.tolak');
     Route::delete('/pengajuan-izin/{id}', [KepsekDashboardController::class, 'destroyPengajuanIzin'])->name('pengajuan-izin.destroy');
+    Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/rekap/pdf', [PayrollController::class, 'exportRekapPdf'])->name('payroll.rekap-pdf');
+    Route::get('/payroll/{tutorId}', [PayrollController::class, 'show'])->name('payroll.show');
+    Route::get('/payroll/{tutorId}/slip-pdf', [PayrollController::class, 'exportSlipPdf'])->name('payroll.slip-pdf');
 });

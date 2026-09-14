@@ -25,6 +25,7 @@
                                 No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
                                 <br>
                                 Tutor: <span style="font-weight:700;">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</span>
+                                • <span style="color:#0284c7;font-weight:700;">{{ $siswa->formatted_tarif_per_jam }}/Jam</span>
                             </div>
                         </div>
                     </div>
