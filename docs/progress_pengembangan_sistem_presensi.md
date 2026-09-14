@@ -88,13 +88,28 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Kunjungan Rumah (Home Visit)**: Catat titik lokasi GPS kunjungan + foto di rumah murid.
     - **Pembelajaran Online**: Bypass radius lokasi + wajib melampirkan foto layar/link ruang pertemuan (Zoom/GMeet).
     - Menambahkan Eloquent Accessor `$presensi->moda_label` untuk kemudahan pelaporan.
-- 🟢 **Kalkulasi Radius Geofencing (Rumus Haversine)**
+- 🟢 **Kalkulasi Radius Geofencing (Rumus Haversine) & Visualisasi Peta Interaktif**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - Membuat service class `App\Services\GeofencingService` dengan fungsi `calculateDistance()` menggunakan **Rumus Haversine** untuk menghitung jarak antara dua pasang koordinat GPS (latitude/longitude) dalam satuan meter.
-    - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php`.
+    - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php` dan file environment `.env`.
     - Mengintegrasikan pemeriksaan geofencing pada `PresensiFotoController::store()` untuk moda pembelajaran `sekolah`. Jika jarak GPS tutor dengan titik sekolah PKBM Pikat $> 100$ meter, presensi otomatis ditolak dengan pesan peringatan interaktif yang menampilkan jarak sebenarnya.
+    - **Visualisasi Peta Leaflet.js**: Menampilkan lingkaran transparan radius 100 meter sekeliling sekolah PKBM Pikat dengan warna dinamis (Hijau = di dalam radius, Merah = di luar radius), penanda pin marker sekolah & posisi tutor, serta auto-zoom fit bounds.
     - Pengujian otomatis komprehensif pada `tests/Feature/GeofencingTest.php` (uji presensi di dalam radius, di luar radius, bypass moda online, dan perhitungan matematis Haversine).
+- 🟢 **Fitur Kontrol Kamera Lanjutan (Mirror, Switch Camera, Grid 3x3, Flash/Torch)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Mirror Mode (`🪞 Mirror`)**: Pratinjau real-time flip horizontal pada video preview dan penangkapan gambar yang di-flip secara konsisten pada 2D canvas HTML5.
+    - **Switch Camera (`🔄 Switch`)**: Beralih secara instan antara Kamera Depan (Selfie) dan Kamera Belakang (Kelas/Siswa).
+    - **Grid Komposisi (`📐 Grid 3x3`)**: Overlay garis bantu 3x3 *Rule of Thirds* untuk kerapihan foto presensi.
+    - **Deteksi Flash/Torch (`⚡ Flash`)**: Integrasi pengontrol senter perangkat jika didukung oleh browser/kamera.
+- 🟢 **Seeder Data Siswa & Kelas (`SiswaSeeder`)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat file seeder `database/seeders/SiswaSeeder.php` yang secara otomatis menyiapkan data sampel kelas (Paket A, Paket B, Paket C, dan PAUD) serta 6 data sampel siswa terikat pada tutor default.
+    - Menggunakan metode `updateOrCreate` untuk keamanan re-seeding tanpa duplikasi data.
+    - Mendaftarkan seeder pada `database/seeders/DatabaseSeeder.php`.
+
 
 - ⚪ **Deteksi Manipulasi GPS (Anti Fake GPS)**
   - **Status:** **PENDING**

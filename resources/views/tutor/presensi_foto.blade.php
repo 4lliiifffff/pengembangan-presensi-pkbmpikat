@@ -201,13 +201,44 @@
                     <div class="cardTitle">
                         <ion-icon name="camera-outline"></ion-icon>Foto Presensi Pulang
                     </div>
-                    <div class="photoFrame">
+                    <div class="photoFrame" style="position:relative; overflow:hidden;">
                         <video id="videoPreview" playsinline muted></video>
                         <img id="previewImg" alt="Preview foto" />
+
+                        {{-- Grid Overlay --}}
+                        <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                            <div class="gridBox">
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                            </div>
+                        </div>
+
+                        {{-- Floating Camera Toolbar Overlay --}}
+                        <div id="camControlBar" class="camControlBar" style="display:none;">
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                    <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                    <ion-icon name="camera-reverse-outline"></ion-icon> Switch
+                                </button>
+                            </div>
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                    <ion-icon name="grid-outline"></ion-icon> Grid
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                    <ion-icon name="flash-outline"></ion-icon> Flash
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="photoPlaceholder" id="placeholder">
                             Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Selesai</b>.
                         </div>
                     </div>
+
                     <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                     <div class="camActions" id="camActions">
                         <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
@@ -327,13 +358,44 @@
                     <div class="cardTitle">
                         <ion-icon name="camera-outline"></ion-icon>Foto Presensi Masuk
                     </div>
-                    <div class="photoFrame">
+                    <div class="photoFrame" style="position:relative; overflow:hidden;">
                         <video id="videoPreview" playsinline muted></video>
                         <img id="previewImg" alt="Preview foto" />
+
+                        {{-- Grid Overlay --}}
+                        <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                            <div class="gridBox">
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                            </div>
+                        </div>
+
+                        {{-- Floating Camera Toolbar Overlay --}}
+                        <div id="camControlBar" class="camControlBar" style="display:none;">
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                    <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                    <ion-icon name="camera-reverse-outline"></ion-icon> Switch
+                                </button>
+                            </div>
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                    <ion-icon name="grid-outline"></ion-icon> Grid
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                    <ion-icon name="flash-outline"></ion-icon> Flash
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="photoPlaceholder" id="placeholder">
                             Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Absen</b>.
                         </div>
                     </div>
+
                     <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                     <div class="camActions" id="camActions">
                         <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
@@ -664,16 +726,122 @@
         }
 
 
-        /* ══════════════════ CAMERA ══════════════════ */
+        /* ══════════════════ ADVANCED CAMERA CONTROLS ══════════════════ */
         let mediaStream = null;
+        let currentFacingMode = 'user'; // 'user' (depan) atau 'environment' (belakang)
+        let isMirrored = true;          // default mirror kamera depan
+        let isGridActive = false;
+        let isTorchOn = false;
 
-        function openLiveCamera() {
-            var checkboxes = document.querySelectorAll('.siswa-checkbox');
-            if (checkboxes.length > 0) {
-                var isChecked = Array.from(checkboxes).some(cb => cb.checked);
-                if (!isChecked) {
-                    alert('Pilih siswa terlebih dahulu.');
+        function updateCameraTransform() {
+            var video = document.getElementById('videoPreview');
+            if (video) {
+                video.style.transform = isMirrored ? 'scaleX(-1)' : 'scaleX(1)';
+            }
+            var btnMirror = document.getElementById('btnToggleMirror');
+            if (btnMirror) {
+                if (isMirrored) {
+                    btnMirror.classList.add('active');
+                } else {
+                    btnMirror.classList.remove('active');
+                }
+            }
+        }
+
+        function toggleCameraMirror() {
+            isMirrored = !isMirrored;
+            updateCameraTransform();
+        }
+
+        function toggleCameraGrid() {
+            isGridActive = !isGridActive;
+            var gridEl = document.getElementById('cameraGrid');
+            var btnGrid = document.getElementById('btnToggleGrid');
+            if (gridEl) {
+                gridEl.style.display = isGridActive ? 'block' : 'none';
+            }
+            if (btnGrid) {
+                if (isGridActive) {
+                    btnGrid.classList.add('active');
+                } else {
+                    btnGrid.classList.remove('active');
+                }
+            }
+        }
+
+        function toggleCameraTorch() {
+            if (!mediaStream) return;
+            var videoTrack = mediaStream.getVideoTracks()[0];
+            if (!videoTrack) return;
+
+            var btnTorch = document.getElementById('btnToggleTorch');
+
+            isTorchOn = !isTorchOn;
+            videoTrack.applyConstraints({
+                advanced: [{ torch: isTorchOn }]
+            }).then(function() {
+                if (btnTorch) {
+                    if (isTorchOn) {
+                        btnTorch.classList.add('active');
+                    } else {
+                        btnTorch.classList.remove('active');
+                    }
+                }
+            }).catch(function(err) {
+                console.log('Flash/Torch error or not supported:', err);
+                isTorchOn = false;
+                if (btnTorch) btnTorch.classList.remove('active');
+            });
+        }
+
+        function checkTorchSupport() {
+            var btnTorch = document.getElementById('btnToggleTorch');
+            if (!btnTorch) return;
+            if (!mediaStream) {
+                btnTorch.style.display = 'none';
+                return;
+            }
+            var videoTrack = mediaStream.getVideoTracks()[0];
+            if (videoTrack && typeof videoTrack.getCapabilities === 'function') {
+                var capabilities = videoTrack.getCapabilities();
+                if (capabilities.torch) {
+                    btnTorch.style.display = 'inline-flex';
                     return;
+                }
+            }
+            btnTorch.style.display = 'none';
+        }
+
+        function switchCameraFacing() {
+            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
+            
+            // Kamera belakang secara alami tidak di-mirror
+            isMirrored = (currentFacingMode === 'user');
+
+            var btnSwitch = document.getElementById('btnToggleSwitch');
+            if (btnSwitch) {
+                if (currentFacingMode === 'environment') {
+                    btnSwitch.classList.add('active');
+                } else {
+                    btnSwitch.classList.remove('active');
+                }
+            }
+
+            if (mediaStream) {
+                stopCameraStream();
+                openLiveCamera(true);
+            }
+        }
+
+        function openLiveCamera(isSwitching = false) {
+            if (!isSwitching) {
+                var checkboxes = document.querySelectorAll('.siswa-checkbox');
+                if (checkboxes.length > 0) {
+                    var isChecked = Array.from(checkboxes).some(cb => cb.checked);
+                    if (!isChecked) {
+                        alert('Pilih siswa terlebih dahulu.');
+                        return;
+                    }
                 }
             }
 
@@ -681,40 +849,45 @@
                 alert('Peramban tidak mendukung kamera langsung. Gunakan Chrome/Safari terbaru.');
                 return;
             }
+
             var video = document.getElementById('videoPreview');
             var tryCamera = function() {
                 return navigator.mediaDevices.getUserMedia({
-                        video: {
-                            facingMode: {
-                                ideal: 'user'
-                            },
-                            width: {
-                                ideal: 1280
-                            },
-                            height: {
-                                ideal: 720
-                            }
-                        },
+                    video: {
+                        facingMode: { ideal: currentFacingMode },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                }).catch(function() {
+                    return navigator.mediaDevices.getUserMedia({
+                        video: true,
                         audio: false
-                    })
-                    .catch(function() {
-                        return navigator.mediaDevices.getUserMedia({
-                            video: true,
-                            audio: false
-                        });
                     });
+                });
             };
+
             tryCamera().then(function(stream) {
                 mediaStream = stream;
                 video.srcObject = stream;
                 video.classList.add('active');
+                
+                updateCameraTransform();
+                checkTorchSupport();
+
                 document.getElementById('placeholder').classList.add('hidden');
+                
+                var bar = document.getElementById('camControlBar');
+                if (bar) bar.style.display = 'flex';
+
                 var img = document.getElementById('previewImg');
                 img.classList.remove('visible');
                 img.removeAttribute('src');
+
                 document.getElementById('btnBukaKamera').style.display = 'none';
                 document.getElementById('camRowStreaming').style.display = 'flex';
                 document.getElementById('btnUlangi').style.display = 'none';
+
                 return video.play();
             }).catch(function(err) {
                 alert('Tidak bisa membuka kamera: ' + (err && err.message ? err.message : 'izin ditolak.'));
@@ -730,6 +903,8 @@
             }
             var video = document.getElementById('videoPreview');
             if (video) video.srcObject = null;
+            var bar = document.getElementById('camControlBar');
+            if (bar) bar.style.display = 'none';
         }
 
         function cancelCamera() {
@@ -749,10 +924,20 @@
                 alert('Kamera belum siap, tunggu sebentar.');
                 return;
             }
+
             var canvas = document.createElement('canvas');
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
+            var ctx = canvas.getContext('2d');
+
+            // Tangkap gambar dengan memperhatikan status mirror
+            if (isMirrored) {
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+            }
+
+            ctx.drawImage(video, 0, 0);
+
             canvas.toBlob(function(blob) {
                 if (!blob) {
                     alert('Gagal membuat gambar.');
@@ -769,24 +954,23 @@
                     alert('Coba Chrome/Safari terbaru.');
                     return;
                 }
+
                 var url = URL.createObjectURL(blob);
                 var img = document.getElementById('previewImg');
                 img.src = url;
                 img.classList.add('visible');
+
                 stopCameraStream();
+
                 document.getElementById('videoPreview').classList.remove('active');
                 document.getElementById('camRowStreaming').style.display = 'none';
                 document.getElementById('btnBukaKamera').style.display = 'none';
                 document.getElementById('btnUlangi').style.display = 'flex';
                 document.getElementById('placeholder').classList.add('hidden');
 
-                // Aktifkan tombol submit pulang jika sudah bisa pulang
-                var submitBtn = document.getElementById('btnSubmit');
-                if (submitBtn && submitBtn.disabled) {
-                    // jangan aktifkan — pulang belum boleh
-                }
             }, 'image/jpeg', 0.88);
         }
+
 
         function toggleModaDaring(val) {
             var box = document.getElementById('boxLinkDaring');
