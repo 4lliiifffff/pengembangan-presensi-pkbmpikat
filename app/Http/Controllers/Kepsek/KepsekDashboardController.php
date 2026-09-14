@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Kepsek;
 
 use App\Http\Controllers\Controller;
+use App\Models\PengajuanIzinSakit;
 use App\Models\PengajuanLupaLapor;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
@@ -11,6 +12,7 @@ use App\Models\Tutor;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 
 class KepsekDashboardController extends Controller
@@ -337,6 +339,87 @@ class KepsekDashboardController extends Controller
     public function lupaLaporDestroy(int $id)
     {
         PengajuanLupaLapor::findOrFail($id)->delete();
+
+        return back()->with('success', 'Pengajuan berhasil dihapus.');
+    }
+
+    /* ─────────────────────────────────────────────
+     |  KELOLA PENGAJUAN IZIN & SAKIT TUTOR
+     ───────────────────────────────────────────── */
+    public function pengajuanIzin(Request $request)
+    {
+        $query = PengajuanIzinSakit::with(['tutor', 'verifikator'])
+            ->orderByDesc('tgl_mulai')
+            ->orderByDesc('id');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('jenis')) {
+            $query->where('jenis', $request->jenis);
+        }
+
+        if ($request->filled('cari')) {
+            $cari = $request->cari;
+            $query->whereHas('tutor', fn ($t) => $t->where('nama_lengkap', 'like', "%{$cari}%"));
+        }
+
+        $total = (clone $query)->count();
+        $totalPending = PengajuanIzinSakit::where('status', 'pending')->count();
+        $items = $query->paginate(15);
+
+        return view('kepsek.pengajuan_izin', compact('items', 'total', 'totalPending'));
+    }
+
+    public function setujuiPengajuanIzin(Request $request, int $id)
+    {
+        $item = PengajuanIzinSakit::findOrFail($id);
+        $item->status = 'disetujui';
+        $item->disetujui_oleh = Auth::id();
+        $item->catatan_verifikasi = $request->input('catatan_verifikasi', 'Pengajuan disetujui');
+        $item->save();
+
+        $startDate = Carbon::parse($item->tgl_mulai);
+        $endDate = Carbon::parse($item->tgl_selesai);
+
+        $siswaIds = Presensi::where('tutor_id', $item->tutor_id)->distinct()->pluck('siswa_id');
+        if ($siswaIds->isEmpty()) {
+            $siswaIds = Siswa::pluck('id')->take(1);
+        }
+
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            foreach ($siswaIds as $siswaId) {
+                Presensi::updateOrCreate(
+                    [
+                        'tutor_id' => $item->tutor_id,
+                        'siswa_id' => $siswaId,
+                        'tgl_presensi' => $date->toDateString(),
+                    ],
+                    [
+                        'status' => $item->jenis,
+                    ]
+                );
+            }
+        }
+
+        return back()->with('success', 'Pengajuan '.ucfirst($item->jenis).' disetujui & data presensi disinkronkan.');
+    }
+
+    public function tolakPengajuanIzin(Request $request, int $id)
+    {
+        $item = PengajuanIzinSakit::findOrFail($id);
+        $item->status = 'ditolak';
+        $item->disetujui_oleh = Auth::id();
+        $item->catatan_verifikasi = $request->input('catatan_verifikasi', 'Pengajuan ditolak');
+        $item->save();
+
+        return back()->with('warning', 'Pengajuan '.ucfirst($item->jenis).' ditolak.');
+    }
+
+    public function destroyPengajuanIzin(int $id)
+    {
+        PengajuanIzinSakit::findOrFail($id)->delete();
 
         return back()->with('success', 'Pengajuan berhasil dihapus.');
     }

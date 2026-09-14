@@ -67,9 +67,9 @@
   - **Deteksi Heuristik Frontend**: Menguji `pos.coords.mocked`, korelasi `altitude/speed/heading`, serta pengiriman data akurasi ke server.
   - Automated feature testing pada `tests/Feature/AntiFakeGpsTest.php` (uji akurasi valid, mock location ditolak, akurasi buruk ditolak, akurasi 0m ditolak).
 
+* 🟢 **PWA (Progressive Web App) & Offline Mode:** [SELESAI] Pemasangan Web App Manifest (`manifest.json`), Service Worker (`sw.js`), dan penyimpanan lokal `IndexedDB` (`PikatPresensiOfflineDB`) agar presensi tetap dapat dicatat saat perangkat offline dan otomatis disinkronkan saat kembali online.
+* 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor:** [SELESAI] Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung (PDF/JPG/PNG max 2MB) serta alur verifikasi (approval/rejection) oleh Kepala Sekolah yang menyinkronkan rekapan presensi.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
-* ⚪ **PWA (Progressive Web App) & Offline Mode:** [PENDING] Pemasangan Web App Manifest, Service Worker, dan penyimpanan lokal `IndexedDB` agar presensi tetap dapat dicatat saat perangkat tidak memiliki sinyal internet dan otomatis melakukan sinkronisasi saat online.
-* ⚪ **Pengajuan Izin & Sakit Mandiri oleh Tutor:** [PENDING] Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung serta alur verifikasi approval oleh Admin/Kepala Sekolah.
 
 ---
 

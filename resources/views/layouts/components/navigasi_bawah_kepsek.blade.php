@@ -20,6 +20,13 @@
         <span>Lupa Presensi</span>
     </a>
 
+    <a href="{{ route('kepsek.pengajuan-izin') }}"
+       class="{{ request()->routeIs('kepsek.pengajuan-izin*') ? 'active' : '' }}"
+       aria-label="Izin Tutor">
+        <ion-icon name="{{ request()->routeIs('kepsek.pengajuan-izin*') ? 'medkit' : 'medkit-outline' }}"></ion-icon>
+        <span>Izin Tutor</span>
+    </a>
+
     <a href="{{ route('kepsek.presensi-tutor') }}"
        class="{{ request()->routeIs('kepsek.presensi-tutor*') ? 'active' : '' }}"
        aria-label="Presensi Tutor">

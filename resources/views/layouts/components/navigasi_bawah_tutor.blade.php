@@ -14,12 +14,23 @@
         $isRight = request()->routeIs('tutor.jadwal');
     @endphp
 
+    @php
+        $izinHref = \Illuminate\Support\Facades\Route::has('tutor.pengajuan-izin')
+            ? route('tutor.pengajuan-izin')
+            : '#';
+        $isIzin = request()->routeIs('tutor.pengajuan-izin');
+    @endphp
+
     <a href="{{ $leftHref }}" class="{{ $isLeft ? 'active' : '' }}" aria-label="Riwayat">
         <ion-icon name="{{ $isLeft ? 'time' : 'time-outline' }}">Riwayat</ion-icon>
     </a>
 
     <a href="{{ $centerHref }}" class="{{ $isCenter ? 'active' : '' }}" aria-label="Dashboard">
         <ion-icon name="{{ $isCenter ? 'grid' : 'grid-outline' }}">Dashboard</ion-icon>
+    </a>
+
+    <a href="{{ $izinHref }}" class="{{ $isIzin ? 'active' : '' }}" aria-label="Izin/Sakit">
+        <ion-icon name="{{ $isIzin ? 'document-text' : 'document-text-outline' }}">Izin/Sakit</ion-icon>
     </a>
 
     <a href="{{ $rightHref }}" class="{{ $isRight ? 'active' : '' }}" aria-label="Jadwal">

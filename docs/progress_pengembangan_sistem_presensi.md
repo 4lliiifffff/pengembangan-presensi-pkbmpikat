@@ -120,15 +120,27 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Deteksi Heuristik Frontend**: Menguji `pos.coords.mocked`, korelasi `altitude/speed/heading`, serta pengiriman data akurasi ke server.
     - Automated feature testing pada `tests/Feature/AntiFakeGpsTest.php` (uji akurasi valid, mock location ditolak, akurasi buruk ditolak, akurasi 0m ditolak).
 
+- 🟢 **PWA (Progressive Web App) & Offline Mode**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** 
+    - **Web App Manifest (`public/manifest.json`)**: Menyiapkan konfigurasi PWA aplikasi (`name`: "Smart Presensi PKBM Pikat", `short_name`: "Presensi Pikat", `display`: "standalone", `theme_color`: "#0B5ED7", icons 192x192 & 512x512).
+    - **Service Worker (`public/sw.js`)**: Caching aset statis & offline fallback dengan strategi Network-First Cache-Fallback.
+    - **Penyimpanan Lokal IndexedDB (`resources/js/offline-presensi.js`)**: Membuat database `PikatPresensiOfflineDB` dan object store `offline_presensis`. Jika presensi dikirim dalam kondisi offline, data presensi (beserta lokasi, foto, & payload) disimpan lokal di IndexedDB browser.
+    - **Auto-Synchronization (`online` Event Listener)**: Secara otomatis mendeteksi ketika perangkat kembali terhubung ke internet dan mengirimkan seluruh antrean presensi ke server.
+    - Automated feature testing pada `tests/Feature/PwaOfflineTest.php`.
+
+- 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat migrasi `database/migrations/2026_09_14_000004_create_pengajuan_izin_sakit_table.php` dan Eloquent Model `App\Models\PengajuanIzinSakit`.
+    - **Formulir Mandiri Tutor**: Menambahkan controller `PengajuanIzinController` dan view `resources/views/tutor/pengajuan_izin.blade.php` bagi tutor untuk mengajukan izin/sakit digital lengkap dengan uploader dokumen bukti (PDF, JPG, PNG max 2MB).
+    - **Workflow Verifikasi Kepala Sekolah**: Menambahkan view `resources/views/kepsek/pengajuan_izin.blade.php` dan method `setujuiPengajuanIzin()` / `tolakPengajuanIzin()` pada `KepsekDashboardController`.
+    - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah menyetujui pengajuan izin/sakit, sistem secara otomatis mengisikan/menyinkronkan record pada tabel `presensis` untuk rentang tanggal yang diajukan dengan status `'izin'` atau `'sakit'`.
+    - Automated feature testing pada `tests/Feature/PengajuanIzinSakitTest.php`.
+
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
-- ⚪ **PWA (Progressive Web App) & Offline Mode**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Pemasangan Web App Manifest, Service Worker, dan penyimpanan lokal `IndexedDB` agar presensi tetap dapat dicatat saat perangkat tidak memiliki sinyal internet dan otomatis melakukan sinkronisasi saat online.
-- ⚪ **Pengajuan Izin & Sakit Mandiri oleh Tutor**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung serta alur verifikasi approval oleh Admin/Kepala Sekolah.
 
 ---
 

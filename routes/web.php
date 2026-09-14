@@ -12,9 +12,18 @@ use App\Http\Controllers\KaryawanPresensiController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Tutor\LupaLaporController;
+use App\Http\Controllers\Tutor\PengajuanIzinController;
 use App\Http\Controllers\Tutor\PresensiFotoController;
 use App\Http\Controllers\Tutor\TutorDashboardController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/manifest.json', function () {
+    return response()->file(public_path('manifest.json'), ['Content-Type' => 'application/json']);
+});
+
+Route::get('/sw.js', function () {
+    return response()->file(public_path('sw.js'), ['Content-Type' => 'text/javascript']);
+});
 
 Route::get('/', function () {
     return view('auth.login');
@@ -68,6 +77,9 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::get('/lupa-lapor', [LupaLaporController::class, 'index'])->name('lupa-lapor');
     Route::post('/lupa-lapor', [LupaLaporController::class, 'store'])->name('lupa-lapor.store');
     Route::delete('/lupa-lapor/{id}', [LupaLaporController::class, 'destroy'])->name('lupa-lapor.destroy');
+    Route::get('/pengajuan-izin', [PengajuanIzinController::class, 'index'])->name('pengajuan-izin');
+    Route::post('/pengajuan-izin', [PengajuanIzinController::class, 'store'])->name('pengajuan-izin.store');
+    Route::delete('/pengajuan-izin/{id}', [PengajuanIzinController::class, 'destroy'])->name('pengajuan-izin.destroy');
 });
 
 Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('kepsek.')->group(function () {
@@ -81,4 +93,8 @@ Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('keps
     Route::patch('/lupa-lapor/{id}/setujui', [KepsekDashboardController::class, 'setujuiLupaLapor'])->name('lupa-lapor.setujui');
     Route::patch('/lupa-lapor/{id}/tolak', [KepsekDashboardController::class, 'tolakLupaLapor'])->name('lupa-lapor.tolak');
     Route::delete('/lupa-lapor/{id}', [KepsekDashboardController::class, 'lupaLaporDestroy'])->name('lupa-lapor.destroy');
+    Route::get('/pengajuan-izin', [KepsekDashboardController::class, 'pengajuanIzin'])->name('pengajuan-izin');
+    Route::patch('/pengajuan-izin/{id}/setujui', [KepsekDashboardController::class, 'setujuiPengajuanIzin'])->name('pengajuan-izin.setujui');
+    Route::patch('/pengajuan-izin/{id}/tolak', [KepsekDashboardController::class, 'tolakPengajuanIzin'])->name('pengajuan-izin.tolak');
+    Route::delete('/pengajuan-izin/{id}', [KepsekDashboardController::class, 'destroyPengajuanIzin'])->name('pengajuan-izin.destroy');
 });
