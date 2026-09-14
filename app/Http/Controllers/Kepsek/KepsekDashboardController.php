@@ -9,6 +9,7 @@ use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
 use App\Models\Siswa;
 use App\Models\Tutor;
+use App\Services\AnalyticsService;
 use App\Services\LaporanPresensiService;
 use App\Services\PresensiService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -21,11 +22,12 @@ class KepsekDashboardController extends Controller
 {
     public function __construct(
         protected LaporanPresensiService $laporanService,
-        protected PresensiService $presensiService
+        protected PresensiService $presensiService,
+        protected AnalyticsService $analyticsService
     ) {}
 
     /* ─────────────────────────────────────────────
-     |  DASHBOARD
+     |  DASHBOARD & ANALYTICS
      ───────────────────────────────────────────── */
     public function index()
     {
@@ -33,7 +35,7 @@ class KepsekDashboardController extends Controller
 
         $counts = [
             'hadir' => $this->countHadir($today),
-            'izin' => 0,
+            'izin' => Presensi::whereDate('tgl_presensi', $today)->whereIn('status', ['izin', 'sakit'])->count(),
         ];
 
         $weekStart = Carbon::now()->startOfWeek(Carbon::MONDAY);
@@ -58,11 +60,16 @@ class KepsekDashboardController extends Controller
             ->get()
             ->map(fn (Presensi $p) => $this->mapStatus($p));
 
+        $monthlyTrend = $this->analyticsService->getMonthlyAttendanceTrend(6);
+        $kpiRanking = $this->analyticsService->getTutorKpiRanking();
+
         return view('kepsek.dashboard', [
             'today' => $today,
             'counts' => $counts,
             'weekly' => ['days' => $days, 'max' => $max ?: 1],
             'latest' => $latest,
+            'monthlyTrend' => $monthlyTrend,
+            'kpiRanking' => $kpiRanking,
         ]);
     }
 

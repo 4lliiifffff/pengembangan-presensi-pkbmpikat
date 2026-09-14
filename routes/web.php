@@ -94,6 +94,7 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
 
 Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('kepsek.')->group(function () {
     Route::get('/dashboard', [KepsekDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/analytics', [KepsekDashboardController::class, 'index'])->name('analytics');
     Route::get('/laporan', [KepsekDashboardController::class, 'laporan'])->name('laporan');
     Route::get('/laporan/export/pdf', [KepsekDashboardController::class, 'exportPdf'])->name('laporan.pdf');
     Route::get('/presensi', [KaryawanPresensiController::class, 'index'])->name('presensi');

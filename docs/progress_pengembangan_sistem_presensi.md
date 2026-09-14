@@ -202,12 +202,12 @@ pie title Status Fitur & Pengkondisian Sistem
 ### 5. Executive Dashboard & Business Intelligence (Analytics)
 
 #### 5.1 Dashboard Analytics Kepala Sekolah
-- ⚪ **Heatmap Kehadiran & Tren Kinerja**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Visualisasi grafik interaktif (Chart.js / ApexCharts) untuk memantau tren tingkat kehadiran Tutor per bulan, persebaran keterlambatan, dan keaktifan mengajar.
-- ⚪ **Indikator Kinerja Utama (KPI Tutor)**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Pemeringkatan kedisiplinan dan akumulasi jam mengajar Tutor sebagai acuan evaluasi kinerja tahunan oleh Kepala Sekolah.
+- 🟢 **Heatmap Kehadiran & Tren Kinerja**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Membuat `App\Services\AnalyticsService.php` dan visualisasi grafik interaktif Chart.js pada Dashboard Kepala Sekolah (`resources/views/kepsek/dashboard.blade.php`) yang menyajikan tren kehadiran, total sesi bimbingan, dan volume jam mengajar selama 6 bulan terakhir.
+- 🟢 **Indikator Kinerja Utama (KPI Tutor)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Fitur kalkulasi skor KPI composite Tutor berbasis tingkat kedisiplinan persentase kehadiran (%) dan akumulasi jam mengajar (jam). Menampilkan papan pemeringkatan (Leaderboard) dengan badge peringkat (#1 Gold, #2 Silver, #3 Bronze), kategori kinerja (*Sangat Baik*, *Baik*, *Perlu Perhatian*), dan progress bar kedisiplinan. Dilengkapi pengujian otomatis `KepsekAnalyticsKpiTest.php` (27 tests, 124 assertions OK 100%).
 
 #### 5.2 Laporan Standar Akreditasi Pendidikan
 - ⚪ **Format Laporan Otomatis Akreditasi BAN PAUD & PNF**

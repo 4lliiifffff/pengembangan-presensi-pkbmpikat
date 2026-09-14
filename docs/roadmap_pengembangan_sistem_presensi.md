@@ -102,8 +102,8 @@
 ## 5. EXECUTIVE DASHBOARD & BUSINESS INTELLIGENCE (ANALYTICS)
 
 ### 5.1 Dashboard Analytics Kepala Sekolah
-* ⚪ **Heatmap Kehadiran & Tren Kinerja:** [PENDING] Visualisasi grafik interaktif (Chart.js / ApexCharts) untuk memantau tren tingkat kehadiran Tutor per bulan, persebaran keterlambatan, dan keaktifan mengajar.
-* ⚪ **Indikator Kinerja Utama (KPI Tutor):** [PENDING] Pemeringkatan kedisiplinan dan akumulasi jam mengajar Tutor sebagai acuan evaluasi kinerja tahunan oleh Kepala Sekolah.
+* 🟢 **Heatmap Kehadiran & Tren Kinerja:** [SELESAI] Visualisasi grafik interaktif (Chart.js) untuk memantau tren tingkat kehadiran Tutor per bulan, total sesi, dan akumulasi jam mengajar selama 6 bulan terakhir (`AnalyticsService.php` & `kepsek/dashboard.blade.php`).
+* 🟢 **Indikator Kinerja Utama (KPI Tutor):** [SELESAI] Pemeringkatan kedisiplinan (%), jam mengajar (jam), dan skor composite KPI Tutor (Leaderboard #1 Gold, #2 Silver, #3 Bronze) sebagai acuan evaluasi kinerja tahunan oleh Kepala Sekolah.
 
 ### 5.2 Laporan Standar Akreditasi Pendidikan
 * ⚪ **Format Laporan Otomatis Akreditasi BAN PAUD & PNF:** [PENDING] Fitur generasi laporan rekapitulasi presensi dan kegiatan mengajar yang sudah disesuaikan dengan format standar lampiran akreditasi BAN PAUD & PNF.
