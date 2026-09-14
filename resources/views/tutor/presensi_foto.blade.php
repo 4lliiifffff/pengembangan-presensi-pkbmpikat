@@ -268,6 +268,20 @@
                 <input type="hidden" name="mode" value="mulai">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
 
+                <div style="margin-bottom:12px;">
+                    <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:var(--text);">Moda Pembelajaran <span style="color:#ef4444;">*</span></div>
+                    <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);" onchange="toggleModaDaring(this.value)">
+                        <option value="sekolah">🏢 Sekolah (Tatap Muka di Gedung PKBM Pikat)</option>
+                        <option value="kunjungan_rumah">🏡 Kunjungan Rumah (Home Visit / Les Privat)</option>
+                        <option value="online">💻 Pembelajaran Online (Daring via Zoom/GMeet/WA)</option>
+                    </select>
+                </div>
+
+                <div style="margin-bottom:12px; display:none;" id="boxLinkDaring">
+                    <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:#0284c7;">Link Ruang Pertemuan Online (Opsional)</div>
+                    <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/xxx-xxxx-xxx atau Zoom Link" style="width:100%; border-radius:12px; padding:10px; font-size:13px; background:var(--card); color:var(--text); border:1px solid #0284c7;">
+                </div>
+
                 <div style="margin-bottom:12px;" id="siswaCheckboxes">
                     <div style="font-size:12px; font-weight:900; margin-bottom:8px; color:var(--text);">Pilih Siswa (Bisa lebih dari satu)</div>
                     <div style="max-height: 180px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 4px;">
@@ -658,6 +672,13 @@
                     // jangan aktifkan — pulang belum boleh
                 }
             }, 'image/jpeg', 0.88);
+        }
+
+        function toggleModaDaring(val) {
+            var box = document.getElementById('boxLinkDaring');
+            if (box) {
+                box.style.display = (val === 'online') ? 'block' : 'none';
+            }
         }
 
         function retakePhoto() {

@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model Presensi — Representasi Data Kehadiran Tutor
@@ -21,17 +23,31 @@ class Presensi extends Model
      */
     protected $fillable =
         [
-            'tutor_id',       // ID tutor yang melakukan presensi
-            'siswa_id',       // ID siswa yang diajar dalam sesi ini
-            'tgl_presensi',   // Tanggal sesi mengajar berlangsung
-            'jam_mulai',      // Jam tutor mulai mengajar (clock-in)
-            'jam_selesai',    // Jam tutor selesai mengajar (clock-out) — null jika masih berjalan
-            'foto_mulai',     // Path foto bukti absen masuk
-            'foto_selesai',   // Path foto bukti absen pulang — null jika belum selesai
-            'lokasi_mulai',   // Koordinat GPS / deskripsi lokasi saat masuk (opsional)
-            'lokasi_selesai', // Koordinat GPS / deskripsi lokasi saat pulang (opsional)
-            'status',          // Status: 'hadir', 'izin', atau 'alpha'
+            'tutor_id',          // ID tutor yang melakukan presensi
+            'siswa_id',          // ID siswa yang diajar dalam sesi ini
+            'moda_pembelajaran', // Moda: 'sekolah', 'kunjungan_rumah', atau 'online'
+            'link_daring',       // Link ruang pertemuan online (misal: Zoom/GMeet link)
+            'tgl_presensi',      // Tanggal sesi mengajar berlangsung
+            'jam_mulai',         // Jam tutor mulai mengajar (clock-in)
+            'jam_selesai',       // Jam tutor selesai mengajar (clock-out) — null jika masih berjalan
+            'foto_mulai',        // Path foto bukti absen masuk
+            'foto_selesai',      // Path foto bukti absen pulang — null jika belum selesai
+            'lokasi_mulai',      // Koordinat GPS / deskripsi lokasi saat masuk (opsional)
+            'lokasi_selesai',    // Koordinat GPS / deskripsi lokasi saat pulang (opsional)
+            'status',             // Status: 'hadir', 'izin', atau 'alpha'
         ];
+
+    /**
+     * Accessor: Label Moda Pembelajaran dalam Bahasa Indonesia baku.
+     */
+    public function getModaLabelAttribute(): string
+    {
+        return match ($this->moda_pembelajaran) {
+            'kunjungan_rumah' => 'Kunjungan Rumah (Home Visit)',
+            'online' => 'Pembelajaran Online (Daring)',
+            default => 'Sekolah (Tatap Muka)',
+        };
+    }
 
     /**
      * Relasi: Presensi dimiliki oleh satu Tutor (Many-to-One / BelongsTo).
@@ -39,7 +55,7 @@ class Presensi extends Model
      * Dengan relasi ini, kita bisa mengakses data tutor dari presensi:
      *   $presensi->tutor->nama_lengkap
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function tutor()
     {
@@ -52,7 +68,7 @@ class Presensi extends Model
      * Dengan relasi ini, kita bisa mengakses data siswa dari presensi:
      *   $presensi->siswa->nama_siswa
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function siswa()
     {
@@ -78,10 +94,10 @@ class Presensi extends Model
      *      dengan logika filter yang bisa digunakan kembali (reusable). Namanya diawali
      *      dengan 'scope', tapi dipanggil tanpa awalan tersebut.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  Builder  $query
      * @param  string  $periode  Periode filter: 'hari', 'minggu', 'bulan', 'tahun'
      * @param  string|null  $tanggal  Tanggal spesifik untuk filter 'hari' (opsional)
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     public function scopeLaporanNgajar($query, $periode = 'hari', $tanggal = null)
     {

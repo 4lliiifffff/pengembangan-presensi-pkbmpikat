@@ -2,7 +2,7 @@
 
 **Tanggal Pembaruan:** 14 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1 (Keamanan, Infrastruktur, Standardisasi & Fondasi Sistem)  
+**Status Proyek:** Fase 1 & 2 (Keamanan, Infrastruktur, Presensi Multi-Moda & Workflow Approval)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,15 +11,15 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 14
+    "Selesai (Completed)" : 15
     "Dalam Proses (In Progress)" : 1
-    "Belum Dimulai (Pending)" : 15
+    "Belum Dimulai (Pending)" : 14
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
 | 1. Keamanan, Infrastruktur & Performa | 7 | 5 | 0 | 2 |
-| 2. Core Presensi & Validasi | 7 | 2 | 0 | 5 |
+| 2. Core Presensi & Validasi | 7 | 3 | 0 | 4 |
 | 3. Payroll & Honorarium | 4 | 0 | 0 | 4 |
 | 4. Integrasi & Notifikasi | 4 | 0 | 0 | 4 |
 | 5. Executive Dashboard | 3 | 0 | 0 | 3 |
@@ -79,6 +79,15 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah mengklik "Setujui", sistem secara otomatis melakukan *upsert* (membuat/memperbarui) data kehadiran pada tabel `presensis` (`status = 'hadir'`).
 
 #### 2.3 Validasi Lokasi & Fitur Lanjutan
+- 🟢 **Presensi Multi-Moda (Sekolah, Kunjungan Rumah, Online)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** 
+    - Menambahkan kolom `moda_pembelajaran` (`sekolah`, `kunjungan_rumah`, `online`) dan `link_daring` pada tabel `presensis`.
+    - Mengintegrasikan pemilih moda pembelajaran pada form presensi tutor (`tutor/presensi_foto.blade.php`).
+    - **Tatap Muka Sekolah**: Strict Geofencing dari titik sekolah PKBM Pikat.
+    - **Kunjungan Rumah (Home Visit)**: Catat titik lokasi GPS kunjungan + foto di rumah murid.
+    - **Pembelajaran Online**: Bypass radius lokasi + wajib melampirkan foto layar/link ruang pertemuan (Zoom/GMeet).
+    - Menambahkan Eloquent Accessor `$presensi->moda_label` untuk kemudahan pelaporan.
 - ⚪ **Kalkulasi Radius Geofencing (Rumus Haversine)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Membatasi absen masuk/pulang berdasarkan koordinat GPS tutor dengan toleransi radius $\le 100$ meter dari titik lokasi PKBM Pikat menggunakan algoritma rumus Haversine.
@@ -179,7 +188,7 @@ pie title Status Fitur & Pengkondisian Sistem
 #### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
 - 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (6 tests, 21 assertions OK) dan kompilasi build produksi Vite `npm run build`.
+  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (7 tests, 26 assertions OK) dan kompilasi build produksi Vite `npm run build`.
 - 🟡 **Penerapan Pattern DRY (Service & Repository Pattern)**
   - **Status:** **DALAM PROSES**
   - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (misal: `PresensiService`, `PayrollService`) untuk menghindari kode berulang (*DRY - Don't Repeat Yourself*).

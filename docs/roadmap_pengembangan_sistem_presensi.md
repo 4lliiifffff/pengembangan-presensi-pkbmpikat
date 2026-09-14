@@ -2,7 +2,7 @@
 
 **Tanggal Pembaruan:** 14 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1 (Keamanan, Infrastruktur, Standardisasi & Fondasi Sistem)  
+**Status Proyek:** Fase 1 & 2 (Keamanan, Infrastruktur, Presensi Multi-Moda & Workflow Approval)  
 
 ---
 
@@ -37,6 +37,13 @@
   - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah mengklik "Setujui", sistem secara otomatis melakukan *upsert* (membuat/memperbarui) data kehadiran pada tabel `presensis` (`status = 'hadir'`).
 
 ### 2.3 Validasi Lokasi & Fitur Lanjutan
+* 🟢 **Presensi Multi-Moda (Sekolah, Kunjungan Rumah, Online):** [SELESAI] 
+  - Menambahkan kolom `moda_pembelajaran` (`sekolah`, `kunjungan_rumah`, `online`) dan `link_daring` pada tabel `presensis`.
+  - Mengintegrasikan pemilih moda pembelajaran pada form presensi tutor (`tutor/presensi_foto.blade.php`).
+  - **Tatap Muka Sekolah**: Strict Geofencing dari titik sekolah PKBM Pikat.
+  - **Kunjungan Rumah (Home Visit)**: Catat titik lokasi GPS kunjungan + foto di rumah murid.
+  - **Pembelajaran Online**: Bypass radius lokasi + wajib melampirkan foto layar/link ruang pertemuan (Zoom/GMeet).
+  - Menambahkan Eloquent Accessor `$presensi->moda_label` untuk kemudahan pelaporan.
 * ⚪ **Kalkulasi Radius Geofencing (Rumus Haversine):** [PENDING] Membatasi absen masuk/pulang berdasarkan koordinat GPS tutor dengan toleransi radius $\le 100$ meter dari titik lokasi PKBM Pikat menggunakan algoritma rumus Haversine.
 * ⚪ **Deteksi Manipulasi GPS (Anti Fake GPS):** [PENDING] Integrasi validasi *accuracy level* lokasi browser/device dan deteksi penggunaan aplikasi *mock location* atau manipulasi koordinat GPS.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
@@ -95,7 +102,7 @@
   - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
 
 ### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
-* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (6 tests, 22 assertions OK) serta kompilasi produksi Vite `npm run build`.
+* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (7 tests, 26 assertions OK) serta kompilasi produksi Vite `npm run build`.
 * 🟡 **Penerapan Pattern DRY (Service & Repository Pattern):** [DALAM PROSES] Mengeluarkan logika berulang ke dalam Service Classes.
 
 ---
@@ -105,6 +112,6 @@
 | Tahap | Fokus Utama | Target Hasil | Estimasi Dampak | Status |
 |---|---|---|---|---|
 | **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟡 Dalam Proses |
-| **Fase 2 (Jangka Pendek)** | Geofencing GPS, Secure Storage Foto, & Refactoring | Data presensi terverifikasi valid secara lokasi dan berkas aman | 🟡 Tinggi (Integritas Data) | ⚪ Pending |
+| **Fase 2 (Jangka Pendek)** | Presensi Multi-Moda, Geofencing GPS, Secure Storage Foto, & Refactoring | Data presensi terverifikasi valid secara lokasi (sekolah, home visit, online) dan berkas aman | 🟡 Tinggi (Integritas Data) | 🟡 Dalam Proses |
 | **Fase 3 (Jangka Menengah)** | PWA / Mobile Mode, WhatsApp Gateway, & Modul Honor | Penggunaan mobile mudah, notifikasi otomatis, & honor terhitung | 🟢 Sedang (Efisiensi Operasional) | ⚪ Pending |
 | **Fase 4 (Jangka Panjang)** | Single Sign-On (SIM), Face AI, & Business Intelligence | Ekosistem aplikasi terintegrasi utuh dengan analitik eksekutif | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |

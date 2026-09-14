@@ -7,10 +7,12 @@ use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 /**
  * PresensiFotoController — Controller Absensi Berbasis Foto untuk Tutor
@@ -62,7 +64,7 @@ class PresensiFotoController extends Controller
      *  - Sesi yang sedang berjalan (jika ada)
      *  - Riwayat sesi yang sudah selesai hari ini
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function index(Request $request)
     {
@@ -81,7 +83,7 @@ class PresensiFotoController extends Controller
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
         // Ambil semua siswa yang diajar oleh tutor ini (tutor_id == login tutor id)
-        $siswas = \App\Models\Siswa::where('tutor_id', $tutor->id)->orderBy('nama_siswa')->get();
+        $siswas = Siswa::where('tutor_id', $tutor->id)->orderBy('nama_siswa')->get();
 
         // Cek apakah kolom tutor_id ada di tabel presensis (backward compatibility)
         // Sistem lama mungkin tidak memiliki kolom ini
@@ -133,7 +135,7 @@ class PresensiFotoController extends Controller
      *  - lokasi   : Opsional, string GPS atau nama lokasi
      *
      * @param  Request  $request  Data form presensi
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(Request $request)
     {
@@ -149,6 +151,8 @@ class PresensiFotoController extends Controller
             'siswa_id' => ['required', 'array', 'min:1'],
             'siswa_id.*' => ['integer'],
             'mode' => ['required', Rule::in(['mulai', 'selesai'])], // Mode: clock-in atau clock-out
+            'moda_pembelajaran' => ['nullable', Rule::in(['sekolah', 'kunjungan_rumah', 'online'])],
+            'link_daring' => ['nullable', 'string', 'max:255'],
             'foto' => ['required', 'image', 'max:5120'],        // Foto wajib, maks 5MB (5120KB)
             'lokasi' => ['nullable', 'string', 'max:255'],        // Lokasi GPS opsional
         ]);
@@ -193,6 +197,8 @@ class PresensiFotoController extends Controller
                     $presensi->tutor_id = $tutor->id;
                 }
                 $presensi->siswa_id = (int) $sId;
+                $presensi->moda_pembelajaran = $validated['moda_pembelajaran'] ?? 'sekolah';
+                $presensi->link_daring = $validated['link_daring'] ?? null;
                 $presensi->tgl_presensi = $today;
                 $presensi->jam_mulai = $waktuServer;
                 $presensi->foto_mulai = $path;
