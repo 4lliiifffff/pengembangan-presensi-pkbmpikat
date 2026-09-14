@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\TutorExport;
+use App\Exports\TutorTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\TutorImport;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KaryawanController extends Controller
 {
@@ -173,5 +177,40 @@ class KaryawanController extends Controller
         return redirect()
             ->route('admin.karyawan.index')
             ->with('success', 'Status karyawan berhasil diubah.');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(
+            new TutorExport,
+            'Data_Karyawan_Tutor_PKBM_Pikat_'.date('Ymd').'.xlsx'
+        );
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new TutorTemplateExport,
+            'Template_Import_Tutor_Karyawan_PKBM_Pikat.xlsx'
+        );
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file_excel.required' => 'Silakan pilih berkas spreadsheet Excel/CSV terlebih dahulu.',
+            'file_excel.mimes' => 'Format berkas harus berekstensi .xlsx, .xls, atau .csv.',
+            'file_excel.max' => 'Ukuran berkas maksimal adalah 5MB.',
+        ]);
+
+        $import = new TutorImport;
+        Excel::import($import, $request->file('file_excel'));
+
+        return redirect()->route('admin.karyawan.index')->with(
+            'success',
+            "Impor data tutor/karyawan berhasil: {$import->importedCount} akun baru dibuat, {$import->updatedCount} akun diperbarui, {$import->skippedCount} data dilewati."
+        );
     }
 }

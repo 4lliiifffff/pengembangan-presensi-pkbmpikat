@@ -7,16 +7,51 @@
 @section('title', 'Rekapitulasi Penggajian & Honorarium')
 
 @section('content')
-<div class="pageHeaderRow" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+<div class="pageHeaderRow" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
     <div>
         <h2 style="margin:0;font-size:20px;">Rekapitulasi Penggajian & Honorarium</h2>
         <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Laporan anggaran honorarium tutor berbasis tarif jam mengajar per siswa</p>
     </div>
 
-    <div>
-        <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 16px;background:#0284c7;">
-            <ion-icon name="document-text-outline"></ion-icon> Export PDF Rekap Anggaran
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 14px;background:#16a34a;">
+            <ion-icon name="document-outline"></ion-icon> Export Excel
         </a>
+        <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 14px;background:#0284c7;">
+            <ion-icon name="document-text-outline"></ion-icon> Export PDF
+        </a>
+        <button type="button" onclick="document.getElementById('importTarifModal').style.display='flex'" class="btnPrimary" style="padding:8px 14px;background:#f59e0b;">
+            <ion-icon name="cloud-upload-outline"></ion-icon> Update Tarif Massal
+        </button>
+    </div>
+</div>
+
+{{-- ── Modal Update Massal Tarif Siswa ── --}}
+<div id="importTarifModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:var(--card,#fff);border-radius:18px;max-width:480px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.2);border:1px solid var(--border,#e2e8f0);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text);">Update Massal Tarif Honor Siswa</h3>
+            <button type="button" onclick="document.getElementById('importTarifModal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);">&times;</button>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.4;">
+            Unduh spreadsheet data tarif siswa saat ini, perbarui nominal tarif pada kolom Excel, lalu unggah kembali untuk memperbarui database secara serentak.
+        </p>
+        <div style="margin-bottom:18px;">
+            <a href="{{ route($rolePrefix . '.payroll.download-tarif-template') }}" class="btnOutline" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:12px;font-weight:700;">
+                <ion-icon name="download-outline"></ion-icon> Download Data &amp; Template Tarif (.xlsx)
+            </a>
+        </div>
+        <form method="POST" action="{{ route($rolePrefix . '.payroll.import-tarif') }}" enctype="multipart/form-data">
+            @csrf
+            <div style="margin-bottom:16px;">
+                <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Pilih Berkas Spreadsheet (.xlsx / .csv):</label>
+                <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required style="width:100%;padding:10px;border:1px dashed var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);">
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button type="button" onclick="document.getElementById('importTarifModal').style.display='none'" class="btnOutline" style="padding:9px 14px;">Batal</button>
+                <button type="submit" class="btnPrimary" style="padding:9px 18px;background:var(--blue-gradient);">Unggah &amp; Perbarui Tarif</button>
+            </div>
+        </form>
     </div>
 </div>
 

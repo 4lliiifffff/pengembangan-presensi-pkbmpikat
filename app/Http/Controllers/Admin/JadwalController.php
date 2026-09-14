@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\JadwalExport;
+use App\Exports\JadwalTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\JadwalImport;
 use App\Models\Jadwal;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JadwalController extends Controller
 {
@@ -94,5 +98,40 @@ class JadwalController extends Controller
 
         return redirect()->route('admin.jadwal.index', ['tanggal' => $tanggal])
             ->with('success', 'Agenda berhasil dihapus.');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(
+            new JadwalExport,
+            'Agenda_Jadwal_PKBM_Pikat_'.date('Ymd').'.xlsx'
+        );
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new JadwalTemplateExport,
+            'Template_Import_Jadwal_PKBM_Pikat.xlsx'
+        );
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file_excel.required' => 'Silakan pilih berkas spreadsheet Excel/CSV terlebih dahulu.',
+            'file_excel.mimes' => 'Format berkas harus berekstensi .xlsx, .xls, atau .csv.',
+            'file_excel.max' => 'Ukuran berkas maksimal adalah 5MB.',
+        ]);
+
+        $import = new JadwalImport;
+        Excel::import($import, $request->file('file_excel'));
+
+        return redirect()->route('admin.jadwal.index')->with(
+            'success',
+            "Impor jadwal/agenda berhasil: {$import->importedCount} kegiatan ditambahkan, {$import->skippedCount} data dilewati."
+        );
     }
 }

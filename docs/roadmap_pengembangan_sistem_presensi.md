@@ -95,7 +95,7 @@
 * ⚪ **Laporan Ketersediaan Tutor ke Wali Murid:** [PENDING] Pesan notifikasi real-time ke WhatsApp orang tua/wali murid saat Tutor terkonfirmasi hadir dan memulai sesi kegiatan belajar mengajar.
 
 ### 4.3 Import & Export Massal Data (Bulk Data Management)
-* ⚪ **Import Spreadsheet Excel/CSV:** [PENDING] Fitur pengunggahan massal (*bulk import*) data Tutor, siswa, jadwal mengajar, dan pembagian kelas menggunakan paket `maatwebsite/excel`.
+* 🟢 **Import & Export Spreadsheet Excel/CSV:** [SELESAI] Fitur pengunggahan massal (*bulk import*) data Tutor (karyawan), Siswa, Jadwal/Agenda kegiatan, Tarif Honor Payroll, dan Rekap Presensi Retroaktif, serta ekspor laporan presensi berstandar akreditasi (14 kolom data lengkap, NIK, Moda Pembelajaran, Durasi Mengajar, Lokasi, KPI Ringkasan) menggunakan paket `maatwebsite/excel`. Dilengkapi template download dan UI modal import di seluruh modul terkait (`PresensiExport`, `PayrollRekapExport`, `SiswaImport`, `TutorImport`, `JadwalImport`, `PresensiImport`, dsb).
 
 ---
 

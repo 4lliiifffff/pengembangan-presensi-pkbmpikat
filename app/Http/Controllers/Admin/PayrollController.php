@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\PayrollBulkTarifTemplateExport;
+use App\Exports\PayrollRekapExport;
 use App\Http\Controllers\Controller;
+use App\Imports\PayrollBulkTarifImport;
 use App\Models\Tutor;
 use App\Services\PayrollService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PayrollController extends Controller
 {
@@ -78,5 +82,54 @@ class PayrollController extends Controller
         $filename = 'Rekap_Anggaran_Payroll_'.$tahun.'_'.sprintf('%02d', $bulan).'.pdf';
 
         return $pdf->download($filename);
+    }
+
+    /**
+     * Ekspor Laporan Rekapitulasi Anggaran Penggajian Sekolah ke format Excel (.xlsx).
+     */
+    public function exportRekapExcel(Request $request)
+    {
+        $bulan = (int) $request->get('bulan', Carbon::now()->month);
+        $tahun = (int) $request->get('tahun', Carbon::now()->year);
+
+        $summary = $this->payrollService->generatePayrollSummary($bulan, $tahun);
+
+        return Excel::download(
+            new PayrollRekapExport($summary),
+            'Rekap_Anggaran_Payroll_'.$tahun.'_'.sprintf('%02d', $bulan).'.xlsx'
+        );
+    }
+
+    /**
+     * Unduh template pembaruan massal tarif siswa ke format Excel (.xlsx).
+     */
+    public function downloadTarifTemplate()
+    {
+        return Excel::download(
+            new PayrollBulkTarifTemplateExport,
+            'Template_Pembaruan_Tarif_Honor_Siswa_PKBM_Pikat.xlsx'
+        );
+    }
+
+    /**
+     * Impor pembaruan massal tarif honor mengajar siswa dari spreadsheet.
+     */
+    public function importBulkTarif(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file_excel.required' => 'Silakan pilih berkas spreadsheet Excel/CSV terlebih dahulu.',
+            'file_excel.mimes' => 'Format berkas harus berekstensi .xlsx, .xls, atau .csv.',
+            'file_excel.max' => 'Ukuran berkas maksimal adalah 5MB.',
+        ]);
+
+        $import = new PayrollBulkTarifImport;
+        Excel::import($import, $request->file('file_excel'));
+
+        return redirect()->back()->with(
+            'success',
+            "Pembaruan tarif siswa berhasil diproses: {$import->updatedCount} tarif siswa diperbarui, {$import->skippedCount} data dilewati."
+        );
     }
 }

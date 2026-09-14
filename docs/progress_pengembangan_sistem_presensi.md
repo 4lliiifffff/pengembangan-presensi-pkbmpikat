@@ -193,9 +193,18 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Rincian Implementasi:** Pesan notifikasi real-time ke WhatsApp orang tua/wali murid saat Tutor terkonfirmasi hadir dan memulai sesi kegiatan belajar mengajar.
 
 #### 4.3 Import & Export Massal Data (Bulk Data Management)
-- ⚪ **Import Spreadsheet Excel/CSV**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Fitur pengunggahan massal (*bulk import*) data Tutor, siswa, jadwal mengajar, dan pembagian kelas menggunakan paket `maatwebsite/excel`.
+- 🟢 **Import & Export Spreadsheet Excel/CSV (Bulk Data Management)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Pembaruan Laporan Presensi (`PresensiExport.php`):** Menambahkan 14 kolom data presensi komprehensif (Nomor Urut, Tanggal, Nama Tutor, NIK Tutor berformat text `@`, Nama Siswa, Kelas/Rombel, Moda Pembelajaran, Jam Masuk, Jam Keluar, Durasi Mengajar otomatis, Lokasi Masuk, Lokasi Keluar, Status Kehadiran, Keterangan) serta KPI Header Card (Total Hadir, Sedang Berjalan, Total Izin/Sakit, Total Alpha, Total Akumulasi Jam Mengajar).
+    - **Export & Import Payroll (`PayrollRekapExport.php`, `PayrollBulkTarifTemplateExport.php`, `PayrollBulkTarifImport.php`):** Ekspor rekap anggaran honorarium tutor bulanan ke Excel serta template & import massal tarif honorarium per jam siswa.
+    - **Export & Import Siswa (`SiswaTemplateExport.php`, `SiswaExport.php`, `SiswaImport.php`):** Ekspor seluruh siswa dan bulk import data siswa baru/update dengan auto-resolve relasi kelas dan lookup tutor pembimbing berdasarkan NIK.
+    - **Export & Import Tutor / Karyawan (`TutorTemplateExport.php`, `TutorExport.php`, `TutorImport.php`):** Ekspor data karyawan serta bulk import dengan pembuatan akun user otomatis (hash password default NIK) dan sinkronisasi ke tabel `tutors`.
+    - **Export & Import Jadwal / Agenda (`JadwalTemplateExport.php`, `JadwalExport.php`, `JadwalImport.php`):** Ekspor agenda dan bulk import kegiatan/jadwal PKBM Pikat.
+    - **Export & Import Presensi Retroaktif (`PresensiTemplateExport.php`, `PresensiImport.php`):** Template & import massal riwayat log absensi manual/retroaktif dengan validasi NIK tutor dan NIS siswa.
+    - **Integrasi Controller & Route:** Memperbarui `LaporanController`, `PayrollController`, `SiswaController`, `KaryawanController`, dan `JadwalController` beserta rute Excel di `routes/web.php` untuk peran Admin dan Kepala Sekolah.
+    - **UI Action Bars & Modal Dialogs:** Menambahkan tombol Export Excel, Unduh Template, dan Modal Upload File Excel/CSV pada tampilan `admin/payroll/index.blade.php`, `admin/siswa/index.blade.php`, `admin/karyawan/index.blade.php`, `admin/jadwal/index.blade.php`, dan `admin/laporan/index.blade.php`.
+    - **Automated Testing:** Menambahkan 8 feature test kasus lengkap pada `tests/Feature/SpreadsheetImportExportTest.php` dengan 100% assertion sukses (38 assertions).
 
 ---
 

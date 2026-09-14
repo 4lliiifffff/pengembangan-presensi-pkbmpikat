@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Exports\PresensiExport;
+use App\Exports\PresensiTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\PresensiImport;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
 use App\Models\Siswa;
@@ -171,10 +173,35 @@ class LaporanController extends Controller
 
         $tutorId = $request->get('tutor_id');
         $siswaId = $request->get('siswa_id');
+        $statusFilter = $request->get('status');
 
         return Excel::download(
-            new PresensiExport($startDate, $endDate, $tutorId, $siswaId),
+            new PresensiExport($startDate, $endDate, $tutorId, $siswaId, $statusFilter),
             'Laporan_Presensi_'.$startDate->format('Ymd').'_'.$endDate->format('Ymd').'.xlsx'
+        );
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new PresensiTemplateExport, 'Template_Import_Presensi_PKBM_Pikat.xlsx');
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file_excel.required' => 'Silakan pilih berkas spreadsheet Excel/CSV terlebih dahulu.',
+            'file_excel.mimes' => 'Format berkas harus berekstensi .xlsx, .xls, atau .csv.',
+            'file_excel.max' => 'Ukuran berkas maksimal adalah 5MB.',
+        ]);
+
+        $import = new PresensiImport;
+        Excel::import($import, $request->file('file_excel'));
+
+        return redirect()->back()->with(
+            'success',
+            "Impor presensi berhasil diproses: {$import->importedCount} data presensi ditambahkan, {$import->skippedCount} data dilewati."
         );
     }
 

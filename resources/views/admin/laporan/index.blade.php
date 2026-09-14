@@ -48,15 +48,52 @@
                 <option value="izin" {{ $statusFilter == 'izin' ? 'selected' : '' }}>Izin/Sakit</option>
             </select>
 
-            <button type="submit" class="filterBtn" style="background: #1a3a5c; width: 100%;">Filter</button>
-            <div style="display: flex; gap: 8px; width: 100%;">
+            <button type="submit" class="filterBtn" style="background: #1a3a5c; width: 100%;">Filter Data Presensi</button>
+            <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
                 <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportExcel') }}"
-                    class="filterBtn" style="background: #16a34a; flex:1;">Excel</button>
+                    class="filterBtn" style="background: #16a34a; flex:1;">
+                    <ion-icon name="document-outline" style="vertical-align:middle;margin-right:2px;"></ion-icon> Excel
+                </button>
                 <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportPdf') }}"
-                    class="filterBtn" style="background: #dc2626; flex:1;">PDF</button>
+                    class="filterBtn" style="background: #dc2626; flex:1;">
+                    <ion-icon name="document-text-outline" style="vertical-align:middle;margin-right:2px;"></ion-icon> PDF
+                </button>
+                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='flex'"
+                    class="filterBtn" style="background: #0284c7; flex:1;">
+                    <ion-icon name="cloud-upload-outline" style="vertical-align:middle;margin-right:2px;"></ion-icon> Import Log
+                </button>
             </div>
         </div>
     </form>
+
+    {{-- ── Modal Impor Presensi Retroaktif / Log Manual ── --}}
+    <div id="importPresensiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+        <div style="background:var(--card,#fff);border-radius:18px;max-width:480px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.2);border:1px solid var(--border,#e2e8f0);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text);">Impor Rekapan Presensi Manual</h3>
+                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);">&times;</button>
+            </div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.4;">
+                Unggah berkas spreadsheet Excel/CSV untuk menyinkronkan rekapan data presensi fisik atau kegiatan offline luar jaringan secara massal.
+            </p>
+            <div style="margin-bottom:18px;">
+                <a href="{{ route('admin.laporan.downloadTemplate') }}" class="btnOutline" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:12px;font-weight:700;">
+                    <ion-icon name="download-outline"></ion-icon> Download Template Presensi (.xlsx)
+                </a>
+            </div>
+            <form method="POST" action="{{ route('admin.laporan.importExcel') }}" enctype="multipart/form-data">
+                @csrf
+                <div style="margin-bottom:16px;">
+                    <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Pilih Berkas Spreadsheet (.xlsx / .csv):</label>
+                    <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required style="width:100%;padding:10px;border:1px dashed var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);">
+                </div>
+                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="btnOutline" style="padding:9px 14px;">Batal</button>
+                    <button type="submit" class="btnPrimary" style="padding:9px 18px;background:var(--blue-gradient);">Unggah &amp; Impor Presensi</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     {{-- Summary Stats --}}
     <div class="summaryRow">

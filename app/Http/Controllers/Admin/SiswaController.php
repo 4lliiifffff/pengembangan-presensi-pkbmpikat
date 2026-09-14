@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\SiswaExport;
+use App\Exports\SiswaTemplateExport;
 use App\Http\Controllers\Controller;
+use App\Imports\SiswaImport;
 use App\Models\kelas as Kelas;
 use App\Models\Siswa;
 use App\Services\TutorService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SiswaController extends Controller
 {
@@ -96,5 +100,40 @@ class SiswaController extends Controller
         return redirect()
             ->route('admin.siswa.index')
             ->with('success', 'Data siswa berhasil dihapus.');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(
+            new SiswaExport,
+            'Data_Siswa_PKBM_Pikat_'.date('Ymd').'.xlsx'
+        );
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(
+            new SiswaTemplateExport,
+            'Template_Import_Siswa_PKBM_Pikat.xlsx'
+        );
+    }
+
+    public function importExcel(Request $request)
+    {
+        $request->validate([
+            'file_excel' => 'required|file|mimes:xlsx,xls,csv|max:5120',
+        ], [
+            'file_excel.required' => 'Silakan pilih berkas spreadsheet Excel/CSV terlebih dahulu.',
+            'file_excel.mimes' => 'Format berkas harus berekstensi .xlsx, .xls, atau .csv.',
+            'file_excel.max' => 'Ukuran berkas maksimal adalah 5MB.',
+        ]);
+
+        $import = new SiswaImport;
+        Excel::import($import, $request->file('file_excel'));
+
+        return redirect()->route('admin.siswa.index')->with(
+            'success',
+            "Impor data siswa berhasil: {$import->importedCount} siswa baru ditambahkan, {$import->updatedCount} siswa diperbarui, {$import->skippedCount} data dilewati."
+        );
     }
 }

@@ -69,11 +69,28 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export/excel', [LaporanController::class, 'exportExcel'])->name('laporan.exportExcel');
+    Route::get('/laporan/template/excel', [LaporanController::class, 'downloadTemplate'])->name('laporan.downloadTemplate');
+    Route::post('/laporan/import/excel', [LaporanController::class, 'importExcel'])->name('laporan.importExcel');
     Route::get('/laporan/export/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.exportPdf');
 
+    // Siswa Spreadsheet Routes
+    Route::get('/siswa/export/excel', [SiswaController::class, 'exportExcel'])->name('siswa.exportExcel');
+    Route::get('/siswa/template/excel', [SiswaController::class, 'downloadTemplate'])->name('siswa.downloadTemplate');
+    Route::post('/siswa/import/excel', [SiswaController::class, 'importExcel'])->name('siswa.importExcel');
     Route::resource('siswa', SiswaController::class);
+
     Route::resource('kelas', KelasController::class);
+
+    // Jadwal Spreadsheet Routes
+    Route::get('/jadwal/export/excel', [JadwalController::class, 'exportExcel'])->name('jadwal.exportExcel');
+    Route::get('/jadwal/template/excel', [JadwalController::class, 'downloadTemplate'])->name('jadwal.downloadTemplate');
+    Route::post('/jadwal/import/excel', [JadwalController::class, 'importExcel'])->name('jadwal.importExcel');
     Route::resource('jadwal', JadwalController::class);
+
+    // Karyawan Spreadsheet Routes
+    Route::get('/karyawan/export/excel', [KaryawanController::class, 'exportExcel'])->name('karyawan.exportExcel');
+    Route::get('/karyawan/template/excel', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.downloadTemplate');
+    Route::post('/karyawan/import/excel', [KaryawanController::class, 'importExcel'])->name('karyawan.importExcel');
     Route::resource('karyawan', KaryawanController::class);
 
     Route::patch('karyawan/{id}/status', [KaryawanController::class, 'status'])->name('karyawan.status');
@@ -89,7 +106,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Modul Payroll & Honorarium
     Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/rekap/excel', [PayrollController::class, 'exportRekapExcel'])->name('payroll.rekap-excel');
     Route::get('/payroll/rekap/pdf', [PayrollController::class, 'exportRekapPdf'])->name('payroll.rekap-pdf');
+    Route::get('/payroll/tarif/template', [PayrollController::class, 'downloadTarifTemplate'])->name('payroll.download-tarif-template');
+    Route::post('/payroll/tarif/import', [PayrollController::class, 'importBulkTarif'])->name('payroll.import-tarif');
     Route::get('/payroll/{tutorId}', [PayrollController::class, 'show'])->name('payroll.show');
     Route::get('/payroll/{tutorId}/slip-pdf', [PayrollController::class, 'exportSlipPdf'])->name('payroll.slip-pdf');
 });
@@ -127,7 +147,10 @@ Route::middleware(['auth', 'role:kepala_sekolah'])->prefix('kepsek')->name('keps
     Route::patch('/pengajuan-izin/{id}/tolak', [KepsekDashboardController::class, 'tolakPengajuanIzin'])->name('pengajuan-izin.tolak');
     Route::delete('/pengajuan-izin/{id}', [KepsekDashboardController::class, 'destroyPengajuanIzin'])->name('pengajuan-izin.destroy');
     Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::get('/payroll/rekap/excel', [PayrollController::class, 'exportRekapExcel'])->name('payroll.rekap-excel');
     Route::get('/payroll/rekap/pdf', [PayrollController::class, 'exportRekapPdf'])->name('payroll.rekap-pdf');
+    Route::get('/payroll/tarif/template', [PayrollController::class, 'downloadTarifTemplate'])->name('payroll.download-tarif-template');
+    Route::post('/payroll/tarif/import', [PayrollController::class, 'importBulkTarif'])->name('payroll.import-tarif');
     Route::get('/payroll/{tutorId}', [PayrollController::class, 'show'])->name('payroll.show');
     Route::get('/payroll/{tutorId}/slip-pdf', [PayrollController::class, 'exportSlipPdf'])->name('payroll.slip-pdf');
 });
