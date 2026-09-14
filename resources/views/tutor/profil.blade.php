@@ -1,4 +1,4 @@
-@extends('layout.presensi')
+@extends('layouts.presensi')
 
 @section('title', 'Profil Tutor')
 

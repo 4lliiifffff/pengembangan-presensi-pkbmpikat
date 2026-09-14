@@ -1,4 +1,4 @@
-@extends('layout.kepsek')
+@extends('layouts.kepsek')
 
 @section('content')
 

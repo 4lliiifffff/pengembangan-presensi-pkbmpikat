@@ -6,7 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0B5ED7">
-    <title>@yield('title', 'Smart Presensi')</title>
+    <title>@yield('title', 'Smart Presensi — Admin')</title>
     <link rel="icon" type="image/jpeg" href="{{ asset('assets/img/Logo.jpeg') }}" />
     <link rel="apple-touch-icon" href="{{ asset('assets/img/Logo.jpeg') }}" />
 
@@ -19,46 +19,23 @@
 </head>
 <body>
     <div id="appCapsule">
+        @include('layouts.components.navigasi_atas', ['roleTitle' => 'Admin', 'titleName' => 'Admin PKBM'])
+
         @if (session('success'))
             <div class="flashAlert success">{{ session('success') }}</div>
         @endif
         @if (session('warning'))
             <div class="flashAlert warning">{{ session('warning') }}</div>
         @endif
+
         @yield('content')
     </div>
 
-    <div class="appBottomMenu">
-        @php
-            $leftHref = \Illuminate\Support\Facades\Route::has('tutor.riwayat')
-                ? route('tutor.riwayat')
-                : '#';
-            $centerHref = \Illuminate\Support\Facades\Route::has('tutor.dashboard')
-                ? route('tutor.dashboard')
-                : '#';
-            $rightHref = \Illuminate\Support\Facades\Route::has('tutor.jadwal')
-                ? route('tutor.jadwal')
-                : '#';
-            $isCenter = request()->routeIs('tutor.dashboard');
-            $isLeft = request()->routeIs('tutor.riwayat');
-            $isRight = request()->routeIs('tutor.jadwal');
-        @endphp
-
-        <a href="{{ $leftHref }}" class="{{ $isLeft ? 'active' : '' }}" aria-label="Riwayat">
-            <ion-icon name="{{ $isLeft ? 'time' : 'time-outline' }}">Riwayat</ion-icon>
-        </a>
-
-        <a href="{{ $centerHref }}" class="{{ $isCenter ? 'active' : '' }}" aria-label="Dashboard">
-            <ion-icon name="{{ $isCenter ? 'grid' : 'grid-outline' }}">Dashboard</ion-icon>
-        </a>
-
-        <a href="{{ $rightHref }}" class="{{ $isRight ? 'active' : '' }}" aria-label="Jadwal">
-            <ion-icon name="{{ $isRight ? 'calendar' : 'calendar-outline' }}">Agenda</ion-icon>
-        </a>
-    </div>
+    @include('layouts.components.navigasi_bawah_admin')
 
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    @stack('scripts')
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -73,7 +50,7 @@
                     if (icon) icon.setAttribute('name', 'moon-outline');
                 }
             }
-            updateIcon(); // Call immediately for elements that exist
+            updateIcon();
 
             if (btn) {
                 btn.addEventListener('click', () => {

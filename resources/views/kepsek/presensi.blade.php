@@ -1,4 +1,4 @@
-@extends('layout.kepsek')
+@extends('layouts.kepsek')
 
 @section('title', 'Data Presensi — Kepala Sekolah')
 
