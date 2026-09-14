@@ -1401,6 +1401,170 @@ input[type="radio"].jenisRadio { display: none; }
 .btnBatal { font-size: 11px; font-weight: 800; padding: 5px 10px; border-radius: 10px; border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.08); color: #dc2626; cursor: pointer; font-family: inherit; transition: background 0.15s; }
 .btnBatal:hover { background: rgba(239,68,68,0.15); }
 
+/* ==========================================
+   UTILITY & STANDARDISATION CLASSES
+   (Menggantikan inline style='' di views)
+   ========================================== */
 
+/* Profil Stats Badge */
+.profileStatsGrid {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card-alt);
+    padding: 12px 0;
+    display: flex;
+    margin-bottom: 0;
+}
+.profileStatItem {
+    flex: 1;
+    text-align: center;
+}
+.profileStatItem:not(:last-child) {
+    border-right: 1px solid var(--border);
+}
+.profileStatLabel {
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+}
+.profileStatValue {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+}
+.profileStatValue.primary { color: var(--blue2); }
 
+/* Input Modifiers */
+.input--no-resize { resize: none; }
+.input--password { padding-right: 46px; }
+
+/* Button Modifiers */
+.btnPrimary--full { width: 100%; justify-content: center; }
+
+/* Text & Link Utilities */
+.text-primary { color: var(--blue2); font-weight: 700; }
+.link-primary { font-weight: 900; color: #1d4ed8; text-decoration: underline; }
+
+/* Riwayat view — session end alignment */
+.session-info--end { justify-content: flex-end; text-align: right; }
+
+/* Pengajuan Izin — Badge Status */
+.badgeBadge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid transparent;
+}
+.badgeBadge.sakit {
+    background: rgba(239,68,68,0.12);
+    color: #dc2626;
+    border-color: rgba(239,68,68,0.2);
+}
+.badgeBadge.izin {
+    background: rgba(245,158,11,0.14);
+    color: #d97706;
+    border-color: rgba(245,158,11,0.2);
+}
+
+/* Pengajuan Izin — Status Approval Badge */
+.badgeStatus {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid transparent;
+}
+.badgeStatus.pending {
+    background: rgba(245,158,11,0.12);
+    color: #92400e;
+    border-color: rgba(245,158,11,0.2);
+}
+.badgeStatus.disetujui {
+    background: rgba(22,163,74,0.12);
+    color: #15803d;
+    border-color: rgba(22,163,74,0.2);
+}
+.badgeStatus.ditolak {
+    background: rgba(239,68,68,0.12);
+    color: #dc2626;
+    border-color: rgba(239,68,68,0.2);
+}
+
+/* Riwayat Card (Pengajuan) */
+.riwayatCard {
+    background: var(--card-alt);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+/* Delete Button (kecil, inline) */
+.btnDelete {
+    background: rgba(239,68,68,0.08);
+    color: #dc2626;
+    border: 1px solid rgba(239,68,68,0.22);
+    border-radius: 10px;
+    padding: 6px 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+.btnDelete:hover { background: rgba(239,68,68,0.15); }
+
+/* Section header label (menggantikan inline pada profil) */
+.sectionLabel {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+    margin-top: 5px;
+    padding-left: 4px;
+    color: var(--text);
+    text-transform: uppercase;
+}
+
+/* Icon size utility */
+.icon-md { font-size: 18px; }
+.icon-lg { font-size: 22px; }
+
+/* Error list helpers */
+.errorList ul { margin: 4px 0 0; padding-left: 14px; }
+.errorList-title { font-weight: 900; margin-bottom: 6px; }
+
+/* Spacer utility */
+.spacer-sm { height: 12px; }
+.spacer-md { height: 20px; }
+
+/* Presensi — filter date input width */
+.filterInput--flex { flex: 1; min-width: 140px; }
+.filterInput--search { flex: 2; min-width: 180px; }
+
+/* Table cell text colors */
+.td-bold { font-weight: 600; color: var(--text); }
+.td-success { font-weight: 700; color: var(--success); }
+.td-primary { font-weight: 700; color: var(--blue2); }
+.td-muted { color: var(--muted); }
+.td-center { text-align: center; }
+
+/* Padding helpers */
+.pad-list { padding: 0 14px 20px; }
+.pad-pagination { padding: 0 14px 100px; }
+.pad-bottom-actions { padding-bottom: 30px; }
+
+/* Cursor helpers */
+.cursor-pointer { cursor: pointer; }
 

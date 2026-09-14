@@ -57,7 +57,7 @@
 
     <!-- FILTER -->
     <form action="{{ route('tutor.riwayat') }}" method="GET" class="filter">
-        <input type="date" name="tanggal" value="{{ $selectedDate }}" onchange="this.form.submit()" style="flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e5e7eb; font-size: 12px;">
+        <input type="date" name="tanggal" value="{{ $selectedDate }}" onchange="this.form.submit()" class="input">
         <select name="status" onchange="this.form.submit()">
             <option value="">Semua Status</option>
             <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir</option>
@@ -68,7 +68,7 @@
 </div>
 
 <!-- LIST -->
-<div style="padding: 0 14px 20px;">
+<div class="pad-list">
 @forelse($items as $p)
     @php
         $tgl = Carbon::parse($p->tgl_presensi);
@@ -110,11 +110,11 @@
             </div>
 
             <div class="separator">
-                <ion-icon name="arrow-forward-outline" style="color: var(--text);"></ion-icon>
+                <ion-icon name="arrow-forward-outline"></ion-icon>
             </div>
 
             <!-- Sesi Selesai -->
-            <div class="session-info" style="justify-content: flex-end; text-align: right;">
+            <div class="session-info session-info--end">
                 <div class="timeBox">
                     <div class="timeLabel">Selesai</div>
                     <div class="timeValue">{{ $keluar }}</div>
@@ -129,13 +129,13 @@
     </div>
 
 @empty
-    <div style="text-align:center; margin-top:20px; color:#6b7280;">
+    <div class="emptyState">
         Tidak ada data
     </div>
 @endforelse
 </div>
 
-<div style="padding: 0 14px 100px;">
+<div class="pad-pagination">
     {{ $items->links() }}
 </div>
 

@@ -5,12 +5,15 @@
                 @if(auth()->check() && auth()->user()->foto)
                     <img src="{{ auth()->user()->foto_url }}" class="avatar" alt="Avatar" style="object-fit:cover;" />
                 @else
-                    <div class="avatar" title="{{ $roleTitle ?? 'Profil' }}">{{ strtoupper(substr(auth()->user()->name ?? auth()->user()->nama_lengkap ?? 'U', 0, 1)) }}</div>
+                    <div class="avatar" title="{{ $roleTitle ?? 'Profil' }}">
+                        {{ strtoupper(substr(auth()->user()->name ?? auth()->user()->nama_lengkap ?? 'U', 0, 1)) }}</div>
                 @endif
             </a>
             <div class="profileMeta">
-                <div class="name">{{ $titleName ?? (auth()->user()->role === 'admin' ? 'Admin PKBM' : (auth()->user()->role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Tutor PKBM')) }}</div>
-                <div class="sub">Pintar Presence System</div>
+                <div class="name">
+                    {{ $titleName ?? (auth()->user()->role === 'admin' ? 'Admin PKBM' : (auth()->user()->role === 'kepala_sekolah' ? 'Kepala Sekolah' : 'Tutor PKBM')) }}
+                </div>
+                <div class="sub">Sistem Presensi PKBM Pikat</div>
             </div>
         </div>
         <div class="topIcons">

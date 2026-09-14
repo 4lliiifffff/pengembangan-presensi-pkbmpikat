@@ -6,20 +6,19 @@
 
 
     <div class="sectionTitleRow">
-        <h2 style="font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;">
-            Monitoring Presensi Tutor</h2>
+        <h2 class="sectionTitle">Monitoring Presensi Tutor</h2>
     </div>
 
     {{-- Filter --}}
     <form method="GET" action="{{ route('kepsek.presensi-tutor') }}">
         <div class="monthFilter" style="flex-wrap: wrap;">
-            <input type="date" name="start_date" class="monthInput" value="{{ $startDateStr }}"
-                style="flex:1; min-width: 140px; color-scheme: light dark;">
-            <span style="font-size:12px; font-weight:bold; color: var(--muted); padding-top: 10px;">s/d</span>
-            <input type="date" name="end_date" class="monthInput" value="{{ $endDateStr }}"
-                style="flex:1; min-width: 140px; color-scheme: light dark;">
+            <input type="date" name="start_date" class="monthInput filterInput--flex" value="{{ $startDateStr }}"
+                style="color-scheme: light dark;">
+            <span class="td-muted" style="padding-top: 10px; font-size:12px; font-weight:bold;">s/d</span>
+            <input type="date" name="end_date" class="monthInput filterInput--flex" value="{{ $endDateStr }}"
+                style="color-scheme: light dark;">
 
-            <select name="tutor_id" class="monthInput" style="flex:1; min-width: 140px;">
+            <select name="tutor_id" class="monthInput filterInput--flex">
                 <option value="">Semua Tutor</option>
                 @foreach ($tutors as $tutor)
                     <option value="{{ $tutor->id }}" {{ $tutorId == $tutor->id ? 'selected' : '' }}>
@@ -27,7 +26,7 @@
                 @endforeach
             </select>
 
-            <select name="siswa_id" class="monthInput" style="flex:1; min-width: 140px;">
+            <select name="siswa_id" class="monthInput filterInput--flex">
                 <option value="">Semua Siswa</option>
                 @foreach ($siswas as $siswa)
                     <option value="{{ $siswa->id }}" {{ $siswaId == $siswa->id ? 'selected' : '' }}>
@@ -35,7 +34,7 @@
                 @endforeach
             </select>
 
-            <select name="status" class="monthInput" style="flex:1; min-width: 140px;">
+            <select name="status" class="monthInput filterInput--flex">
                 <option value="">Semua Status</option>
                 <option value="hadir" {{ $statusFilter == 'hadir' ? 'selected' : '' }}>Hadir (Selesai)</option>
                 <option value="proses" {{ $statusFilter == 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
@@ -80,24 +79,22 @@
                     <tr>
                         <td>{{ $presensi->firstItem() + $index }}</td>
                         <td>{{ $tgl }}</td>
-                        <td style="font-weight: 600; color: var(--text);">{{ $tutorName }}</td>
+                        <td class="td-bold">{{ $tutorName }}</td>
                         <td>{{ $siswaName }}</td>
-                        <td style="font-weight: 700; color: var(--success);">{{ $jamMasuk }}</td>
-                        <td style="font-weight: 700; color: var(--blue2);">{{ $jamSelesai }}</td>
+                        <td class="td-success">{{ $jamMasuk }}</td>
+                        <td class="td-primary">{{ $jamSelesai }}</td>
                         <td>
                             <div class="fotoStack">
                                 @if ($item->foto_mulai)
-                                    <img src="{{ asset($item->foto_mulai) }}" class="fotoThumbnail" title="Foto Mulai"
-                                        onclick="openPhotoModal('{{ asset($item->foto_mulai) }}', 'Foto Masuk')"
-                                        style="cursor:pointer;">
+                                    <img src="{{ asset($item->foto_mulai) }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
+                                        onclick="openPhotoModal('{{ asset($item->foto_mulai) }}', 'Foto Masuk')">
                                 @else
                                     <div class="fotoPlaceholder">M -</div>
                                 @endif
 
                                 @if ($item->foto_selesai)
-                                    <img src="{{ asset($item->foto_selesai) }}" class="fotoThumbnail" title="Foto Selesai"
-                                        onclick="openPhotoModal('{{ asset($item->foto_selesai) }}', 'Foto Pulang')"
-                                        style="cursor:pointer;">
+                                    <img src="{{ asset($item->foto_selesai) }}" class="fotoThumbnail cursor-pointer" title="Foto Selesai"
+                                        onclick="openPhotoModal('{{ asset($item->foto_selesai) }}', 'Foto Pulang')">
                                 @else
                                     <div class="fotoPlaceholder">S -</div>
                                 @endif
@@ -116,8 +113,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 30px; color: #94a3b8;">Belum ada data
-                            presensi.</td>
+                        <td colspan="8" class="td-center td-muted" style="padding: 30px;">Belum ada data presensi.</td>
                     </tr>
                 @endforelse
             </tbody>
@@ -126,9 +122,7 @@
 
     @if (isset($karyawanPresensi) && $karyawanPresensi->isNotEmpty())
         <div class="sectionTitleRow">
-            <h2
-                style="font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase;">
-                Monitoring Presensi Karyawan (Admin/Kepsek)</h2>
+            <h2 class="sectionTitle">Monitoring Presensi Karyawan (Admin/Kepsek)</h2>
         </div>
         <div class="tableContainer">
             <table class="laporanTable">

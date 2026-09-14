@@ -71,7 +71,10 @@
             <div class="cardBox" style="margin-bottom: 24px; padding: 18px; border-radius: 16px; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0); box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
                 <div class="cardHeadRow" style="display:flex; justify-between:space-between; align-items:center; margin-bottom: 14px;">
                     <div>
-                        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-color, #1e293b); margin:0;">📊 Analytics Tren Kehadiran & Jam Mengajar</h2>
+                        <h2 style="font-size: 1.1rem; font-weight: 700; color: var(--text-color, #1e293b); margin:0; display:flex; align-items:center; gap:8px;">
+                            <ion-icon name="bar-chart-outline" style="font-size:1.2rem; color:#0B5ED7;"></ion-icon>
+                            Analytics Tren Kehadiran &amp; Jam Mengajar
+                        </h2>
                         <span style="font-size: 0.8rem; color: #64748b;">Histori kinerja 6 bulan terakhir</span>
                     </div>
                     <span class="badgeDate" style="background: rgba(11, 94, 215, 0.1); color: #0B5ED7; font-weight: 600; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem;">Chart.js Live</span>

@@ -140,11 +140,17 @@
                     </div>
                     <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
                         @if(($item->status ?? 'pending') === 'disetujui')
-                            <span class="badge" style="background:#10b981;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;">🟢 Disetujui</span>
+                            <span class="badgeStatus disetujui">
+                                <ion-icon name="checkmark-circle-outline" style="vertical-align:middle;"></ion-icon> Disetujui
+                            </span>
                         @elseif(($item->status ?? 'pending') === 'ditolak')
-                            <span class="badge" style="background:#ef4444;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;">🔴 Ditolak</span>
+                            <span class="badgeStatus ditolak">
+                                <ion-icon name="close-circle-outline" style="vertical-align:middle;"></ion-icon> Ditolak
+                            </span>
                         @else
-                            <span class="badge" style="background:#f59e0b;color:#fff;font-size:11px;padding:3px 8px;border-radius:12px;">🟡 Menunggu</span>
+                            <span class="badgeStatus pending">
+                                <ion-icon name="time-outline" style="vertical-align:middle;"></ion-icon> Menunggu
+                            </span>
                         @endif
                         <div class="llJam">{{ $jMulai }} – {{ $jSelesai }}</div>
                         @if(($item->status ?? 'pending') === 'pending')

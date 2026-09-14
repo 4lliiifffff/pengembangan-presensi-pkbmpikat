@@ -91,7 +91,7 @@
     @method('PATCH')
 
     <div class="contentPad">
-        <div style="font-size:12px; font-weight:900; letter-spacing:1px; margin-bottom:14px; margin-top:5px; padding-left:4px;">UBAH KATA SANDI</div>
+        <div class="sectionLabel">UBAH KATA SANDI</div>
 
         <div class="formRow">
             <label class="fieldLabel">PASSWORD LAMA</label>
@@ -127,15 +127,15 @@
         @csrf
     </form>
     <button type="button" class="btn-logout" onclick="document.getElementById('logoutForm').submit()">
-        <ion-icon name="log-out-outline" style="font-size:18px;"></ion-icon> Keluar dari Akun
+        <ion-icon name="log-out-outline" class="icon-md"></ion-icon> Keluar dari Akun
     </button>
 </div>
 
 <!-- Errors Display -->
 @if ($errors->any())
-    <div style="padding: 16px;">
+    <div class="contentPad">
         <div class="errorList">
-            <ul style="margin:0; padding-left:14px;">
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach

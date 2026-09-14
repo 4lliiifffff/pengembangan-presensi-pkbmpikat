@@ -72,7 +72,7 @@
     <div id="permWarning" style="display:none; margin:10px 14px 0; padding:12px 14px; border-radius:14px;
         background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35);
         display:none; align-items:center; gap:10px; flex-wrap:wrap;">
-        <span style="font-size:20px;">⚠️</span>
+        <ion-icon name="warning-outline" style="font-size:20px; color:#d97706; flex-shrink:0;"></ion-icon>
         <div style="flex:1; min-width:0;">
             <div style="font-size:12px; font-weight:900; color:#92400e;" id="permWarnTitle">Izin belum diberikan</div>
             <div style="font-size:11px; color:#b45309; margin-top:2px;" id="permWarnDesc">Kamera dan lokasi diperlukan untuk absen.</div>
@@ -161,7 +161,9 @@
             {{-- Warning: sudah lebih dari 2 jam --}}
             @if ($sudahLewat2Jam)
                 <div class="statusBanner" style="background:rgba(220,38,38,0.10);border:1px solid rgba(220,38,38,0.25);margin-bottom:14px;">
-                    <div class="statusIcon" style="background:rgba(220,38,38,0.15);color:#dc2626;">⚠️</div>
+                    <div class="statusIcon" style="background:rgba(220,38,38,0.15);color:#dc2626;">
+                        <ion-icon name="warning-outline"></ion-icon>
+                    </div>
                     <div>
                         <div class="statusTitle" style="color:#dc2626;">Sudah Lewat 2 Jam!</div>
                         <div class="statusSub">Segera lakukan absen pulang sekarang.</div>

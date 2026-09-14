@@ -13,34 +13,34 @@
 <div class="llTopBar">
     <div class="llTopRow">
         <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali">
-            <ion-icon name="arrow-back-outline" style="font-size:20px;"></ion-icon>
+            <ion-icon name="arrow-back-outline" class="icon-md"></ion-icon>
         </a>
         <div style="flex: 1;">
-            <div class="llPageTitle">Pengajuan Izin & Sakit</div>
+            <div class="llPageTitle">Pengajuan Izin &amp; Sakit</div>
             <div class="llPageSub">Formulir pengajuan izin atau sakit digital</div>
         </div>
         <button class="llBackBtn" type="button" aria-label="Tema" id="themeToggleBtn">
-            <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
+            <ion-icon name="moon-outline" class="icon-md" id="themeToggleIcon"></ion-icon>
         </button>
     </div>
 </div>
 
 {{-- ── Flash Messages ── --}}
 @if(session('success'))
-    <div class="flashAlert success" style="margin:12px 16px 0;">{{ session('success') }}</div>
+    <div class="flashAlert success">{{ session('success') }}</div>
 @endif
 @if(session('warning'))
-    <div class="flashAlert warning" style="margin:12px 16px 0;">{{ session('warning') }}</div>
+    <div class="flashAlert warning">{{ session('warning') }}</div>
 @endif
 
 {{-- ── Tabs ── --}}
 <div class="tabBar">
     <button class="tabBtn active" id="tabForm" onclick="switchTab('form', this)">
-        <ion-icon name="add-circle-outline" style="font-size:15px;vertical-align:middle;"></ion-icon>
+        <ion-icon name="add-circle-outline" class="icon-md" style="vertical-align:middle;"></ion-icon>
         Ajukan
     </button>
     <button class="tabBtn" id="tabRiwayat" onclick="switchTab('riwayat', this)">
-        <ion-icon name="time-outline" style="font-size:15px;vertical-align:middle;"></ion-icon>
+        <ion-icon name="time-outline" class="icon-md" style="vertical-align:middle;"></ion-icon>
         Riwayat ({{ $riwayat->count() }})
     </button>
 </div>
@@ -63,38 +63,38 @@
             @csrf
 
             <div class="formGroup">
-                <label class="formLabel" for="jenis">Jenis Pengajuan <span style="color:var(--danger,#dc3545);">*</span></label>
+                <label class="formLabel" for="jenis">Jenis Pengajuan <span class="errorMsg">*</span></label>
                 <select name="jenis" id="jenis" class="formControl" required>
                     <option value="izin" {{ old('jenis') == 'izin' ? 'selected' : '' }}>Izin (Keperluan Pribadi/Mendesak)</option>
                     <option value="sakit" {{ old('jenis') == 'sakit' ? 'selected' : '' }}>Sakit (Kondisi Kesehatan / Dokter)</option>
                 </select>
             </div>
 
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="inputRow">
                 <div class="formGroup">
-                    <label class="formLabel" for="tgl_mulai">Tanggal Mulai <span style="color:var(--danger,#dc3545);">*</span></label>
+                    <label class="formLabel" for="tgl_mulai">Tanggal Mulai <span class="errorMsg">*</span></label>
                     <input type="date" name="tgl_mulai" id="tgl_mulai" class="formControl" value="{{ old('tgl_mulai', date('Y-m-d')) }}" required>
                 </div>
 
                 <div class="formGroup">
-                    <label class="formLabel" for="tgl_selesai">Tanggal Selesai <span style="color:var(--danger,#dc3545);">*</span></label>
+                    <label class="formLabel" for="tgl_selesai">Tanggal Selesai <span class="errorMsg">*</span></label>
                     <input type="date" name="tgl_selesai" id="tgl_selesai" class="formControl" value="{{ old('tgl_selesai', date('Y-m-d')) }}" required>
                 </div>
             </div>
 
             <div class="formGroup">
-                <label class="formLabel" for="alasan">Alasan / Keterangan Lengkap <span style="color:var(--danger,#dc3545);">*</span></label>
-                <textarea name="alasan" id="alasan" class="formControl" rows="3" placeholder="Tuliskan keterangan lengkap alasan izin/sakit..." required>{{ old('alasan') }}</textarea>
+                <label class="formLabel" for="alasan">Alasan / Keterangan Lengkap <span class="errorMsg">*</span></label>
+                <textarea name="alasan" id="alasan" class="formControl input--no-resize" rows="3" placeholder="Tuliskan keterangan lengkap alasan izin/sakit..." required>{{ old('alasan') }}</textarea>
             </div>
 
             <div class="formGroup">
                 <label class="formLabel" for="dokumen_surat">Unggah Surat Keterangan / Bukti (Opsional)</label>
                 <input type="file" name="dokumen_surat" id="dokumen_surat" class="formControl" accept=".pdf,.jpg,.jpeg,.png">
-                <small style="color:var(--sub,#6c757d);display:block;margin-top:4px;">Format: PDF, JPG, PNG. Maksimal 2MB.</small>
+                <small class="td-muted" style="display:block;margin-top:4px;">Format: PDF, JPG, PNG. Maksimal 2MB.</small>
             </div>
 
             <button type="submit" class="submitBtn">
-                <ion-icon name="send-outline" style="font-size:17px;vertical-align:middle;"></ion-icon>
+                <ion-icon name="send-outline" class="icon-md" style="vertical-align:middle;"></ion-icon>
                 Kirim Pengajuan
             </button>
         </form>
@@ -106,9 +106,9 @@
 <div class="tabPanel" id="panelRiwayat">
 
     @if($riwayat->isEmpty())
-    <div style="text-align:center;padding:48px 16px;color:var(--sub,#6c757d);">
-        <ion-icon name="folder-open-outline" style="font-size:48px;opacity:0.4;"></ion-icon>
-        <p style="margin-top:12px;font-weight:500;">Belum ada riwayat pengajuan izin/sakit.</p>
+    <div class="emptyLL">
+        <ion-icon name="folder-open-outline"></ion-icon>
+        <p>Belum ada riwayat pengajuan izin/sakit.</p>
     </div>
     @else
     <div style="padding:12px 16px 80px;">
@@ -125,10 +125,10 @@
                             s/d {{ \Carbon\Carbon::parse($r->tgl_selesai)->translatedFormat('d M Y') }}
                         @endif
                     </h4>
-                    <p style="font-size:13px;color:var(--sub,#6c757d);margin:0 0 8px;">{{ $r->alasan }}</p>
+                    <p class="td-muted" style="font-size:13px;margin:0 0 8px;">{{ $r->alasan }}</p>
 
                     @if($r->dokumen_url)
-                        <a href="{{ $r->dokumen_url }}" target="_blank" style="font-size:12px;color:var(--primary,#0B5ED7);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                        <a href="{{ $r->dokumen_url }}" target="_blank" class="text-primary" style="font-size:12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
                             <ion-icon name="document-attach-outline"></ion-icon> Lihat Dokumen Surat
                         </a>
                     @endif
@@ -153,7 +153,7 @@
             </div>
 
             @if($r->catatan_verifikasi)
-                <div style="margin-top:10px;padding:8px 12px;background:var(--bg-sub,#f8f9fa);border-left:3px solid var(--primary,#0B5ED7);border-radius:4px;font-size:12px;">
+                <div class="llAlasan" style="margin-top:10px;border-left:3px solid var(--blue2);">
                     <strong>Catatan:</strong> {{ $r->catatan_verifikasi }}
                 </div>
             @endif
@@ -177,49 +177,5 @@ function switchTab(tab, btn) {
     }
 }
 </script>
-
-<style>
-.badgeBadge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 700;
-}
-.badgeBadge.sakit { background: #ffeef0; color: #dc3545; }
-.badgeBadge.izin { background: #e8f4fd; color: #0d6efd; }
-
-.badgeStatus {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 11px;
-    font-weight: 700;
-}
-.badgeStatus.pending { background: #fff3cd; color: #856404; }
-.badgeStatus.disetujui { background: #d4edda; color: #155724; }
-.badgeStatus.ditolak { background: #f8d7da; color: #721c24; }
-
-.riwayatCard {
-    background: var(--bg-card, #fff);
-    border-radius: 12px;
-    padding: 16px;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    border: 1px solid var(--border-color, #e9ecef);
-}
-
-.btnDelete {
-    background: #fff0f1;
-    color: #dc3545;
-    border: none;
-    border-radius: 6px;
-    padding: 6px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-</style>
 
 @endsection

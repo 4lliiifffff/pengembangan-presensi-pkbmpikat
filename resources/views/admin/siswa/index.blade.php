@@ -16,7 +16,7 @@
                         @php
                             $initial = strtoupper(substr((string) ($siswa->nama_siswa ?? ''), 0, 1));
                         @endphp
-                        <div class="activityAvatar" class="activityAvatar">
+                        <div class="activityAvatar">
                             {{ $initial }}
                         </div>
                         <div style="min-width:0;">
@@ -24,8 +24,8 @@
                             <div class="siswaMeta">
                                 No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
                                 <br>
-                                Tutor: <span style="font-weight:700;">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</span>
-                                • <span style="color:#0284c7;font-weight:700;">{{ $siswa->formatted_tarif_per_jam }}/Jam</span>
+                                Tutor: <span class="td-bold">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</span>
+                                • <span class="text-primary">{{ $siswa->formatted_tarif_per_jam }}/Jam</span>
                             </div>
                         </div>
                     </div>
@@ -40,7 +40,7 @@
                     <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" onsubmit="return confirm('Yakin hapus siswa ini?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="smallBtn delete" style="cursor:pointer;">
+                        <button type="submit" class="smallBtn delete cursor-pointer">
                             <ion-icon name="trash-outline"></ion-icon>
                             Hapus
                         </button>
@@ -52,7 +52,7 @@
         @endforelse
     </div>
 
-    <div style="padding:0 16px 30px;">
+    <div class="pad-bottom-actions">
         {{ $siswas->links() }}
     </div>
 

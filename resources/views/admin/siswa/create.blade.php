@@ -10,8 +10,8 @@
 
     @if ($errors->any())
         <div class="errorList">
-            <div style="font-weight:1000;margin-bottom:6px;">Periksa input berikut:</div>
-            <ul style="padding-left:18px;margin:0;">
+            <div class="errorList-title">Periksa input berikut:</div>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -53,14 +53,14 @@
             <div class="formRow">
                 <div class="fieldLabel">Kelas</div>
                 @if ($kelas->isEmpty())
-                    <div class="input" style="border: 1px solid #ccc; ">
+                    <div class="input">
                         Belum ada data kelas.
-                        <a href="{{ route('admin.kelas.create') }}" style="font-weight:900;color:#1d4ed8;text-decoration:underline;">Tambah kelas sekarang</a>.
+                        <a href="{{ route('admin.kelas.create') }}" class="link-primary">Tambah kelas sekarang</a>.
                     </div>
                 @endif
                 <select class="input" name="kelas_id" required onchange="if(this.value === 'tambah_kelas') { window.location.href = '{{ route('admin.kelas.create') }}'; }">
                     <option value="">-- Pilih Kelas --</option>
-                    <option value="tambah_kelas" style="font-weight: bold; color: #1d4ed8;">+ Tambah Kelas</option>
+                    <option value="tambah_kelas" class="link-primary">+ Tambah Kelas</option>
                     @foreach ($kelas as $k)
                         <option value="{{ $k->id }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
                             {{ $k->nama_kelas }}
@@ -83,7 +83,7 @@
                 </select>
             </div>
 
-            <button type="submit" class="btnPrimary" style="width:100%;justify-content:center;">
+            <button type="submit" class="btnPrimary btnPrimary--full">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan
             </button>

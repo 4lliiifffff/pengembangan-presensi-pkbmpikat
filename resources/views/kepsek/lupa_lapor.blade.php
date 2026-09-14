@@ -90,11 +90,17 @@
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 @if($status === 'disetujui')
-                    <span style="background:#10b981; color:#fff; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px;">🟢 Disetujui</span>
+                    <span class="badgeStatus disetujui">
+                        <ion-icon name="checkmark-circle-outline" style="vertical-align:middle;"></ion-icon> Disetujui
+                    </span>
                 @elseif($status === 'ditolak')
-                    <span style="background:#ef4444; color:#fff; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px;">🔴 Ditolak</span>
+                    <span class="badgeStatus ditolak">
+                        <ion-icon name="close-circle-outline" style="vertical-align:middle;"></ion-icon> Ditolak
+                    </span>
                 @else
-                    <span style="background:#f59e0b; color:#fff; font-size:11px; font-weight:600; padding:3px 10px; border-radius:12px;">🟡 Menunggu</span>
+                    <span class="badgeStatus pending">
+                        <ion-icon name="time-outline" style="vertical-align:middle;"></ion-icon> Menunggu
+                    </span>
                 @endif
                 <div class="kllDate" style="font-size:12px; color:#475569; font-weight:500;">{{ $tgl }}</div>
             </div>

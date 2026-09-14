@@ -41,14 +41,14 @@
     <div class="user-role">{{ $tutor?->jabatan ?: 'Tutor' }}</div>
     
     <!-- Stats Badge -->
-    <div class="summaryGrid" style="width: 100%; border: 1px solid var(--border); border-radius: 16px; background: var(--card-alt); padding: 12px 0; display:flex; margin-bottom: 0;">
-        <div style="flex:1; text-align:center; border-right: 1px solid var(--border);">
-            <div style="font-size:9px; font-weight:900; letter-spacing:1px; color:var(--text); margin-bottom:4px;">HADIR</div>
-            <div style="font-size:16px; font-weight:900; color:var(--blue2);">{{ $hadirCount ?? 0 }} Hari</div>
+    <div class="profileStatsGrid">
+        <div class="profileStatItem">
+            <div class="profileStatLabel">HADIR</div>
+            <div class="profileStatValue primary">{{ $hadirCount ?? 0 }} Hari</div>
         </div>
-        <div style="flex:1; text-align:center;">
-            <div style="font-size:9px; font-weight:900; letter-spacing:1px; color:var(--text); margin-bottom:4px;">IZIN</div>
-            <div style="font-size:16px; font-weight:900; color:var(--text);">{{ $izinCount ?? 0 }} Hari</div>
+        <div class="profileStatItem">
+            <div class="profileStatLabel">IZIN</div>
+            <div class="profileStatValue">{{ $izinCount ?? 0 }} Hari</div>
         </div>
     </div>
 </div>
@@ -91,7 +91,7 @@
 
         <div class="formRow">
             <label class="fieldLabel">ALAMAT</label>
-            <textarea name="alamat" class="input" rows="3" style="resize:none;">{{ old('alamat', $tutor?->alamat) }}</textarea>
+            <textarea name="alamat" class="input input--no-resize" rows="3">{{ old('alamat', $tutor?->alamat) }}</textarea>
         </div>
     </div>
 </form>
@@ -101,7 +101,7 @@
     @method('PATCH')
     
     <div class="contentPad">
-        <div style="font-size:12px; font-weight:900; letter-spacing:1px; margin-bottom:14px; margin-top:5px; padding-left:4px;">UBAH KATA SANDI</div>
+        <div class="sectionLabel">UBAH KATA SANDI</div>
         
         <div class="formRow">
             <label class="fieldLabel">PASSWORD LAMA</label>
@@ -137,15 +137,15 @@
         @csrf
     </form>
     <button type="button" class="btn-logout" onclick="document.getElementById('logoutForm').submit()">
-        <ion-icon name="log-out-outline" style="font-size:18px;"></ion-icon> Keluar dari Akun
+        <ion-icon name="log-out-outline" class="icon-md"></ion-icon> Keluar dari Akun
     </button>
 </div>
 
 <!-- Errors Display -->
 @if ($errors->any())
-    <div style="padding: 16px;">
+    <div class="contentPad">
         <div class="errorList">
-            <ul style="margin:0; padding-left:14px;">
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach

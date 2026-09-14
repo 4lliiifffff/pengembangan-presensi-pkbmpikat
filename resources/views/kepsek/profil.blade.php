@@ -112,8 +112,7 @@
                 <label class="fieldLabel" for="current_password">Password Lama</label>
                 <div class="input-group">
                     <input type="password" name="current_password" id="current_password"
-                           class="input" required autocomplete="current-password"
-                           style="padding-right: 46px;">
+                           class="input input--password" required autocomplete="current-password">
                     <ion-icon name="eye-outline" class="pass-toggle"
                               onclick="togglePass('current_password')"></ion-icon>
                 </div>
@@ -147,7 +146,7 @@
 {{-- ── Fixed Bottom Actions ── --}}
 <div class="fixed-bottom-actions">
     <button type="button" class="btn-save" onclick="submitActiveForm()">
-        <ion-icon name="checkmark-outline" style="font-size:18px;"></ion-icon>
+        <ion-icon name="checkmark-outline" class="icon-md"></ion-icon>
         Simpan
     </button>
 
@@ -156,12 +155,12 @@
     </form>
     <button type="button" class="btn-logout"
             onclick="document.getElementById('logoutForm').submit()">
-        <ion-icon name="log-out-outline" style="font-size:18px;"></ion-icon>
+        <ion-icon name="log-out-outline" class="icon-md"></ion-icon>
         Keluar
     </button>
 </div>
 
-<div style="height:12px;"></div>
+<div class="spacer-sm"></div>
 
 <script>
     /* ── Tab switching ── */
