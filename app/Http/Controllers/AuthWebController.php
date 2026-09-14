@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -46,7 +48,7 @@ class AuthWebController extends Controller
      *  5. Jika berhasil, regenerasi session dan redirect ke dashboard sesuai role
      *
      * @param  Request  $request  Data form yang dikirim (username, password, remember)
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function process(Request $request)
     {
@@ -75,6 +77,10 @@ class AuthWebController extends Controller
                 ->withInput($request->only('username')) // Pertahankan username di form agar tidak perlu mengetik ulang
                 ->with('warning', 'Username/NIK atau password salah.');
         }
+
+        // Bersihkan counter RateLimiter karena login berhasil
+        $throttleKey = strtolower((string) $credentials['username']).'|'.$request->ip();
+        RateLimiter::clear($throttleKey);
 
         // Regenerasi session ID untuk mencegah Session Fixation Attack
         // Ini adalah praktik keamanan standar (OWASP recommendation)
@@ -116,7 +122,7 @@ class AuthWebController extends Controller
      *  2. Invalidasi session saat ini (hapus semua data session)
      *  3. Regenerasi CSRF token (mencegah penyalahgunaan token lama)
      *
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function logout(Request $request)
     {

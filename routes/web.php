@@ -12,6 +12,7 @@ use App\Http\Controllers\KaryawanPresensiController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Tutor\LupaLaporController;
+use App\Http\Controllers\Tutor\PresensiFotoController;
 use App\Http\Controllers\Tutor\TutorDashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::get('/login', function () {
 });
 
 Route::post('/login', [AuthWebController::class, 'process'])
+    ->middleware('throttle:login')
     ->name('login.process');
 
 Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout');
@@ -61,8 +63,8 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
     Route::get('/riwayat', [TutorDashboardController::class, 'riwayat'])->name('riwayat');
     Route::get('/jadwal', [TutorDashboardController::class, 'jadwal'])->name('jadwal');
-    Route::get('/presensi', [\App\Http\Controllers\Tutor\PresensiFotoController::class, 'index'])->name('presensi');
-    Route::post('/presensi', [\App\Http\Controllers\Tutor\PresensiFotoController::class, 'store'])->name('presensi.store');
+    Route::get('/presensi', [PresensiFotoController::class, 'index'])->name('presensi');
+    Route::post('/presensi', [PresensiFotoController::class, 'store'])->name('presensi.store');
     Route::get('/lupa-lapor', [LupaLaporController::class, 'index'])->name('lupa-lapor');
     Route::post('/lupa-lapor', [LupaLaporController::class, 'store'])->name('lupa-lapor.store');
     Route::delete('/lupa-lapor/{id}', [LupaLaporController::class, 'destroy'])->name('lupa-lapor.destroy');

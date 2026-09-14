@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
@@ -16,6 +17,10 @@ class AuthController extends Controller
                 'message' => 'login gagal',
             ], 401);
         }
+
+        $username = strtolower((string) ($request->input('email') ?? $request->input('username') ?? ''));
+        $throttleKey = $username ? $username.'|'.$request->ip() : $request->ip();
+        RateLimiter::clear($throttleKey);
 
         $user = Auth::user();
         $token = $user->createToken('auth_token')->plainTextToken;
