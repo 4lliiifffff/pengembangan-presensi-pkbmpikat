@@ -88,9 +88,14 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Kunjungan Rumah (Home Visit)**: Catat titik lokasi GPS kunjungan + foto di rumah murid.
     - **Pembelajaran Online**: Bypass radius lokasi + wajib melampirkan foto layar/link ruang pertemuan (Zoom/GMeet).
     - Menambahkan Eloquent Accessor `$presensi->moda_label` untuk kemudahan pelaporan.
-- ⚪ **Kalkulasi Radius Geofencing (Rumus Haversine)**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Membatasi absen masuk/pulang berdasarkan koordinat GPS tutor dengan toleransi radius $\le 100$ meter dari titik lokasi PKBM Pikat menggunakan algoritma rumus Haversine.
+- 🟢 **Kalkulasi Radius Geofencing (Rumus Haversine)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat service class `App\Services\GeofencingService` dengan fungsi `calculateDistance()` menggunakan **Rumus Haversine** untuk menghitung jarak antara dua pasang koordinat GPS (latitude/longitude) dalam satuan meter.
+    - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php`.
+    - Mengintegrasikan pemeriksaan geofencing pada `PresensiFotoController::store()` untuk moda pembelajaran `sekolah`. Jika jarak GPS tutor dengan titik sekolah PKBM Pikat $> 100$ meter, presensi otomatis ditolak dengan pesan peringatan interaktif yang menampilkan jarak sebenarnya.
+    - Pengujian otomatis komprehensif pada `tests/Feature/GeofencingTest.php` (uji presensi di dalam radius, di luar radius, bypass moda online, dan perhitungan matematis Haversine).
+
 - ⚪ **Deteksi Manipulasi GPS (Anti Fake GPS)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Integrasi validasi *accuracy level* lokasi browser/device dan deteksi penggunaan aplikasi *mock location* atau manipulasi koordinat GPS.
@@ -188,7 +193,8 @@ pie title Status Fitur & Pengkondisian Sistem
 #### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
 - 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (7 tests, 26 assertions OK) dan kompilasi build produksi Vite `npm run build`.
+  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (11 tests, 41 assertions OK) dan kompilasi build produksi Vite `npm run build`.
+
 - 🟡 **Penerapan Pattern DRY (Service & Repository Pattern)**
   - **Status:** **DALAM PROSES**
   - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (misal: `PresensiService`, `PayrollService`) untuk menghindari kode berulang (*DRY - Don't Repeat Yourself*).

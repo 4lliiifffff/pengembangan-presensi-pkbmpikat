@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
 use App\Models\Presensi;
 use App\Models\Siswa;
+use App\Services\GeofencingService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -137,7 +138,7 @@ class PresensiFotoController extends Controller
      * @param  Request  $request  Data form presensi
      * @return RedirectResponse
      */
-    public function store(Request $request)
+    public function store(Request $request, GeofencingService $geofencingService)
     {
         // Verifikasi tutor yang sedang login
         $tutor = $this->resolveTutor();
@@ -169,7 +170,17 @@ class PresensiFotoController extends Controller
         //  MODE: MULAI (Clock In / Absen Masuk)
         // ─────────────────────────────────────────────
         if ($validated['mode'] === 'mulai') {
+            // Validasi Geofencing (Rumus Haversine) jika moda sekolah
+            $moda = $validated['moda_pembelajaran'] ?? 'sekolah';
+            if ($moda === 'sekolah') {
+                $geofenceCheck = $geofencingService->checkSekolahRadius($validated['lokasi'] ?? null);
+                if (! $geofenceCheck['is_valid']) {
+                    return back()->with('warning', $geofenceCheck['message']);
+                }
+            }
+
             // Validasi: tidak boleh membuat sesi baru jika sesi lama belum selesai
+
             foreach ($validated['siswa_id'] as $sId) {
                 $presensiLookup = Presensi::query()
                     ->where('siswa_id', $sId)
@@ -237,7 +248,16 @@ class PresensiFotoController extends Controller
                 return back()->with('warning', 'Presensi pulang sesi terakhir sudah tercatat.');
             }
 
+            // Validasi Geofencing (Rumus Haversine) jika moda sekolah
+            if (($presensi->moda_pembelajaran ?? 'sekolah') === 'sekolah') {
+                $geofenceCheck = $geofencingService->checkSekolahRadius($validated['lokasi'] ?? null);
+                if (! $geofenceCheck['is_valid']) {
+                    return back()->with('warning', $geofenceCheck['message']);
+                }
+            }
+
             // Validasi durasi minimal: harus sudah lewat 1 jam
+
             $jamMulai = Carbon::parse($today.' '.$presensi->jam_mulai, 'Asia/Jakarta');
             $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
 

@@ -44,7 +44,12 @@
   - **Kunjungan Rumah (Home Visit)**: Catat titik lokasi GPS kunjungan + foto di rumah murid.
   - **Pembelajaran Online**: Bypass radius lokasi + wajib melampirkan foto layar/link ruang pertemuan (Zoom/GMeet).
   - Menambahkan Eloquent Accessor `$presensi->moda_label` untuk kemudahan pelaporan.
-* ⚪ **Kalkulasi Radius Geofencing (Rumus Haversine):** [PENDING] Membatasi absen masuk/pulang berdasarkan koordinat GPS tutor dengan toleransi radius $\le 100$ meter dari titik lokasi PKBM Pikat menggunakan algoritma rumus Haversine.
+* 🟢 **Kalkulasi Radius Geofencing (Rumus Haversine):** [SELESAI] 
+  - Membuat service class `App\Services\GeofencingService` dengan fungsi `calculateDistance()` menggunakan **Rumus Haversine** untuk menghitung jarak antara dua pasang koordinat GPS (latitude/longitude) dalam satuan meter.
+  - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php`.
+  - Mengintegrasikan pemeriksaan geofencing pada `PresensiFotoController::store()` untuk moda pembelajaran `sekolah`. Jika jarak GPS tutor dengan titik sekolah PKBM Pikat $> 100$ meter, presensi otomatis ditolak dengan pesan peringatan interaktif yang menampilkan jarak sebenarnya.
+  - Pengujian otomatis komprehensif pada `tests/Feature/GeofencingTest.php` (uji presensi di dalam radius, di luar radius, bypass moda online, dan perhitungan matematis Haversine).
+
 * ⚪ **Deteksi Manipulasi GPS (Anti Fake GPS):** [PENDING] Integrasi validasi *accuracy level* lokasi browser/device dan deteksi penggunaan aplikasi *mock location* atau manipulasi koordinat GPS.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 * ⚪ **PWA (Progressive Web App) & Offline Mode:** [PENDING] Pemasangan Web App Manifest, Service Worker, dan penyimpanan lokal `IndexedDB` agar presensi tetap dapat dicatat saat perangkat tidak memiliki sinyal internet dan otomatis melakukan sinkronisasi saat online.
@@ -102,7 +107,8 @@
   - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
 
 ### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
-* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (7 tests, 26 assertions OK) serta kompilasi produksi Vite `npm run build`.
+* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (11 tests, 41 assertions OK) serta kompilasi produksi Vite `npm run build`.
+
 * 🟡 **Penerapan Pattern DRY (Service & Repository Pattern):** [DALAM PROSES] Mengeluarkan logika berulang ke dalam Service Classes.
 
 ---
