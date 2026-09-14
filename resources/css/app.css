@@ -396,6 +396,31 @@ h1, h2, h3, h4, h5, h6 {
 /* ==========================================
    SUMMARY GRID & DASHBOARD CARDS
    ========================================== */
+.page-wrapper {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.content {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboardGrid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dashboardCol {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+}
+
 .summaryGrid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -406,24 +431,27 @@ h1, h2, h3, h4, h5, h6 {
 .summaryCard {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 12px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     background: var(--card-alt);
+    position: relative;
+    overflow: hidden;
 }
 
 .summaryTop {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
+    z-index: 2;
 }
 
 .summaryIcon {
-    width: 42px;
-    height: 42px;
-    border-radius: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
     display: grid;
     place-items: center;
     font-size: 18px;
@@ -433,6 +461,256 @@ h1, h2, h3, h4, h5, h6 {
 .summaryIcon.sakit { background: rgba(239,68,68,0.12); color: var(--danger); }
 .summaryIcon.izin { background: rgba(245,158,11,0.14); color: var(--warn); }
 .summaryIcon.alpha { background: rgba(239,68,68,0.18); color: #b91c1c; }
+
+.summaryLabel {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.summaryCount {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.1;
+    z-index: 2;
+}
+
+.summaryBigIcon {
+    position: absolute;
+    right: -6px;
+    bottom: -6px;
+    font-size: 52px;
+    opacity: 0.08;
+    color: var(--text);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ==========================================
+   CARDBOX & DASHBOARD SECTION CARDS
+   ========================================== */
+.cardBox {
+    margin: 0 16px 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 16px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.cardHeadRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.cardHeadRow h2 {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.kpiLeaderboardList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.kpiCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--card-alt);
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    transition: transform 0.15s ease;
+}
+
+.kpiLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.kpiRank {
+    font-weight: 900;
+    font-size: 11px;
+    min-width: 38px;
+    text-align: center;
+    padding: 4px 6px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.kpiRank.gold { background: #fffbe6; color: #d97706; border: 1px solid #fde68a; }
+.kpiRank.silver { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+.kpiRank.bronze { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.kpiRank.normal { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+
+.kpiAvatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--blue2);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.kpiInfo {
+    min-width: 0;
+    flex: 1;
+}
+
+.kpiName {
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kpiMeta {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.kpiRight {
+    text-align: right;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.kpiScore {
+    font-weight: 900;
+    font-size: 14px;
+    color: var(--blue2);
+}
+
+.kpiScoreSub {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+/* Activity Rows */
+.activityHeaderRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px 10px;
+}
+
+.activityHeaderRow h2 {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--text);
+    margin: 0;
+}
+
+.mutedLink {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--blue2);
+    text-decoration: none;
+}
+
+.activityList {
+    padding: 0 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.activityRow {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+}
+
+.activityLeft {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.activityAvatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--avatar-bg);
+    color: var(--avatar-text);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 14px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.activityName {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activityMeta {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.activityRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
 
 /* ==========================================
    PILLS & STATUS BADGES
@@ -1567,4 +1845,286 @@ input[type="radio"].jenisRadio { display: none; }
 
 /* Cursor helpers */
 .cursor-pointer { cursor: pointer; }
+
+/* ==========================================
+   MOBILE RESPONSIVENESS & SAFE AREA ENHANCEMENTS
+   ========================================== */
+
+/* Universal Touch & Tap Ergonomics */
+button, a, input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 1. iOS / Modern Device Safe Area Support */
+#appCapsule {
+    padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+}
+
+.bottomNavAdmin, .appBottomMenu {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+}
+
+.fixed-bottom-actions {
+    padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.bottomDrawer {
+    padding-bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+}
+
+.fabAdd {
+    bottom: calc(86px + env(safe-area-inset-bottom, 0px));
+}
+
+.paginatePad {
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 2. Smooth Momentum Scrolling for Data Tables */
+.tableContainer {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+}
+
+.tableContainer::-webkit-scrollbar {
+    height: 5px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 999px;
+}
+
+/* 3. Small Screen Adaptation (≤ 380px - Galaxy Fold, iPhone SE, compact devices) */
+@media (max-width: 380px) {
+    .bottomNavAdmin a, .appBottomMenu .item {
+        font-size: 8.5px;
+        padding: 4px 1px;
+        letter-spacing: -0.2px;
+    }
+
+    .bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon {
+        font-size: 20px;
+    }
+
+    .inputRow {
+        grid-template-columns: 1fr;
+    }
+
+    .summaryGrid {
+        gap: 8px;
+        padding: 0 12px 10px;
+    }
+
+    .summaryCard {
+        padding: 10px;
+    }
+
+    .clockTime {
+        font-size: 28px;
+    }
+
+    .quickGrid {
+        gap: 8px;
+        padding: 0 12px;
+    }
+
+    .quickCard {
+        min-height: 92px;
+        padding: 10px 8px;
+    }
+
+    .quickIcon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+    }
+
+    .headName, .tutorName {
+        max-width: 140px;
+    }
+
+    .statsRow {
+        gap: 6px;
+    }
+
+    .statBox h2 {
+        font-size: 20px;
+    }
+
+    .filterBarKll, .filterBar {
+        padding: 0 12px 12px;
+    }
+
+    .filterRowTop {
+        flex-direction: column;
+    }
+
+    .kllActions {
+        flex-direction: column;
+    }
+}
+
+/* 4. Extra Small Screen Adaptation (≤ 340px) */
+@media (max-width: 340px) {
+    .bottomNavAdmin a span, .appBottomMenu .item span {
+        display: none;
+    }
+
+    .bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon {
+        font-size: 24px;
+    }
+
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 5. Small Tablet Viewport (431px - 767px) */
+@media (min-width: 431px) and (max-width: 767px) {
+    body {
+        background-color: #f1f5f9;
+    }
+
+    [data-theme="dark"] body {
+        background-color: #0b1329;
+    }
+
+    #appCapsule {
+        max-width: 480px;
+        margin: 0 auto;
+        border-left: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+    }
+}
+
+/* 6. Tablet & Desktop Responsive Layout (≥ 768px) */
+@media (min-width: 768px) {
+    body {
+        background-color: #f8fafc;
+    }
+
+    [data-theme="dark"] body {
+        background-color: #070d1e;
+    }
+
+    #appCapsule {
+        max-width: 1060px;
+        margin: 24px auto 64px;
+        min-height: calc(100vh - 48px);
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.06);
+        padding-bottom: 104px;
+        overflow: hidden;
+    }
+
+    [data-theme="dark"] #appCapsule {
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .topbar, .topBar, .tutorTop {
+        padding: 16px 24px;
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+    }
+
+    .sectionTitleRow, .pageHeaderRow {
+        padding: 20px 24px 14px;
+    }
+
+    .summaryGrid {
+        padding: 0 24px 18px;
+        gap: 16px;
+    }
+
+    .dashboardGrid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 0 24px;
+        align-items: start;
+    }
+
+    .dashboardCol {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        min-width: 0;
+    }
+
+    .dashboardCol .cardBox {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .dashboardCol .clockCard,
+    .dashboardCol .todayCard {
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: 16px;
+    }
+
+    .dashboardCol .sectionCaps {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .dashboardCol .quickGrid {
+        padding: 0;
+        margin-bottom: 16px;
+    }
+
+    .dashboardCol .recentList {
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 24px;
+    }
+
+    .dashboardCol .activityHeaderRow {
+        padding-left: 0;
+        padding-right: 0;
+        padding-top: 4px;
+    }
+
+    .dashboardCol .activityList {
+        padding-left: 0;
+        padding-right: 0;
+        padding-bottom: 24px;
+    }
+
+    /* Floating modern desktop bottom navigation */
+    .appBottomMenu, .bottomNavAdmin {
+        max-width: 980px;
+        bottom: 20px;
+        border-radius: 20px;
+        border: 1px solid var(--border);
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+        padding: 10px 16px;
+    }
+
+    .bottomNavAdmin a, .appBottomMenu .item {
+        font-size: 11.5px;
+        padding: 6px 12px;
+        border-radius: 12px;
+    }
+
+    .bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon {
+        font-size: 24px;
+    }
+
+    .fabAdd {
+        right: calc((100vw - 1060px) / 2 + 24px);
+        bottom: 96px;
+    }
+
+    .fixed-bottom-actions {
+        max-width: 1060px;
+        border-bottom-left-radius: 24px;
+        border-bottom-right-radius: 24px;
+    }
+}
+
 

@@ -8,7 +8,10 @@ use App\Models\Jadwal;
 use App\Models\Presensi;
 use App\Models\Tutor;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 /**
  * TutorDashboardController — Controller Dashboard & Riwayat untuk Tutor
@@ -40,7 +43,7 @@ class TutorDashboardController extends Controller
      * Helper method untuk menghindari pengulangan kondisi where tutor_id.
      *
      * @param  Tutor  $tutor  Objek tutor yang akan di-query
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
     protected function presensiQueryForTutor(Tutor $tutor)
     {
@@ -58,7 +61,7 @@ class TutorDashboardController extends Controller
      *  - todayStatus    : Status hari ini: 'belum_mulai', 'proses', atau 'selesai'
      *  - sisaDetikPulang: Sisa detik sebelum bisa absen pulang (untuk countdown timer)
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function index()
     {
@@ -162,7 +165,7 @@ class TutorDashboardController extends Controller
      *      Jika total = 0, persentase juga = 0 (untuk menghindari division by zero).
      *
      * @param  Request  $request  Parameter filter: 'tanggal', 'status'
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function riwayat(Request $request)
     {
@@ -235,7 +238,7 @@ class TutorDashboardController extends Controller
      * Tutor dapat melihat jadwal kegiatan berdasarkan tanggal yang dipilih.
      * Default menampilkan jadwal hari ini.
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function jadwal()
     {

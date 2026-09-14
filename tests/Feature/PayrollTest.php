@@ -111,4 +111,17 @@ class PayrollTest extends TestCase
         $pdfResponse->assertStatus(200);
         $pdfResponse->assertHeader('Content-Type', 'application/pdf');
     }
+
+    public function test_kepsek_can_access_payroll_and_export_pdf(): void
+    {
+        $kepsek = User::factory()->create(['role' => 'kepala_sekolah']);
+
+        $response = $this->actingAs($kepsek)->get(route('kepsek.payroll.index'));
+        $response->assertStatus(200);
+        $response->assertSee('Rekapitulasi Penggajian');
+
+        $rekapPdfResponse = $this->actingAs($kepsek)->get(route('kepsek.payroll.rekap-pdf'));
+        $rekapPdfResponse->assertStatus(200);
+        $rekapPdfResponse->assertHeader('Content-Type', 'application/pdf');
+    }
 }

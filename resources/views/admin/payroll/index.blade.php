@@ -1,4 +1,8 @@
-@extends('layouts.admin')
+@extends(auth()->user()->role === 'kepala_sekolah' ? 'layouts.kepsek' : 'layouts.admin')
+
+@php
+    $rolePrefix = auth()->user()->role === 'kepala_sekolah' ? 'kepsek' : 'admin';
+@endphp
 
 @section('title', 'Rekapitulasi Penggajian & Honorarium')
 
@@ -10,7 +14,7 @@
     </div>
 
     <div>
-        <a href="{{ route('admin.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 16px;background:#0284c7;">
+        <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 16px;background:#0284c7;">
             <ion-icon name="document-text-outline"></ion-icon> Export PDF Rekap Anggaran
         </a>
     </div>
@@ -18,7 +22,7 @@
 
 {{-- ── Filter Bar ── --}}
 <div style="background:#fff;padding:14px;border-radius:10px;border:1px solid #e2e8f0;margin-bottom:16px;">
-    <form method="GET" action="{{ route('admin.payroll.index') }}" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+    <form method="GET" action="{{ route($rolePrefix . '.payroll.index') }}" style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
         <div>
             <label style="font-size:12px;font-weight:600;color:#475569;">Bulan:</label>
             <select name="bulan" class="input" style="padding:6px 12px;font-size:13px;" onchange="this.form.submit()">
@@ -99,10 +103,10 @@
                     <td style="padding:12px 14px;font-weight:700;color:#059669;">{{ $p['formatted_total_honor'] }}</td>
                     <td style="padding:12px 14px;text-align:right;">
                         <div style="display:flex;gap:6px;justify-content:flex-end;">
-                            <a href="{{ route('admin.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" style="padding:4px 10px;font-size:12px;">
+                            <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" style="padding:4px 10px;font-size:12px;">
                                 <ion-icon name="eye-outline"></ion-icon> Detail
                             </a>
-                            <a href="{{ route('admin.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" style="padding:4px 10px;font-size:12px;background:#059669;color:#fff;" title="Cetak Slip PDF">
+                            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" style="padding:4px 10px;font-size:12px;background:#059669;color:#fff;" title="Cetak Slip PDF">
                                 <ion-icon name="download-outline"></ion-icon> Slip PDF
                             </a>
                         </div>

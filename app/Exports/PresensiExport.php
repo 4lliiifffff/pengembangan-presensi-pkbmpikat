@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Presensi;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
@@ -81,11 +82,11 @@ class PresensiExport implements FromCollection, WithCustomStartCell, WithEvents,
 
         return [
             $no,
-            \Carbon\Carbon::parse($presensi->tgl_presensi)->format('d/m/Y'),
+            Carbon::parse($presensi->tgl_presensi)->format('d/m/Y'),
             $presensi->tutor->nama_lengkap ?? 'Tutor',
             $presensi->siswa->nama_siswa ?? '-',
-            $presensi->jam_mulai ? \Carbon\Carbon::parse($presensi->jam_mulai)->format('H:i') : '-',
-            $presensi->jam_selesai ? \Carbon\Carbon::parse($presensi->jam_selesai)->format('H:i') : '-',
+            $presensi->jam_mulai ? Carbon::parse($presensi->jam_mulai)->format('H:i') : '-',
+            $presensi->jam_selesai ? Carbon::parse($presensi->jam_selesai)->format('H:i') : '-',
             $presensi->lokasi_mulai ?? '-',
             $presensi->calculated_status,
         ];

@@ -38,77 +38,83 @@
                 </div>
             </div>
 
-            {{-- Statistik Mingguan --}}
-            <div class="cardBox">
-                <div class="cardHeadRow">
-                    <h2>Statistik Mingguan</h2>
-                </div>
-
-                <div class="barChart">
-                    @foreach ($weekly['days'] ?? [] as $day)
-                        @php
-                            $count = (int) ($day['count'] ?? 0);
-                            $maxVal = (int) ($weekly['max'] ?? 1);
-
-                            // Hitung tinggi dan batasi maksimal 85px (sesuai max-height pada CSS) agar tidak offside
-                            $calculatedHeight = $maxVal > 0 ? (int) round(($count / $maxVal) * 85) : 0;
-                            $height = min(85, max(6, $calculatedHeight));
-
-                            $todayISO = (int) \Carbon\Carbon::now()->format('N'); // 1=Mon…7=Sun
-                            $dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
-                            $dayIndex = array_search($day['label'] ?? '', $dayLabels, true);
-                            $isToday = $dayIndex !== false && (int) $dayIndex + 1 === $todayISO;
-                        @endphp
-                        <div class="barCol">
-                            <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;"></div>
-                            <div class="barDay">{{ $day['label'] }}</div>
+            <div class="dashboardGrid">
+                <div class="dashboardCol">
+                    {{-- Statistik Mingguan --}}
+                    <div class="cardBox">
+                        <div class="cardHeadRow">
+                            <h2>Statistik Mingguan</h2>
                         </div>
-                    @endforeach
-                </div>
-            </div>
 
-            {{-- Aktivitas Terbaru --}}
-            <div class="activityHeaderRow">
-                <h2>Aktivitas Terbaru</h2>
-                <a class="mutedLink" href="{{ route('admin.laporan.index') }}">Lihat Semua &rsaquo;</a>
-            </div>
+                        <div class="barChart">
+                            @foreach ($weekly['days'] ?? [] as $day)
+                                @php
+                                    $count = (int) ($day['count'] ?? 0);
+                                    $maxVal = (int) ($weekly['max'] ?? 1);
 
-            <div class="activityList">
-                @forelse($latest as $item)
-                    @php
-                        $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
-                        $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
-                        $initial = strtoupper(substr((string) $tutorName, 0, 1));
-                        $pillClass = $item->status_class ?? 'pending';
-                        $statusLabel = $item->status_label ?? strtoupper((string) $item->status);
-                        $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
-                        $jam = (string) ($item->jam_mulai ?? '');
-                    @endphp
-                    <div class="activityRow">
-                        <div class="activityLeft">
-                            <div class="activityAvatar">
-                                @if ($item->tutor->foto ?? null)
-                                    <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
-                                        style="width:100%;height:100%;object-fit:cover;" />
-                                @else
-                                    {{ $initial }}
-                                @endif
-                            </div>
-                            <div style="min-width:0;">
-                                <div class="activityName">{{ $tutorName }}</div>
-                                <div class="activityMeta">
-                                    {{ $siswaName }} {{ $jam ? ' · ' . $jam : '' }}
+                                    // Hitung tinggi dan batasi maksimal 85px (sesuai max-height pada CSS) agar tidak offside
+                                    $calculatedHeight = $maxVal > 0 ? (int) round(($count / $maxVal) * 85) : 0;
+                                    $height = min(85, max(6, $calculatedHeight));
+
+                                    $todayISO = (int) \Carbon\Carbon::now()->format('N'); // 1=Mon…7=Sun
+                                    $dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+                                    $dayIndex = array_search($day['label'] ?? '', $dayLabels, true);
+                                    $isToday = $dayIndex !== false && (int) $dayIndex + 1 === $todayISO;
+                                @endphp
+                                <div class="barCol">
+                                    <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;"></div>
+                                    <div class="barDay">{{ $day['label'] }}</div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="activityRight">
-                            <div class="pill {{ $pillClass }}">{{ $statusLabel }}</div>
-                            <a class="detailBtn" href="{{ route('admin.laporan.index', ['tutor_id' => $item->tutor_id, 'start_date' => $item->tgl_presensi, 'siswa_id' => $item->siswa_id]) }}">DETAIL</a>
+                            @endforeach
                         </div>
                     </div>
-                @empty
-                    <div class="emptyState">Belum ada data presensi.</div>
-                @endforelse
+                </div>
+
+                <div class="dashboardCol">
+                    {{-- Aktivitas Terbaru --}}
+                    <div class="activityHeaderRow">
+                        <h2>Aktivitas Terbaru</h2>
+                        <a class="mutedLink" href="{{ route('admin.laporan.index') }}">Lihat Semua &rsaquo;</a>
+                    </div>
+
+                    <div class="activityList">
+                        @forelse($latest as $item)
+                            @php
+                                $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
+                                $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
+                                $initial = strtoupper(substr((string) $tutorName, 0, 1));
+                                $pillClass = $item->status_class ?? 'pending';
+                                $statusLabel = $item->status_label ?? strtoupper((string) $item->status);
+                                $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
+                                $jam = (string) ($item->jam_mulai ?? '');
+                            @endphp
+                            <div class="activityRow">
+                                <div class="activityLeft">
+                                    <div class="activityAvatar">
+                                        @if ($item->tutor->foto ?? null)
+                                            <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
+                                                style="width:100%;height:100%;object-fit:cover;" />
+                                        @else
+                                            {{ $initial }}
+                                        @endif
+                                    </div>
+                                    <div style="min-width:0;">
+                                        <div class="activityName">{{ $tutorName }}</div>
+                                        <div class="activityMeta">
+                                            {{ $siswaName }} {{ $jam ? ' · ' . $jam : '' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="activityRight">
+                                    <div class="pill {{ $pillClass }}">{{ $statusLabel }}</div>
+                                    <a class="detailBtn" href="{{ route('admin.laporan.index', ['tutor_id' => $item->tutor_id, 'start_date' => $item->tgl_presensi, 'siswa_id' => $item->siswa_id]) }}">DETAIL</a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="emptyState">Belum ada data presensi.</div>
+                        @endforelse
+                    </div>
+                </div>
             </div>
 
         </div>{{-- end .content --}}

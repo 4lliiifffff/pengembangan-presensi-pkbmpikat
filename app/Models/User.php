@@ -3,7 +3,9 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Schema;
@@ -16,7 +18,7 @@ use Illuminate\Support\Facades\Schema;
  */
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     /**
@@ -52,7 +54,7 @@ class User extends Authenticatable
      * Relasi: User memiliki satu profil Admin (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'admin'.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function admin()
     {
@@ -64,7 +66,7 @@ class User extends Authenticatable
      * Hanya berlaku jika user memiliki role = 'tutor'.
      * Digunakan untuk mengakses detail tutor: $user->tutor->jabatan
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function tutor()
     {
@@ -75,7 +77,7 @@ class User extends Authenticatable
      * Relasi: User memiliki satu profil Kepala Sekolah (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'kepala_sekolah'.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return HasOne
      */
     public function kepala_sekolah()
     {

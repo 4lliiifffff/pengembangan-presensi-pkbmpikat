@@ -1,11 +1,15 @@
-@extends('layouts.admin')
+@extends(auth()->user()->role === 'kepala_sekolah' ? 'layouts.kepsek' : 'layouts.admin')
+
+@php
+    $rolePrefix = auth()->user()->role === 'kepala_sekolah' ? 'kepsek' : 'admin';
+@endphp
 
 @section('title', 'Detail Slip Gaji Tutor')
 
 @section('content')
 <div class="pageHeaderRow" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
     <div>
-        <a href="{{ route('admin.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" style="font-size:13px;color:#0284c7;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;">
+        <a href="{{ route($rolePrefix . '.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" style="font-size:13px;color:#0284c7;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:4px;">
             <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Rekap Payroll
         </a>
         <h2 style="margin:0;font-size:20px;">Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h2>
@@ -13,7 +17,7 @@
     </div>
 
     <div>
-        <a href="{{ route('admin.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 16px;background:#059669;">
+        <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:8px 16px;background:#059669;">
             <ion-icon name="download-outline"></ion-icon> Cetak Slip Gaji PDF
         </a>
     </div>
