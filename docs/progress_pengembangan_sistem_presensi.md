@@ -140,6 +140,16 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah menyetujui pengajuan izin/sakit, sistem secara otomatis mengisikan/menyinkronkan record pada tabel `presensis` untuk rentang tanggal yang diajukan dengan status `'izin'` atau `'sakit'`.
     - Automated feature testing pada `tests/Feature/PengajuanIzinSakitTest.php`.
 
+- 🟢 **Modul Presensi Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Membuat tabel `magangs` (`user_id`, `nim_nisn`, `asal_instansi`, `jurusan`, `pembimbing_lapangan`, `tgl_mulai`, `tgl_selesai`, `status`) dan model `App\Models\Magang`.
+    - Memperbarui kolom `users.role` untuk mendukung peran `'magang'`.
+    - **Alur Presensi Khusus Magang (Clock-In & Clock-Out)**: Mahasiswa magang melakukan absensi masuk (jam mulai & foto selfie) dan pulang (jam selesai & foto selfie) dengan verifikasi radius geofence 100m PKBM Pikat serta validasi durasi minimal magang (1 jam). Presensi dicatat pada tabel `presensi_karyawans`.
+    - **Dashboard & Mobile UI Magang**: Dashboard khusus (`MagangDashboardController`), live time widget, kartu sesi aktif, statistik kehadiran bulanan, riwayat presensi (`resources/views/magang/riwayat.blade.php`), dan profil (`resources/views/magang/profil.blade.php`) lengkap dengan navigasi bawah khusus `navigasi_bawah_magang`.
+    - **Modul Kelola Magang Admin**: CRUD peserta magang (`Admin\MagangController`), monitoring presensi real-time magang, dan ekspor Laporan Rekap Presensi Magang ke PDF (`Barryvdh\DomPDF`).
+    - **Automated Testing**: Penambahan feature test `tests/Feature/MagangRoleAndPresensiTest.php` (7 tests, 29 assertions lolos 100%).
+
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
@@ -277,7 +287,7 @@ pie title Status Fitur & Pengkondisian Sistem
 #### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
 - 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (**46 tests, 206 assertions OK 100%**) dan kompilasi build produksi Vite `npm run build`.
+  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (**53 tests, 235 assertions OK 100%**) dan kompilasi build produksi Vite `npm run build`.
 - 🟢 **Penerapan Pattern DRY (Service & Repository Pattern)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`, `WebPushService`, `GeofencingService`, `AnalyticsService`) untuk mengeliminasi kode berulang (*DRY - Don't Repeat Yourself*). Dilengkapi dengan pengujian otomatis `DryServicePatternTest.php` dan `PushNotificationTest.php`.

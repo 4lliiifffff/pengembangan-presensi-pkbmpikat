@@ -2,36 +2,29 @@
 
 @section('title', 'Pengajuan Izin & Sakit')
 
-@section('content')
-
 @php
     $user        = auth()->user();
     $displayName = (string) (($user->nama_lengkap ?? $user->name) ?? 'Tutor');
 @endphp
 
-{{-- ── Top Bar ── --}}
-<div class="llTopBar">
-    <div class="llTopRow">
-        <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali">
-            <ion-icon name="arrow-back-outline" class="icon-md"></ion-icon>
-        </a>
-        <div style="flex: 1;">
-            <div class="llPageTitle">Pengajuan Izin &amp; Sakit</div>
-            <div class="llPageSub">Formulir pengajuan izin atau sakit digital</div>
+@push('topbar')
+    <div class="llTopBar">
+        <div class="llTopRow">
+            <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali">
+                <ion-icon name="arrow-back-outline" class="icon-md"></ion-icon>
+            </a>
+            <div style="flex: 1;">
+                <div class="llPageTitle">Pengajuan Izin &amp; Sakit</div>
+                <div class="llPageSub">Formulir pengajuan izin atau sakit digital</div>
+            </div>
+            <button class="llBackBtn" type="button" aria-label="Tema" id="themeToggleBtn">
+                <ion-icon name="moon-outline" class="icon-md" id="themeToggleIcon"></ion-icon>
+            </button>
         </div>
-        <button class="llBackBtn" type="button" aria-label="Tema" id="themeToggleBtn">
-            <ion-icon name="moon-outline" class="icon-md" id="themeToggleIcon"></ion-icon>
-        </button>
     </div>
-</div>
+@endpush
 
-{{-- ── Flash Messages ── --}}
-@if(session('success'))
-    <div class="flashAlert success">{{ session('success') }}</div>
-@endif
-@if(session('warning'))
-    <div class="flashAlert warning">{{ session('warning') }}</div>
-@endif
+@section('content')
 
 {{-- ── Tabs ── --}}
 <div class="tabBar">

@@ -23,12 +23,15 @@
 </head>
 <body>
     <div id="appCapsule">
+        @stack('topbar')
+
         @if (session('success'))
             <div class="flashAlert success">{{ session('success') }}</div>
         @endif
         @if (session('warning'))
             <div class="flashAlert warning">{{ session('warning') }}</div>
         @endif
+
         @yield('content')
     </div>
 
@@ -37,6 +40,8 @@
             @include('layouts.components.navigasi_bawah_admin')
         @elseif (auth()->user()->role === 'kepala_sekolah')
             @include('layouts.components.navigasi_bawah_kepsek')
+        @elseif (auth()->user()->role === 'magang')
+            @include('layouts.components.navigasi_bawah_magang')
         @else
             @include('layouts.components.navigasi_bawah_tutor')
         @endif

@@ -105,6 +105,11 @@ class AuthWebController extends Controller
                 ->with('success', 'Login berhasil. Selamat datang!');
         }
 
+        if ($role === 'magang') {
+            return redirect()->route('magang.dashboard')
+                ->with('success', 'Login berhasil. Selamat datang!');
+        }
+
         // Jika role tidak dikenali (misal: role baru yang belum di-handle),
         // logout paksa pengguna agar tidak terjebak dalam kondisi login tanpa akses
         Auth::logout();

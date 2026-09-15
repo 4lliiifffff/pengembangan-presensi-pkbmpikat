@@ -2,28 +2,29 @@
 
 @section('title', 'Slip Gaji Digital — PKBM Pikat')
 
-@section('content')
-
 @php
     $user = auth()->user();
     $displayName = (string) (($user->nama_lengkap ?? $user->name) ?? 'Tutor');
 @endphp
 
-{{-- ── Top Bar ── --}}
-<div class="llTopBar">
-    <div class="llTopRow">
-        <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali ke Dashboard">
-            <ion-icon name="arrow-back-outline" style="font-size:20px;"></ion-icon>
-        </a>
-        <div style="flex: 1;">
-            <div class="llPageTitle">Slip Gaji Digital</div>
-            <div class="llPageSub">{{ $displayName }} • Honorarium Mengajar</div>
+@push('topbar')
+    <div class="llTopBar">
+        <div class="llTopRow">
+            <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali ke Dashboard">
+                <ion-icon name="arrow-back-outline" style="font-size:20px;"></ion-icon>
+            </a>
+            <div style="flex: 1;">
+                <div class="llPageTitle">Slip Gaji Digital</div>
+                <div class="llPageSub">{{ $displayName }} • Honorarium Mengajar</div>
+            </div>
+            <button class="llBackBtn" type="button" aria-label="Toggle Tema" id="themeToggleBtn">
+                <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
+            </button>
         </div>
-        <button class="llBackBtn" type="button" aria-label="Toggle Tema" id="themeToggleBtn">
-            <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
-        </button>
     </div>
-</div>
+@endpush
+
+@section('content')
 
 <div class="tutor-payroll-container">
 

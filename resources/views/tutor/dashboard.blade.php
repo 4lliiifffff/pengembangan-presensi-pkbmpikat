@@ -2,20 +2,21 @@
 
 @section('title', 'Dashboard Tutor')
 
-@section('content')
-    @php
-        $user = auth()->user();
-        $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Tutor'));
-        $roleLabel = 'Tutor';
-        $subTitle = $user?->role ? ucfirst(str_replace('_', ' ', (string) $user->role)) : 'Tutor';
-        $initial = strtoupper(substr($displayName, 0, 1));
-    @endphp
+@php
+    $user = auth()->user();
+    $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Tutor'));
+    $subTitle = $user?->role ? ucfirst(str_replace('_', ' ', (string) $user->role)) : 'Tutor';
+    $initial = strtoupper(substr($displayName, 0, 1));
+@endphp
 
+@push('topbar')
     @include('layouts.components.navigasi_atas', [
         'titleName' => $displayName,
-        'subTitle' => $subTitle
+        'subTitle'  => $subTitle,
     ])
+@endpush
 
+@section('content')
     <div class="dashboardGrid">
         <div class="dashboardCol">
             <div class="clockCard">

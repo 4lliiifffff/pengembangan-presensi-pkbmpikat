@@ -10,6 +10,9 @@
         <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola tenaga pendidik, akun staf, dan hak akses sistem</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding:8px 12px;border-color:var(--primary);color:var(--primary);font-size:12px;">
+            <ion-icon name="school-outline"></ion-icon> Peserta Magang / PKL
+        </a>
         <a href="{{ route('admin.karyawan.exportExcel') }}" class="btnPrimary" style="padding:8px 12px;background:#16a34a;font-size:12px;">
             <ion-icon name="download-outline"></ion-icon> Export Excel
         </a>

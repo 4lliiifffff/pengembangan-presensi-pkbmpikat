@@ -85,6 +85,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki satu profil Mahasiswa Magang (One-to-One / HasOne).
+     * Hanya berlaku jika user memiliki role = 'magang'.
+     *
+     * @return HasOne
+     */
+    public function magang()
+    {
+        return $this->hasOne(Magang::class);
+    }
+
+    /**
      * Mendefinisikan casting (konversi tipe data) untuk atribut tertentu.
      * Cast ini otomatis diterapkan saat membaca/menulis nilai atribut.
      *

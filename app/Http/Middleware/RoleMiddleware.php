@@ -58,6 +58,7 @@ class RoleMiddleware
                 'admin' => route('admin.dashboard'),
                 'kepala_sekolah' => route('kepsek.dashboard'),
                 'tutor' => route('tutor.dashboard'),
+                'magang' => route('magang.dashboard'),
                 default => route('login'),
             };
 

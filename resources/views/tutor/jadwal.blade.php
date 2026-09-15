@@ -2,13 +2,22 @@
 
 @section('title', 'Agenda')
 
-@section('content')
 @php
+    use Carbon\Carbon;
     $user = auth()->user();
     $displayName = (string) (($user->nama_lengkap ?? $user->name) ?? 'Tutor');
     $initial = strtoupper(substr($displayName, 0, 1));
+@endphp
 
-    use Carbon\Carbon;
+@push('topbar')
+    @include('layouts.components.navigasi_atas', [
+        'titleName' => $displayName,
+        'subTitle'  => 'Tutor',
+    ])
+@endpush
+
+@section('content')
+@php
     $todayDate = Carbon::today('Asia/Jakarta');
     $selectedDate = $selectedDate ?? Carbon::parse(request('tanggal', $todayDate->toDateString()))->startOfDay();
 
@@ -18,11 +27,6 @@
         $dates[] = $todayDate->copy()->addDays($i);
     }
 @endphp
-
-@include('layouts.components.navigasi_atas', [
-    'titleName' => $displayName,
-    'subTitle' => 'Tutor'
-])
 
 <div class="agendaTitle">Agenda Kegiatan</div>
 <div class="agendaSub">{{ $selectedDate->translatedFormat('F Y') }}</div>

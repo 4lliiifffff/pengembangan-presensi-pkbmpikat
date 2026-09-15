@@ -70,6 +70,7 @@
 
 * 🟢 **PWA (Progressive Web App) & Offline Mode:** [SELESAI] Pemasangan Web App Manifest (`manifest.json`), Service Worker (`sw.js`), dan penyimpanan lokal `IndexedDB` (`PikatPresensiOfflineDB`) agar presensi tetap dapat dicatat saat perangkat offline dan otomatis disinkronkan saat kembali online.
 * 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor:** [SELESAI] Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung (PDF/JPG/PNG max 2MB) serta alur verifikasi (approval/rejection) oleh Kepala Sekolah yang menyinkronkan rekapan presensi.
+* 🟢 **Modul Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL):** [SELESAI] Penambahan role khusus `magang` untuk mahasiswa/siswa PKL dengan alur absensi murni masuk dan pulang (Clock-In & Clock-Out) berbasis foto selfie dan verifikasi geofence radius 100m PKBM Pikat serta deteksi anti-fake GPS (tanpa modul siswa/logbook). Dilengkapi manajemen data magang admin (NIM/NISN, universitas, jurusan, masa periode magang), monitoring presensi, dan ekspor laporan PDF.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---

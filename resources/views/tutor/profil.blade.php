@@ -2,7 +2,6 @@
 
 @section('title', 'Profil Tutor')
 
-@section('content')
 @php
     $user = Auth::user();
     $tutor = $user->tutor;
@@ -12,8 +11,8 @@
         : null;
 @endphp
 
-<div class="profile-header">
-    <div class="profile-nav">
+@push('topbar')
+    <div class="profile-nav" style="padding: 14px 16px 0;">
         <a href="javascript:history.back()" class="back-btn">
             <ion-icon name="arrow-back-outline"></ion-icon>
         </a>
@@ -22,6 +21,14 @@
             <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
         </button>
     </div>
+@endpush
+
+@section('content')
+@php
+    // vars already set above
+@endphp
+
+<div class="profile-header">
 
     <div class="avatar-wrapper">
         @if($fotoUrl)

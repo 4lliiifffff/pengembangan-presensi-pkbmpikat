@@ -5,12 +5,15 @@ use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\MagangController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\AuthWebController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KaryawanPresensiController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
+use App\Http\Controllers\Magang\MagangDashboardController;
+use App\Http\Controllers\Magang\MagangPresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\Tutor\LupaLaporController;
@@ -44,6 +47,7 @@ Route::get('/', function () {
             'admin' => redirect()->route('admin.dashboard'),
             'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
             'tutor' => redirect()->route('tutor.dashboard'),
+            'magang' => redirect()->route('magang.dashboard'),
             default => view('auth.login'),
         };
     }
@@ -57,6 +61,7 @@ Route::get('/login', function () {
             'admin' => redirect()->route('admin.dashboard'),
             'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
             'tutor' => redirect()->route('tutor.dashboard'),
+            'magang' => redirect()->route('magang.dashboard'),
             default => view('auth.login'),
         };
     }
@@ -122,6 +127,21 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/payroll/tarif/import', [PayrollController::class, 'importBulkTarif'])->name('payroll.import-tarif');
     Route::get('/payroll/{tutorId}', [PayrollController::class, 'show'])->name('payroll.show');
     Route::get('/payroll/{tutorId}/slip-pdf', [PayrollController::class, 'exportSlipPdf'])->name('payroll.slip-pdf');
+
+    // Kelola Mahasiswa / Siswa Magang (PKL)
+    Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');
+    Route::get('/magang/export/pdf', [MagangController::class, 'exportPdf'])->name('magang.exportPdf');
+    Route::resource('magang', MagangController::class);
+});
+
+Route::middleware(['auth', 'role:magang'])->prefix('magang')->name('magang.')->group(function () {
+    Route::get('/dashboard', [MagangDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/riwayat', [MagangDashboardController::class, 'riwayat'])->name('riwayat');
+    Route::get('/profil', [MagangDashboardController::class, 'profil'])->name('profil');
+    Route::post('/profil/password', [MagangDashboardController::class, 'updatePassword'])->name('profil.password');
+    Route::get('/presensi', [MagangPresensiController::class, 'index'])->name('presensi');
+    Route::get('/presensi/foto', [MagangPresensiController::class, 'foto'])->name('presensi.foto');
+    Route::post('/presensi', [MagangPresensiController::class, 'store'])->name('presensi.store');
 });
 
 Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
