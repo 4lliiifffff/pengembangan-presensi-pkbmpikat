@@ -74,8 +74,18 @@
 
             <div class="formGroup">
                 <label class="formLabel" for="dokumen_surat">Unggah Surat Keterangan / Bukti (Opsional)</label>
-                <input type="file" name="dokumen_surat" id="dokumen_surat" class="formControl" accept=".pdf,.jpg,.jpeg,.png">
-                <small class="td-muted" style="display:block;margin-top:4px;">Format: PDF, JPG, PNG. Maksimal 2MB.</small>
+                <div class="fileUploadBox">
+                    <input type="file" name="dokumen_surat" id="dokumen_surat" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelected(this, 'izinDocFeedback')">
+                    <div class="fileUploadIcon">
+                        <ion-icon name="document-attach-outline"></ion-icon>
+                    </div>
+                    <div class="fileUploadText">Pilih atau seret berkas surat bukti</div>
+                    <div class="fileUploadSubtext">
+                        <span class="fileUploadInfoPill">Format: PDF, JPG, PNG</span>
+                        <span class="fileUploadInfoPill">Maks: 2 MB</span>
+                    </div>
+                </div>
+                <div id="izinDocFeedback" class="fileUploadFeedback"></div>
             </div>
 
             <button type="submit" class="submitBtn">
@@ -159,6 +169,19 @@ function switchTab(tab, btn) {
         document.getElementById('panelForm').classList.add('active');
     } else {
         document.getElementById('panelRiwayat').classList.add('active');
+    }
+}
+
+function handleFileSelected(input, feedbackId) {
+    const feedback = document.getElementById(feedbackId);
+    if (!feedback) return;
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const sizeKb = Math.round(file.size / 1024);
+        feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+        feedback.style.display = 'flex';
+    } else {
+        feedback.style.display = 'none';
     }
 }
 </script>

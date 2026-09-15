@@ -38,16 +38,42 @@
             <form method="POST" action="{{ route('admin.siswa.importExcel') }}" enctype="multipart/form-data">
                 @csrf
                 <div style="margin-bottom:16px;">
-                    <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Pilih Berkas Spreadsheet (.xlsx / .csv):</label>
-                    <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required style="width:100%;padding:10px;border:1px dashed var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);">
+                    <label style="display:block;font-size:11.5px;font-weight:800;text-transform:uppercase;margin-bottom:6px;color:var(--muted);">Pilih Berkas Data Siswa:</label>
+                    <div class="fileUploadBox">
+                        <input type="file" name="file_excel" id="siswaFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'siswaFileFeedback')">
+                        <div class="fileUploadIcon">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                        </div>
+                        <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
+                        <div class="fileUploadSubtext">
+                            <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
+                            <span class="fileUploadInfoPill">Maks: 5 MB</span>
+                        </div>
+                    </div>
+                    <div id="siswaFileFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div style="display:flex;gap:8px;justify-content:flex-end;">
-                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="btnOutline" style="padding:9px 14px;">Batal</button>
-                    <button type="submit" class="btnPrimary" style="padding:9px 18px;background:var(--blue-gradient);">Unggah &amp; Impor Siswa</button>
+                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
+                    <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;">Unggah &amp; Impor</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        function handleFileSelected(input, feedbackId) {
+            const feedback = document.getElementById(feedbackId);
+            if (!feedback) return;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const sizeKb = Math.round(file.size / 1024);
+                feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+                feedback.style.display = 'flex';
+            } else {
+                feedback.style.display = 'none';
+            }
+        }
+    </script>
 
 
 

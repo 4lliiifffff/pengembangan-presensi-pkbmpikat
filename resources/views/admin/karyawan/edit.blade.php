@@ -50,18 +50,31 @@
             </div>
 
             <div class="formRow">
-                <div class="fieldLabel">Foto</div>
+                <div class="fieldLabel">Foto Profil</div>
                 @if ($karyawan->foto)
                     @php
                         $fotoEditUrl = str_starts_with($karyawan->foto, 'uploads/')
                             ? asset($karyawan->foto)
                             : asset('storage/' . $karyawan->foto);
                     @endphp
-                    <img src="{{ $fotoEditUrl }}" alt="Foto {{ $karyawan->nama_lengkap }}"
-                        style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-bottom:8px;display:block;" />
+                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+                        <img src="{{ $fotoEditUrl }}" alt="Foto {{ $karyawan->nama_lengkap }}"
+                            style="width:54px;height:54px;object-fit:cover;border-radius:12px;border:1px solid var(--border);display:block;" />
+                        <span style="font-size:12px;color:var(--muted);">Foto saat ini</span>
+                    </div>
                 @endif
-                <input class="input" type="file" name="foto" />
-                <small style="color: var(--muted);">Kosongkan jika tidak ingin mengubah foto.</small>
+                <div class="fileUploadBox" style="padding:14px;">
+                    <input type="file" name="foto" id="fotoKaryawanEditInput" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelected(this, 'karyawanEditFotoFeedback')">
+                    <div class="fileUploadIcon" style="width:36px;height:36px;font-size:18px;">
+                        <ion-icon name="image-outline"></ion-icon>
+                    </div>
+                    <div class="fileUploadText" style="font-size:12px;">Pilih foto baru</div>
+                    <div class="fileUploadSubtext">
+                        <span class="fileUploadInfoPill">Format: JPG, PNG</span>
+                        <span class="fileUploadInfoPill">Maks: 2 MB</span>
+                    </div>
+                </div>
+                <div id="karyawanEditFotoFeedback" class="fileUploadFeedback"></div>
             </div>
 
             <div class="formRow">
@@ -81,4 +94,19 @@
             </button>
         </form>
     </div>
+
+<script>
+function handleFileSelected(input, feedbackId) {
+    const feedback = document.getElementById(feedbackId);
+    if (!feedback) return;
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const sizeKb = Math.round(file.size / 1024);
+        feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+        feedback.style.display = 'flex';
+    } else {
+        feedback.style.display = 'none';
+    }
+}
+</script>
 @endsection

@@ -65,16 +65,42 @@
             <form method="POST" action="{{ route($rolePrefix . '.payroll.import-tarif') }}" enctype="multipart/form-data">
                 @csrf
                 <div style="margin-bottom:18px;">
-                    <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text,#0f172a);">Pilih Berkas Spreadsheet (.xlsx / .csv):</label>
-                    <input type="file" name="file_excel" accept=".xlsx,.xls,.csv" required style="width:100%;padding:10px;border:1px dashed var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);color:var(--text,#0f172a);">
+                    <label style="display:block;font-size:11.5px;font-weight:800;text-transform:uppercase;margin-bottom:6px;color:var(--muted);">Pilih Berkas Spreadsheet Tarif:</label>
+                    <div class="fileUploadBox">
+                        <input type="file" name="file_excel" id="payrollTarifInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'payrollTarifFeedback')">
+                        <div class="fileUploadIcon">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                        </div>
+                        <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
+                        <div class="fileUploadSubtext">
+                            <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
+                            <span class="fileUploadInfoPill">Maks: 5 MB</span>
+                        </div>
+                    </div>
+                    <div id="payrollTarifFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div style="display:flex;gap:8px;justify-content:flex-end;">
-                    <button type="button" onclick="document.getElementById('importTarifModal').style.display='none'" class="btnOutline" style="padding:9px 16px;border-radius:8px;cursor:pointer;">Batal</button>
-                    <button type="submit" class="btnPrimary" style="padding:9px 20px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:8px;cursor:pointer;font-weight:700;">Unggah &amp; Perbarui</button>
+                    <button type="button" onclick="document.getElementById('importTarifModal').style.display='none'" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
+                    <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;background:linear-gradient(135deg,#059669,#10b981);">Unggah &amp; Perbarui</button>
                 </div>
             </form>
         </div>
     </div>
+
+    <script>
+        function handleFileSelected(input, feedbackId) {
+            const feedback = document.getElementById(feedbackId);
+            if (!feedback) return;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const sizeKb = Math.round(file.size / 1024);
+                feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+                feedback.style.display = 'flex';
+            } else {
+                feedback.style.display = 'none';
+            }
+        }
+    </script>
 
     {{-- ── Filter Bar ── --}}
     <div class="filter-card">

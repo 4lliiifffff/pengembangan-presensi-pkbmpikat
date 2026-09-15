@@ -1,32 +1,45 @@
 @extends('layouts.kepsek')
 
-@section('title', 'Data Presensi — Kepala Sekolah')
+@section('title', 'Monitoring Presensi Tutor — Kepala Sekolah')
 
 @section('content')
 
-
-    <div class="pageHeaderRow" style="padding: 16px 16px 6px;">
-        <div>
-            <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text);">Monitoring Presensi Tutor</h2>
-            <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Log presensi mengajar tutor dan siswa PKBM</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header ── --}}
+    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">LOG AKTIVITAS KBM</div>
+                <h1 class="laporanHeaderTitle">Monitoring Presensi Mengajar</h1>
+                <div class="laporanHeaderSub">Rekam log kehadiran, bukti foto GPS, dan sesi pembelajaran tutor PKBM</div>
+                <p class="laporanHeaderDesc">Pantau jam masuk, jam selesai, status moda pembelajaran, dan verifikasi geolokasi.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <a href="{{ route('kepsek.laporan') }}" class="btnPayrollShortcut" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                    <span>Buka Rekapitulasi Laporan</span>
+                </a>
+            </div>
         </div>
     </div>
 
-    {{-- Filter Card --}}
-    <div style="margin: 0 16px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 14px;">
+    {{-- ── Filter Card ── --}}
+    <div class="laporanFilterCard">
         <form method="GET" action="{{ route('kepsek.presensi-tutor') }}">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end;">
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Dari Tanggal</label>
-                    <input type="date" name="start_date" class="profileInput" value="{{ $startDateStr }}" style="height: 40px; font-size: 12.5px;">
+            <div class="laporanFilterGrid">
+                <div class="filterField">
+                    <label class="filterFieldLabel">Dari Tanggal</label>
+                    <input type="date" name="start_date" class="profileInput" value="{{ $startDateStr }}" style="height: 42px; font-size: 13px;">
                 </div>
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Sampai Tanggal</label>
-                    <input type="date" name="end_date" class="profileInput" value="{{ $endDateStr }}" style="height: 40px; font-size: 12.5px;">
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Sampai Tanggal</label>
+                    <input type="date" name="end_date" class="profileInput" value="{{ $endDateStr }}" style="height: 42px; font-size: 13px;">
                 </div>
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Tutor</label>
-                    <select name="tutor_id" class="profileInput" style="height: 40px; font-size: 12.5px;">
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Tutor</label>
+                    <select name="tutor_id" class="filterSelect">
                         <option value="">Semua Tutor</option>
                         @foreach ($tutors as $tutor)
                             <option value="{{ $tutor->id }}" {{ $tutorId == $tutor->id ? 'selected' : '' }}>
@@ -35,9 +48,10 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Siswa</label>
-                    <select name="siswa_id" class="profileInput" style="height: 40px; font-size: 12.5px;">
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Siswa</label>
+                    <select name="siswa_id" class="filterSelect">
                         <option value="">Semua Siswa</option>
                         @foreach ($siswas as $siswa)
                             <option value="{{ $siswa->id }}" {{ $siswaId == $siswa->id ? 'selected' : '' }}>
@@ -46,20 +60,22 @@
                         @endforeach
                     </select>
                 </div>
-                <div>
-                    <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Status</label>
-                    <select name="status" class="profileInput" style="height: 40px; font-size: 12.5px;">
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Status Presensi</label>
+                    <select name="status" class="filterSelect">
                         <option value="">Semua Status</option>
                         <option value="hadir" {{ $statusFilter == 'hadir' ? 'selected' : '' }}>Hadir (Selesai)</option>
                         <option value="proses" {{ $statusFilter == 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
-                        <option value="izin" {{ $statusFilter == 'izin' ? 'selected' : '' }}>Izin/Sakit</option>
+                        <option value="izin" {{ $statusFilter == 'izin' ? 'selected' : '' }}>Izin / Sakit</option>
                     </select>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 40px; padding: 0 16px; font-size: 12.5px; border-radius: 12px; flex: 1;">
-                        <ion-icon name="filter-outline"></ion-icon> Filter
+
+                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
+                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                        <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
-                    <a href="{{ route('kepsek.presensi-tutor') }}" class="profileBtnDanger" style="height: 40px; padding: 0 12px; font-size: 12.5px; border-radius: 12px; width: auto; text-decoration: none;">
+                    <a href="{{ route('kepsek.presensi-tutor') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none;">
                         Reset
                     </a>
                 </div>
@@ -67,18 +83,25 @@
         </form>
     </div>
 
-    <div class="tableContainer" style="margin: 0 16px 20px; border-radius: 18px; border: 1px solid var(--border);">
+    {{-- ── Section Title ── --}}
+    <div class="sectionRow">
+        <h2>Log Presensi Tutor &amp; Siswa</h2>
+        <span class="badgeCount">{{ $presensi->total() }} Sesi Terdata</span>
+    </div>
+
+    {{-- ── Log Table Container ── --}}
+    <div class="tableContainer" style="margin: 0 0 20px; border-radius: 18px; border: 1px solid var(--border);">
         <table class="laporanTable">
             <thead>
                 <tr>
-                    <th style="padding: 12px 14px;">NO</th>
+                    <th style="padding: 12px 14px; width: 50px;">NO</th>
                     <th>TANGGAL</th>
                     <th>TUTOR</th>
                     <th>SISWA</th>
-                    <th>MASUK</th>
-                    <th>SELESAI</th>
-                    <th>FOTO</th>
-                    <th style="text-align: center;">LOKASI</th>
+                    <th>JAM MASUK</th>
+                    <th>JAM SELESAI</th>
+                    <th>FOTO BUKTI</th>
+                    <th style="text-align: center;">GPS</th>
                 </tr>
             </thead>
             <tbody>
@@ -86,24 +109,20 @@
                     @php
                         $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
                         $siswaName = $item->siswa->nama_siswa ?? '-';
-                        $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->format('d/m/y');
+                        $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->format('d/m/Y');
                         $jamMasuk = $item->jam_mulai ? \Carbon\Carbon::parse($item->jam_mulai)->format('H:i') : '-';
                         $jamSelesai = $item->jam_selesai
                             ? \Carbon\Carbon::parse($item->jam_selesai)->format('H:i')
                             : '-';
 
                         $lokasi = $item->lokasi_mulai ?? '-';
-                        $urlPeta =
-                            $lokasi !== '-'
-                                ? 'https://www.google.com/maps/search/?api=1&query=' . urlencode($lokasi)
-                                : '#';
                     @endphp
                     <tr>
                         <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">{{ $presensi->firstItem() + $index }}</td>
                         <td style="font-weight: 700; white-space: nowrap;">{{ $tgl }}</td>
                         <td style="font-weight: 800; color: var(--text);">{{ $tutorName }}</td>
                         <td style="font-weight: 600;">{{ $siswaName }}</td>
-                        <td style="font-weight: 800; color: #15803d;">{{ $jamMasuk }}</td>
+                        <td style="font-weight: 800; color: #16a34a;">{{ $jamMasuk }}</td>
                         <td style="font-weight: 800; color: var(--blue2);">{{ $jamSelesai }}</td>
                         <td>
                             <div class="fotoStack">
@@ -111,20 +130,20 @@
                                     <img src="{{ asset($item->foto_mulai) }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
                                         onclick="openPhotoModal('{{ asset($item->foto_mulai) }}', 'Foto Masuk — {{ $tutorName }}')">
                                 @else
-                                    <div class="fotoPlaceholder">M -</div>
+                                    <div class="fotoPlaceholder" title="Tidak ada foto masuk">M -</div>
                                 @endif
 
                                 @if ($item->foto_selesai)
                                     <img src="{{ asset($item->foto_selesai) }}" class="fotoThumbnail cursor-pointer" title="Foto Selesai"
-                                        onclick="openPhotoModal('{{ asset($item->foto_selesai) }}', 'Foto Pulang — {{ $tutorName }}')">
+                                        onclick="openPhotoModal('{{ asset($item->foto_selesai) }}', 'Foto Selesai — {{ $tutorName }}')">
                                 @else
-                                    <div class="fotoPlaceholder">S -</div>
+                                    <div class="fotoPlaceholder" title="Belum foto selesai">S -</div>
                                 @endif
                             </div>
                         </td>
                         <td style="text-align: center;">
                             @if ($lokasi !== '-')
-                                <button type="button" class="mapBtn" title="Lihat Peta"
+                                <button type="button" class="mapBtn" title="Lihat Peta Lokasi"
                                     onclick="openMapModal('{{ $lokasi }}')">
                                     <ion-icon name="map-outline"></ion-icon>
                                 </button>
@@ -135,9 +154,10 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align: center; color: var(--muted); padding: 32px 16px;">
-                            <ion-icon name="calendar-outline" style="font-size: 32px; opacity: 0.4; display: block; margin: 0 auto 6px;"></ion-icon>
-                            Belum ada data presensi pada periode filter ini.
+                        <td colspan="8" style="text-align: center; color: var(--muted); padding: 36px 16px;">
+                            <ion-icon name="calendar-outline" style="font-size: 36px; opacity: 0.4; display: block; margin: 0 auto 8px;"></ion-icon>
+                            <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Presensi</div>
+                            <div style="font-size: 12px;">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
                         </td>
                     </tr>
                 @endforelse
@@ -145,50 +165,54 @@
         </table>
     </div>
 
+    {{-- ── Optional Presensi Karyawan / Staf ── --}}
     @if (isset($karyawanPresensi) && $karyawanPresensi->isNotEmpty())
-        <div class="sectionTitleRow">
-            <h2 class="sectionTitle">Monitoring Presensi Karyawan (Admin/Kepsek)</h2>
+        <div class="sectionRow" style="margin-top: 24px;">
+            <h2>Presensi Staf / Karyawan</h2>
+            <span class="badgeCount">{{ $karyawanPresensi->count() }} Orang</span>
         </div>
-        <div class="tableContainer">
+        <div class="tableContainer" style="margin: 0 0 20px; border-radius: 18px; border: 1px solid var(--border);">
             <table class="laporanTable">
                 <thead>
                     <tr>
-                        <th>NO.</th>
+                        <th style="padding: 12px 14px; width: 50px;">NO</th>
                         <th>TANGGAL</th>
                         <th>NAMA KARYAWAN</th>
                         <th>ROLE</th>
-                        <th>MASUK</th>
-                        <th>SELESAI</th>
-                        <th>FOTO (M/S)</th>
-                        <th>LOKASI</th>
+                        <th>JAM MASUK</th>
+                        <th>JAM SELESAI</th>
+                        <th>FOTO</th>
+                        <th style="text-align: center;">GPS</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($karyawanPresensi as $index => $kp)
                         @php
-                            $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/y');
+                            $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/Y');
                             $kpJamMasuk = $kp->jam_mulai ? \Carbon\Carbon::parse($kp->jam_mulai)->format('H:i') : '-';
                             $kpJamSelesai = $kp->jam_selesai
                                 ? \Carbon\Carbon::parse($kp->jam_selesai)->format('H:i')
                                 : '-';
-                            $kpName = $kp->user->nama_lengkap;
-                            $kpRole = ucfirst($kp->user->role);
+                            $kpName = $kp->user->nama_lengkap ?? 'Staf';
+                            $kpRole = ucfirst($kp->user->role ?? 'Karyawan');
                             $lokasi = $kp->lokasi_mulai;
                         @endphp
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $kpTgl }}</td>
-                            <td style="font-weight: 600; color: var(--text);">{{ $kpName }}</td>
-                            <td><span
-                                    style="background: rgba(100,116,139,0.1); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; color: var(--muted);">{{ $kpRole }}</span>
+                            <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">{{ $index + 1 }}</td>
+                            <td style="font-weight: 700; white-space: nowrap;">{{ $kpTgl }}</td>
+                            <td style="font-weight: 800; color: var(--text);">{{ $kpName }}</td>
+                            <td>
+                                <span style="background: rgba(100,116,139,0.12); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; color: var(--muted);">
+                                    {{ $kpRole }}
+                                </span>
                             </td>
-                            <td style="font-weight: 700; color: var(--success);">{{ $kpJamMasuk }}</td>
-                            <td style="font-weight: 700; color: var(--blue2);">{{ $kpJamSelesai }}</td>
+                            <td style="font-weight: 800; color: #16a34a;">{{ $kpJamMasuk }}</td>
+                            <td style="font-weight: 800; color: var(--blue2);">{{ $kpJamSelesai }}</td>
                             <td>
                                 <div class="fotoStack">
                                     @if ($kp->foto_mulai)
                                         <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail" title="Foto Mulai"
-                                            onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — ' + '{{ $kpName }}')"
+                                            onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')"
                                             style="cursor:pointer;">
                                     @else
                                         <div class="fotoPlaceholder">M -</div>
@@ -197,21 +221,21 @@
                                     @if ($kp->foto_selesai)
                                         <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail"
                                             title="Foto Selesai"
-                                            onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — ' + '{{ $kpName }}')"
+                                            onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — {{ $kpName }}')"
                                             style="cursor:pointer;">
                                     @else
                                         <div class="fotoPlaceholder">S -</div>
                                     @endif
                                 </div>
                             </td>
-                            <td>
+                            <td style="text-align: center;">
                                 @if ($lokasi && $lokasi !== '-')
-                                    <button type="button" class="mapBtn" title="Lihat Peta"
+                                    <button type="button" class="mapBtn" title="Lihat Peta Lokasi"
                                         onclick="openMapModal('{{ $lokasi }}')">
                                         <ion-icon name="map-outline"></ion-icon>
                                     </button>
                                 @else
-                                    -
+                                    <span style="color: var(--muted);">-</span>
                                 @endif
                             </td>
                         </tr>
@@ -221,9 +245,10 @@
         </div>
     @endif
 
+    {{-- Pagination --}}
     @if ($presensi->hasPages())
-        <div class="contentPad" style="padding-bottom: 20px;">
-            {{ $presensi->links('pagination::bootstrap-5') }}
+        <div class="paginatePad">
+            {{ $presensi->withQueryString()->links() }}
         </div>
     @endif
 
@@ -231,7 +256,7 @@
     <div class="modal-overlay" id="photoModal" onclick="if(event.target===this)closeModal('photoModal')">
         <div class="modal-box">
             <div class="modal-header">
-                <span id="photoModalTitle">Foto</span>
+                <span id="photoModalTitle" style="font-weight: 800;">Foto Presensi</span>
                 <button class="modal-close" onclick="closeModal('photoModal')">&times;</button>
             </div>
             <div class="modal-body">
@@ -244,7 +269,7 @@
     <div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeModal('mapModal')">
         <div class="modal-box">
             <div class="modal-header">
-                <span>Lokasi Presensi</span>
+                <span style="font-weight: 800;">Lokasi Presensi (Geolokasi GPS)</span>
                 <button class="modal-close" onclick="closeModal('mapModal')">&times;</button>
             </div>
             <div class="modal-body">
@@ -253,31 +278,33 @@
             </div>
         </div>
     </div>
+</div>
 
-    <script>
-        function openPhotoModal(src, title) {
-            document.getElementById('photoModalImg').src = src;
-            document.getElementById('photoModalTitle').textContent = title;
-            document.getElementById('photoModal').classList.add('active');
-        }
+<script>
+    function openPhotoModal(src, title) {
+        document.getElementById('photoModalImg').src = src;
+        document.getElementById('photoModalTitle').textContent = title;
+        document.getElementById('photoModal').classList.add('active');
+    }
 
-        function openMapModal(lokasi) {
-            var q = encodeURIComponent(lokasi);
-            document.getElementById('mapModalFrame').src = 'https://www.google.com/maps?q=' + q +
-            '&z=17&hl=id&output=embed';
-            document.getElementById('mapModal').classList.add('active');
-        }
+    function openMapModal(lokasi) {
+        var q = encodeURIComponent(lokasi);
+        document.getElementById('mapModalFrame').src = 'https://www.google.com/maps?q=' + q + '&z=17&hl=id&output=embed';
+        document.getElementById('mapModal').classList.add('active');
+    }
 
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
-            if (id === 'mapModal') document.getElementById('mapModalFrame').src = '';
-            if (id === 'photoModal') document.getElementById('photoModalImg').src = '';
+    function closeModal(id) {
+        document.getElementById(id).classList.remove('active');
+        if (id === 'mapModal') document.getElementById('mapModalFrame').src = '';
+        if (id === 'photoModal') document.getElementById('photoModalImg').src = '';
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal('photoModal');
+            closeModal('mapModal');
         }
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal('photoModal');
-                closeModal('mapModal');
-            }
-        });
-    </script>
+    });
+</script>
+
 @endsection
