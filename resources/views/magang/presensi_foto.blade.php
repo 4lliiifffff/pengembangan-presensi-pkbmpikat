@@ -110,7 +110,7 @@
 
                     <div class="card">
                         <div class="cardTitle">
-                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Geofence
+                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Batas Jarak Kantor
                         </div>
                         <div class="mapBox" id="mapBox" style="position:relative;">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
@@ -233,7 +233,7 @@
 
                     <div class="card">
                         <div class="cardTitle">
-                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Geofence
+                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Batas Jarak Kantor
                         </div>
                         <div class="mapBox" id="mapBox" style="position:relative;">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
@@ -444,7 +444,7 @@
             });
 
             sekolahMarker = L.marker([GEOFENCE_LAT, GEOFENCE_LNG], { icon: redIcon }).addTo(leafletMap);
-            sekolahMarker.bindPopup('<b>🏢 ' + GEOFENCE_NAMA + '</b><br>Titik Pusat Radius (' + GEOFENCE_RADIUS + ' meter)');
+            sekolahMarker.bindPopup('<b>🏢 ' + GEOFENCE_NAMA + '</b><br>Titik Lokasi Kantor (Batas Maksimal: ' + GEOFENCE_RADIUS + ' meter)');
 
             geofenceCircle = L.circle([GEOFENCE_LAT, GEOFENCE_LNG], {
                 color: '#0284c7',

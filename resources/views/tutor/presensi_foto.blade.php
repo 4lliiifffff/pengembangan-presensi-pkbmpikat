@@ -178,7 +178,7 @@
 
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius Geofence
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Batas Jarak Sekolah
                     </div>
                     <div class="mapBox" id="mapBox" style="position:relative;">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
@@ -416,7 +416,7 @@
 
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Radius Geofence
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Batas Jarak Sekolah
                     </div>
                     <div class="mapBox" id="mapBox" style="position:relative;">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
@@ -679,7 +679,7 @@
             });
 
             sekolahMarker = L.marker([GEOFENCE_LAT, GEOFENCE_LNG], { icon: redIcon }).addTo(leafletMap);
-            sekolahMarker.bindPopup('<b>🏢 ' + GEOFENCE_NAMA + '</b><br>Titik Pusat Geofence Radius (' + GEOFENCE_RADIUS + ' meter)');
+            sekolahMarker.bindPopup('<b>🏢 ' + GEOFENCE_NAMA + '</b><br>Titik Lokasi PKBM Pikat (Batas Maksimal: ' + GEOFENCE_RADIUS + ' meter)');
 
             // Lingkaran Toleransi Radius Geofence
             geofenceCircle = L.circle([GEOFENCE_LAT, GEOFENCE_LNG], {
@@ -752,7 +752,7 @@
                         badge.style.background = 'rgba(2, 132, 199, 0.12)';
                         badge.style.border = '1px solid rgba(2, 132, 199, 0.35)';
                         badge.style.color = '#0369a1';
-                        badge.innerHTML = 'ℹ️ <b>Bypass Radius (Moda Non-Sekolah)</b> — Jarak dari sekolah: ' + distFormatted + ' m';
+                        badge.innerHTML = 'ℹ️ <b>Bebas Batas Jarak (Khusus Kunjungan / Daring)</b> — Jarak dari gedung sekolah: ' + distFormatted + ' m';
                     }
                 }
 

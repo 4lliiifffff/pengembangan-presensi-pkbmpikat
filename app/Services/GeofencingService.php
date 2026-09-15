@@ -140,7 +140,7 @@ class GeofencingService
         if ($isMocked) {
             return [
                 'is_valid' => false,
-                'message' => 'Terdeteksi penggunaan aplikasi Fake GPS / Mock Location pada perangkat Anda. Harap matikan aplikasi tersebut untuk melanjutkan presensi.',
+                'message' => 'Terdeteksi penggunaan aplikasi pemalsu lokasi (Fake GPS) pada perangkat Anda. Harap nonaktifkan aplikasi tersebut untuk melakukan presensi.',
             ];
         }
 
