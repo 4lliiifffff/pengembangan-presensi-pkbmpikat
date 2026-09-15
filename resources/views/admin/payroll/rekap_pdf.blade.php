@@ -88,7 +88,7 @@
                 <strong>( Bendahara Sekolah )</strong>
             </td>
             <td>
-                Sleman, {{ $tanggalCetak->translatedFormat('d F Y') }}<br>
+                Bandung, {{ $tanggalCetak->translatedFormat('d F Y') }}<br>
                 Kepala Sekolah PKBM Pikat,
                 <div class="signature-space"></div>
                 <strong>( Kepala Sekolah )</strong>

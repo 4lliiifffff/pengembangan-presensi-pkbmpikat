@@ -35,8 +35,8 @@ class PresensiTemplateExport implements FromArray, WithEvents, WithHeadings
                 '12:30',
                 'home_visit',
                 'hadir',
-                'Rumah Siswa Sleman',
-                'Rumah Siswa Sleman',
+                'Rumah Siswa Bandung',
+                'Rumah Siswa Bandung',
                 'Home visit materi matematika',
             ],
         ];

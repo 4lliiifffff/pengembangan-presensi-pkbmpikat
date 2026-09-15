@@ -1,179 +1,189 @@
 @extends('layouts.admin')
 
-@section('title', 'Profil')
+@section('title', 'Profil Administrator')
 
 @section('content')
-
-
 @php
     $user = Auth::user();
-    $initial = strtoupper(substr($user->nama_lengkap, 0, 1));
+    $initial = strtoupper(substr($user->nama_lengkap ?? $user->name ?? 'A', 0, 1));
     $fotoUrl = $user->foto
         ? (str_starts_with($user->foto, 'uploads/') ? asset($user->foto) : asset('storage/' . $user->foto))
         : null;
-    $roleLabel = match ($user->role) {
-        'admin' => 'Administrator',
-        'kepala_sekolah' => 'Kepala Sekolah',
-        default => 'Administrator',
-    };
 @endphp
 
-<div class="profile-header">
-    <div class="profile-nav">
-        <a href="javascript:history.back()" class="back-btn">
-            <ion-icon name="arrow-back-outline"></ion-icon>
-        </a>
-        <div class="title">Profil</div>
-        <button class="theme-btn" type="button" aria-label="Tema" id="themeToggleBtn">
-            <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
-        </button>
-    </div>
-
-    <div class="avatar-wrapper">
+{{-- ── HERO PROFILE HEADER ── --}}
+<div class="profileHero">
+    <div class="profileAvatarBox">
         @if($fotoUrl)
-            <img src="{{ $fotoUrl }}" alt="Avatar" class="avatar-img" id="avatarPreview">
+            <img src="{{ $fotoUrl }}" alt="Avatar" class="profileAvatarImg" id="avatarPreview">
         @else
-            <div class="avatar-initial" id="avatarInitial">{{ $initial }}</div>
-            <img src="" alt="Avatar" class="avatar-img" id="avatarPreview" style="display:none;">
+            <div class="profileAvatarInitial" id="avatarInitial">{{ $initial }}</div>
+            <img src="" alt="Avatar" class="profileAvatarImg" id="avatarPreview" style="display:none;">
         @endif
 
-        <label for="fotoUpload" class="camera-btn">
+        <label for="fotoUpload" class="profileCameraBtn" title="Ganti Foto Profil">
             <ion-icon name="camera"></ion-icon>
         </label>
     </div>
 
-    <div class="user-name">{{ $user->nama_lengkap }}</div>
-    <div class="user-role">{{ $roleLabel }}</div>
+    <div class="profileName">{{ $user->nama_lengkap ?? $user->name }}</div>
+    <div class="profileRoleBadge badgeAdmin">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        Administrator
+    </div>
 </div>
 
-<div class="tab-container">
-    <div class="tab-btn active" onclick="switchTab('data')">Informasi Pribadi</div>
-    <div class="tab-btn" onclick="switchTab('keamanan')">Keamanan</div>
+{{-- ── TAB SWITCHER ── --}}
+<div class="profileTabs">
+    <button type="button" class="profileTabBtn active" id="tabBtnData" onclick="switchProfileTab('data')">
+        <ion-icon name="person-outline"></ion-icon>
+        <span>Informasi Pribadi</span>
+    </button>
+    <button type="button" class="profileTabBtn" id="tabBtnKeamanan" onclick="switchProfileTab('keamanan')">
+        <ion-icon name="key-outline"></ion-icon>
+        <span>Keamanan Sandi</span>
+    </button>
 </div>
 
-<!-- Forms -->
+{{-- ── ALERT ERROR DISPLAY ── --}}
+@if ($errors->any())
+    <div style="margin: 0 16px 14px; padding: 12px 14px; border-radius: 14px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22); color: #dc2626; font-size: 12.5px; font-weight: 700;">
+        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-weight: 800;">
+            <ion-icon name="alert-circle-outline" style="font-size: 16px;"></ion-icon>
+            Terdapat beberapa kesalahan:
+        </div>
+        <ul style="margin: 0; padding-left: 18px;">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+{{-- ── TAB 1: FORM DATA PRIBADI ── --}}
 <form action="{{ route('profil.update') }}" method="POST" enctype="multipart/form-data" id="formData">
     @csrf
     @method('PATCH')
 
-    <!-- Hidden file input -->
-    <input type="file" name="foto" id="fotoUpload" accept=".png,.jpg,.jpeg" style="display:none;" onchange="previewImage(event)">
+    {{-- Hidden file input --}}
+    <input type="file" name="foto" id="fotoUpload" accept=".png,.jpg,.jpeg,image/*" style="display:none;" onchange="previewProfileImage(event)">
 
-    <div class="contentPad">
-        <div class="formCard">
-            <!-- Input NIP -->
-            <div class="formRow">
-                <label class="fieldLabel">NIP / NIK</label>
-                <!-- Menggunakan validasi standar -->
-                <input type="text" name="nik" class="input" value="{{ old('nik', $user->nik) }}" placeholder="Nomor Induk / Username" required>
-            </div>
+    <div class="profileCard">
+        <div class="profileSectionTitle">
+            <ion-icon name="id-card-outline" style="font-size: 15px; color: var(--blue2);"></ion-icon>
+            Data Akun Administrator
+        </div>
 
-            <div class="formRow">
-                <label class="fieldLabel">NAMA LENGKAP</label>
-                <input type="text" name="nama_lengkap" class="input" value="{{ old('nama_lengkap', $user->nama_lengkap) }}" required>
-            </div>
+        <div class="profileField">
+            <label class="profileFieldLabel" for="nik">NIP / NIK / Username</label>
+            <input type="text" name="nik" id="nik" class="profileInput" value="{{ old('nik', $user->nik) }}" placeholder="Nomor Induk / Username" required>
+        </div>
 
-            <div class="formRow">
-                <label class="fieldLabel">EMAIL</label>
-                <input type="email" name="email" class="input" value="{{ old('email', $user->email) }}" required>
-            </div>
+        <div class="profileField">
+            <label class="profileFieldLabel" for="nama_lengkap">Nama Lengkap</label>
+            <input type="text" name="nama_lengkap" id="nama_lengkap" class="profileInput" value="{{ old('nama_lengkap', $user->nama_lengkap) }}" placeholder="Nama Lengkap beserta Gelar" required>
+        </div>
 
-            <div class="formRow">
-                <label class="fieldLabel">NO. TELEPON</label>
-                <input type="text" name="no_hp" class="input" value="{{ old('no_hp', $user->no_hp) }}">
-            </div>
+        <div class="profileField">
+            <label class="profileFieldLabel" for="email">Alamat Email</label>
+            <input type="email" name="email" id="email" class="profileInput" value="{{ old('email', $user->email) }}" placeholder="email@contoh.com" required>
+        </div>
+
+        <div class="profileField">
+            <label class="profileFieldLabel" for="no_hp">No. Telepon / WhatsApp</label>
+            <input type="tel" name="no_hp" id="no_hp" class="profileInput" value="{{ old('no_hp', $user->no_hp) }}" placeholder="08xx-xxxx-xxxx">
         </div>
     </div>
 </form>
 
+{{-- ── TAB 2: FORM KEAMANAN SANDI ── --}}
 <form action="{{ route('profil.password') }}" method="POST" id="formKeamanan" style="display:none;">
     @csrf
     @method('PATCH')
 
-    <div class="contentPad">
-        <div class="sectionLabel">UBAH KATA SANDI</div>
+    <div class="profileCard">
+        <div class="profileSectionTitle">
+            <ion-icon name="lock-closed-outline" style="font-size: 15px; color: var(--blue2);"></ion-icon>
+            Ganti Kata Sandi
+        </div>
 
-        <div class="formRow">
-            <label class="fieldLabel">PASSWORD LAMA</label>
-            <div class="input-group">
-                <input type="password" name="current_password" id="current_password" class="input" required>
-                <ion-icon name="eye-outline" class="pass-toggle" onclick="togglePass('current_password')"></ion-icon>
+        <div class="profileField">
+            <label class="profileFieldLabel" for="current_password">Password Lama</label>
+            <div class="profileInputGroup">
+                <input type="password" name="current_password" id="current_password" class="profileInput" placeholder="Masukkan password saat ini" required autocomplete="current-password">
+                <ion-icon name="eye-outline" class="profilePassToggle" onclick="togglePassVisibility('current_password')"></ion-icon>
             </div>
         </div>
 
-        <div class="formRow">
-            <label class="fieldLabel">PASSWORD BARU</label>
-            <div class="input-group">
-                <input type="password" name="password" id="new_password" class="input" required>
-                <ion-icon name="eye-outline" class="pass-toggle" onclick="togglePass('new_password')"></ion-icon>
+        <div class="profileField">
+            <label class="profileFieldLabel" for="new_password">Password Baru</label>
+            <div class="profileInputGroup">
+                <input type="password" name="password" id="new_password" class="profileInput" placeholder="Minimal 8 karakter" required autocomplete="new-password">
+                <ion-icon name="eye-outline" class="profilePassToggle" onclick="togglePassVisibility('new_password')"></ion-icon>
             </div>
         </div>
 
-        <div class="formRow">
-            <label class="fieldLabel">KONFIRMASI PASSWORD BARU</label>
-            <div class="input-group">
-                <input type="password" name="password_confirmation" id="confirm_password" class="input" required>
-                <ion-icon name="eye-outline" class="pass-toggle" onclick="togglePass('confirm_password')"></ion-icon>
+        <div class="profileField">
+            <label class="profileFieldLabel" for="confirm_password">Konfirmasi Password Baru</label>
+            <div class="profileInputGroup">
+                <input type="password" name="password_confirmation" id="confirm_password" class="profileInput" placeholder="Ketik ulang password baru" required autocomplete="new-password">
+                <ion-icon name="eye-outline" class="profilePassToggle" onclick="togglePassVisibility('confirm_password')"></ion-icon>
             </div>
         </div>
     </div>
 </form>
 
-<!-- Fixed Actions -->
-<div class="fixed-bottom-actions">
-    <button type="button" class="btn-save" onclick="submitActiveForm()">Simpan Perubahan</button>
+{{-- ── ACTION BUTTONS (SIMPAN & KELUAR) ── --}}
+<div class="profileActionGroup">
+    <button type="button" class="profileBtnPrimary" id="btnSubmitProfile" onclick="submitActiveProfileForm()">
+        <ion-icon name="checkmark-circle-outline" style="font-size: 18px;"></ion-icon>
+        Simpan Perubahan
+    </button>
 
     <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display:none;">
         @csrf
     </form>
-    <button type="button" class="btn-logout" onclick="document.getElementById('logoutForm').submit()">
-        <ion-icon name="log-out-outline" class="icon-md"></ion-icon> Keluar dari Akun
+    <button type="button" class="profileBtnDanger" onclick="if(confirm('Apakah Anda yakin ingin keluar dari akun ini?')) { document.getElementById('logoutForm').submit(); }">
+        <ion-icon name="log-out-outline" style="font-size: 17px;"></ion-icon>
+        Keluar dari Akun
     </button>
 </div>
 
-<!-- Errors Display -->
-@if ($errors->any())
-    <div class="contentPad">
-        <div class="errorList">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-@endif
-
+@push('scripts')
 <script>
-    let activeTab = 'data';
+    let activeProfileTab = 'data';
 
-    function switchTab(tabName) {
-        activeTab = tabName;
-        const btns = document.querySelectorAll('.tab-btn');
-        btns.forEach(btn => btn.classList.remove('active'));
+    function switchProfileTab(tabName) {
+        activeProfileTab = tabName;
+        const btnData = document.getElementById('tabBtnData');
+        const btnKeamanan = document.getElementById('tabBtnKeamanan');
+        const formD = document.getElementById('formData');
+        const formK = document.getElementById('formKeamanan');
 
         if (tabName === 'data') {
-            btns[0].classList.add('active');
-            document.getElementById('formData').style.display = 'block';
-            document.getElementById('formKeamanan').style.display = 'none';
+            btnData.classList.add('active');
+            btnKeamanan.classList.remove('active');
+            formD.style.display = 'block';
+            formK.style.display = 'none';
         } else {
-            btns[1].classList.add('active');
-            document.getElementById('formData').style.display = 'none';
-            document.getElementById('formKeamanan').style.display = 'block';
+            btnKeamanan.classList.add('active');
+            btnData.classList.remove('active');
+            formD.style.display = 'none';
+            formK.style.display = 'block';
         }
     }
 
-    function submitActiveForm() {
-        if (activeTab === 'data') {
+    function submitActiveProfileForm() {
+        if (activeProfileTab === 'data') {
             document.getElementById('formData').submit();
         } else {
             document.getElementById('formKeamanan').submit();
         }
     }
 
-    function togglePass(id) {
-        const input = document.getElementById(id);
-        const icon = input.nextElementSibling;
+    function togglePassVisibility(inputId) {
+        const input = document.getElementById(inputId);
+        const icon = input.parentElement.querySelector('.profilePassToggle');
         if (input.type === 'password') {
             input.type = 'text';
             icon.setAttribute('name', 'eye-off-outline');
@@ -183,7 +193,7 @@
         }
     }
 
-    function previewImage(event) {
+    function previewProfileImage(event) {
         const reader = new FileReader();
         reader.onload = function(){
             const output = document.getElementById('avatarPreview');
@@ -192,11 +202,14 @@
                 output.src = reader.result;
                 output.style.display = 'block';
             }
-            if (initial) initial.style.display = 'none';
+            if (initial) {
+                initial.style.display = 'none';
+            }
         };
-        if(event.target.files[0]) {
+        if(event.target.files && event.target.files[0]) {
             reader.readAsDataURL(event.target.files[0]);
         }
     }
 </script>
+@endpush
 @endsection

@@ -30,7 +30,7 @@ class MagangRoleAndPresensiTest extends TestCase
     {
         $magangUser = User::factory()->create([
             'role' => 'magang',
-            'nik' => 'MG202601',
+            'nik' => 'MGTEST01',
             'password' => bcrypt('password123'),
         ]);
 
@@ -45,7 +45,7 @@ class MagangRoleAndPresensiTest extends TestCase
         ]);
 
         $response = $this->post(route('login.process'), [
-            'username' => 'MG202601',
+            'username' => 'MGTEST01',
             'password' => 'password123',
         ]);
 
@@ -56,7 +56,7 @@ class MagangRoleAndPresensiTest extends TestCase
     {
         $magangUser = User::factory()->create([
             'role' => 'magang',
-            'nik' => 'MG202601',
+            'nik' => 'MGTEST02',
         ]);
 
         $this->actingAs($magangUser);
@@ -72,7 +72,7 @@ class MagangRoleAndPresensiTest extends TestCase
     {
         $magangUser = User::factory()->create([
             'role' => 'magang',
-            'nik' => 'MG202601',
+            'nik' => 'MGTEST03',
         ]);
 
         Magang::create([
@@ -99,7 +99,7 @@ class MagangRoleAndPresensiTest extends TestCase
     {
         $magangUser = User::factory()->create([
             'role' => 'magang',
-            'nik' => 'MG202601',
+            'nik' => 'MGTEST04',
         ]);
 
         Magang::create([
@@ -135,7 +135,7 @@ class MagangRoleAndPresensiTest extends TestCase
     {
         $magangUser = User::factory()->create([
             'role' => 'magang',
-            'nik' => 'MG202601',
+            'nik' => 'MGTEST05',
         ]);
 
         Magang::create([
@@ -167,7 +167,7 @@ class MagangRoleAndPresensiTest extends TestCase
     {
         $magangUser = User::factory()->create([
             'role' => 'magang',
-            'nik' => 'MG202601',
+            'nik' => 'MGTEST06',
         ]);
 
         Magang::create([

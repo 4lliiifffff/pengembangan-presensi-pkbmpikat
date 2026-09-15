@@ -9,20 +9,12 @@
 @endphp
 
 @push('topbar')
-    <div class="llTopBar">
-        <div class="llTopRow">
-            <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali">
-                <ion-icon name="arrow-back-outline" style="font-size:20px;"></ion-icon>
-            </a>
-            <div style="flex: 1;">
-                <div class="llPageTitle">Lupa Lapor</div>
-                <div class="llPageSub">Ajukan jika lupa absen atau izin</div>
-            </div>
-            <button class="llBackBtn" type="button" aria-label="Tema" id="themeToggleBtn">
-                <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
-            </button>
-        </div>
-    </div>
+    @include('layouts.components.navigasi_atas', [
+        'titleName' => 'Pengajuan Lupa Lapor',
+        'subTitle' => $displayName . ' • Presensi',
+        'dashRoute' => route('tutor.dashboard'),
+        'backRoute' => route('tutor.dashboard'),
+    ])
 @endpush
 
 @section('content')

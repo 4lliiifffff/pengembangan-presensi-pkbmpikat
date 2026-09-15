@@ -16,23 +16,26 @@
 
     <a href="{{ route('kepsek.lupa-lapor') }}"
        class="{{ request()->routeIs('kepsek.lupa-lapor*') ? 'active' : '' }}"
-       aria-label="Lupa Lapor">
+       aria-label="Lupa Lapor"
+       title="Pengajuan Lupa Lapor">
         <ion-icon name="{{ request()->routeIs('kepsek.lupa-lapor*') ? 'document-text' : 'document-text-outline' }}"></ion-icon>
-        <span>Lupa Presensi</span>
+        <span>Lupa Lapor</span>
     </a>
 
     <a href="{{ route('kepsek.pengajuan-izin') }}"
        class="{{ request()->routeIs('kepsek.pengajuan-izin*') ? 'active' : '' }}"
-       aria-label="Izin Tutor">
+       aria-label="Izin Tutor"
+       title="Persetujuan Izin Tutor">
         <ion-icon name="{{ request()->routeIs('kepsek.pengajuan-izin*') ? 'medkit' : 'medkit-outline' }}"></ion-icon>
-        <span>Izin Tutor</span>
+        <span>Izin</span>
     </a>
 
     <a href="{{ route('kepsek.presensi-tutor') }}"
        class="{{ request()->routeIs('kepsek.presensi-tutor*') ? 'active' : '' }}"
-       aria-label="Presensi Tutor">
+       aria-label="Presensi Tutor"
+       title="Monitoring Presensi Tutor">
         <ion-icon name="{{ request()->routeIs('kepsek.presensi-tutor*') ? 'newspaper' : 'newspaper-outline' }}"></ion-icon>
-        <span>Data</span>
+        <span>Presensi</span>
     </a>
 
     <a href="{{ route('kepsek.presensi') }}"

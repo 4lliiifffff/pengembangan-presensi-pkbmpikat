@@ -57,7 +57,8 @@
     @include('layouts.components.navigasi_atas', [
         'titleName' => $displayName,
         'subTitle' => 'Presensi • ' . \Carbon\Carbon::parse($today)->translatedFormat('d M Y'),
-        'dashRoute' => $dashRoute
+        'dashRoute' => $dashRoute,
+        'backRoute' => $dashRoute,
     ])
 
     {{-- ── Warning Banner Izin ── --}}

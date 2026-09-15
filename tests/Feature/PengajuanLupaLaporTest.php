@@ -27,8 +27,8 @@ class PengajuanLupaLaporTest extends TestCase
         $kelas = kelas::create(['nama_kelas' => 'Kelas PAUD A', 'tingkat' => 'PAUD']);
 
         $siswa = Siswa::create([
-            'no_absen' => '001',
-            'nama_siswa' => 'Budi Santoso',
+            'no_absen' => 'TEST901',
+            'nama_siswa' => 'Budi Santoso Test',
             'no_hp' => '08123456789',
             'nama_wali' => 'Wali Budi',
             'kelas_id' => $kelas->id,
@@ -65,8 +65,8 @@ class PengajuanLupaLaporTest extends TestCase
         $kelas = kelas::create(['nama_kelas' => 'Kelas Paket C', 'tingkat' => 'SMA']);
 
         $siswa = Siswa::create([
-            'no_absen' => '002',
-            'nama_siswa' => 'Siti Nurhaliza',
+            'no_absen' => 'TEST902',
+            'nama_siswa' => 'Siti Nurhaliza Test',
             'no_hp' => '08987654321',
             'nama_wali' => 'Wali Siti',
             'kelas_id' => $kelas->id,

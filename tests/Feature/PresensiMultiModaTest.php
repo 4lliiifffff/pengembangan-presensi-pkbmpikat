@@ -30,8 +30,8 @@ class PresensiMultiModaTest extends TestCase
 
         $kelas = kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'PAUD']);
         $siswa = Siswa::create([
-            'no_absen' => '001',
-            'nama_siswa' => 'Budi Santoso',
+            'no_absen' => 'TEST903',
+            'nama_siswa' => 'Budi Santoso MultiModa',
             'no_hp' => '08123456789',
             'nama_wali' => 'Wali Budi',
             'kelas_id' => $kelas->id,

@@ -38,6 +38,10 @@ class ProfileController extends Controller
             return view('admin.profil');
         }
 
+        if ($user->role === 'magang') {
+            return redirect()->route('magang.profil');
+        }
+
         return view('tutor.profil', compact('hadirCount', 'izinCount'));
     }
 
@@ -99,6 +103,15 @@ class ProfileController extends Controller
             $admin = $this->resolveAdmin();
             if ($admin) {
                 $admin->update($data);
+            }
+        } elseif ($user->role === 'magang') {
+            $magang = $user->magang;
+            if ($magang) {
+                $magangData = $data;
+                if ($request->has('alamat')) {
+                    $magangData['alamat'] = $request->alamat;
+                }
+                $magang->update($magangData);
             }
         }
 

@@ -984,12 +984,15 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 430px;
     background: var(--nav-bg);
     border-top: 1px solid var(--border);
-    padding: 8px 0;
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
     display: flex;
     align-items: center;
     justify-content: space-around;
+    gap: 2px;
     z-index: 1000;
-    box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .bottomNavAdmin a, .appBottomMenu .item {
@@ -998,17 +1001,38 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 2px;
-    font-weight: 700;
-    font-size: 10px;
-    flex: 1;
-    padding: 4px 2px;
-    border-radius: 12px;
-    transition: color 0.15s;
+    font-weight: 600;
+    font-size: 9.5px;
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 5px 2px;
+    border-radius: 10px;
+    transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+    white-space: nowrap;
 }
 
-.bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon { font-size: 22px; }
-.bottomNavAdmin a.active, .appBottomMenu .item.active { color: var(--nav-active); }
+.bottomNavAdmin a span, .appBottomMenu .item span {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 9.5px;
+    line-height: 1.15;
+}
+
+.bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.bottomNavAdmin a.active, .appBottomMenu .item.active {
+    color: var(--nav-active);
+    background: var(--nav-active-bg);
+    font-weight: 700;
+}
 
 /* ==========================================
    MICRO-ANIMATIONS & UTILITIES
@@ -1206,41 +1230,365 @@ h1, h2, h3, h4, h5, h6 {
 /* ==========================================
    PROFILE & LUPA LAPOR & DRAWER COMPONENTS
    ========================================== */
+.profileHero {
+    padding: 24px 16px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    background: linear-gradient(180deg, rgba(11, 94, 215, 0.08) 0%, var(--card) 100%);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+}
+[data-theme="dark"] .profileHero {
+    background: linear-gradient(180deg, rgba(56, 189, 248, 0.06) 0%, var(--card) 100%);
+}
+
+.profileAvatarBox {
+    position: relative;
+    width: 104px;
+    height: 104px;
+    margin-bottom: 14px;
+}
+.profileAvatarImg {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--card-alt);
+    border: 3.5px solid var(--card);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+.profileAvatarInitial {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--blue2) 0%, #1e40af 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 42px;
+    font-weight: 900;
+    color: #ffffff;
+    border: 3.5px solid var(--card);
+    box-shadow: 0 8px 20px rgba(11, 94, 215, 0.25);
+}
+.profileCameraBtn {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--blue2);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    border: 3px solid var(--card);
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.profileCameraBtn:active {
+    transform: scale(0.92);
+}
+
+.profileName {
+    font-size: 19px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 6px;
+    text-align: center;
+    letter-spacing: -0.3px;
+    line-height: 1.3;
+}
+.profileRoleBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+.profileRoleBadge.badgeAdmin {
+    background: rgba(79, 70, 229, 0.12);
+    color: #4f46e5;
+    border: 1px solid rgba(79, 70, 229, 0.22);
+}
+.profileRoleBadge.badgeKepsek {
+    background: rgba(147, 51, 234, 0.12);
+    color: #9333ea;
+    border: 1px solid rgba(147, 51, 234, 0.22);
+}
+.profileRoleBadge.badgeTutor {
+    background: rgba(11, 94, 215, 0.12);
+    color: var(--blue2);
+    border: 1px solid rgba(11, 94, 215, 0.22);
+}
+.profileRoleBadge.badgeMagang {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.22);
+}
+
+.profileStatsGrid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 360px;
+    margin-top: 14px;
+}
+.profileStatItem {
+    flex: 1;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 12px;
+    text-align: center;
+}
+.profileStatLabel {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+.profileStatValue {
+    font-size: 15px;
+    font-weight: 900;
+    color: var(--text);
+    margin-top: 2px;
+}
+.profileStatValue.primary {
+    color: var(--blue2);
+}
+
+.profileTabs {
+    display: flex;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 4px;
+    margin: 0 16px 18px;
+    gap: 4px;
+}
+.profileTabBtn {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--muted);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    background: transparent;
+    user-select: none;
+}
+.profileTabBtn.active {
+    background: var(--card);
+    color: var(--blue2);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+}
+.profileTabBtn ion-icon {
+    font-size: 16px;
+}
+
+.profileCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 18px;
+    margin: 0 16px 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+}
+.profileSectionTitle {
+    font-size: 11.5px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.profileField {
+    margin-bottom: 15px;
+}
+.profileField:last-child {
+    margin-bottom: 0;
+}
+.profileFieldLabel {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.profileInput {
+    width: 100%;
+    height: 46px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-alt);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+.profileInput:focus {
+    border-color: var(--blue2);
+    background: var(--card);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.15);
+}
+.profileTextarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card-alt);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
+    resize: none;
+    line-height: 1.5;
+    transition: all 0.15s ease;
+}
+.profileTextarea:focus {
+    border-color: var(--blue2);
+    background: var(--card);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.15);
+}
+.profileInputGroup {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.profileInputGroup .profileInput {
+    padding-right: 44px;
+}
+.profilePassToggle {
+    position: absolute;
+    right: 12px;
+    font-size: 20px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+}
+.profilePassToggle:hover {
+    color: var(--blue2);
+}
+
+.profileInfoRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+}
+.profileInfoRow:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.profileInfoRow:first-child {
+    padding-top: 0;
+}
+.profileInfoLabel {
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 700;
+}
+.profileInfoValue {
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 800;
+    text-align: right;
+}
+
+.profileActionGroup {
+    margin: 20px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.profileBtnPrimary {
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: 14px;
+    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #084298 100%));
+    color: #fff;
+    font-size: 13.5px;
+    font-weight: 800;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.25);
+    transition: all 0.15s ease;
+}
+.profileBtnPrimary:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+}
+.profileBtnDanger {
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 14px;
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 800;
+    border: 1px solid rgba(239, 68, 68, 0.22);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.15s ease;
+}
+.profileBtnDanger:hover {
+    background: rgba(239, 68, 68, 0.14);
+}
+.profileBtnDanger:active {
+    transform: scale(0.98);
+}
+
+/* Backward compatibility */
 .profile-header { padding: 20px 16px; display: flex; flex-direction: column; align-items: center; position: relative; }
-.profile-nav { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-.profile-nav .back-btn, .profile-nav .theme-btn {
-    width: 40px; height: 40px; display: flex; justify-content: center; align-items: center;
-    font-size: 24px; color: var(--text); text-decoration: none; background: transparent; border: none; cursor: pointer;
-}
-.profile-nav .title { font-size: 18px; font-weight: 800; color: var(--text); }
-
-.avatar-wrapper { position: relative; width: 100px; height: 100px; margin-bottom: 15px; }
-.avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--avatar-bg); border: 4px solid var(--border); }
-.avatar-initial {
-    width: 100%; height: 100%; border-radius: 50%; background: var(--avatar-bg);
-    display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: var(--avatar-text); border: 4px solid var(--border);
-}
-.camera-btn {
-    position: absolute; bottom: 0px; right: 0px; width: 32px; height: 32px; border-radius: 50%;
-    background: var(--blue2); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 16px; border: 2px solid var(--card); cursor: pointer;
-}
-
+.avatar-wrapper { position: relative; width: 104px; height: 104px; margin-bottom: 14px; }
+.avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: var(--avatar-bg); border: 3.5px solid var(--card); }
+.avatar-initial { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, var(--blue2) 0%, #1e40af 100%); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 900; color: #fff; border: 3.5px solid var(--card); }
+.camera-btn { position: absolute; bottom: 0; right: 0; width: 34px; height: 34px; border-radius: 50%; background: var(--blue2); color: #fff; display: flex; justify-content: center; align-items: center; font-size: 18px; border: 3px solid var(--card); cursor: pointer; }
 .user-name { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 4px; text-align: center; }
-.user-role { font-size: 13px; color: var(--muted); font-weight: 600; text-align: center; margin-bottom: 20px; }
-
-.tab-container { display: flex; background: var(--card-alt); border-radius: 12px; padding: 4px; margin: 0 16px 20px; }
-.tab-btn { flex: 1; padding: 10px 0; text-align: center; font-size: 13px; font-weight: 800; color: var(--muted); border-radius: 10px; cursor: pointer; transition: 0.2s; }
-.tab-btn.active { background: var(--card); color: var(--blue2); box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-
-.fixed-bottom-actions {
-    position: fixed; bottom: 0; left: 0; right: 0; margin: 0 auto; max-width: 430px;
-    background: var(--nav-bg); border-top: 1px solid var(--border); padding: 14px 16px 20px; display: flex; gap: 12px; z-index: 1000;
-}
-.btn-save { flex: 1; background: #31429b; color: #fff; border: none; border-radius: 12px; padding: 14px 0; font-weight: 800; font-size: 14px; cursor: pointer; }
-.btn-logout {
-    flex: 1; background: transparent; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);
-    border-radius: 12px; padding: 14px 0; font-weight: 800; font-size: 14px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px;
-}
+.user-role { font-size: 13px; color: var(--muted); font-weight: 600; text-align: center; margin-bottom: 16px; }
+.tab-container { display: flex; background: var(--card-alt); border-radius: 14px; padding: 4px; margin: 0 16px 18px; gap: 4px; border: 1px solid var(--border); }
+.tab-btn { flex: 1; padding: 10px 0; text-align: center; font-size: 12.5px; font-weight: 800; color: var(--muted); border-radius: 10px; cursor: pointer; transition: 0.2s; border: none; background: transparent; }
+.tab-btn.active { background: var(--card); color: var(--blue2); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.btn-save { flex: 1; background: var(--blue-gradient); color: #fff; border: none; border-radius: 14px; padding: 13px 0; font-weight: 800; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 14px rgba(11, 94, 215, 0.25); }
+.btn-logout { flex: 1; background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 14px; padding: 13px 0; font-weight: 800; font-size: 13.5px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 8px; }
 .input-group { position: relative; }
 .pass-toggle { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); cursor: pointer; font-size: 20px; }
 
@@ -1913,10 +2261,15 @@ button, a, input, select, textarea {
         font-size: 8.5px;
         padding: 4px 1px;
         letter-spacing: -0.2px;
+        gap: 1px;
+    }
+
+    .bottomNavAdmin a span, .appBottomMenu .item span {
+        font-size: 8.5px;
     }
 
     .bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon {
-        font-size: 20px;
+        font-size: 19px;
     }
 
     .inputRow {
@@ -2849,3 +3202,319 @@ button, a, input, select, textarea {
 [data-theme="dark"] .kpiRank.bronze { background: rgba(234, 88, 12, 0.20); color: #fdba74; border-color: rgba(234, 88, 12, 0.40); }
 
 [data-theme="dark"] .sir-price { color: #34d399; }
+
+/* ==========================================
+   MODUL PERSETUJUAN KEPSEK & MONITORING (RESPONSIVE)
+   ========================================== */
+.kllHeader, .lp-header {
+    padding: 16px 16px 10px;
+}
+
+.kllTitle, .lp-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.kllSub, .lp-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.4;
+}
+
+.filterBarKll {
+    padding: 0 16px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filterRowTop {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.summaryBadgeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 0 16px 16px;
+}
+
+.summaryBadge {
+    padding: 14px 16px;
+    background: var(--card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.summaryBadgeIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--card-alt);
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.summaryBadgeNum {
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.summaryBadgeLbl {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.kllList {
+    padding: 0 16px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.kllCard {
+    background: var(--card);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.kllCardStrip {
+    padding: 12px 16px;
+    background: var(--card-alt);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.kllTutorName {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.kllTutorId {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.kllCardBody {
+    padding: 16px;
+}
+
+.kllSiswaLabel {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kllSiswaVal {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    margin-top: 2px;
+}
+
+.kllJamBox {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.kllAlasanWrap {
+    background: var(--card-alt);
+    padding: 12px;
+    border-radius: 10px;
+    margin: 12px 0;
+    border: 1px solid var(--border);
+}
+
+.kllAlasanLbl {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+
+.kllAlasanTxt {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.5;
+}
+
+.kllActions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 8px;
+}
+
+@media (min-width: 768px) {
+    .kllHeader, .lp-header {
+        padding: 24px 24px 14px;
+    }
+
+    .filterBarKll {
+        padding: 0 24px 16px;
+    }
+
+    .summaryBadgeGrid {
+        padding: 0 24px 20px;
+        gap: 16px;
+    }
+
+    .kllList {
+        padding: 0 24px 28px;
+        gap: 16px;
+    }
+}
+
+/* ==========================================
+   LAPORAN HEADER CARD & PAYROLL SHORTCUT
+   ========================================== */
+.laporanHeader {
+    padding: 16px 16px 12px;
+}
+
+.laporanHeaderCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.laporanHeaderInfo {
+    flex: 1 1 320px;
+    min-width: 0;
+}
+
+.laporanHeaderLabel {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #0284c7;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.laporanHeaderTitle {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 4px;
+    letter-spacing: -0.3px;
+}
+
+.laporanHeaderSub {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--blue2);
+}
+
+.laporanHeaderDesc {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.45;
+}
+
+.laporanHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btnPayrollShortcut {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: #ffffff !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btnPayrollShortcut:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    opacity: 0.96;
+}
+
+.btnPayrollShortcut ion-icon {
+    font-size: 18px;
+}
+
+@media (max-width: 640px) {
+    .laporanHeader {
+        padding: 12px 14px 8px;
+    }
+
+    .laporanHeaderCard {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .laporanHeaderActions {
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    .btnPayrollShortcut {
+        width: 100%;
+        padding: 11px 16px;
+    }
+}
+
+@media (min-width: 768px) {
+    .laporanHeader {
+        padding: 24px 24px 16px;
+    }
+
+    .laporanHeaderCard {
+        padding: 22px 26px;
+    }
+}
+
+

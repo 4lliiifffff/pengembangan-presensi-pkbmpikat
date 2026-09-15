@@ -1,7 +1,12 @@
 <div class="topBar">
     <div class="topBarRow">
         <div class="profileGroup">
-            <a href="{{ route('profil.index') }}" style="text-decoration: none;" aria-label="Buka Profil">
+            @if(isset($backRoute))
+                <a href="{{ $backRoute }}" class="iconBtn" aria-label="Kembali" title="Kembali" style="flex-shrink:0;">
+                    <ion-icon name="arrow-back-outline"></ion-icon>
+                </a>
+            @endif
+            <a href="{{ route('profil.index') }}" style="text-decoration: none; flex-shrink: 0;" aria-label="Buka Profil">
                 @if(auth()->check() && auth()->user()->foto)
                     <img src="{{ auth()->user()->foto_url }}" class="avatar" alt="Avatar" style="object-fit:cover;" />
                 @else

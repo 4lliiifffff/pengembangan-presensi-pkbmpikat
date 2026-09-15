@@ -8,20 +8,12 @@
 @endphp
 
 @push('topbar')
-    <div class="llTopBar">
-        <div class="llTopRow">
-            <a href="{{ route('tutor.dashboard') }}" class="llBackBtn" aria-label="Kembali ke Dashboard">
-                <ion-icon name="arrow-back-outline" style="font-size:20px;"></ion-icon>
-            </a>
-            <div style="flex: 1;">
-                <div class="llPageTitle">Slip Gaji Digital</div>
-                <div class="llPageSub">{{ $displayName }} • Honorarium Mengajar</div>
-            </div>
-            <button class="llBackBtn" type="button" aria-label="Toggle Tema" id="themeToggleBtn">
-                <ion-icon name="moon-outline" style="font-size:20px;" id="themeToggleIcon"></ion-icon>
-            </button>
-        </div>
-    </div>
+    @include('layouts.components.navigasi_atas', [
+        'titleName' => 'Slip Gaji Digital',
+        'subTitle' => $displayName . ' • Honorarium Sesi',
+        'dashRoute' => route('tutor.dashboard'),
+        'backRoute' => route('tutor.dashboard'),
+    ])
 @endpush
 
 @section('content')

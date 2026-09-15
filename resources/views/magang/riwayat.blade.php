@@ -11,8 +11,10 @@
 
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
-        'titleName' => $displayName,
-        'subTitle'  => 'Mahasiswa/Siswa Magang',
+        'titleName' => 'Riwayat Presensi',
+        'subTitle'  => $displayName . ' • Magang',
+        'dashRoute' => route('magang.dashboard'),
+        'backRoute' => route('magang.dashboard'),
     ])
 @endpush
 

@@ -6,20 +6,21 @@
 
     {{-- Header --}}
     <div class="laporanHeader">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px;">
-            <div>
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
                 <div class="laporanHeaderLabel">LAPORAN OPERASIONAL &amp; KBM</div>
                 <div class="laporanHeaderTitle">Rekapitulasi Presensi Tutor</div>
                 <div class="laporanHeaderSub">
                     Periode: {{ \Carbon\Carbon::parse($inputStartDate)->translatedFormat('d M Y') }} s/d {{ \Carbon\Carbon::parse($inputEndDate)->translatedFormat('d M Y') }}
                 </div>
-                <p style="margin: 6px 0 0; font-size: 12px; color: var(--muted, #64748b);">
+                <p class="laporanHeaderDesc">
                     Monitoring log kehadiran, jam masuk/keluar, moda pembelajaran, dan bukti foto GPS tutor untuk evaluasi akademik &amp; akreditasi.
                 </p>
             </div>
-            <div>
-                <a href="{{ route('admin.payroll.index') }}" class="filterBtn" style="background: #4f46e5; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; font-size: 13px; border-radius: 8px; color: #fff; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);">
-                    <ion-icon name="wallet-outline" style="font-size: 16px;"></ion-icon> Buka Rekap Payroll &amp; Honor
+            <div class="laporanHeaderActions">
+                <a href="{{ route('admin.payroll.index') }}" class="btnPayrollShortcut">
+                    <ion-icon name="wallet-outline"></ion-icon>
+                    <span>Buka Rekap Payroll &amp; Honor</span>
                 </a>
             </div>
         </div>

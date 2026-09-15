@@ -11,8 +11,10 @@
 
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
-        'titleName' => $displayName,
-        'subTitle'  => 'Tutor',
+        'titleName' => 'Riwayat Kehadiran',
+        'subTitle'  => $displayName . ' • Presensi',
+        'dashRoute' => route('tutor.dashboard'),
+        'backRoute' => route('tutor.dashboard'),
     ])
 @endpush
 
