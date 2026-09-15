@@ -1777,61 +1777,359 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 .headName { font-size: 13px; font-weight: 1000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text); }
 .headSub { font-size: 11px; color: var(--muted); font-weight: 900; margin-top: 2px; }
 
-.statusBanner { margin-bottom: 14px; border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
-.statusBanner.running { background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.25); }
-.statusBanner.done { background: rgba(22, 163, 74, 0.10); border: 1px solid rgba(22, 163, 74, 0.22); }
-.statusBanner.ready { background: rgba(11, 94, 215, 0.08); border: 1px solid rgba(11, 94, 215, 0.18); }
-.statusIcon { width: 42px; height: 42px; border-radius: 14px; display: grid; place-items: center; font-size: 22px; flex-shrink: 0; }
-.statusIcon.warn { background: rgba(245, 158, 11, 0.18); color: #d97706; }
-.statusIcon.green { background: rgba(22, 163, 74, 0.15); color: #16a34a; }
-.statusIcon.blue { background: rgba(11, 94, 215, 0.12); color: #1A73E8; }
-.statusTitle { font-size: 13px; font-weight: 900; color: var(--text); }
-.statusSub { font-size: 11px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+.statusBanner {
+    margin-bottom: 14px;
+    border-radius: 18px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+.statusBanner.running {
+    background: rgba(245, 158, 11, 0.10);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+.statusBanner.done {
+    background: rgba(22, 163, 74, 0.10);
+    border: 1px solid rgba(22, 163, 74, 0.22);
+}
+.statusBanner.ready {
+    background: rgba(11, 94, 215, 0.08);
+    border: 1px solid rgba(11, 94, 215, 0.20);
+}
+.statusIcon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+.statusIcon.warn {
+    background: rgba(245, 158, 11, 0.18);
+    color: #d97706;
+}
+.statusIcon.green {
+    background: rgba(22, 163, 74, 0.15);
+    color: #16a34a;
+}
+.statusIcon.blue {
+    background: rgba(11, 94, 215, 0.12);
+    color: var(--blue2);
+}
+.statusTitle {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.3;
+}
+.statusSub {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-top: 2px;
+    line-height: 1.4;
+}
 
-.countdownCard { margin-bottom: 14px; border-radius: 18px; background: var(--card); border: 1px solid var(--border); padding: 18px 16px; text-align: center; }
-.countdownLabel { font-size: 11px; font-weight: 900; letter-spacing: 0.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-.countdownTime { font-size: 44px; font-weight: 1000; color: #f59e0b; font-variant-numeric: tabular-nums; line-height: 1; }
-.countdownSub { font-size: 12px; font-weight: 800; color: var(--muted); margin-top: 6px; }
+.countdownCard {
+    margin-bottom: 14px;
+    border-radius: 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 18px 16px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+.countdownLabel {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.countdownTime {
+    font-size: 40px;
+    font-weight: 900;
+    color: #d97706;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin: 4px 0;
+}
+.countdownSub {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+    margin-top: 4px;
+}
 
-.cardTitle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 1000; color: var(--text); margin-bottom: 10px; }
-.mapBox { width: 100%; height: 220px; border-radius: 12px; background: var(--card-alt); border: 1px solid var(--border); overflow: hidden; position: relative; }
-.mapBox .gmapFrame { display: block; width: 100%; height: 100%; border: 0; border-radius: 12px; }
-.mapPlaceholder { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 16px; color: var(--muted); font-weight: 900; font-size: 12px; z-index: 1; background: var(--card-alt); }
-.mapPlaceholder.hidden { display: none; }
-.mapCoordHint { margin-top: 8px; font-size: 11px; color: var(--muted); font-weight: 800; text-align: center; line-height: 1.35; }
-.mapToolbar { margin-top: 8px; display: flex; justify-content: flex-end; }
-.mapToolbar button { border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 8px 12px; font-size: 11px; font-weight: 1000; color: var(--blue2); cursor: pointer; }
+.cardTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+    letter-spacing: -0.2px;
+}
+.cardTitle ion-icon {
+    font-size: 17px;
+    color: var(--blue2);
+}
 
-.photoFrame { width: 100%; aspect-ratio: 1/1; border-radius: 16px; margin-top: 12px; background: var(--card-alt); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-.photoFrame img, .photoFrame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: none; }
-.photoFrame video.active, .photoFrame img.visible { display: block; }
-.photoPlaceholder { color: var(--muted); font-weight: 1000; font-size: 12px; text-align: center; padding: 12px; }
-.photoPlaceholder.hidden { display: none; }
+.mapBox {
+    width: 100%;
+    height: 220px;
+    border-radius: 16px;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+}
+.mapBox .gmapFrame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 16px;
+}
+.mapPlaceholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 12px;
+    z-index: 1;
+    background: var(--card-alt);
+}
+.mapPlaceholder.hidden {
+    display: none;
+}
+.mapCoordHint {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.4;
+}
+.mapToolbar {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.mapToolbar button {
+    border: 1px solid var(--border);
+    background: var(--card-alt);
+    border-radius: 10px;
+    padding: 7px 12px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--blue2);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+}
+.mapToolbar button:hover {
+    background: var(--card);
+}
 
-.camActions { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
-.camRow { display: flex; gap: 8px; }
-.camRow .captureBtn { margin-top: 0; flex: 1; }
-.captureBtn { margin-top: 14px; width: 100%; border: none; border-radius: 16px; padding: 14px 12px; background: var(--card-alt); border: 1px solid var(--border); color: var(--blue2); font-weight: 1000; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
-.captureBtn.secondary { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
-.captureBtn.danger { background: rgba(239,68,68,0.12); color: #b91c1c; border: 1px solid rgba(239,68,68,0.2); }
-.captureBtn.primary-blue { background: var(--blue); color: #fff; border-color: rgba(31, 59, 138, .25); }
-.captureBtn.primary-red { background: #dc2626; color: #fff; border-color: rgba(220, 38, 38, .25); }
-.captureBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.photoFrame {
+    width: 100%;
+    aspect-ratio: 4/3;
+    border-radius: 18px;
+    margin-top: 10px;
+    background: var(--card-alt);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.photoFrame img,
+.photoFrame video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+}
+.photoFrame video.active,
+.photoFrame img.visible {
+    display: block;
+}
+.photoPlaceholder {
+    color: var(--muted);
+    font-weight: 700;
+    font-size: 12px;
+    text-align: center;
+    padding: 16px;
+    line-height: 1.5;
+}
+.photoPlaceholder.hidden {
+    display: none;
+}
 
-.hint { margin-top: 10px; font-size: 11px; color: var(--muted); font-weight: 800; text-align: center; }
-.select { width: 100%; padding: 12px 12px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); font-size: 13px; font-weight: 800; color: var(--text); outline: none; }
+.camActions {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.camRow {
+    display: flex;
+    gap: 8px;
+}
+.camRow .captureBtn {
+    margin-top: 0;
+    flex: 1;
+}
+.captureBtn {
+    margin-top: 10px;
+    width: 100%;
+    border-radius: 14px;
+    padding: 13px 14px;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    color: var(--blue2);
+    font-size: 13.5px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.captureBtn:active {
+    transform: scale(0.98);
+}
+.captureBtn.secondary {
+    background: var(--card);
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+.captureBtn.secondary:hover {
+    color: var(--text);
+}
+.captureBtn.danger {
+    background: rgba(239, 68, 68, 0.08);
+    color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.22);
+}
+.captureBtn.primary-blue {
+    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #084298 100%));
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.25);
+}
+.captureBtn.primary-red {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.25);
+}
+.captureBtn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+}
 
-.doneCard { margin-bottom: 14px; border-radius: 18px; background: rgba(22, 163, 74, 0.08); border: 1px solid rgba(22, 163, 74, .25); padding: 20px 16px; text-align: center; }
-.doneIcon { font-size: 48px; margin-bottom: 10px; color: #16a34a; }
-.doneTitle { font-size: 16px; font-weight: 900; color: var(--text); margin-bottom: 4px; }
-.doneSub { font-size: 12px; color: var(--success); font-weight: 700; }
-.doneRow { margin-top: 14px; display: flex; gap: 10px; }
-.doneChip { flex: 1; background: rgba(22, 163, 74, .12); border: 1px solid rgba(22, 163, 74, .2); border-radius: 14px; padding: 12px 8px; }
-.doneChipNum { font-size: 18px; font-weight: 900; color: #16a34a; }
-.doneChipLbl { font-size: 10px; font-weight: 800; color: var(--muted); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.3px; }
+.hint {
+    margin-top: 8px;
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 600;
+    text-align: center;
+}
+.select {
+    width: 100%;
+    padding: 11px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    outline: none;
+}
 
-.contentPad { padding: 0 16px 20px; }
-.formSectionLabel { font-size: 11px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; margin-top: 4px; padding-left: 2px; }
+.doneCard {
+    margin-bottom: 14px;
+    border-radius: 20px;
+    background: rgba(22, 163, 74, 0.08);
+    border: 1px solid rgba(22, 163, 74, 0.22);
+    padding: 20px 16px;
+    text-align: center;
+}
+.doneIcon {
+    font-size: 46px;
+    margin-bottom: 8px;
+    color: #16a34a;
+}
+.doneTitle {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+.doneSub {
+    font-size: 12px;
+    color: var(--success);
+    font-weight: 700;
+}
+.doneRow {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+}
+.doneChip {
+    flex: 1;
+    background: rgba(22, 163, 74, 0.12);
+    border: 1px solid rgba(22, 163, 74, 0.2);
+    border-radius: 14px;
+    padding: 12px 8px;
+}
+.doneChipNum {
+    font-size: 18px;
+    font-weight: 900;
+    color: #16a34a;
+}
+.doneChipLbl {
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--muted);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.contentPad {
+    padding: 0 16px 20px;
+}
+.formSectionLabel {
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    margin-top: 4px;
+    padding-left: 2px;
+}
 
 /* ==========================================
    KEPSEK & ADMIN ADDITIONAL COMPONENTS
@@ -3516,5 +3814,597 @@ button, a, input, select, textarea {
         padding: 22px 26px;
     }
 }
+
+/* ==========================================
+   RIWAYAT & AGENDA UNIFIED STYLES (CLEAN & NON-DECORATIVE)
+   ========================================== */
+.riwayatPage, .agendaPage {
+    padding: 16px 16px 96px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.riwayatHeaderCard, .agendaHeaderCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.riwayatStatsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.riwayatStatCard {
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.riwayatStatLabel {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+    margin-bottom: 4px;
+}
+
+.riwayatStatValue {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1.1;
+}
+
+.riwayatFilterForm {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+    align-items: center;
+}
+
+.riwayatList {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.riwayatCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.riwayatCard:hover {
+    border-color: var(--blue2);
+}
+
+.riwayatCardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.riwayatDateTitle {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.riwayatDateSub {
+    font-size: 11.5px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-top: 1px;
+}
+
+.riwayatStatusBadge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 8px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.riwayatStatusBadge.hadir {
+    background: rgba(22, 163, 74, 0.12);
+    color: #15803d;
+}
+
+.riwayatStatusBadge.proses {
+    background: rgba(217, 119, 6, 0.12);
+    color: #b45309;
+}
+
+.riwayatStatusBadge.izin {
+    background: rgba(2, 132, 199, 0.12);
+    color: #0369a1;
+}
+
+.riwayatStatusBadge.alpha {
+    background: rgba(239, 68, 68, 0.12);
+    color: #dc2626;
+}
+
+.riwayatTimeGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    background: var(--card-alt);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+.riwayatTimeBox {
+    display: flex;
+    flex-direction: column;
+}
+
+.riwayatTimeLabel {
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: 0.3px;
+    margin-bottom: 2px;
+}
+
+.riwayatTimeVal {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.riwayatPhotoThumb {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* Agenda Components - Monthly Calendar Grid & Banners */
+.agendaMonthNav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+.agendaNavBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    text-decoration: none;
+    font-size: 16px;
+    transition: all 0.15s ease;
+}
+
+.agendaNavBtn:hover {
+    background: var(--border);
+}
+
+.agendaMonthTitle {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+    text-align: center;
+}
+
+.agendaMonthGrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.agendaDayNameHeader {
+    text-align: center;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--muted);
+    padding: 6px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.agendaDayNameHeader.sunday {
+    color: #dc2626;
+}
+
+.agendaDayCell {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    min-height: 44px;
+    border-radius: 12px;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    padding: 4px;
+}
+
+.agendaDayCell:hover {
+    border-color: var(--blue);
+    transform: translateY(-1px);
+}
+
+.agendaDayCell.empty {
+    background: transparent;
+    border: none;
+    pointer-events: none;
+}
+
+.agendaDayCell.today {
+    border: 1.5px solid var(--blue2);
+    font-weight: 900;
+}
+
+.agendaDayCell.active {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(11, 94, 215, 0.3);
+}
+
+.agendaDayCell.active .agendaDayNum {
+    color: #ffffff;
+}
+
+.agendaDayCell.active .agendaEventBadge {
+    background: #ffffff;
+    color: var(--blue);
+}
+
+.agendaDayNum {
+    font-size: 13.5px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.agendaEventDot {
+    position: absolute;
+    bottom: 5px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #e11d48;
+}
+
+.agendaEventBadge {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 99px;
+    background: #e11d48;
+    color: #ffffff;
+    font-size: 9px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* Event Banner Highlight */
+.agendaBannerBox {
+    background: linear-gradient(135deg, rgba(11, 94, 215, 0.08) 0%, rgba(14, 165, 233, 0.08) 100%);
+    border: 1px solid rgba(11, 94, 215, 0.25);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.agendaBannerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(11, 94, 215, 0.15);
+}
+
+.agendaBannerBadge {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: var(--blue);
+    color: #ffffff;
+}
+
+.agendaBannerBadge.today {
+    background: #16a34a;
+}
+
+.agendaBannerDate {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.agendaCardItem {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    border-left: 4px solid var(--blue);
+    transition: transform 0.15s ease;
+}
+
+.agendaCardItem:hover {
+    transform: translateY(-1px);
+}
+
+.agendaCardItem.today {
+    border-left-color: #16a34a;
+}
+
+.agendaMetaRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+}
+
+/* ==========================================
+   RESPONSIVE MEDIA QUERIES (MOBILE & DESKTOP)
+   ========================================== */
+@media (max-width: 480px) {
+    .riwayatPage, .agendaPage {
+        padding: 12px 12px 96px;
+    }
+
+    .riwayatHeaderCard, .agendaHeaderCard {
+        padding: 12px;
+        border-radius: 14px;
+        margin-bottom: 10px;
+    }
+
+    /* Agenda Grid Mobile */
+    .agendaMonthNav {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    .agendaMonthTitle {
+        font-size: 14px;
+    }
+
+    .agendaNavBtn {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+
+    .agendaDayNameHeader {
+        font-size: 9.5px;
+        padding: 4px 0;
+    }
+
+    .agendaMonthGrid {
+        gap: 3px;
+    }
+
+    .agendaDayCell {
+        min-height: 36px;
+        border-radius: 8px;
+        padding: 2px;
+    }
+
+    .agendaDayNum {
+        font-size: 11.5px;
+    }
+
+    .agendaEventDot {
+        width: 4px;
+        height: 4px;
+        bottom: 3px;
+    }
+
+    .agendaEventBadge {
+        min-width: 14px;
+        height: 14px;
+        font-size: 8px;
+        padding: 0 2px;
+        top: 2px;
+        right: 2px;
+    }
+
+    /* Agenda Banner Mobile */
+    .agendaBannerBox {
+        padding: 12px;
+        border-radius: 14px;
+        margin-bottom: 12px;
+    }
+
+    .agendaBannerHeader {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+
+    .agendaBannerBadge {
+        font-size: 10px;
+        padding: 3px 8px;
+    }
+
+    .agendaBannerDate {
+        font-size: 11.5px;
+    }
+
+    .agendaCardItem {
+        padding: 12px;
+        border-radius: 12px;
+    }
+
+    /* Riwayat Mobile */
+    .riwayatStatsGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .riwayatStatCard {
+        padding: 8px 6px;
+        border-radius: 10px;
+    }
+
+    .riwayatStatLabel {
+        font-size: 9px;
+        margin-bottom: 2px;
+    }
+
+    .riwayatStatValue {
+        font-size: 14px;
+    }
+
+    .riwayatFilterForm {
+        gap: 6px;
+        margin-top: 10px;
+    }
+
+    .riwayatCard {
+        padding: 12px;
+        border-radius: 14px;
+    }
+
+    .riwayatDateTitle {
+        font-size: 12.5px;
+    }
+
+    .riwayatDateSub {
+        font-size: 10.5px;
+    }
+
+    .riwayatStatusBadge {
+        font-size: 10px;
+        padding: 3px 7px;
+    }
+
+    .riwayatTimeGrid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .riwayatTimeLabel {
+        font-size: 9.5px;
+    }
+
+    .riwayatTimeVal {
+        font-size: 13px;
+    }
+
+    .riwayatPhotoThumb {
+        width: 30px;
+        height: 30px;
+        border-radius: 6px;
+    }
+}
+
+@media (min-width: 641px) {
+    .riwayatPage, .agendaPage {
+        padding: 20px 20px 96px;
+    }
+
+    .riwayatHeaderCard, .agendaHeaderCard {
+        padding: 20px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+    }
+
+    .agendaMonthTitle {
+        font-size: 18px;
+    }
+
+    .agendaMonthGrid {
+        gap: 8px;
+    }
+
+    .agendaDayCell {
+        min-height: 52px;
+        border-radius: 14px;
+        padding: 6px;
+    }
+
+    .agendaDayNum {
+        font-size: 15px;
+    }
+
+    .agendaBannerBox {
+        padding: 20px;
+        border-radius: 20px;
+    }
+
+    .riwayatStatsGrid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .riwayatStatCard {
+        padding: 14px 16px;
+        border-radius: 14px;
+    }
+
+    .riwayatStatValue {
+        font-size: 20px;
+    }
+}
+
+
+
 
 

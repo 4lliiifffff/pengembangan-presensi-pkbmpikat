@@ -108,18 +108,19 @@
                     <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                     <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-                    <div class="card">
+                    <div class="card" style="margin-bottom:14px;">
                         <div class="cardTitle">
-                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Batas Jarak Kantor
+                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius GPS
                         </div>
                         <div class="mapBox" id="mapBox" style="position:relative;">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                            <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
+                            <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
                         </div>
                         <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
-                        <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ $radius ?? 100 }} meter.</div>
                         <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
+                            <button type="button" onclick="refreshLocation()">
+                                <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
+                            </button>
                         </div>
                     </div>
 
@@ -161,23 +162,23 @@
                             </div>
 
                             <div class="photoPlaceholder" id="placeholder">
-                                Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Foto</b>.
+                                Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
                             </div>
                         </div>
 
                         <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                         <div class="camActions" id="camActions">
                             <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                                <ion-icon name="camera" style="font-size:22px;"></ion-icon> Buka kamera
+                                <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
                             </button>
                             <div class="camRow" id="camRowStreaming" style="display:none;">
                                 <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                    <ion-icon name="radio-button-on" style="font-size:22px;"></ion-icon> Ambil Foto
+                                    <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
                                 </button>
                                 <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                             </div>
                             <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
-                                <ion-icon name="refresh-outline" style="font-size:20px;"></ion-icon> Ulangi foto
+                                <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
                             </button>
                         </div>
 
@@ -186,17 +187,13 @@
                             <ion-icon name="log-out-outline" style="font-size:20px;"></ion-icon>
                             Absen Pulang Sekarang
                         </button>
-
-                        <div class="hint">
-                            Foto selfie langsung dari kamera + lokasi GPS wajib diverifikasi.
-                        </div>
                     </div>
                 </form>
             @else
-                <div class="card" style="text-align:center; padding:24px 16px;">
-                    <div style="font-size:36px; margin-bottom:8px; color:var(--primary);"><ion-icon name="time-outline"></ion-icon></div>
-                    <div style="font-size:14px; font-weight:800; color:#d97706;">Tombol Absen Pulang Tersedia Setelah 1 Jam</div>
-                    <div style="font-size:12px; color:#64748b; margin-top:6px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi. Harap menunggu hingga sesi selesai.</div>
+                <div class="card" style="text-align:center; padding:24px 16px; border-radius:18px;">
+                    <div style="font-size:32px; margin-bottom:8px; color:var(--warn);"><ion-icon name="time-outline"></ion-icon></div>
+                    <div style="font-size:13.5px; font-weight:800; color:var(--text);">Tombol Absen Pulang Terbuka Otomatis</div>
+                    <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi magang)</div>
                 </div>
             @endif
 
@@ -231,18 +228,19 @@
                     <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                     <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-                    <div class="card">
+                    <div class="card" style="margin-bottom:14px;">
                         <div class="cardTitle">
-                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Batas Jarak Kantor
+                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Radius GPS
                         </div>
                         <div class="mapBox" id="mapBox" style="position:relative;">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                            <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
+                            <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
                         </div>
                         <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
-                        <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ $radius ?? 100 }} meter.</div>
                         <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
+                            <button type="button" onclick="refreshLocation()">
+                                <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
+                            </button>
                         </div>
                     </div>
 
@@ -284,36 +282,31 @@
                             </div>
 
                             <div class="photoPlaceholder" id="placeholder">
-                                Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Foto</b>.
+                                Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi masuk.
                             </div>
                         </div>
 
                         <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                         <div class="camActions" id="camActions">
                             <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                                <ion-icon name="camera" style="font-size:22px;"></ion-icon> Buka kamera
+                                <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
                             </button>
                             <div class="camRow" id="camRowStreaming" style="display:none;">
                                 <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                    <ion-icon name="radio-button-on" style="font-size:22px;"></ion-icon> Ambil Foto
+                                    <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
                                 </button>
                                 <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                             </div>
                             <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
-                                <ion-icon name="refresh-outline" style="font-size:20px;"></ion-icon> Ulangi foto
+                                <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
                             </button>
                         </div>
 
                         {{-- Tombol MULAI --}}
                         <button type="submit" class="captureBtn primary-blue" id="btnSubmit" style="margin-top:14px;">
                             <ion-icon name="log-in-outline" style="font-size:20px;"></ion-icon>
-                            Absen Masuk Sekarang
+                            Mulai Presensi Masuk
                         </button>
-
-                        <div class="hint">
-                            Foto selfie langsung dari kamera + lokasi GPS wajib diisi.<br>
-                            Absen Pulang bisa dilakukan min. 1 jam setelah absen masuk.
-                        </div>
                     </div>
                 </form>
             @endif

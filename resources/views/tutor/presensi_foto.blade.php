@@ -165,8 +165,7 @@
 
             {{-- Form absen PULANG: hanya tampil jika sudah bisa pulang --}}
             @if ($bisaPulang)
-            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data"
-                id="presensiForm">
+            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
                 @csrf
                 <input type="hidden" name="mode" value="selesai">
                 @foreach($activeSessions as $sesi)
@@ -176,26 +175,25 @@
                 <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-
-                <div class="card">
+                <div class="card" style="margin-bottom:14px;">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Batas Jarak Sekolah
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius GPS
                     </div>
                     <div class="mapBox" id="mapBox" style="position:relative;">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                        <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
+                        <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
                     </div>
                     <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
-                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ config('lokasi.radius_meter', 100) }} meter.</div>
                     <div class="mapToolbar">
-                        <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
+                        <button type="button" onclick="refreshLocation()">
+                            <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
+                        </button>
                     </div>
                 </div>
 
-
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="camera-outline"></ion-icon>Foto Presensi Pulang
+                        <ion-icon name="camera-outline"></ion-icon>Foto Selfie Presensi Pulang
                     </div>
                     <div class="photoFrame" style="position:relative; overflow:hidden;">
                         <video id="videoPreview" playsinline muted></video>
@@ -231,53 +229,40 @@
                         </div>
 
                         <div class="photoPlaceholder" id="placeholder">
-                            Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Selesai</b>.
+                            Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
                         </div>
                     </div>
 
                     <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                     <div class="camActions" id="camActions">
                         <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                            <ion-icon name="camera" style="font-size:22px;"></ion-icon> Buka kamera
+                            <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
                         </button>
                         <div class="camRow" id="camRowStreaming" style="display:none;">
                             <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                <ion-icon name="radio-button-on" style="font-size:22px;"></ion-icon> Foto
+                                <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
                             </button>
                             <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                         </div>
-                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;"
-                            onclick="retakePhoto()">
-                            <ion-icon name="refresh-outline" style="font-size:20px;"></ion-icon> Ulangi foto
+                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
+                            <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
                         </button>
                     </div>
 
-                    {{-- Tombol SELESAI: disabled jika belum 1 jam --}}
-                    <button type="submit" class="captureBtn primary-red" id="btnSubmit"
-                        @if (!$bisaPulang) disabled @endif style="margin-top:14px;">
+                    {{-- Tombol SELESAI --}}
+                    <button type="submit" class="captureBtn primary-red" id="btnSubmit" @if (!$bisaPulang) disabled @endif style="margin-top:14px;">
                         <ion-icon name="log-out-outline" style="font-size:20px;"></ion-icon>
-                        Selesai (Absen Pulang)
+                        Selesai Sesi (Absen Pulang)
                     </button>
-
-                    @if (!$bisaPulang)
-                        <div class="hint" style="color:#d97706; display:flex; align-items:center; justify-content:center; gap:4px;">
-                            <ion-icon name="time-outline" style="font-size:16px;"></ion-icon> Tombol aktif setelah {{ number_format($sisaDetik / 60, 0) }} menit lagi
-                            (minimal 1 jam setelah masuk).
-                        </div>
-                    @else
-                        <div class="hint">
-                            Foto langsung dari kamera + lokasi GPS wajib diisi.
-                        </div>
-                    @endif
                 </div>
             </form>
 
             @else
                 {{-- Belum 1 jam: tampilkan info saja, tanpa form --}}
-                <div class="card" style="text-align:center; padding:20px;">
-                    <div style="font-size:32px; margin-bottom:8px; color:var(--primary);"><ion-icon name="time-outline"></ion-icon></div>
-                    <div style="font-size:13px; font-weight:900; color:#d97706;">Form absen pulang muncul setelah 1 jam</div>
-                    <div style="font-size:11px; color:#64748b; margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi</div>
+                <div class="card" style="text-align:center; padding:24px 16px; border-radius:18px;">
+                    <div style="font-size:32px; margin-bottom:8px; color:var(--warn);"><ion-icon name="time-outline"></ion-icon></div>
+                    <div style="font-size:13.5px; font-weight:800; color:var(--text);">Form Absen Pulang Terbuka Otomatis</div>
+                    <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi mengajar)</div>
                 </div>
             @endif
 
@@ -294,146 +279,156 @@
             </div>
 
             {{-- Form absen MASUK (tombol "Mulai") --}}
-            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data"
-                id="presensiForm">
+            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
                 @csrf
                 <input type="hidden" name="mode" value="mulai">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
                 <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-
-                {{-- 1. Moda Pembelajaran --}}
-                <div style="margin-bottom:12px;">
-                    <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:var(--text);">
-                        Moda Pembelajaran <span style="color:#ef4444;">*</span>
+                {{-- ── CARD 1: INFORMASI SESI MENGAJAR ── --}}
+                <div class="card" style="margin-bottom:14px;">
+                    <div class="cardTitle">
+                        <ion-icon name="book-outline"></ion-icon>Informasi Sesi Mengajar
                     </div>
-                    <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);" onchange="handleModaChange(this.value)">
-                        <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Sekolah (Tatap Muka di Gedung PKBM Pikat - Komunitas)</option>
-                        <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>Kunjungan Rumah (Home Visit / Les Privat - Komunitas)</option>
-                        <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Pembelajaran Online (Distance Learning / Daring via Zoom/GMeet/WA)</option>
-                    </select>
-                </div>
 
-                {{-- 2. Link Daring (Hanya muncul jika Moda = Online) --}}
-                <div style="margin-bottom:12px; display:none;" id="boxLinkDaring">
-                    <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:#0284c7;">Link Ruang Pertemuan Online (Opsional)</div>
-                    <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/xxx-xxxx-xxx atau Link Zoom" value="{{ old('link_daring') }}" style="width:100%; border-radius:12px; padding:10px; font-size:13px; background:var(--card); color:var(--text); border:1px solid #0284c7;">
-                </div>
-
-                {{-- 3. Durasi Sesi Pertemuan (Dinamis sesuai Moda) --}}
-                <div style="margin-bottom:12px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <div style="font-size:12px; font-weight:900; color:var(--text);">Durasi Sesi Pertemuan <span style="color:#ef4444;">*</span></div>
-                        <span id="labelKategoriLayanan" style="font-size:10px; font-weight:800; background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:6px;">Tutorial Komunitas</span>
-                    </div>
-                    <select name="durasi_pilihan" id="selectDurasi" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);">
-                        <option value="2.0">Durasi 2 Jam (Standar Tutorial Komunitas)</option>
-                        <option value="3.0">Durasi 3 Jam (Tutorial Komunitas Panjang)</option>
-                    </select>
-                </div>
-
-                {{-- 4. Checkbox Gabungan Komunitas (Hanya muncul jika Moda != Online) --}}
-                <div style="margin-bottom:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 12px;" id="boxGabungan">
-                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text);">
-                        <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#1f3b8a;">
-                        <span>Sesi Gabungan Komunitas (Per Rombel)</span>
-                    </label>
-                </div>
-
-                {{-- 5. Searchable Dropdown Pemilihan Siswa --}}
-                <div style="margin-bottom:14px; position:relative;" id="wrapperSiswaDropdown">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <label style="font-size:12px; font-weight:900; color:var(--text); display:flex; align-items:center; gap:5px;">
-                            <ion-icon name="people-outline" style="color:#1f3b8a; font-size:16px;"></ion-icon>
-                            Pilih Siswa yang Diajar <span style="color:#ef4444;">*</span>
+                    {{-- 1. Moda Pembelajaran --}}
+                    <div style="margin-bottom:12px;">
+                        <label style="display:block; font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">
+                            Moda Pembelajaran <span style="color:#ef4444;">*</span>
                         </label>
-                        <span style="font-size:10px; font-weight:700; color:#059669; background:#dcfce7; padding:2px 8px; border-radius:6px;">Penugasan oleh Admin</span>
+                        <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; background:var(--card-alt); color:var(--text); border:1px solid var(--border);" onchange="handleModaChange(this.value)">
+                            <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Sekolah (Tatap Muka di PKBM)</option>
+                            <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>Kunjungan Rumah (Home Visit)</option>
+                            <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Pembelajaran Daring (Online)</option>
+                        </select>
                     </div>
 
-                    <div style="background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-                        {{-- Search Input Bar --}}
-                        <div style="position:relative; display:flex; align-items:center; margin-bottom:8px;">
-                            <ion-icon name="search-outline" style="position:absolute; left:10px; color:#64748b; font-size:16px; pointer-events:none;"></ion-icon>
-                            <input type="text" id="inputSearchSiswa" placeholder="Ketik nama siswa / NIS / ABK untuk mencari..." oninput="filterSiswaList(this.value)" style="width:100%; padding:8px 30px 8px 32px; border-radius:8px; border:1px solid var(--border); font-size:12px; font-weight:600; outline:none; background:var(--card-alt,#f8fafc); color:var(--text);" autocomplete="off">
-                            <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch" style="display:none; position:absolute; right:8px; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:2px;">✕</button>
+                    {{-- 2. Link Daring (Jika Moda = Online) --}}
+                    <div style="margin-bottom:12px; display:none;" id="boxLinkDaring">
+                        <label style="display:block; font-size:11.5px; font-weight:800; text-transform:uppercase; color:#0284c7; margin-bottom:6px;">
+                            Link Pertemuan Daring (Opsional)
+                        </label>
+                        <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/... atau Zoom" value="{{ old('link_daring') }}" style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; background:var(--card-alt); color:var(--text); border:1px solid #0284c7;">
+                    </div>
+
+                    {{-- 3. Durasi Sesi Pertemuan --}}
+                    <div style="margin-bottom:12px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <label style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted);">
+                                Durasi Sesi <span style="color:#ef4444;">*</span>
+                            </label>
+                            <span id="labelKategoriLayanan" style="font-size:10px; font-weight:800; background:rgba(11,94,215,0.12); color:var(--blue2); padding:2px 8px; border-radius:6px;">Tutorial Komunitas</span>
+                        </div>
+                        <select name="durasi_pilihan" id="selectDurasi" class="input" style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; background:var(--card-alt); color:var(--text); border:1px solid var(--border);">
+                            <option value="2.0">2 Jam Sesi (Standar)</option>
+                            <option value="3.0">3 Jam Sesi (Panjang)</option>
+                        </select>
+                    </div>
+
+                    {{-- 4. Checkbox Gabungan Komunitas --}}
+                    <div style="margin-bottom:12px; background:var(--card-alt); border:1px solid var(--border); border-radius:12px; padding:10px 12px;" id="boxGabungan">
+                        <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text); margin:0;">
+                            <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#1f3b8a;">
+                            <span>Sesi Gabungan Komunitas (Rombel)</span>
+                        </label>
+                    </div>
+
+                    {{-- 5. Searchable Dropdown Pemilihan Siswa --}}
+                    <div style="position:relative;" id="wrapperSiswaDropdown">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <label style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px;">
+                                Siswa yang Diajar <span style="color:#ef4444;">*</span>
+                            </label>
+                            <span style="font-size:10px; font-weight:700; color:#15803d; background:rgba(22,163,74,0.12); padding:2px 8px; border-radius:6px;">Penugasan Admin</span>
                         </div>
 
-                        {{-- Selected Counter & Quick Toggle --}}
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding:0 2px 8px; border-bottom:1px solid var(--border); margin-bottom:6px;">
-                            <div id="selectedSiswaBadge" style="font-size:11px; font-weight:800; color:#1f3b8a;">
-                                <span id="selectedSiswaCount">0</span> Siswa Terpilih
+                        <div style="background:var(--card-alt); border:1px solid var(--border); border-radius:14px; padding:10px;">
+                            {{-- Search Input Bar --}}
+                            <div style="position:relative; display:flex; align-items:center; margin-bottom:8px;">
+                                <ion-icon name="search-outline" style="position:absolute; left:10px; color:var(--muted); font-size:16px; pointer-events:none;"></ion-icon>
+                                <input type="text" id="inputSearchSiswa" placeholder="Cari nama siswa / NIS / ABK..." oninput="filterSiswaList(this.value)" style="width:100%; padding:8px 30px 8px 32px; border-radius:8px; border:1px solid var(--border); font-size:12px; font-weight:600; outline:none; background:var(--card); color:var(--text);" autocomplete="off">
+                                <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch" style="display:none; position:absolute; right:8px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px;">✕</button>
                             </div>
-                            <div style="display:flex; gap:8px;">
-                                <button type="button" onclick="selectAllVisibleSiswa(true)" style="font-size:10px; font-weight:700; color:#1f3b8a; background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;">Pilih Semua</button>
-                                <span style="color:var(--border);">|</span>
-                                <button type="button" onclick="selectAllVisibleSiswa(false)" style="font-size:10px; font-weight:700; color:#ef4444; background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;">Reset</button>
-                            </div>
-                        </div>
 
-                        {{-- Scrollable List of Students --}}
-                        <div id="listSiswaItems" style="max-height: 200px; overflow-y: auto; padding-right: 2px;">
-                            @forelse ($siswas as $siswa)
-                                @php
-                                    $p = collect($presensiToday)->get($siswa->id);
-                                    $badge = '';
-                                    if ($p?->foto_mulai && !$p?->foto_selesai) {
-                                        $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px; font-weight:700;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
-                                    }
-                                    $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
-                                    $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
-                                @endphp
-                                <label class="siswa-item-row" data-search="{{ $searchKeyword }}" style="display:flex; align-items:center; justify-content:space-between; padding:9px 8px; border-radius:8px; margin-bottom:3px; cursor:pointer; transition:background .15s; border:1px solid transparent;">
-                                    <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-                                        <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}" {{ $isChecked }} onchange="updateSelectedSiswaCount()" style="width:17px; height:17px; accent-color:#1f3b8a; cursor:pointer; flex-shrink:0;">
-                                        <div style="min-width:0;">
-                                            <div style="font-size:13px; font-weight:800; color:var(--text); line-height:1.2;">
-                                                {{ $siswa->nama_siswa }} {!! $badge !!}
-                                            </div>
-                                            <div style="font-size:10px; color:var(--muted); margin-top:2px;">
-                                                No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
+                            {{-- Selected Counter & Quick Toggle --}}
+                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0 2px 8px; border-bottom:1px solid var(--border); margin-bottom:6px;">
+                                <div id="selectedSiswaBadge" style="font-size:11px; font-weight:800; color:var(--blue2);">
+                                    <span id="selectedSiswaCount">0</span> Siswa Terpilih
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" onclick="selectAllVisibleSiswa(true)" style="font-size:10.5px; font-weight:700; color:var(--blue2); background:none; border:none; cursor:pointer; padding:0;">Pilih Semua</button>
+                                    <span style="color:var(--border);">|</span>
+                                    <button type="button" onclick="selectAllVisibleSiswa(false)" style="font-size:10.5px; font-weight:700; color:#ef4444; background:none; border:none; cursor:pointer; padding:0;">Reset</button>
+                                </div>
+                            </div>
+
+                            {{-- Scrollable List of Students --}}
+                            <div id="listSiswaItems" style="max-height: 180px; overflow-y: auto; padding-right: 2px;">
+                                @forelse ($siswas as $siswa)
+                                    @php
+                                        $p = collect($presensiToday)->get($siswa->id);
+                                        $badge = '';
+                                        if ($p?->foto_mulai && !$p?->foto_selesai) {
+                                            $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px; font-weight:700;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
+                                        }
+                                        $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
+                                        $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
+                                    @endphp
+                                    <label class="siswa-item-row" data-search="{{ $searchKeyword }}" style="display:flex; align-items:center; justify-content:space-between; padding:8px 8px; border-radius:8px; margin-bottom:3px; cursor:pointer; transition:background .15s; border:1px solid transparent;">
+                                        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                            <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}" {{ $isChecked }} onchange="updateSelectedSiswaCount()" style="width:16px; height:16px; accent-color:var(--blue2); cursor:pointer; flex-shrink:0;">
+                                            <div style="min-width:0;">
+                                                <div style="font-size:12.5px; font-weight:800; color:var(--text); line-height:1.2;">
+                                                    {{ $siswa->nama_siswa }} {!! $badge !!}
+                                                </div>
+                                                <div style="font-size:10px; color:var(--muted); margin-top:2px;">
+                                                    No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
+                                                </div>
                                             </div>
                                         </div>
+                                        @if($siswa->is_abk)
+                                            <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; background:rgba(245,158,11,0.15); color:#b45309; flex-shrink:0;">ABK</span>
+                                        @else
+                                            <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:700; background:rgba(22,163,74,0.12); color:#15803d; flex-shrink:0;">Reguler</span>
+                                        @endif
+                                    </label>
+                                @empty
+                                    <div style="padding:16px; text-align:center; font-size:12px; color:var(--muted);">
+                                        <ion-icon name="person-outline" style="font-size:24px; display:block; margin:0 auto 4px;"></ion-icon>
+                                        Belum ada siswa yang ditugaskan ke akun Anda.
                                     </div>
-                                    @if($siswa->is_abk)
-                                        <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; background:#fef3c7; color:#b45309; flex-shrink:0;">ABK</span>
-                                    @else
-                                        <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:700; background:#f0fdf4; color:#15803d; flex-shrink:0;">Reguler</span>
-                                    @endif
-                                </label>
-                            @empty
-                                <div style="padding:16px; text-align:center; font-size:12px; color:#94a3b8;">
-                                    <ion-icon name="person-outline" style="font-size:24px; display:block; margin:0 auto 4px;"></ion-icon>
-                                    Belum ada siswa yang ditugaskan oleh Admin ke akun Anda.
+                                @endforelse
+                                <div id="noMatchSiswa" style="display:none; padding:16px; text-align:center; font-size:11px; color:var(--muted); font-weight:600;">
+                                    <ion-icon name="search-outline" style="font-size:20px; display:block; margin:0 auto 4px;"></ion-icon>
+                                    Tidak ditemukan siswa yang sesuai
                                 </div>
-                            @endforelse
-                            <div id="noMatchSiswa" style="display:none; padding:16px; text-align:center; font-size:11px; color:#94a3b8; font-weight:600;">
-                                <ion-icon name="search-outline" style="font-size:20px; display:block; margin:0 auto 4px;"></ion-icon>
-                                Tidak ditemukan siswa yang sesuai kata kunci pencarian
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="card">
+                {{-- ── CARD 2: LOKASI PRESENSI ── --}}
+                <div class="card" style="margin-bottom:14px;">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Batas Jarak Sekolah
+                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi & Radius GPS
                     </div>
                     <div class="mapBox" id="mapBox" style="position:relative;">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                        <div id="leafletMap" style="width:100%; height:260px; border-radius:14px; display:none; z-index:1;"></div>
+                        <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
                     </div>
                     <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
-                    <div class="mapCoordHint" id="mapHint">Pastikan GPS aktif. Radius toleransi: {{ config('lokasi.radius_meter', 100) }} meter.</div>
                     <div class="mapToolbar">
-                        <button type="button" onclick="refreshLocation()">Perbarui lokasi & peta</button>
+                        <button type="button" onclick="refreshLocation()">
+                            <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
+                        </button>
                     </div>
                 </div>
 
-
+                {{-- ── CARD 3: FOTO KAMERA ── --}}
                 <div class="card">
                     <div class="cardTitle">
-                        <ion-icon name="camera-outline"></ion-icon>Foto Presensi Masuk
+                        <ion-icon name="camera-outline"></ion-icon>Foto Selfie Presensi Masuk
                     </div>
                     <div class="photoFrame" style="position:relative; overflow:hidden;">
                         <video id="videoPreview" playsinline muted></video>
@@ -469,44 +464,38 @@
                         </div>
 
                         <div class="photoPlaceholder" id="placeholder">
-                            Kamera langsung.<br>Tap <b>Buka kamera</b>, lalu <b>Absen</b>.
+                            Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi.
                         </div>
                     </div>
 
                     <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
                     <div class="camActions" id="camActions">
                         <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                            <ion-icon name="camera" style="font-size:22px;"></ion-icon> Buka kamera
+                            <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
                         </button>
                         <div class="camRow" id="camRowStreaming" style="display:none;">
                             <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                <ion-icon name="radio-button-on" style="font-size:22px;"></ion-icon> Foto
+                                <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
                             </button>
                             <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                         </div>
-                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;"
-                            onclick="retakePhoto()">
-                            <ion-icon name="refresh-outline" style="font-size:20px;"></ion-icon> Ulangi foto
+                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
+                            <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
                         </button>
                     </div>
 
                     {{-- Tombol MULAI --}}
                     <button type="submit" class="captureBtn primary-blue" id="btnSubmit" style="margin-top:14px;">
                         <ion-icon name="log-in-outline" style="font-size:20px;"></ion-icon>
-                        Mulai (Absen Masuk)
+                        Mulai Sesi (Absen Masuk)
                     </button>
 
                     <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' ingin izin untuk hari ini...') }}"
                        target="_blank"
-                       style="display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(37,211,102,0.10);border:1px solid rgba(37,211,102,0.3);text-decoration:none;color:#15803d;font-size:13px;font-weight:700;margin-top:8px;">
-                        <ion-icon name="logo-whatsapp" style="font-size:20px;color:#25d366;"></ion-icon>
-                        Izin (Hubungi Admin)
+                       style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(37,211,102,0.10);border:1px solid rgba(37,211,102,0.25);text-decoration:none;color:#15803d;font-size:13px;font-weight:800;margin-top:8px;">
+                        <ion-icon name="logo-whatsapp" style="font-size:18px;color:#25d366;"></ion-icon>
+                        Izin / Kendala (Hubungi Admin)
                     </a>
-
-                    <div class="hint">
-                        Foto langsung dari kamera + lokasi GPS wajib diisi.<br>
-                        <strong>Pulang</strong> bisa dilakukan min. 1 jam setelah masuk.
-                    </div>
                 </div>
             </form>
 

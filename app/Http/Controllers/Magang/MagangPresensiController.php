@@ -85,7 +85,7 @@ class MagangPresensiController extends Controller
         $isMocked = $request->boolean('is_mocked');
 
         // Validasi Anti-Fake GPS & Integritas Sinyal Lokasi
-        $antiMockCheck = $geofencingService->validateGpsIntegrity($isMocked, $accuracy);
+        $antiMockCheck = $geofencingService->validateGpsIntegrity($validated['lokasi'] ?? null, $accuracy, $isMocked);
         if (! $antiMockCheck['is_valid']) {
             return back()->with('warning', $antiMockCheck['message']);
         }
@@ -156,6 +156,9 @@ class MagangPresensiController extends Controller
 
         // Validasi jeda minimal 1 jam antara masuk dan pulang
         $jamMulai = Carbon::parse($today.' '.$existingSesi->jam_mulai, 'Asia/Jakarta');
+        if ($jamMulai->greaterThan($now)) {
+            $jamMulai->subDay();
+        }
         $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
 
         if ($detikJalan < 3600) {

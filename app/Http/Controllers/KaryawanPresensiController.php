@@ -86,6 +86,9 @@ class KaryawanPresensiController extends Controller
         }
 
         $jamMulai = Carbon::parse($today.' '.$activeSesi->jam_mulai, 'Asia/Jakarta');
+        if ($jamMulai->greaterThan($now)) {
+            $jamMulai->subDay();
+        }
         $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
 
         if ($detikJalan < 3600) {

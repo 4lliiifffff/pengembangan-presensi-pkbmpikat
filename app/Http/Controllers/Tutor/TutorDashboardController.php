@@ -235,7 +235,7 @@ class TutorDashboardController extends Controller
     /**
      * Menampilkan halaman jadwal kegiatan untuk tutor.
      *
-     * Tutor dapat melihat jadwal kegiatan berdasarkan tanggal yang dipilih.
+     * Tutor dapat melihat jadwal kegiatan berdasarkan tanggal dan kalender bulanan yang dipilih.
      * Default menampilkan jadwal hari ini.
      *
      * @return View|RedirectResponse
@@ -254,17 +254,33 @@ class TutorDashboardController extends Controller
         // Ambil tanggal dari parameter GET, default: hari ini
         $selectedDate = Carbon::parse(request('tanggal', $today))->startOfDay();
 
+        $startOfMonth = $selectedDate->copy()->startOfMonth();
+        $endOfMonth = $selectedDate->copy()->endOfMonth();
+
+        $monthDays = collect();
+        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+            $monthDays->push($date->copy());
+        }
+
         // Ambil semua jadwal pada tanggal yang dipilih, diurutkan berdasarkan waktu dibuat
         $items = Jadwal::whereDate('tanggal', $selectedDate)
             ->orderBy('tanggal')
             ->orderBy('created_at')
             ->get();
 
+        // Hitung total agenda per hari dalam 1 bulan
+        $monthCounts = Jadwal::selectRaw('DATE(tanggal) as tgl, COUNT(*) as total')
+            ->whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->groupBy('tgl')
+            ->pluck('total', 'tgl');
+
         return view('tutor.jadwal', [
             'tutor' => $tutor,
             'items' => $items,
             'today' => $today,
             'selectedDate' => $selectedDate,
+            'monthDays' => $monthDays,
+            'monthCounts' => $monthCounts,
         ]);
     }
 }

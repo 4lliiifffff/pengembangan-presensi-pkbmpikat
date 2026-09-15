@@ -303,6 +303,9 @@ class PresensiFotoController extends Controller
             // Validasi durasi minimal: harus sudah lewat 1 jam
 
             $jamMulai = Carbon::parse($today.' '.$presensi->jam_mulai, 'Asia/Jakarta');
+            if ($jamMulai->greaterThan($now)) {
+                $jamMulai->subDay();
+            }
             $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
 
             if ($detikJalan < 3600) {

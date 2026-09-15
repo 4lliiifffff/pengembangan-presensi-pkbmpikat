@@ -20,104 +20,146 @@
 
 @section('content')
 
-<div class="header">
-    <div class="title">Riwayat Presensi Magang</div>
-    <div class="sub">{{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</div>
+<div class="riwayatPage">
 
-    <!-- STAT -->
-    <div class="stats">
-        <div class="statCard">
-            <div class="statIcon">📘</div>
-            <div class="statTitle">Total Hadir</div>
-            <div class="statValue">{{ $hadir }} Hari</div>
+    {{-- Header & Statistik (Tanpa Icon Dekoratif) --}}
+    <div class="riwayatHeaderCard">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
+            <div>
+                <h2 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text);">Riwayat Presensi Magang</h2>
+                <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Periode {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</p>
+            </div>
         </div>
-        <div class="statCard">
-            <div class="statIcon">📗</div>
-            <div class="statTitle">Persentase</div>
-            <div class="statValue">{{ $persentase }}%</div>
+
+        <!-- STATISTIK RINGKAS -->
+        <div class="riwayatStatsGrid" style="grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));">
+            <div class="riwayatStatCard">
+                <div class="riwayatStatLabel">Total Hadir</div>
+                <div class="riwayatStatValue">{{ $hadir }} <span style="font-size: 12px; font-weight: 600; color: var(--muted);">Hari</span></div>
+            </div>
+            <div class="riwayatStatCard">
+                <div class="riwayatStatLabel">Persentase Kehadiran</div>
+                <div class="riwayatStatValue" style="color: #16a34a;">{{ $persentase }}%</div>
+            </div>
         </div>
+
+        <!-- FILTER BULAN & STATUS -->
+        <form action="{{ route('magang.riwayat') }}" method="GET" class="riwayatFilterForm">
+            <div>
+                <input type="month" name="tanggal" value="{{ substr($selectedDate, 0, 7) }}" onchange="this.form.submit()" class="profileInput" style="height: 40px; font-size: 12.5px;">
+            </div>
+            <div>
+                <select name="status" onchange="this.form.submit()" class="profileInput" style="height: 40px; font-size: 12.5px;">
+                    <option value="">Semua Status</option>
+                    <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir Lengkap</option>
+                    <option value="proses" {{ $statusFilter === 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
+                </select>
+            </div>
+        </form>
     </div>
 
-    <!-- FILTER -->
-    <form action="{{ route('magang.riwayat') }}" method="GET" class="filter">
-        <input type="month" name="tanggal" value="{{ substr($selectedDate, 0, 7) }}" onchange="this.form.submit()" class="input">
-        <select name="status" onchange="this.form.submit()">
-            <option value="">Semua Status</option>
-            <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir Lengkap</option>
-            <option value="proses" {{ $statusFilter === 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
-        </select>
-    </form>
-</div>
+    <!-- DAFTAR LOG PRESENSI -->
+    <div class="riwayatList">
+        @forelse($items as $p)
+            @php
+                $tgl = Carbon::parse($p->tgl_presensi);
+                $hari = $tgl->translatedFormat('l, d F Y');
+                $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
+                $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
+                
+                $statusText = $p->jam_selesai ? 'Hadir Lengkap' : 'Sedang Berjalan';
+                $statusClass = $p->jam_selesai ? 'hadir' : 'proses';
+                
+                $durasi = '—';
+                if ($p->jam_mulai && $p->jam_selesai) {
+                    try {
+                        $dtMulai = Carbon::parse($p->tgl_presensi . ' ' . $p->jam_mulai);
+                        $dtSelesai = Carbon::parse($p->tgl_presensi . ' ' . $p->jam_selesai);
+                        $diffMin = $dtMulai->diffInMinutes($dtSelesai);
+                        $durasi = floor($diffMin / 60) . 'j ' . ($diffMin % 60) . 'm';
+                    } catch (\Throwable) {}
+                }
+            @endphp
 
-<!-- LIST -->
-<div class="pad-list">
-@forelse($items as $p)
-    @php
-        $tgl = Carbon::parse($p->tgl_presensi);
-        $hari = $tgl->translatedFormat('l, d F Y');
-        $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
-        $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
-        
-        $statusText = $p->jam_selesai ? 'Hadir' : 'Proses';
-        $statusColor = $p->jam_selesai ? '#16a34a' : '#d97706';
-        $statusBg = $p->jam_selesai ? 'rgba(22,163,74,0.1)' : 'rgba(217,119,6,0.1)';
-        
-        $durasi = '—';
-        if ($p->jam_mulai && $p->jam_selesai) {
-            try {
-                $dtMulai = Carbon::parse($p->tgl_presensi . ' ' . $p->jam_mulai);
-                $dtSelesai = Carbon::parse($p->tgl_presensi . ' ' . $p->jam_selesai);
-                $diffMin = $dtMulai->diffInMinutes($dtSelesai);
-                $durasi = floor($diffMin / 60) . ' jam ' . ($diffMin % 60) . ' mnt';
-            } catch (\Throwable) {}
-        }
-    @endphp
-
-    <div class="card item" style="padding: 16px; margin-bottom: 12px; border-radius: 16px; background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e2e8f0);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
-            <div>
-                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary, #0f172a);">{{ $hari }}</div>
-                <div style="font-size: 12px; color: var(--text-secondary, #64748b); margin-top: 2px;">Durasi: <strong>{{ $durasi }}</strong></div>
-            </div>
-            <span style="font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: {{ $statusBg }}; color: {{ $statusColor }};">
-                {{ $statusText }}
-            </span>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 12px; background: var(--bg-surface, #f8fafc); border-radius: 12px;">
-            <div>
-                <div style="font-size: 11px; color: var(--text-secondary, #64748b); margin-bottom: 4px;">MASUK</div>
-                <div style="font-size: 15px; font-weight: 800; color: #0b5ed7;">{{ $masuk }} WIB</div>
-                @if ($p->foto_mulai)
-                    <div style="margin-top: 6px;">
-                        <a href="{{ asset($p->foto_mulai) }}" target="_blank" style="font-size: 11px; color: #0b5ed7; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;">
-                            <ion-icon name="image-outline"></ion-icon> Foto Masuk
-                        </a>
+            <div class="riwayatCard">
+                <div class="riwayatCardHeader">
+                    <div>
+                        <div class="riwayatDateTitle">{{ $hari }}</div>
+                        <div class="riwayatDateSub">Durasi: <strong>{{ $durasi }}</strong></div>
                     </div>
-                @endif
-            </div>
-            <div>
-                <div style="font-size: 11px; color: var(--text-secondary, #64748b); margin-bottom: 4px;">PULANG</div>
-                <div style="font-size: 15px; font-weight: 800; color: {{ $p->jam_selesai ? '#16a34a' : '#64748b' }};">{{ $pulang }} WIB</div>
-                @if ($p->foto_selesai)
-                    <div style="margin-top: 6px;">
-                        <a href="{{ asset($p->foto_selesai) }}" target="_blank" style="font-size: 11px; color: #16a34a; text-decoration: none; display: inline-flex; align-items: center; gap: 3px;">
-                            <ion-icon name="image-outline"></ion-icon> Foto Pulang
-                        </a>
+                    <span class="riwayatStatusBadge {{ $statusClass }}">
+                        {{ $statusText }}
+                    </span>
+                </div>
+
+                <div class="riwayatTimeGrid">
+                    <div class="riwayatTimeBox">
+                        <div class="riwayatTimeLabel">Absen Masuk</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="riwayatTimeVal" style="color: #0284c7;">{{ $masuk }} WIB</span>
+                            @if($p->foto_mulai)
+                                <img src="{{ asset($p->foto_mulai) }}" onclick="openRiwayatModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Masuk" title="Klik untuk perbesar">
+                            @endif
+                        </div>
                     </div>
-                @endif
+
+                    <div class="riwayatTimeBox">
+                        <div class="riwayatTimeLabel">Absen Pulang</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="riwayatTimeVal" style="color: {{ $p->jam_selesai ? '#16a34a' : 'var(--muted)' }};">{{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}</span>
+                            @if($p->foto_selesai)
+                                <img src="{{ asset($p->foto_selesai) }}" onclick="openRiwayatModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Pulang" title="Klik untuk perbesar">
+                            @endif
+                        </div>
+                    </div>
+                </div>
             </div>
+
+        @empty
+            <div style="text-align: center; padding: 40px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; color: var(--muted);">
+                <div style="font-size: 14px; font-weight: 700;">Tidak ada catatan presensi pada periode ini.</div>
+            </div>
+        @endforelse
+    </div>
+
+    @if($items->hasPages())
+        <div style="margin-top: 16px;">
+            {{ $items->links() }}
+        </div>
+    @endif
+
+</div>
+
+{{-- Modal Preview Foto --}}
+<div id="riwayatPhotoModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
+    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; max-width: 460px; width: 100%; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
+        <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+            <h4 id="riwayatModalTitle" style="margin: 0; font-size: 14px; font-weight: 800; color: var(--text);">Foto Presensi</h4>
+            <button type="button" onclick="closeRiwayatModal()" style="background: transparent; border: none; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center;">
+                <ion-icon name="close-circle-outline"></ion-icon>
+            </button>
+        </div>
+        <div style="padding: 14px; text-align: center; background: #0f172a;">
+            <img id="riwayatModalImg" src="" alt="Foto" style="max-width: 100%; max-height: 65vh; border-radius: 12px; object-fit: contain;">
         </div>
     </div>
-@empty
-    <div style="text-align: center; padding: 40px 20px; color: var(--text-secondary, #64748b);">
-        <ion-icon name="file-tray-outline" style="font-size: 40px; opacity: 0.5; margin-bottom: 8px;"></ion-icon>
-        <div style="font-size: 14px; font-weight: 600;">Tidak ada catatan presensi pada periode ini.</div>
-    </div>
-@endforelse
+</div>
 
-<div style="margin-top: 20px;">
-    {{ $items->links() }}
-</div>
-</div>
+<script>
+    function openRiwayatModal(url, title) {
+        document.getElementById('riwayatModalImg').src = url;
+        document.getElementById('riwayatModalTitle').innerText = title || 'Foto Presensi';
+        document.getElementById('riwayatPhotoModal').style.display = 'flex';
+    }
+
+    function closeRiwayatModal() {
+        document.getElementById('riwayatPhotoModal').style.display = 'none';
+    }
+
+    document.getElementById('riwayatPhotoModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeRiwayatModal();
+    });
+</script>
+
 @endsection
+
