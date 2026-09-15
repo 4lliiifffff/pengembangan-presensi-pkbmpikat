@@ -56,6 +56,7 @@
 <div class="tab-container">
     <div class="tab-btn active" onclick="switchTab('data')">Informasi Pribadi</div>
     <div class="tab-btn" onclick="switchTab('keamanan')">Keamanan</div>
+    <div class="tab-btn" onclick="switchTab('notifikasi')">Notifikasi</div>
 </div>
 
 <!-- Forms -->
@@ -129,9 +130,47 @@
     </div>
 </form>
 
+{{-- ── TAB NOTIFIKASI WEB PUSH ── --}}
+<div id="sectionNotifikasi" style="display:none;">
+    <div class="contentPad">
+        <div class="sectionLabel">NOTIFIKASI PERANGKAT (WEB PUSH)</div>
+        
+        <div class="card" style="padding: 16px; border-radius: 18px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px;">
+                <div style="width: 44px; height: 44px; border-radius: 14px; background: rgba(11, 94, 215, 0.12); display: grid; place-items: center; color: var(--blue2); font-size: 22px; flex-shrink: 0;">
+                    <ion-icon name="notifications-outline"></ion-icon>
+                </div>
+                <div style="flex: 1; min-width: 0;">
+                    <div style="font-size: 14px; font-weight: 800; color: var(--text);">Push Notification PWA</div>
+                    <div style="font-size: 12px; color: var(--muted); margin-top: 2px;">
+                        Terima pengingat jadwal mengajar, approval izin, dan info penting langsung di layar HP Anda saat aplikasi tidak dibuka.
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border);">
+                <div>
+                    <div style="font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase;">Status Perangkat</div>
+                    <div id="pushStatusText" style="font-size: 13px; font-weight: 800; color: var(--muted); margin-top: 2px;">Memeriksa status...</div>
+                </div>
+                <button type="button" id="pushToggleBtn" onclick="togglePushSubscription()" class="btnPrimary" style="padding: 8px 14px; font-size: 12px;">
+                    Aktifkan Notifikasi
+                </button>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-direction: column;">
+            <button type="button" id="pushTestBtn" onclick="handleSendPushTest()" class="btnPrimary" style="display: none; justify-content: center; background: var(--card-alt); color: var(--text); border: 1px solid var(--border); box-shadow: none;">
+                <ion-icon name="paper-plane-outline" style="font-size: 16px; color: var(--blue2);"></ion-icon> Kirim Notifikasi Uji Coba ke HP Ini
+            </button>
+            <div id="pushFeedbackMsg" style="display: none; font-size: 12px; font-weight: 700; text-align: center; padding: 8px 12px; border-radius: 12px;"></div>
+        </div>
+    </div>
+</div>
+
 <!-- Fixed Actions -->
-<div class="fixed-bottom-actions">
-    <button type="button" class="btn-save" onclick="submitActiveForm()">Simpan Perubahan</button>
+<div class="fixed-bottom-actions" id="fixedActionsGroup">
+    <button type="button" class="btn-save" id="btnSaveData" onclick="submitActiveForm()">Simpan Perubahan</button>
     
     <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display:none;">
         @csrf
@@ -162,46 +201,99 @@
         const btns = document.querySelectorAll('.tab-btn');
         btns.forEach(btn => btn.classList.remove('active'));
         
+        document.getElementById('formData').style.display = 'none';
+        document.getElementById('formKeamanan').style.display = 'none';
+        document.getElementById('sectionNotifikasi').style.display = 'none';
+        document.getElementById('btnSaveData').style.display = 'block';
+
         if (tabName === 'data') {
             btns[0].classList.add('active');
             document.getElementById('formData').style.display = 'block';
-            document.getElementById('formKeamanan').style.display = 'none';
-        } else {
+        } else if (tabName === 'keamanan') {
             btns[1].classList.add('active');
-            document.getElementById('formData').style.display = 'none';
             document.getElementById('formKeamanan').style.display = 'block';
+        } else if (tabName === 'notifikasi') {
+            btns[2].classList.add('active');
+            document.getElementById('sectionNotifikasi').style.display = 'block';
+            document.getElementById('btnSaveData').style.display = 'none';
+            if (window.pushManager) {
+                window.pushManager.init();
+            }
         }
+    }
+
+    async function togglePushSubscription() {
+        if (!window.pushManager) return;
+        const toggleBtn = document.getElementById('pushToggleBtn');
+        toggleBtn.disabled = true;
+
+        try {
+            if (window.pushManager.isSubscribed) {
+                await window.pushManager.unsubscribe();
+                showPushFeedback('Notifikasi perangkat berhasil dimatikan.', 'success');
+            } else {
+                await window.pushManager.subscribe();
+                showPushFeedback('Notifikasi perangkat berhasil diaktifkan!', 'success');
+            }
+        } catch (err) {
+            showPushFeedback(err.message || 'Gagal mengubah status notifikasi.', 'error');
+        } finally {
+            toggleBtn.disabled = false;
+        }
+    }
+
+    async function handleSendPushTest() {
+        const testBtn = document.getElementById('pushTestBtn');
+        testBtn.disabled = true;
+        try {
+            const res = await window.pushManager.sendTestNotification();
+            showPushFeedback(res.message, res.status === 'success' ? 'success' : 'warning');
+        } catch (err) {
+            showPushFeedback('Gagal mengirim notifikasi tes.', 'error');
+        } finally {
+            testBtn.disabled = false;
+        }
+    }
+
+    function showPushFeedback(msg, type) {
+        const fb = document.getElementById('pushFeedbackMsg');
+        if (!fb) return;
+        fb.textContent = msg;
+        fb.style.display = 'block';
+        if (type === 'success') {
+            fb.style.background = 'rgba(22, 163, 74, 0.12)';
+            fb.style.color = '#15803d';
+            fb.style.border = '1px solid rgba(22, 163, 74, 0.25)';
+        } else {
+            fb.style.background = 'rgba(239, 68, 68, 0.12)';
+            fb.style.color = '#dc2626';
+            fb.style.border = '1px solid rgba(239, 68, 68, 0.25)';
+        }
+        setTimeout(() => { fb.style.display = 'none'; }, 4000);
     }
 
     function submitActiveForm() {
         if (activeTab === 'data') {
             document.getElementById('formData').submit();
-        } else {
+        } else if (activeTab === 'keamanan') {
             document.getElementById('formKeamanan').submit();
         }
     }
 
-    function togglePass(id) {
-        const input = document.getElementById(id);
-        const icon = input.nextElementSibling;
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.setAttribute('name', 'eye-off-outline');
-        } else {
-            input.type = 'password';
-            icon.setAttribute('name', 'eye-outline');
-        }
+    function togglePass(fieldId) {
+        const input = document.getElementById(fieldId);
+        input.type = input.type === 'password' ? 'text' : 'password';
     }
 
     function previewImage(event) {
         const reader = new FileReader();
-        reader.onload = function(){
-            const output = document.getElementById('avatarPreview');
+        reader.onload = function() {
+            const preview = document.getElementById('avatarPreview');
             const initial = document.getElementById('avatarInitial');
-            output.src = reader.result;
-            output.style.display = 'block';
+            preview.src = reader.result;
+            preview.style.display = 'block';
             if (initial) initial.style.display = 'none';
-        };
+        }
         if(event.target.files[0]) {
             reader.readAsDataURL(event.target.files[0]);
         }

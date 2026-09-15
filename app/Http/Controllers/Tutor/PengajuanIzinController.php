@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Tutor;
 
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanIzinSakit;
+use App\Services\WebPushService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class PengajuanIzinController extends Controller
 {
+    public function __construct(protected WebPushService $webPushService) {}
+
     /**
      * Tampilkan form pengajuan & riwayat izin/sakit milik tutor yang sedang login.
      */
@@ -62,6 +66,13 @@ class PengajuanIzinController extends Controller
             'alasan' => $data['alasan'],
             'dokumen_surat' => $path,
             'status' => 'pending',
+        ]);
+
+        // Kirim Web Push Notification ke Admin & Kepala Sekolah
+        $this->webPushService->sendToManagement([
+            'title' => '📋 Pengajuan '.ucfirst($data['jenis']).' Baru',
+            'body' => ($tutor->nama_lengkap ?? 'Tutor').' mengajukan '.$data['jenis'].' ('.$data['tgl_mulai'].'). Alasan: '.Str::limit($data['alasan'], 60),
+            'url' => route('kepsek.pengajuan-izin'),
         ]);
 
         return redirect()->route('tutor.pengajuan-izin')

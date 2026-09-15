@@ -12,6 +12,7 @@ use App\Models\Tutor;
 use App\Services\AnalyticsService;
 use App\Services\LaporanPresensiService;
 use App\Services\PresensiService;
+use App\Services\WebPushService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,7 +24,8 @@ class KepsekDashboardController extends Controller
     public function __construct(
         protected LaporanPresensiService $laporanService,
         protected PresensiService $presensiService,
-        protected AnalyticsService $analyticsService
+        protected AnalyticsService $analyticsService,
+        protected WebPushService $webPushService
     ) {}
 
     /* ─────────────────────────────────────────────
@@ -252,6 +254,13 @@ class KepsekDashboardController extends Controller
             materi: 'Pengajuan Lupa Lapor Disetujui: '.$item->alasan
         );
 
+        // Kirim Web Push Notification ke Tutor
+        $this->webPushService->sendToUser($item->tutor_id, [
+            'title' => '✅ Pengajuan Lupa Lapor Disetujui',
+            'body' => 'Pengajuan Lupa Lapor Anda untuk tanggal '.$item->tanggal.' telah disetujui oleh Kepala Sekolah.',
+            'url' => route('tutor.lupa-lapor'),
+        ]);
+
         return back()->with('success', 'Pengajuan Lupa Lapor disetujui & data presensi berhasil dicatat.');
     }
 
@@ -261,6 +270,13 @@ class KepsekDashboardController extends Controller
         $item->status = 'ditolak';
         $item->catatan_kepsek = $request->input('catatan_kepsek', 'Pengajuan ditolak oleh Kepala Sekolah');
         $item->save();
+
+        // Kirim Web Push Notification ke Tutor
+        $this->webPushService->sendToUser($item->tutor_id, [
+            'title' => '❌ Pengajuan Lupa Lapor Ditolak',
+            'body' => 'Pengajuan Lupa Lapor Anda untuk tanggal '.$item->tanggal.' ditolak. Catatan: '.$item->catatan_kepsek,
+            'url' => route('tutor.lupa-lapor'),
+        ]);
 
         return back()->with('warning', 'Pengajuan Lupa Lapor ditolak.');
     }
@@ -317,6 +333,13 @@ class KepsekDashboardController extends Controller
             status: $item->jenis
         );
 
+        // Kirim Web Push Notification ke Tutor
+        $this->webPushService->sendToUser($item->tutor_id, [
+            'title' => '✅ Pengajuan '.ucfirst($item->jenis).' Disetujui',
+            'body' => 'Pengajuan '.$item->jenis.' Anda untuk tanggal '.$item->tgl_mulai.' telah disetujui oleh Kepala Sekolah.',
+            'url' => route('tutor.pengajuan-izin'),
+        ]);
+
         return back()->with('success', 'Pengajuan '.ucfirst($item->jenis).' disetujui & data presensi disinkronkan.');
     }
 
@@ -327,6 +350,13 @@ class KepsekDashboardController extends Controller
         $item->disetujui_oleh = Auth::id();
         $item->catatan_verifikasi = $request->input('catatan_verifikasi', 'Pengajuan ditolak');
         $item->save();
+
+        // Kirim Web Push Notification ke Tutor
+        $this->webPushService->sendToUser($item->tutor_id, [
+            'title' => '❌ Pengajuan '.ucfirst($item->jenis).' Ditolak',
+            'body' => 'Pengajuan '.$item->jenis.' Anda telah ditolak. Catatan: '.$item->catatan_verifikasi,
+            'url' => route('tutor.pengajuan-izin'),
+        ]);
 
         return back()->with('warning', 'Pengajuan '.ucfirst($item->jenis).' ditolak.');
     }

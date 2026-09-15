@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'webpush' => [
+        'vapid' => [
+            'subject' => env('VAPID_SUBJECT', 'mailto:admin@pkbmpikat.sch.id'),
+            'public_key' => env('VAPID_PUBLIC_KEY'),
+            'private_key' => env('VAPID_PRIVATE_KEY'),
+        ],
+        'verify_ssl' => env('WEBPUSH_VERIFY_SSL', false),
+    ],
+
 ];

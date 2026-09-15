@@ -5,11 +5,14 @@ namespace App\Http\Controllers\Tutor;
 use App\Http\Controllers\Controller;
 use App\Models\PengajuanLupaLapor;
 use App\Models\Siswa;
+use App\Services\WebPushService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class LupaLaporController extends Controller
 {
+    public function __construct(protected WebPushService $webPushService) {}
+
     /**
      * Tampilkan form + riwayat pengajuan milik tutor yang sedang login.
      */
@@ -63,6 +66,13 @@ class LupaLaporController extends Controller
             'jam_selesai' => $data['jam_selesai'],
             'alasan' => $data['alasan'],
             'status' => 'pending',
+        ]);
+
+        // Kirim Web Push Notification ke Kepala Sekolah & Admin
+        $this->webPushService->sendToManagement([
+            'title' => '⏰ Pengajuan Lupa Lapor Baru',
+            'body' => ($tutor->nama_lengkap ?? 'Tutor').' mengajukan permohonan lupa lapor presensi untuk tanggal '.$data['tanggal'].'.',
+            'url' => route('kepsek.lupa-lapor'),
         ]);
 
         return redirect()->route('tutor.lupa-lapor')

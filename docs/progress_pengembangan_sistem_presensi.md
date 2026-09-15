@@ -1,8 +1,8 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 14 September 2026  
+**Tanggal Pembaruan:** 15 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1 & 2 (Keamanan, Infrastruktur, Presensi Multi-Moda & Workflow Approval)  
+**Status Proyek:** Fase 1, 2 & 3 (Keamanan, Infrastruktur, Presensi Multi-Moda, Payroll & Web Push Notification)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,19 +11,19 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 15
-    "Dalam Proses (In Progress)" : 1
-    "Belum Dimulai (Pending)" : 14
+    "Selesai (Completed)" : 24
+    "Dalam Proses (In Progress)" : 0
+    "Belum Dimulai (Pending)" : 6
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
-| 1. Keamanan, Infrastruktur & Performa | 7 | 5 | 0 | 2 |
-| 2. Core Presensi & Validasi | 7 | 3 | 0 | 4 |
-| 3. Payroll & Honorarium | 4 | 0 | 0 | 4 |
-| 4. Integrasi & Notifikasi | 4 | 0 | 0 | 4 |
-| 5. Executive Dashboard | 3 | 0 | 0 | 3 |
-| 6. Codebase, Standardisasi & QA | 5 | 4 | 1 | 0 |
+| 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
+| 2. Core Presensi & Validasi | 8 | 7 | 0 | 1 |
+| 3. Payroll & Honorarium | 4 | 4 | 0 | 0 |
+| 4. Integrasi & Notifikasi | 5 | 3 | 0 | 2 |
+| 5. Executive Dashboard | 3 | 2 | 0 | 1 |
+| 6. Codebase, Standardisasi & QA | 6 | 6 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis)** | **3** | **3** | **0** | **0** |
 
 ---
@@ -42,6 +42,9 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Mekanisme Rate Limiting Login**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Menambahkan pembatasan percobaan login (maksimal 5 kali per menit per IP/akun) menggunakan Laravel `RateLimiter` dan middleware `throttle:login` di `routes/web.php` & `routes/api.php` untuk mencegah serangan *Brute Force*, dilengkapi respon ramah (pesan peringatan web & HTTP 429 JSON API) serta pembersihan counter saat login berhasil.
+- 🟢 **Konfigurasi Reverse Proxy & HTTPS Enforcement**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:** Menambahkan `$middleware->trustProxies(at: '*')` di `bootstrap/app.php` dan `URL::forceScheme('https')` pada `AppServiceProvider` saat request memiliki header SSL/Proxy (`x-forwarded-proto === 'https'`) untuk mencegah terjadinya *Mixed Content Block* pada PWA dan Web Push Notification di reverse proxy/tunnel.
 - ⚪ **Secure Storage Foto Presensi (Private Storage & Signed URLs)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Pemindahan direktori foto presensi sensitif ke `storage/app/private/` dengan pengaksesan via *Temporary Signed URL* yang mewajibkan autentikasi pengguna dan pembatasan waktu akses.
@@ -110,7 +113,6 @@ pie title Status Fitur & Pengkondisian Sistem
     - Menggunakan metode `updateOrCreate` untuk keamanan re-seeding tanpa duplikasi data.
     - Mendaftarkan seeder pada `database/seeders/DatabaseSeeder.php`.
 
-
 - 🟢 **Deteksi Manipulasi GPS (Anti Fake GPS) & Validasi Akurasi Sinyal**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -124,7 +126,7 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** 
     - **Web App Manifest (`public/manifest.json`)**: Menyiapkan konfigurasi PWA aplikasi (`name`: "Smart Presensi PKBM Pikat", `short_name`: "Presensi Pikat", `display`: "standalone", `theme_color`: "#0B5ED7", icons 192x192 & 512x512).
-    - **Service Worker (`public/sw.js`)**: Caching aset statis & offline fallback dengan strategi Network-First Cache-Fallback.
+    - **Service Worker (`public/sw.js`)**: Caching aset statis & offline fallback dengan strategi Network-First Cache-Fallback (PWA cache v2).
     - **Penyimpanan Lokal IndexedDB (`resources/js/offline-presensi.js`)**: Membuat database `PikatPresensiOfflineDB` dan object store `offline_presensis`. Jika presensi dikirim dalam kondisi offline, data presensi (beserta lokasi, foto, & payload) disimpan lokal di IndexedDB browser.
     - **Auto-Synchronization (`online` Event Listener)**: Secara otomatis mendeteksi ketika perangkat kembali terhubung ke internet dan mengirimkan seluruh antrean presensi ke server.
     - Automated feature testing pada `tests/Feature/PwaOfflineTest.php`.
@@ -166,14 +168,15 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - Membuat controller `App\Http\Controllers\Tutor\TutorPayrollController` dan view `resources/views/tutor/payroll.blade.php` bagi Tutor untuk melihat rincian slip gaji digital bulanan.
-    - Membuat template layout PDF [`slip_pdf.blade.php`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/admin/payroll/slip_pdf.blade.php) menggunakan `barryvdh/laravel-dompdf` yang dapat diunduh langsung oleh Tutor maupun Admin/Kepala Sekolah.
+    - Membuat template layout PDF `slip_pdf.blade.php` menggunakan `barryvdh/laravel-dompdf` yang dapat diunduh langsung oleh Tutor maupun Admin/Kepala Sekolah.
 
-- 🟢 **Modul Rekapitulasi Anggaran**
+- 🟢 **Modul Rekapitulasi Anggaran & Broadcast Pengumuman**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - Membuat controller `App\Http\Controllers\Admin\PayrollController` dan views (`admin/payroll/index.blade.php`, `show.blade.php`).
     - Menampilkan ringkasan total anggaran honorarium sekolah, total jam mengajar, dan rekapitulasi pembayaran per tutor per periode bulan/tahun.
-    - Membuat template layout PDF [`rekap_pdf.blade.php`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/admin/payroll/rekap_pdf.blade.php) untuk mengunduh laporan rekapitulasi anggaran penggajian sekolah.
+    - Membuat template layout PDF `rekap_pdf.blade.php` untuk mengunduh laporan rekapitulasi anggaran penggajian sekolah.
+    - Menambahkan aksi `broadcastNotifikasi()` untuk menyiarkan pengumuman penerbitan slip gaji ke seluruh tutor via Web Push Notification.
 
 ---
 
@@ -184,15 +187,34 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Menghubungkan autentikasi dan basis data pengguna antara Sistem Presensi Digital dan SIM PKBM Pikat menggunakan API Tokens (Laravel Sanctum) atau OAuth2.
 
-#### 4.2 Integrasi WhatsApp Gateway (Notifikasi Real-Time)
-- ⚪ **Notifikasi Pengingat Absen (Reminder)**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Pengiriman pesan WhatsApp pengingat secara otomatis kepada Tutor yang belum melakukan *Clock-In* atau *Clock-Out* sesuai jadwal mengajar.
-- ⚪ **Laporan Ketersediaan Tutor ke Wali Murid**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Pesan notifikasi real-time ke WhatsApp orang tua/wali murid saat Tutor terkonfirmasi hadir dan memulai sesi kegiatan belajar mengajar.
+#### 4.2 Web Push Notification Real-Time (PWA & FCM Push Service)
+- 🟢 **Infrastruktur Web Push, VAPID & Guzzle Client**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Mengintegrasikan paket `minishlink/web-push` dengan generator kunci VAPID otomatis via artisan command `php artisan webpush:vapid`.
+    - Membuat migrasi tabel `push_subscriptions` (`user_id`, `endpoint`, `public_key`, `auth_token`, `content_encoding`, `device_info`) dan model `PushSubscription`.
+    - Membuat `WebPushService` dengan konfigurasi Guzzle Client khusus yang menangani SSL certificate bypass pada lingkungan Windows/Laragon tanpa error cURL 60.
+- 🟢 **Auto-Sync Token Browser & Client Push Manager**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Memasang script `resources/js/push-notification.js` dengan kemampuan auto-sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil.
+    - Memperbarui `public/sw.js` (PWA v2) dengan dukungan `push` dan `notificationclick` URL routing yang otomatis menormalisasi protokol HTTPS.
+- 🟢 **Otomatisasi Trigger Push Notifikasi Sistem**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Presensi Masuk & Pulang**: Notifikasi konfirmasi kehadiran langsung ke HP tutor setelah sukses Clock In / Clock Out.
+    - **Pengajuan Izin & Sakit**: Notifikasi pengajuan baru ke Admin & Kepsek, serta notifikasi persetujuan/penolakan ke HP tutor.
+    - **Pengajuan Lupa Lapor**: Notifikasi permohonan baru ke Kepsek/Admin, serta notifikasi hasil approval ke tutor.
+    - **Pengingat Jadwal Mengajar**: Scheduler cron `presensi:send-reminder` (`SendAbsenReminderCommand`) untuk mengirim notifikasi jadwal hari ini ke seluruh tutor yang bertugas.
+    - **Broadcast Pengumuman Payroll**: Tombol *"Umumkan ke Tutor"* di menu Payroll Admin untuk mem-broadcast pengumuman penerbitan slip gaji ke seluruh tutor aktif.
+    - Automated feature testing pada `tests/Feature/PushNotificationTest.php`.
 
-#### 4.3 Import & Export Massal Data (Bulk Data Management)
+#### 4.3 Integrasi WhatsApp Gateway (Opsional / Jangka Panjang)
+- ⚪ **Notifikasi WhatsApp Pengingat Absen & Wali Murid**
+  - **Status:** **PENDING**
+  - **Rincian Implementasi:** Pengiriman pesan WhatsApp pengingat jika diperlukan pengiriman ke orang tua/wali murid di masa mendatang.
+
+#### 4.4 Import & Export Massal Data (Bulk Data Management)
 - 🟢 **Import & Export Spreadsheet Excel/CSV (Bulk Data Management)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -241,26 +263,24 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** 
     - Mengonsolidasikan folder `layout/` (singular) dan `layouts/` (plural) menjadi `resources/views/layouts/`.
-    - Memisahkan komponen partial navigasi berbahasa Indonesia di [`resources/views/layouts/components/`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/layouts/components) (`navigasi_atas`, `navigasi_bawah_admin`, `navigasi_bawah_kepsek`, `navigasi_bawah_tutor`).
-    - Memperbarui 29 file view Blade ke `@extends('layouts.x')`.
+    - Memisahkan komponen partial navigasi berbahasa Indonesia di `resources/views/layouts/components/` (`navigasi_atas`, `navigasi_bawah_admin`, `navigasi_bawah_kepsek`, `navigasi_bawah_tutor`).
+    - Memperbarui seluruh file view Blade ke `@extends('layouts.x')`.
     - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
 - 🟢 **Perbaikan Alur Autentikasi Role & Navigasi Bawah Dinamis**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - Mengoreksi pengalihan login `AuthWebController` dan `RoleMiddleware` agar pengguna terisolasi 100% pada rute dan dashboard sesuai perannya (`admin`, `kepala_sekolah`, `tutor`), serta mencegah kebocoran URL `intended`.
-    - Menjadikan navigasi bawah pada [`layouts/presensi.blade.php`](file:///c:/laragon/www/pengembangan-presensi-pikat/resources/views/layouts/presensi.blade.php) dinamis sesuai role pengguna (`admin`, `kepsek`, `tutor`).
+    - Menjadikan navigasi bawah pada `layouts/presensi.blade.php` dinamis sesuai role pengguna (`admin`, `kepsek`, `tutor`).
     - Menyelaraskan seluruh item navigasi bottom bar untuk seluruh role (`Absen`, `Laporan`, `Payroll`, `Dashboard`).
     - Memastikan pengujian otomatis `RoleFlowAndNavigationTest.php` (31 tests, 147 assertions OK 100%).
 
 #### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
 - 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (15 tests, 61 assertions OK) dan kompilasi build produksi Vite `npm run build`.
-
-
+  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (**46 tests, 206 assertions OK 100%**) dan kompilasi build produksi Vite `npm run build`.
 - 🟢 **Penerapan Pattern DRY (Service & Repository Pattern)**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`) untuk mengeliminasi kode berulang (*DRY - Don't Repeat Yourself*). Dilengkapi dengan pengujian otomatis `DryServicePatternTest.php` (25 tests, 101 assertions OK 100%).
+  - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`, `WebPushService`, `GeofencingService`, `AnalyticsService`) untuk mengeliminasi kode berulang (*DRY - Don't Repeat Yourself*). Dilengkapi dengan pengujian otomatis `DryServicePatternTest.php` dan `PushNotificationTest.php`.
 
 ---
 
@@ -272,11 +292,13 @@ pie title Status Fitur & Pengkondisian Sistem
 | 2 | **Migrasi Baseline Codebase `presensi-pkbmpikat`** | Core Setup | Memindahkan seluruh kode proyek lama (Controller, Models, Views, Migrations, Seeders, Assets, Config) ke dalam repositori pengembangan baru `pengembangan-presensi-pikat`. | 🟢 Selesai |
 | 3 | **Penyesuaian Kompatibilitas Dependensi PHP 8.5** | Environment | Mengonfigurasi `composer.json` dan menjalankan `composer install --ignore-platform-req=php` agar paket-paket seperti `phpoffice/phpspreadsheet`, `maatwebsite/excel`, dan `barryvdh/laravel-dompdf` berjalan lancar di PHP 8.5. | 🟢 Selesai |
 | 4 | **Pemasangan & Konfigurasi Laravel Boost MCP** | AI & Tooling | Menginstal dependensi dev `laravel/boost` dan mengonfigurasi file `AGENTS.md` serta aturan pendukung untuk integrasi AI coding assistant yang optimal. | 🟢 Selesai |
+| 5 | **Implementasi Web Push Service & VAPID Tooling** | Push Service | Menambahkan `minishlink/web-push`, command `webpush:vapid`, integrasi Service Worker PWA v2, dan seluruh trigger notifikasi real-time. | 🟢 Selesai |
 
 ---
 
 ## 📌 3. REKAPITULASI DOKUMEN & ACTION PLAN SELANJUTNYA
 
 ### Item yang Siap Dikerjakan Berikutnya (Next Immediate Tasks):
-1. **[Fase 1 & 2] Secure Storage Foto Presensi**: Membuat private disk dan endpoint pengaksesan foto berbasis *Signed URL*.
-2. **[Fase 2] Kalkulasi Radius Geofencing**: Membatasi lokasi presensi tutor berdasarkan radius GPS menggunakan rumus Haversine.
+1. **[Fase 4] Secure Storage Foto Presensi**: Memindahkan file foto presensi ke private disk dan endpoint pengaksesan foto berbasis *Temporary Signed URL*.
+2. **[Fase 4] Integrasi Single Sign-On (SSO SIM PKBM Pikat)**: Menyiapkan API token authentication (Laravel Sanctum) untuk konektivitas dengan SIM utama lembaga.
+3. **[Fase 4] Format Laporan Otomatis Akreditasi BAN PAUD & PNF**: Template laporan khusus lampiran akreditasi pendidikan nonformal.

@@ -1,8 +1,8 @@
 # ROADMAP DAN PENJABARAN LENGKAP PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 14 September 2026  
+**Tanggal Pembaruan:** 15 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1 & 2 (Keamanan, Infrastruktur, Presensi Multi-Moda & Workflow Approval)  
+**Status Proyek:** Fase 1, 2 & 3 (Keamanan, Multi-Moda, Geofencing, Payroll, & Web Push Notification Real-Time)  
 
 ---
 
@@ -12,6 +12,7 @@
 * 🟢 **Upgrade Framework Laravel 13 (v13.31.0):** [SELESAI] Memperbarui `composer.json` ke `"laravel/framework": "^13.0"` dan `"laravel/tinker": "^3.0"`, menyelaraskan dependensi `nunomaduro/collision`, serta meregenerasi autoloader sehingga aplikasi berjalan stabil di atas versi Laravel 13 terbaru (v13.31.0).
 * 🟢 **Perbaikan Deprecation Warning PHP 8.5:** [SELESAI] Memperbarui `config/database.php` pada opsi koneksi `mysql` dan `mariadb` menggunakan pengecekan dinamis `(defined('Pdo\Mysql::ATTR_SSL_CA') ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)` untuk menggantikan konstanta `PDO::MYSQL_ATTR_SSL_CA` yang *deprecated* di PHP 8.5+.
 * 🟢 **Mekanisme Rate Limiting Login:** [SELESAI] Menambahkan pembatasan percobaan login (maksimal 5 kali per menit per IP/akun) menggunakan Laravel `RateLimiter` dan middleware `throttle:login` di `routes/web.php` & `routes/api.php` untuk mencegah serangan *Brute Force*, dilengkapi respon ramah (pesan peringatan web & HTTP 429 JSON API) serta pembersihan counter saat login berhasil.
+* 🟢 **Konfigurasi Reverse Proxy & HTTPS Enforcement:** [SELESAI] Menambahkan konfigurasi `$middleware->trustProxies(at: '*')` di `bootstrap/app.php` dan `URL::forceScheme('https')` pada `AppServiceProvider` untuk menjamin keamanan tunneling, PWA, dan Web Push Notification tanpa *Mixed Content Block*.
 * ⚪ **Secure Storage Foto Presensi (Private Storage & Signed URLs):** [PENDING] Pemindahan direktori foto presensi sensitif ke `storage/app/private/` dengan pengaksesan via *Temporary Signed URL* yang mewajibkan autentikasi pengguna dan pembatasan waktu akses.
 
 ### 1.2 Manajemen Log & Infrastruktur Server
@@ -90,11 +91,25 @@
 ### 4.1 Single Sign-On (SSO) & Integrasi SIM PKBM Pikat
 * ⚪ **Integrasi Akun Terpusat (SSO via Laravel Sanctum / OAuth2):** [PENDING] Menghubungkan autentikasi dan basis data pengguna antara Sistem Presensi Digital dan SIM PKBM Pikat menggunakan API Tokens (Laravel Sanctum) atau OAuth2.
 
-### 4.2 Integrasi WhatsApp Gateway (Notifikasi Real-Time)
-* ⚪ **Notifikasi Pengingat Absen (Reminder):** [PENDING] Pengiriman pesan WhatsApp pengingat secara otomatis kepada Tutor yang belum melakukan *Clock-In* atau *Clock-Out* sesuai jadwal mengajar.
-* ⚪ **Laporan Ketersediaan Tutor ke Wali Murid:** [PENDING] Pesan notifikasi real-time ke WhatsApp orang tua/wali murid saat Tutor terkonfirmasi hadir dan memulai sesi kegiatan belajar mengajar.
+### 4.2 Web Push Notification Real-Time (PWA & FCM Push Service)
+* 🟢 **Infrastruktur Web Push & VAPID Key Management:** [SELESAI] 
+  - Mengintegrasikan paket `minishlink/web-push` dengan generator kunci VAPID otomatis via artisan command `php artisan webpush:vapid`.
+  - Membuat migrasi tabel `push_subscriptions` dan model `PushSubscription` untuk menyimpan endpoint, public key, auth token, dan device info perangkat pengguna.
+  - Membuat `WebPushService` dengan integrasi Guzzle Client khusus yang menangani SSL certificate bypass pada lingkungan Windows/Laragon tanpa error cURL 60.
+* 🟢 **Auto-Sync & Client Push Manager:** [SELESAI]
+  - Memasang script `resources/js/push-notification.js` dengan kemampuan auto-sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil.
+  - Memperbarui `public/sw.js` (PWA v2) dengan dukungan `push` dan `notificationclick` URL routing yang otomatis menormalisasi HTTPS.
+* 🟢 **Otomatisasi Trigger Push Notifikasi Sistem:** [SELESAI]
+  - **Presensi Masuk & Pulang**: Notifikasi konfirmasi kehadiran langsung ke HP tutor setelah sukses Clock In / Clock Out.
+  - **Pengajuan Izin & Sakit**: Notifikasi pengajuan baru ke Admin & Kepsek, serta notifikasi persetujuan/penolakan ke HP tutor.
+  - **Pengajuan Lupa Lapor**: Notifikasi permohonan baru ke Kepsek/Admin, serta notifikasi hasil approval ke tutor.
+  - **Pengingat Jadwal Mengajar**: Scheduler cron `presensi:send-reminder` untuk mengirim notifikasi jadwal hari ini ke seluruh tutor yang bertugas.
+  - **Broadcast Pengumuman Payroll**: Tombol *"Umumkan ke Tutor"* di menu Payroll Admin untuk mem-broadcast pengumuman penerbitan slip gaji ke seluruh tutor aktif.
 
-### 4.3 Import & Export Massal Data (Bulk Data Management)
+### 4.3 Integrasi WhatsApp Gateway (Opsional / Jangka Panjang)
+* ⚪ **Notifikasi WhatsApp Pengingat Absen & Wali Murid:** [PENDING] Integrasi WhatsApp Gateway pihak ketiga jika diperlukan pengiriman pesan langsung ke WhatsApp wali murid.
+
+### 4.4 Import & Export Massal Data (Bulk Data Management)
 * 🟢 **Import & Export Spreadsheet Excel/CSV:** [SELESAI] Fitur pengunggahan massal (*bulk import*) data Tutor (karyawan), Siswa, Jadwal/Agenda kegiatan, Tarif Honor Payroll, dan Rekap Presensi Retroaktif, serta ekspor laporan presensi berstandar akreditasi (14 kolom data lengkap, NIK, Moda Pembelajaran, Durasi Mengajar, Lokasi, KPI Ringkasan) menggunakan paket `maatwebsite/excel`. Dilengkapi template download dan UI modal import di seluruh modul terkait (`PresensiExport`, `PayrollRekapExport`, `SiswaImport`, `TutorImport`, `JadwalImport`, `PresensiImport`, dsb).
 
 ---
@@ -119,14 +134,12 @@
 * 🟢 **Restrukturisasi & Standardisasi Folder Views (`resources/views/layouts/`):** [SELESAI] 
   - Mengonsolidasikan folder `layout/` (singular) dan `layouts/` (plural) menjadi `resources/views/layouts/`.
   - Memisahkan komponen partial navigasi berbahasa Indonesia di `resources/views/layouts/components/` (`navigasi_atas`, `navigasi_bawah_admin`, `navigasi_bawah_kepsek`, `navigasi_bawah_tutor`).
-  - Memperbarui 29 file view Blade ke `@extends('layouts.x')`.
+  - Memperbarui seluruh file view Blade ke `@extends('layouts.x')`.
   - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
 
 ### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
-* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (15 tests, 61 assertions OK) serta kompilasi produksi Vite `npm run build`.
-
-
-* 🟢 **Penerapan Pattern DRY (Service & Repository Pattern):** [SELESAI] Mengelompokkan dan mengekstrak logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`) untuk mengeliminasi duplikasi kode (*Don't Repeat Yourself*). Dilengkapi pengujian otomatis `DryServicePatternTest.php` (25 tests, 101 assertions OK 100%).
+* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (**46 tests, 206 assertions OK 100%**) serta kompilasi produksi Vite `npm run build`.
+* 🟢 **Penerapan Pattern DRY (Service & Repository Pattern):** [SELESAI] Mengelompokkan dan mengekstrak logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`, `WebPushService`, `GeofencingService`, `AnalyticsService`) untuk mengeliminasi duplikasi kode (*Don't Repeat Yourself*).
 
 ---
 
@@ -134,7 +147,7 @@
 
 | Tahap | Fokus Utama | Target Hasil | Estimasi Dampak | Status |
 |---|---|---|---|---|
-| **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟡 Dalam Proses |
-| **Fase 2 (Jangka Pendek)** | Presensi Multi-Moda, Geofencing GPS, Secure Storage Foto, & Refactoring | Data presensi terverifikasi valid secara lokasi (sekolah, home visit, online) dan berkas aman | 🟡 Tinggi (Integritas Data) | 🟡 Dalam Proses |
-| **Fase 3 (Jangka Menengah)** | PWA / Mobile Mode, WhatsApp Gateway, & Modul Honor | Penggunaan mobile mudah, notifikasi otomatis, & honor terhitung | 🟢 Sedang (Efisiensi Operasional) | ⚪ Pending |
-| **Fase 4 (Jangka Panjang)** | Single Sign-On (SIM), Face AI, & Business Intelligence | Ekosistem aplikasi terintegrasi utuh dengan analitik eksekutif | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |
+| **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟢 Selesai |
+| **Fase 2 (Jangka Pendek)** | Presensi Multi-Moda, Geofencing GPS, Anti Fake GPS, PWA, & Modul Honor/Payroll | Data presensi terverifikasi valid secara lokasi, offline PWA, & honor terhitung otomatis | 🟡 Tinggi (Integritas Data) | 🟢 Selesai |
+| **Fase 3 (Jangka Menengah)** | Web Push Notification Real-Time, Bulk Import/Export Excel, & Analytics KPI | Notifikasi push instan di HP, manajemen data massal, & dashboard analitik eksekutif | 🟢 Sedang (Efisiensi Operasional) | 🟢 Selesai |
+| **Fase 4 (Jangka Panjang)** | Single Sign-On (SIM), Secure Private Storage Foto, & AI Face Recognition | Ekosistem aplikasi terintegrasi utuh dengan SIM lembaga dan proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |

@@ -7,9 +7,11 @@ use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Services\GeofencingService;
+use App\Services\WebPushService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -56,6 +58,8 @@ class PresensiFotoController extends Controller
 {
     // Trait untuk mendapatkan data tutor yang sedang login
     use ResolvesTutor;
+
+    public function __construct(protected WebPushService $webPushService) {}
 
     /**
      * Menampilkan halaman form presensi foto untuk tutor.
@@ -231,6 +235,16 @@ class PresensiFotoController extends Controller
                 $presensi->save();
             }
 
+            // Kirim konfirmasi Web Push Notification ke Tutor
+            $user = Auth::user();
+            if ($user) {
+                $this->webPushService->sendToUser($user, [
+                    'title' => '📸 Presensi Masuk Berhasil',
+                    'body' => 'Presensi masuk sesi mengajar berhasil dicatat pada pukul '.$waktuServer.'. Selamat mengajar!',
+                    'url' => route('tutor.presensi'),
+                ]);
+            }
+
             return redirect()
                 ->route('tutor.dashboard')
                 ->with('success', 'Presensi masuk berhasil disimpan.');
@@ -301,6 +315,16 @@ class PresensiFotoController extends Controller
             $presensi->lokasi_akurasi = $accuracy;
             $presensi->is_mocked = $isMocked;
             $presensi->save();
+        }
+
+        // Kirim konfirmasi Web Push Notification ke Tutor
+        $user = Auth::user();
+        if ($user) {
+            $this->webPushService->sendToUser($user, [
+                'title' => '📸 Presensi Pulang Berhasil',
+                'body' => 'Presensi pulang sesi mengajar berhasil dicatat pada pukul '.$waktuServer.'. Terima kasih atas dedikasi Anda!',
+                'url' => route('tutor.riwayat'),
+            ]);
         }
 
         return redirect()

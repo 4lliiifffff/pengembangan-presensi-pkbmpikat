@@ -25,9 +25,15 @@
                     <ion-icon name="grid-outline"></ion-icon>
                 </a>
             @endif
-            <button class="iconBtn" type="button" aria-label="Tema" id="themeToggleBtn">
+            <button class="iconBtn" type="button" aria-label="Tema" id="themeToggleBtn" title="Ganti Tema">
                 <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
             </button>
+            <form action="{{ route('logout') }}" method="POST" style="display:none;" class="navLogoutForm">
+                @csrf
+            </form>
+            <a href="{{ route('logout') }}" class="iconBtn" aria-label="Keluar" title="Keluar dari Akun" onclick="event.preventDefault(); if(confirm('Apakah Anda yakin ingin keluar dari akun?')) { this.previousElementSibling.submit(); }">
+                <ion-icon name="log-out-outline"></ion-icon>
+            </a>
         </div>
     </div>
 </div>

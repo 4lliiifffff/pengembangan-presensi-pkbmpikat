@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KaryawanPresensiController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PushNotificationController;
 use App\Http\Controllers\Tutor\LupaLaporController;
 use App\Http\Controllers\Tutor\PengajuanIzinController;
 use App\Http\Controllers\Tutor\PresensiFotoController;
@@ -26,6 +27,16 @@ Route::get('/manifest.json', function () {
 Route::get('/sw.js', function () {
     return response()->file(public_path('sw.js'), ['Content-Type' => 'text/javascript']);
 });
+
+// Push Notification Routes
+Route::middleware('auth')->prefix('push')->name('push.')->group(function () {
+    Route::get('/key', [PushNotificationController::class, 'getPublicKey'])->name('key');
+    Route::post('/subscribe', [PushNotificationController::class, 'subscribe'])->name('subscribe');
+    Route::post('/unsubscribe', [PushNotificationController::class, 'unsubscribe'])->name('unsubscribe');
+    Route::post('/test', [PushNotificationController::class, 'sendTest'])->name('test');
+});
+
+Route::match(['get', 'post'], '/logout', [AuthWebController::class, 'logout'])->name('logout');
 
 Route::get('/', function () {
     if (auth()->check()) {
@@ -56,8 +67,6 @@ Route::get('/login', function () {
 Route::post('/login', [AuthWebController::class, 'process'])
     ->middleware('throttle:login')
     ->name('login.process');
-
-Route::post('/logout', [AuthWebController::class, 'logout'])->name('logout');
 
 Route::middleware('auth')->prefix('profil')->name('profil.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
@@ -106,6 +115,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     // Modul Payroll & Honorarium
     Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
+    Route::post('/payroll/broadcast-notifikasi', [PayrollController::class, 'broadcastNotifikasi'])->name('payroll.broadcast-notifikasi');
     Route::get('/payroll/rekap/excel', [PayrollController::class, 'exportRekapExcel'])->name('payroll.rekap-excel');
     Route::get('/payroll/rekap/pdf', [PayrollController::class, 'exportRekapPdf'])->name('payroll.rekap-pdf');
     Route::get('/payroll/tarif/template', [PayrollController::class, 'downloadTarifTemplate'])->name('payroll.download-tarif-template');

@@ -29,6 +29,16 @@
             <button type="button" onclick="document.getElementById('importTarifModal').style.display='flex'" class="btnPrimary" style="padding:9px 14px;background:#f59e0b;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;">
                 <ion-icon name="cloud-upload-outline" style="font-size:16px;"></ion-icon> Update Tarif
             </button>
+            @if($rolePrefix === 'admin')
+            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" onsubmit="return confirm('Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor?')" style="display:inline;">
+                @csrf
+                <input type="hidden" name="bulan" value="{{ $bulan }}">
+                <input type="hidden" name="tahun" value="{{ $tahun }}">
+                <button type="submit" class="btnPrimary" style="padding:9px 14px;background:#8b5cf6;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;">
+                    <ion-icon name="notifications-outline" style="font-size:16px;"></ion-icon> Umumkan ke Tutor
+                </button>
+            </form>
+            @endif
         </div>
     </div>
 

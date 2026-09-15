@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Imports\PayrollBulkTarifImport;
 use App\Models\Tutor;
 use App\Services\PayrollService;
+use App\Services\WebPushService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -130,6 +131,27 @@ class PayrollController extends Controller
         return redirect()->back()->with(
             'success',
             "Pembaruan tarif siswa berhasil diproses: {$import->updatedCount} tarif siswa diperbarui, {$import->skippedCount} data dilewati."
+        );
+    }
+
+    /**
+     * Kirim broadcast notifikasi pengumuman slip gaji ke semua Tutor aktif.
+     */
+    public function broadcastNotifikasi(Request $request, WebPushService $webPushService)
+    {
+        $bulan = (int) $request->get('bulan', Carbon::now()->month);
+        $tahun = (int) $request->get('tahun', Carbon::now()->year);
+        $namaBulan = Carbon::create()->month($bulan)->locale('id')->isoFormat('MMMM');
+
+        $sentCount = $webPushService->sendToAllTutors([
+            'title' => '💰 Slip Gaji & Honor Diterbitkan',
+            'body' => "Slip gaji dan rekap honor mengajar periode {$namaBulan} {$tahun} telah diterbitkan. Silakan periksa di menu Profil/Payroll Anda.",
+            'url' => route('tutor.payroll.index'),
+        ]);
+
+        return redirect()->back()->with(
+            'success',
+            "Notifikasi pengumuman payroll periode {$namaBulan} {$tahun} berhasil dikirim ke {$sentCount} perangkat tutor."
         );
     }
 }

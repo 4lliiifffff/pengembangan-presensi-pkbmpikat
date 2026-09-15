@@ -151,4 +151,12 @@ class User extends Authenticatable
 
         return asset('storage/'.ltrim($this->foto, '/'));
     }
+
+    /**
+     * Relasi ke Push Subscription perangkat pengguna.
+     */
+    public function pushSubscriptions()
+    {
+        return $this->hasMany(PushSubscription::class, 'user_id');
+    }
 }
