@@ -85,6 +85,35 @@
 * 🟢 **Ekspor Slip Gaji PDF:** [SELESAI] Otomatisasi pembentukan dokumen Slip Gaji individual Tutor dalam format PDF (`barryvdh/laravel-dompdf`) yang dapat diunduh langsung dari dashboard Tutor maupun Admin/Kepsek.
 * 🟢 **Modul Rekapitulasi Anggaran:** [SELESAI] Laporan komprehensif pengeluaran anggaran honorarium tutor bulanan/tahunan bagi manajemen lembaga beserta ekspor Laporan Rekapitulasi Anggaran PDF.
 
+### 3.3 Reformasi Honorarium Berbasis SK — Master Kategori & Tarif Dinamis (Database-Driven) [FOKUS AKTIF]
+* ⚪ **Desentralisasi Tarif & Kategori Dinamis (Admin & Tutor):** [PENDING — SIAP DIKERJAKAN]
+  - **Tata Kelola Admin (Master Data Tarif & Profil Siswa):** 
+    - Admin / Kepala Sekolah mengelola (CRUD) master kategori tutorial & nominal honor per pertemuan.
+    - Status **Anak Berkebutuhan Khusus (ABK)** dikunci dan ditentukan oleh Admin di data master Siswa (`siswas.is_abk`).
+  - **Penentuan Sesi Lapangan oleh Tutor:** Saat presensi mengajar, tutor **hanya memilih Durasi Pertemuan** (misal: 1,5 jam / 2 jam / 3 jam atau Rombel Gabungan) sesuai kesepakatan belajar dengan siswa. Tutor **tidak memilih status ABK secara manual** untuk mencegah manipulasi/human-error.
+  - **Resolusi Otomatis & Snapshot Finansial:** Sistem otomatis mencocokkan Durasi yang dipilih Tutor + Status ABK dari profil Siswa $\rightarrow$ me-resolve kategori tarif yang tepat $\rightarrow$ mengunci `nominal_honor_snapshot` pada data presensi.
+* ⚪ **Data Master Awal Berdasarkan SK Kepala PKBM (Default Seeder):**
+  - **Tutorial Komunitas:**
+    - 1. Tutorial Komunitas (Durasi 2 Jam) = **Rp 75.000,-** / pertemuan
+    - 2. Tutorial Komunitas ABK (Durasi 2 Jam) = **Rp 100.000,-** / pertemuan
+    - 3. Tutorial Komunitas (Durasi 3 Jam) = **Rp 100.000,-** / pertemuan
+    - 4. Gabungan Komunitas per Rombel = **Rp 50.000,-** / rombel
+  - **Tutorial Distance Learning (DL):**
+    - 5. Tutorial Distance Learning (Durasi 1,5 Jam) = **Rp 100.000,-** / pertemuan
+    - 6. Tutorial Distance Learning ABK (Durasi 1,5 Jam) = **Rp 130.000,-** / pertemuan
+* ⚪ **Arsitektur & Integrasi Teknis:** [PENDING — SIAP DIKERJAKAN]
+  - **Tabel `siswas`:** Tambah kolom `is_abk` (boolean, default false) yang dikelola di Form Siswa Admin.
+  - **Tabel Baru `kategori_tutorials`:** `id`, `nama_kategori`, `jenis_layanan` (`komunitas`/`dl`/`lainnya`), `durasi_jam`, `is_abk`, `is_gabungan`, `nominal_honor`, `is_aktif`, `urutan`.
+  - **Modifikasi Tabel `presensis`:** Tambah `durasi_jam_rencana` / `durasi_pilihan`, `kategori_tutorial_id` (foreign key nullable), dan `nominal_honor_snapshot` (decimal 12,2 nullable).
+  - **CRUD Master Kategori & Siswa Admin:** Menu pengelolaan master tarif & toggle status ABK pada formulir siswa.
+  - **Form Presensi Tutor (`presensi_foto.blade.php`):** Dropdown dinamis pilihan Durasi Pertemuan (1,5 Jam / 2 Jam / 3 Jam / Gabungan).
+  - **Refactoring `PayrollService`:** Menghitung honor berbasis `nominal_honor_snapshot` / relasi kategori, dengan *backward compatibility* untuk data legacy (`null` -> fallback `tarif_per_jam × durasi`).
+  - **Pembaruan Slip Gaji & Rekap:** Visualisasi nama kategori tutorial, durasi sesi, badge ABK siswa, dan rincian honor per pertemuan.
+  - **Pengujian Otomatis PHPUnit:** `DynamicKategoriTutorialPayrollTest` mencakup pengujian CRUD master, auto-resolve status ABK siswa, pilihan durasi tutor, snapshot immutability, dan backward compatibility.
+
+
+
+
 ---
 
 ## 4. INTEGRASI INTEROPERABILITAS SISTEM & NOTIFIKASI (INTEGRATIONS)
@@ -151,4 +180,6 @@
 | **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟢 Selesai |
 | **Fase 2 (Jangka Pendek)** | Presensi Multi-Moda, Geofencing GPS, Anti Fake GPS, PWA, & Modul Honor/Payroll | Data presensi terverifikasi valid secara lokasi, offline PWA, & honor terhitung otomatis | 🟡 Tinggi (Integritas Data) | 🟢 Selesai |
 | **Fase 3 (Jangka Menengah)** | Web Push Notification Real-Time, Bulk Import/Export Excel, & Analytics KPI | Notifikasi push instan di HP, manajemen data massal, & dashboard analitik eksekutif | 🟢 Sedang (Efisiensi Operasional) | 🟢 Selesai |
-| **Fase 4 (Jangka Panjang)** | Single Sign-On (SIM), Secure Private Storage Foto, & AI Face Recognition | Ekosistem aplikasi terintegrasi utuh dengan SIM lembaga dan proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |
+| **Fase 4 (Fokus Aktif)** | **Honorarium SK: Tutorial Komunitas & Distance Learning (DL)** | 6 tipe tarif flat sesi SK (Komunitas 2j/3j/ABK/Gabungan & DL 1.5j/ABK), refactor `PayrollService`, & form presensi | 🔴 Kritis (Akurasi Finansial & Regulasi) | ⚪ Siap Dikerjakan |
+| **Fase 5 (Jangka Panjang)** | Single Sign-On (SIM), Asesmen & Penunjang Tambahan, Secure Storage Foto, & AI Recognition | Ekosistem aplikasi terintegrasi utuh dengan SIM lembaga dan proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |
+

@@ -2,7 +2,7 @@
 
 **Tanggal Pembaruan:** 15 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2 & 3 (Keamanan, Infrastruktur, Presensi Multi-Moda, Payroll & Web Push Notification)  
+**Status Proyek:** Fase 1, 2, 3 & **Perencanaan Fase 4** (Keamanan, Infrastruktur, Presensi Multi-Moda, Payroll SK, Push Notification, Analisis Honorarium Berbasis SK Kepala PKBM)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -14,6 +14,7 @@ pie title Status Fitur & Pengkondisian Sistem
     "Selesai (Completed)" : 24
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai (Pending)" : 6
+    "Direncanakan Fase 4 (Planned)" : 13
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
@@ -25,6 +26,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 5. Executive Dashboard | 3 | 2 | 0 | 1 |
 | 6. Codebase, Standardisasi & QA | 6 | 6 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis)** | **3** | **3** | **0** | **0** |
+| **🆕 Fase 4 — Honorarium Berbasis SK** | **13** | **0** | **0** | **13** |
 
 ---
 
@@ -166,12 +168,17 @@ pie title Status Fitur & Pengkondisian Sistem
     - Menghitung breakdown honorarium per siswa, durasi jam presisi, dan total take-home pay per bulan/tahun.
     - Automated feature testing pada `tests/Feature/PayrollTest.php`.
 
-- 🟢 **Dukungan Tarif Spesifik Per Siswa (Student-Based Hourly Rate)**
+- 🟢 **Dukungan Tarif Spesifik Per Siswa & Master Tarif SK (Database-Driven)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Menambahkan kolom `tarif_per_jam` (`decimal(12,2)`, default `50000.00`) pada tabel `siswas` via migrasi `2026_09_14_000005_add_tarif_per_jam_to_siswas_table.php`.
-    - Memperbarui model `App\Models\Siswa` (`$fillable` & accessor `$siswa->formatted_tarif_per_jam`).
-    - Memperbarui Admin `SiswaController` dan tampilan kelola siswa (`index.blade.php`, `create.blade.php`, `edit.blade.php`) untuk fleksibilitas pengaturan nominal tarif honorarium per siswa.
+    - Menambahkan tabel `kategori_tutorials` untuk mengelola master tarif & kategori tutorial sesuai SK Kepala PKBM (Komunitas 2 Jam [Rp 75.000], Komunitas 2 Jam ABK [Rp 100.000], Komunitas 3 Jam [Rp 100.000], Gabungan Komunitas [Rp 50.000/rombel], Distance Learning 1.5 Jam [Rp 100.000], Distance Learning 1.5 Jam ABK [Rp 130.000]).
+    - Menambahkan kolom `is_abk` pada tabel `siswas` agar status Anak Berkebutuhan Khusus diatur oleh Admin.
+    - Menghilangkan redundansi input manual tarif per jam di menu kelola siswa (`admin/siswa/create.blade.php` & `edit.blade.php`) dan menggantinya dengan integrasi otomatis ke Master Tarif SK sesuai flag ABK.
+    - Memperbarui daftar siswa (`admin/siswa/index.blade.php`) dengan indikator skema tarif SK (`SK: ABK` vs `SK: Reguler`).
+    - Menambahkan kolom `durasi_pilihan`, `kategori_tutorial_id`, dan `nominal_honor_snapshot` pada tabel `presensis` untuk snapshot immutability nominal gaji saat sesi presensi dibuat.
+    - **Penyederhanaan Form Presensi Tutor (`presensi_foto.blade.php`)**: Menghapus beban pilih tarif manual dari tutor. Pilihan durasi sesi secara cerdas terintegrasi otomatis dengan metode/moda pembelajaran (Moda Tatap Muka $\rightarrow$ Pilihan 2 Jam / 3 Jam Komunitas + opsi Rombel Gabungan; Moda Daring Online $\rightarrow$ Otomatis 1,5 Jam Distance Learning + input link room).
+    - Memperbarui `PayrollService` dengan auto-resolution backend, snapshot priority, dan backward compatibility untuk data presensi legacy.
+    - Automated testing: `tests/Feature/DynamicKategoriTutorialPayrollTest.php` (9 tests, 33 assertions lolos 100%).
 
 #### 3.2 Slip Gaji Digital & Generasi Laporan Keuangan
 - 🟢 **Ekspor Slip Gaji PDF**
@@ -308,7 +315,247 @@ pie title Status Fitur & Pengkondisian Sistem
 
 ## 📌 3. REKAPITULASI DOKUMEN & ACTION PLAN SELANJUTNYA
 
-### Item yang Siap Dikerjakan Berikutnya (Next Immediate Tasks):
-1. **[Fase 4] Secure Storage Foto Presensi**: Memindahkan file foto presensi ke private disk dan endpoint pengaksesan foto berbasis *Temporary Signed URL*.
-2. **[Fase 4] Integrasi Single Sign-On (SSO SIM PKBM Pikat)**: Menyiapkan API token authentication (Laravel Sanctum) untuk konektivitas dengan SIM utama lembaga.
-3. **[Fase 4] Format Laporan Otomatis Akreditasi BAN PAUD & PNF**: Template laporan khusus lampiran akreditasi pendidikan nonformal.
+### Item Fokus yang Siap Dikerjakan (Immediate Focus — Master Kategori & Tarif Dinamis):
+1. **[Fase 4A-1] Migrasi Database (Tabel `kategori_tutorials`, Kolom Siswa & Presensi)**:
+   - Buat tabel master `kategori_tutorials` (`nama_kategori`, `jenis_layanan`, `durasi_jam`, `is_abk`, `is_gabungan`, `nominal_honor`, `is_aktif`, `urutan`).
+   - Tambah kolom `is_abk` (boolean default false) pada tabel `siswas` (dikelola oleh Admin).
+   - Tambah kolom `durasi_pilihan` (decimal 4,2), `kategori_tutorial_id` (foreign key nullable), dan `nominal_honor_snapshot` (decimal 12,2 nullable) pada tabel `presensis`.
+2. **[Fase 4A-2] Model `KategoriTutorial`, Model `Siswa`, & Update Model `Presensi`**:
+   - Model `KategoriTutorial`: cast, relasi, scope `active()`, dan accessor label.
+   - Model `Siswa`: tambahkan `is_abk` ke `$fillable` dan `$casts`.
+   - Model `Presensi`: relasi `belongsTo(KategoriTutorial::class)`, `belongsTo(Siswa::class)`, penambahan fillable, dan accessor harga honor per sesi.
+3. **[Fase 4A-3] Seeder Data Master SK Awal (`KategoriTutorialSeeder`)**:
+   - Menyiapkan 6 kategori data master SK Kepala PKBM (Komunitas 2j [75rb], Komunitas 2j ABK [100rb], Komunitas 3j [100rb], Komunitas Gabungan [50rb/rombel], DL 1.5j [100rb], DL 1.5j ABK [130rb]).
+4. **[Fase 4A-4] Refactor `PayrollService` Engine**:
+   - Logika auto-resolve: mencocokkan moda/layanan + durasi sesi pilihan tutor + status `siswa->is_abk` $\rightarrow$ mendapatkan kategori tarif dan mengunci snapshot honor.
+   - Jaminan *backward compatibility*: presensi lama dengan `kategori_tutorial_id = null` tetap dihitung via `tarif_per_jam × durasi`.
+5. **[Fase 4B-1] CRUD Master Kategori Tutorial & Form Siswa (Admin)**:
+   - Menu kelola kategori & tarif tutorial di dashboard Admin (`Admin\KategoriTutorialController` + view blade).
+   - Penambahan switch/checkbox status ABK pada formulir tambah/edit siswa di Admin (`admin/siswa`).
+6. **[Fase 4B-2] Form Presensi Tutor Dinamis (`presensi_foto.blade.php`)**:
+   - Tutor memilih Siswa & Durasi Pertemuan (1,5 jam / 2 jam / 3 jam / Gabungan). Tutor **tidak memilih status ABK** secara manual.
+   - `PresensiFotoController.php`: validasi durasi, deteksi status ABK siswa dari database, tentukan `kategori_tutorial_id`, dan simpan `nominal_honor_snapshot`.
+7. **[Fase 4B-3] Tampilan Slip Gaji & Rekapitulasi Anggaran**:
+   - Menampilkan nama kategori tutorial, durasi sesi, badge status siswa (jika ABK), dan nominal honor per pertemuan pada slip web dan PDF (`slip_pdf.blade.php`).
+8. **[Fase 4A-5] Automated Testing PHPUnit (`DynamicKategoriTutorialPayrollTest.php`)**:
+   - Pengujian CRUD master admin, toggle status ABK siswa, pilihan durasi tutor, auto-resolve tarif honor, snapshot immutability, dan backward compatibility.
+
+### Item Backlog Terencana (Fase Berikutnya):
+- **Master Asesmen & Tugas Penunjang**: Tabel `honor_asesmens` & `honor_penunjangs` (soal STS/SAS, periksa, awas, rapor, rapat, outing).
+- **Secure Storage Foto & SSO SIM PKBM Pikat**: Infrastruktur keamanan foto dan integrasi user terpusat.
+
+
+
+---
+
+## 🏛️ 4. ANALISIS & ROADMAP FASE 4 — HONORARIUM BERBASIS SK KEPALA PKBM (FOKUS: TUTORIAL KOMUNITAS & DL)
+
+> **Tanggal Analisis:** 15 September 2026 | **Status Codebase:** 53 tests, 235 assertions lulus 100% | **Fokus Scope Saat Ini:** Terbatas pada Absensi & Payroll Tutorial Komunitas dan Distance Learning (DL).
+
+### 4.1 Gap Kritis Sistem Saat Ini vs. SK
+
+
+| # | Gap | Dampak Operasional |
+|---|---|---|
+| **1** | Engine honor berbasis `tarif_per_jam × durasi` — bukan **tarif flat per tipe sesi** sesuai SK | Honor tutor tidak akurat sesuai ketentuan lembaga |
+| **2** | Tidak ada modul **honorarium asesmen** (buat soal STS/SAS, periksa, awas) | Komponen honor asesmen hilang dari slip gaji |
+| **3** | Tidak ada modul **tugas penunjang** (rapor, rapat, outing, akreditasi) | Komponen honor penunjang hilang dari slip gaji |
+| **4** | Penjadwalan belum berbasis **kesepakatan bilateral tutor-murid** | Jadwal hanya informatif satu arah dari admin |
+
+### 4.2 Tabel Tarif Honorarium Sesuai SK
+
+#### A. Tutorial Komunitas
+
+| Tipe Sesi | Durasi | Tarif SK | Kode Sistem |
+|---|---|---|---|
+| Komunitas Reguler | 2 jam | **Rp 75.000 / sesi** | `komunitas_reguler` |
+| Komunitas ABK | 2 jam | **Rp 100.000 / sesi** | `komunitas_abk` |
+| Komunitas Durasi Panjang | 3 jam | **Rp 100.000 / sesi** | `komunitas_panjang` |
+| Gabungan Komunitas per Rombel | Per rombel | **Rp 50.000 / sesi** | `komunitas_gabungan` |
+
+#### B. Tutorial Distance Learning (DL)
+
+| Tipe Sesi | Durasi | Tarif SK | Kode Sistem |
+|---|---|---|---|
+| DL Reguler | 1,5 jam | **Rp 100.000 / sesi** | `dl_reguler` |
+| DL ABK | 1,5 jam | **Rp 130.000 / sesi** | `dl_abk` |
+
+#### C. Tutorial Lainnya
+
+| Tipe Sesi | Tarif SK | Kode Sistem |
+|---|---|---|
+| Tutorial Matrikulasi (Komunitas & DL) | **Rp 100.000 / sesi** | `matrikulasi` |
+| Tutorial Kasus Khusus | Menyesuaikan (input manual) | `kasus_khusus` |
+
+#### D. Honorarium Asesmen
+
+| Jenis Asesmen | Tarif SK | Unit | Kode Sistem |
+|---|---|---|---|
+| Pembuatan Soal Sumatif Tengah Semester (STS) | **Rp 50.000** | / mapel / kelas | `buat_soal_sts` |
+| Pembuatan Soal Sumatif Akhir Semester (SAS) | **Rp 50.000** | / mapel / kelas | `buat_soal_sas` |
+| Pemeriksaan Soal STS | **Rp 50.000** | / mapel / kelas | `periksa_sts` |
+| Pemeriksaan Soal SAS | **Rp 50.000** | / mapel / kelas | `periksa_sas` |
+| Pengawasan SAS | **Rp 50.000** | / mapel / ruangan | `awas_sas` |
+| Pengawasan Sumatif Akhir Tahun | **Rp 50.000** | / mapel / ruangan | `awas_sat` |
+| Asesmen Matrikulasi | **Rp 0 (nihil)** | — | `matrikulasi_asesmen` |
+
+#### E. Tugas Penunjang
+
+| Jenis Tugas | Tarif SK | Unit Hitung | Kode Sistem |
+|---|---|---|---|
+| Penyusunan Rapor | **Rp 50.000** | / siswa | `rapor` |
+| Rapat | **Rp 50.000** | / pertemuan | `rapat` |
+| Pendampingan Outing | **Rp 100.000** | / kegiatan | `outing` |
+| Akreditasi / Undangan Khusus | Menyesuaikan | Manual | `akreditasi` |
+
+### 4.3 Arsitektur Database Target Fase 4
+
+```
+presensis (ditambah kolom baru)
+├── tipe_sesi              VARCHAR — enum tipe SK
+├── is_abk                 BOOLEAN — flag ABK
+├── jenis_honor            VARCHAR — per_sesi | per_jam | manual | nihil
+└── nominal_honor_override DECIMAL(12,2) nullable — kasus_khusus
+
+honor_asesmens (tabel baru)
+├── tutor_id, jenis_asesmen, mata_pelajaran
+├── kelas_id / ruangan, tanggal, diinput_oleh
+└── nominal (50.000 default; 0 untuk matrikulasi)
+
+honor_penunjangs (tabel baru)
+├── tutor_id, jenis_tugas, tanggal, diinput_oleh
+├── jumlah_unit     — per siswa (rapor) / per rapat / per kegiatan
+└── total_nominal   COMPUTED = nominal × jumlah_unit
+```
+
+### 4.4 Konstanta SK di `PayrollService`
+
+```php
+private const TARIF_SK = [
+    'komunitas_reguler'  => 75_000,
+    'komunitas_abk'      => 100_000,
+    'komunitas_panjang'  => 100_000,
+    'komunitas_gabungan' => 50_000,
+    'dl_reguler'         => 100_000,
+    'dl_abk'             => 130_000,
+    'matrikulasi'        => 100_000,
+    'kasus_khusus'       => null,   // pakai nominal_honor_override
+];
+```
+
+> **Backward Compatibility:** Presensi lama tanpa `tipe_sesi` (`NULL`) akan fallback ke kalkulasi lama (`tarif_per_jam × durasi`) — data historis tetap valid.
+
+### 4.5 Rencana Pengujian Fase 4 (`SkPayrollCalculationTest`)
+
+| # | Skenario | Expected | Prioritas |
+|---|---|---|---|
+| 1 | Sesi komunitas reguler 2 jam | Rp 75.000 | 🔴 Kritis |
+| 2 | Sesi komunitas ABK | Rp 100.000 | 🔴 Kritis |
+| 3 | Sesi komunitas 3 jam | Rp 100.000 | 🔴 Kritis |
+| 4 | Sesi gabungan per rombel (flat) | Rp 50.000 | 🔴 Kritis |
+| 5 | Sesi DL reguler 1,5 jam | Rp 100.000 | 🔴 Kritis |
+| 6 | Sesi DL ABK 1,5 jam | Rp 130.000 | 🔴 Kritis |
+| 7 | Sesi matrikulasi | Rp 100.000 | 🔴 Kritis |
+| 8 | Kasus khusus override Rp 150.000 | Rp 150.000 | 🔴 Kritis |
+| 9 | Asesmen buat soal STS 3 mapel | Rp 150.000 | 🔴 Kritis |
+| 10 | Asesmen matrikulasi | Rp 0 | 🔴 Kritis |
+| 11 | Penunjang rapor 10 siswa | Rp 500.000 | 🟡 Penting |
+| 12 | Penunjang rapat 1 kali | Rp 50.000 | 🟡 Penting |
+| 13 | Penunjang outing | Rp 100.000 | 🟡 Penting |
+| 14 | Grand total multi-komponen | Sum tutorial + asesmen + penunjang | 🔴 Kritis |
+| 15 | Tutor tanpa sesi bulan ini | Rp 0 | 🟡 Penting |
+| 16 | Data lama (fallback per-jam) | Kalkulasi lama tetap valid | 🔴 Kritis |
+
+### 4.6 Mitigasi Risiko Operasional
+
+| Risiko | Mitigasi |
+|---|---|
+| Tutor salah pilih tipe sesi | Preview nominal honor ditampilkan sebelum submit presensi |
+| Data lama tanpa `tipe_sesi` | Default NULL → fallback ke `tarif_per_jam × durasi` (backward compat) |
+| Override kasus khusus disalahgunakan | Hanya Admin yang bisa set `nominal_honor_override`, bukan tutor |
+| Asesmen diinput ganda | Constraint unique `(tutor_id, jenis_asesmen, mata_pelajaran, tanggal)` |
+| Rombel gabungan dihitung per-siswa | Validasi: `komunitas_gabungan` → flat Rp 50.000 meski banyak siswa |
+| Slip gaji bocor sebelum finalisasi | Gate: slip hanya visible setelah Admin klik "Finalisasi Periode" |
+
+### 4.7 Roadmap Sprint Fase 4
+
+```mermaid
+gantt
+    title Roadmap Fase 4 — Implementasi SK Honorarium PKBM Pikat
+    dateFormat  YYYY-MM-DD
+    section Sprint 1 — Model & Engine
+    Migrasi kolom tipe sesi presensis      :a1, 2026-09-16, 3d
+    Tabel honor_asesmens + model           :a2, after a1, 2d
+    Tabel honor_penunjangs + model         :a3, after a2, 2d
+    Refactor PayrollService SK Engine      :a4, after a3, 3d
+    PHPUnit SkPayrollCalculationTest       :a5, after a4, 2d
+    section Sprint 2 — UI & UX
+    Form presensi tipe sesi + ABK          :b1, after a5, 3d
+    CRUD admin asesmen dan penunjang       :b2, after b1, 4d
+    Slip gaji breakdown 3 komponen         :b3, after b2, 3d
+    section Sprint 3 — Akreditasi & Keamanan
+    Laporan format BAN PAUD dan PNF        :c1, after b3, 5d
+    Secure storage foto presensi           :c2, after c1, 3d
+    CI/CD pipeline GitHub Actions          :c3, after c2, 3d
+```
+
+#### Detail Item Sprint Fase 4 (Fokus Utama: Master Kategori & Tarif Dinamis)
+
+- ⚪ **[4A-1] Migrasi Tabel `kategori_tutorials` & Penambahan Kolom Presensi**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `database/migrations/2026_09_16_000001_create_kategori_tutorials_table.php`, `database/migrations/2026_09_16_000002_add_kategori_tutorial_id_to_presensis_table.php`
+  - **Keterangan:** Tabel `kategori_tutorials` dan kolom `kategori_tutorial_id`, `nominal_honor_snapshot` pada tabel `presensis`.
+
+- ⚪ **[4A-2] Model `KategoriTutorial` & Update Model `Presensi`**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `app/Models/KategoriTutorial.php`, `app/Models/Presensi.php`
+  - **Keterangan:** Relasi Eloquent `belongsTo` & `hasMany`, scope `active()`, dan accessor label.
+
+- ⚪ **[4A-3] Seeder Data Master SK Awal (`KategoriTutorialSeeder`)**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `database/seeders/KategoriTutorialSeeder.php`
+  - **Keterangan:** Inisialisasi 6 kategori default SK (Komunitas 2j, 2j ABK, 3j, Gabungan rombel, DL 1.5j, DL 1.5j ABK).
+
+- ⚪ **[4A-4] Refactor `PayrollService` — Engine Honor Dinamis & Snapshot**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `app/Services/PayrollService.php`
+  - **Keterangan:** Menghitung total honor bulanan berbasis `nominal_honor_snapshot` / relasi kategori, dengan fallback presensi lama (`tarif_per_jam × durasi`).
+
+- ⚪ **[4B-1] CRUD Master Kategori Tutorial di Panel Admin**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `app/Http/Controllers/Admin/KategoriTutorialController.php`, `resources/views/admin/kategori_tutorial/index.blade.php`
+  - **Keterangan:** Dashboard kelola kategori, durasi, status ABK/gabungan, dan nominal tarif honorarium.
+
+- ⚪ **[4B-2] Form Presensi Tutor Dinamis & Validasi Controller**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `resources/views/tutor/presensi_foto.blade.php`, `app/Http/Controllers/Tutor/PresensiFotoController.php`
+  - **Keterangan:** Dropdown dinamis kategori aktif + snapshot nominal honor saat absen dibuat.
+
+- ⚪ **[4B-3] Update Tampilan Slip Gaji & Rekap Anggaran (Web + PDF)**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `resources/views/tutor/payroll.blade.php`, `resources/views/pdf/slip_pdf.blade.php`, `resources/views/admin/payroll/index.blade.php`
+  - **Keterangan:** Menampilkan rincian kategori tutorial, durasi, dan nominal honor per pertemuan.
+
+- ⚪ **[4A-5] Automated Testing PHPUnit `DynamicKategoriTutorialPayrollTest`**
+  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
+  - **File Target:** `tests/Feature/DynamicKategoriTutorialPayrollTest.php`
+  - **Keterangan:** Pengujian CRUD admin, presensi tutor, perhitungan honor dinamis, snapshot immutability, dan backward compatibility.
+
+---
+
+#### Item Backlog Terencana (Fase Lanjutan)
+
+- ⚪ **[5A-1] Tabel & Model `HonorAsesmen` + CRUD Admin (Soal STS/SAS, Periksa, Awas)**
+  - **Status:** **BACKLOG** — Fase Lanjutan
+- ⚪ **[5A-2] Tabel & Model `HonorPenunjang` + CRUD Admin (Rapor, Rapat, Outing)**
+  - **Status:** **BACKLOG** — Fase Lanjutan
+- ⚪ **[5B-1] Format Laporan Akreditasi BAN PAUD & PNF**
+  - **Status:** **BACKLOG** — Fase Lanjutan
+- ⚪ **[5B-2] Secure Storage Foto Presensi (Private Disk + Signed URL)**
+  - **Status:** **BACKLOG** — Fase Lanjutan
+- ⚪ **[5B-3] Single Sign-On (SSO) dengan SIM PKBM Pikat**
+  - **Status:** **BACKLOG** — Fase Lanjutan
+- ⚪ **[5C-1] Penjadwalan Berbasis Kesepakatan Tutor-Murid**
+  - **Status:** **BACKLOG** — Fase Lanjutan
+
+

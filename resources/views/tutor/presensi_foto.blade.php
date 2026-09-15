@@ -302,37 +302,115 @@
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
 
+                {{-- 1. Moda Pembelajaran --}}
                 <div style="margin-bottom:12px;">
-                    <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:var(--text);">Moda Pembelajaran <span style="color:#ef4444;">*</span></div>
-                    <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);" onchange="toggleModaDaring(this.value)">
-                        <option value="sekolah">Sekolah (Tatap Muka di Gedung PKBM Pikat)</option>
-                        <option value="kunjungan_rumah">Kunjungan Rumah (Home Visit / Les Privat)</option>
-                        <option value="online">Pembelajaran Online (Daring via Zoom/GMeet/WA)</option>
+                    <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:var(--text);">
+                        Moda Pembelajaran <span style="color:#ef4444;">*</span>
+                    </div>
+                    <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);" onchange="handleModaChange(this.value)">
+                        <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Sekolah (Tatap Muka di Gedung PKBM Pikat - Komunitas)</option>
+                        <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>Kunjungan Rumah (Home Visit / Les Privat - Komunitas)</option>
+                        <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Pembelajaran Online (Distance Learning / Daring via Zoom/GMeet/WA)</option>
                     </select>
                 </div>
 
+                {{-- 2. Link Daring (Hanya muncul jika Moda = Online) --}}
                 <div style="margin-bottom:12px; display:none;" id="boxLinkDaring">
                     <div style="font-size:12px; font-weight:900; margin-bottom:6px; color:#0284c7;">Link Ruang Pertemuan Online (Opsional)</div>
-                    <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/xxx-xxxx-xxx atau Zoom Link" style="width:100%; border-radius:12px; padding:10px; font-size:13px; background:var(--card); color:var(--text); border:1px solid #0284c7;">
+                    <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/xxx-xxxx-xxx atau Link Zoom" value="{{ old('link_daring') }}" style="width:100%; border-radius:12px; padding:10px; font-size:13px; background:var(--card); color:var(--text); border:1px solid #0284c7;">
                 </div>
 
-                <div style="margin-bottom:12px;" id="siswaCheckboxes">
-                    <div style="font-size:12px; font-weight:900; margin-bottom:8px; color:var(--text);">Pilih Siswa (Bisa lebih dari satu)</div>
-                    <div style="max-height: 180px; overflow-y: auto; background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 4px;">
-                        @foreach ($siswas as $siswa)
-                            @php
-                                $p = collect($presensiToday)->get($siswa->id);
-                                $badge = '';
-                                if ($p?->foto_mulai && !$p?->foto_selesai) {
-                                    $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
-                                }
-                                $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
-                            @endphp
-                            <label style="display:flex; align-items:center; gap:10px; padding:10px 8px; border-bottom:1px solid rgba(226, 232, 240, .5); cursor:pointer;">
-                                <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}" {{ $isChecked }} style="width:16px; height:16px; accent-color:#1f3b8a;">
-                                <span style="font-size:13px; font-weight:800; color:var(--text);">{{ $siswa->nama_siswa }} {!! $badge !!}</span>
-                            </label>
-                        @endforeach
+                {{-- 3. Durasi Sesi Pertemuan (Dinamis sesuai Moda) --}}
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <div style="font-size:12px; font-weight:900; color:var(--text);">Durasi Sesi Pertemuan <span style="color:#ef4444;">*</span></div>
+                        <span id="labelKategoriLayanan" style="font-size:10px; font-weight:800; background:#e0e7ff; color:#3730a3; padding:2px 8px; border-radius:6px;">Tutorial Komunitas</span>
+                    </div>
+                    <select name="durasi_pilihan" id="selectDurasi" class="input" style="width:100%; border-radius:12px; padding:10px; font-size:13px; font-weight:600; background:var(--card); color:var(--text); border:1px solid var(--border);">
+                        <option value="2.0">Durasi 2 Jam (Standar Tutorial Komunitas)</option>
+                        <option value="3.0">Durasi 3 Jam (Tutorial Komunitas Panjang)</option>
+                    </select>
+                </div>
+
+                {{-- 4. Checkbox Gabungan Komunitas (Hanya muncul jika Moda != Online) --}}
+                <div style="margin-bottom:12px; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 12px;" id="boxGabungan">
+                    <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text);">
+                        <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#1f3b8a;">
+                        <span>Sesi Gabungan Komunitas (Per Rombel)</span>
+                    </label>
+                </div>
+
+                {{-- 5. Searchable Dropdown Pemilihan Siswa --}}
+                <div style="margin-bottom:14px; position:relative;" id="wrapperSiswaDropdown">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <label style="font-size:12px; font-weight:900; color:var(--text); display:flex; align-items:center; gap:5px;">
+                            <ion-icon name="people-outline" style="color:#1f3b8a; font-size:16px;"></ion-icon>
+                            Pilih Siswa yang Diajar <span style="color:#ef4444;">*</span>
+                        </label>
+                        <span style="font-size:10px; font-weight:700; color:#059669; background:#dcfce7; padding:2px 8px; border-radius:6px;">Penugasan oleh Admin</span>
+                    </div>
+
+                    <div style="background:var(--card); border:1.5px solid var(--border); border-radius:14px; padding:10px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+                        {{-- Search Input Bar --}}
+                        <div style="position:relative; display:flex; align-items:center; margin-bottom:8px;">
+                            <ion-icon name="search-outline" style="position:absolute; left:10px; color:#64748b; font-size:16px; pointer-events:none;"></ion-icon>
+                            <input type="text" id="inputSearchSiswa" placeholder="Ketik nama siswa / NIS / ABK untuk mencari..." oninput="filterSiswaList(this.value)" style="width:100%; padding:8px 30px 8px 32px; border-radius:8px; border:1px solid var(--border); font-size:12px; font-weight:600; outline:none; background:var(--card-alt,#f8fafc); color:var(--text);" autocomplete="off">
+                            <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch" style="display:none; position:absolute; right:8px; background:none; border:none; color:#94a3b8; cursor:pointer; font-size:14px; padding:2px;">✕</button>
+                        </div>
+
+                        {{-- Selected Counter & Quick Toggle --}}
+                        <div style="display:flex; justify-content:space-between; align-items:center; padding:0 2px 8px; border-bottom:1px solid var(--border); margin-bottom:6px;">
+                            <div id="selectedSiswaBadge" style="font-size:11px; font-weight:800; color:#1f3b8a;">
+                                <span id="selectedSiswaCount">0</span> Siswa Terpilih
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button type="button" onclick="selectAllVisibleSiswa(true)" style="font-size:10px; font-weight:700; color:#1f3b8a; background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;">Pilih Semua</button>
+                                <span style="color:var(--border);">|</span>
+                                <button type="button" onclick="selectAllVisibleSiswa(false)" style="font-size:10px; font-weight:700; color:#ef4444; background:none; border:none; cursor:pointer; text-decoration:underline; padding:0;">Reset</button>
+                            </div>
+                        </div>
+
+                        {{-- Scrollable List of Students --}}
+                        <div id="listSiswaItems" style="max-height: 200px; overflow-y: auto; padding-right: 2px;">
+                            @forelse ($siswas as $siswa)
+                                @php
+                                    $p = collect($presensiToday)->get($siswa->id);
+                                    $badge = '';
+                                    if ($p?->foto_mulai && !$p?->foto_selesai) {
+                                        $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px; font-weight:700;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
+                                    }
+                                    $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
+                                    $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
+                                @endphp
+                                <label class="siswa-item-row" data-search="{{ $searchKeyword }}" style="display:flex; align-items:center; justify-content:space-between; padding:9px 8px; border-radius:8px; margin-bottom:3px; cursor:pointer; transition:background .15s; border:1px solid transparent;">
+                                    <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+                                        <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}" {{ $isChecked }} onchange="updateSelectedSiswaCount()" style="width:17px; height:17px; accent-color:#1f3b8a; cursor:pointer; flex-shrink:0;">
+                                        <div style="min-width:0;">
+                                            <div style="font-size:13px; font-weight:800; color:var(--text); line-height:1.2;">
+                                                {{ $siswa->nama_siswa }} {!! $badge !!}
+                                            </div>
+                                            <div style="font-size:10px; color:var(--muted); margin-top:2px;">
+                                                No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @if($siswa->is_abk)
+                                        <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; background:#fef3c7; color:#b45309; flex-shrink:0;">ABK</span>
+                                    @else
+                                        <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:700; background:#f0fdf4; color:#15803d; flex-shrink:0;">Reguler</span>
+                                    @endif
+                                </label>
+                            @empty
+                                <div style="padding:16px; text-align:center; font-size:12px; color:#94a3b8;">
+                                    <ion-icon name="person-outline" style="font-size:24px; display:block; margin:0 auto 4px;"></ion-icon>
+                                    Belum ada siswa yang ditugaskan oleh Admin ke akun Anda.
+                                </div>
+                            @endforelse
+                            <div id="noMatchSiswa" style="display:none; padding:16px; text-align:center; font-size:11px; color:#94a3b8; font-weight:600;">
+                                <ion-icon name="search-outline" style="font-size:20px; display:block; margin:0 auto 4px;"></ion-icon>
+                                Tidak ditemukan siswa yang sesuai kata kunci pencarian
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -989,6 +1067,109 @@
                 box.style.display = (val === 'online') ? 'block' : 'none';
             }
         }
+
+        // ── Integrasi Metode (Moda) dengan Pilihan Durasi Sesi SK ──
+        function handleModaChange(val) {
+            var boxLink = document.getElementById('boxLinkDaring');
+            var boxGabungan = document.getElementById('boxGabungan');
+            var selectDurasi = document.getElementById('selectDurasi');
+            var labelLayanan = document.getElementById('labelKategoriLayanan');
+            var inputGabungan = document.getElementById('inputIsGabungan');
+
+            if (val === 'online') {
+                // Pembelajaran Online -> Distance Learning (DL)
+                if (boxLink) boxLink.style.display = 'block';
+                if (boxGabungan) {
+                    boxGabungan.style.display = 'none';
+                    if (inputGabungan) inputGabungan.checked = false;
+                }
+                if (labelLayanan) {
+                    labelLayanan.innerText = 'Distance Learning (DL)';
+                    labelLayanan.style.background = '#e0f2fe';
+                    labelLayanan.style.color = '#0369a1';
+                }
+                if (selectDurasi) {
+                    selectDurasi.innerHTML = '<option value="1.5" selected>Durasi 1,5 Jam (Standar Distance Learning / DL)</option>';
+                }
+            } else {
+                // Tatap Muka (Sekolah / Kunjungan Rumah) -> Tutorial Komunitas
+                if (boxLink) boxLink.style.display = 'none';
+                if (boxGabungan) boxGabungan.style.display = 'block';
+                if (labelLayanan) {
+                    labelLayanan.innerText = 'Tutorial Komunitas';
+                    labelLayanan.style.background = '#e0e7ff';
+                    labelLayanan.style.color = '#3730a3';
+                }
+                if (selectDurasi) {
+                    var cur = selectDurasi.value;
+                    selectDurasi.innerHTML = '<option value="2.0"' + (cur === '3.0' ? '' : ' selected') + '>Durasi 2 Jam (Standar Tutorial Komunitas)</option>' +
+                                             '<option value="3.0"' + (cur === '3.0' ? ' selected' : '') + '>Durasi 3 Jam (Tutorial Komunitas Panjang)</option>';
+                }
+            }
+        }
+
+        // ── Searchable Siswa Selection Logic ──
+        function filterSiswaList(query) {
+            var q = (query || '').toLowerCase().trim();
+            var items = document.querySelectorAll('.siswa-item-row');
+            var clearBtn = document.getElementById('btnClearSiswaSearch');
+            var noMatch = document.getElementById('noMatchSiswa');
+            var visibleCount = 0;
+
+            if (clearBtn) {
+                clearBtn.style.display = q ? 'block' : 'none';
+            }
+
+            items.forEach(function(item) {
+                var searchData = item.getAttribute('data-search') || '';
+                if (!q || searchData.indexOf(q) !== -1) {
+                    item.style.display = 'flex';
+                    visibleCount++;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            if (noMatch) {
+                noMatch.style.display = (visibleCount === 0) ? 'block' : 'none';
+            }
+        }
+
+        function clearSiswaSearch() {
+            var input = document.getElementById('inputSearchSiswa');
+            if (input) {
+                input.value = '';
+                filterSiswaList('');
+                input.focus();
+            }
+        }
+
+        function updateSelectedSiswaCount() {
+            var checked = document.querySelectorAll('.siswa-checkbox:checked');
+            var countLabel = document.getElementById('selectedSiswaCount');
+            if (countLabel) {
+                countLabel.innerText = checked.length;
+            }
+        }
+
+        function selectAllVisibleSiswa(status) {
+            var items = document.querySelectorAll('.siswa-item-row');
+            items.forEach(function(item) {
+                if (item.style.display !== 'none') {
+                    var cb = item.querySelector('.siswa-checkbox');
+                    if (cb) cb.checked = status;
+                }
+            });
+            updateSelectedSiswaCount();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var selectModa = document.getElementById('selectModa');
+            if (selectModa) {
+                handleModaChange(selectModa.value);
+            }
+            updateSelectedSiswaCount();
+        });
 
         function retakePhoto() {
             document.getElementById('fotoInput').value = '';

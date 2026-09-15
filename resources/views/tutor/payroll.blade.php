@@ -90,9 +90,14 @@
         @forelse($payroll['siswa_summary'] as $s)
             <div class="student-item-row">
                 <div>
-                    <div class="sir-name">{{ $s['nama_siswa'] }}</div>
+                    <div class="sir-name" style="display:flex;align-items:center;gap:6px;">
+                        <span>{{ $s['nama_siswa'] }}</span>
+                        @if($s['is_abk'] ?? false)
+                            <span style="display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:800;background:#fef3c7;color:#b45309;">ABK</span>
+                        @endif
+                    </div>
                     <div class="sir-sub">
-                        {{ $s['total_sesi'] }} sesi ({{ $s['total_jam'] }} jam) • {{ $s['formatted_tarif'] }}/jam
+                        {{ $s['total_sesi'] }} pertemuan ({{ $s['total_jam'] }} jam mengajar)
                     </div>
                 </div>
                 <div class="sir-price">
@@ -118,13 +123,21 @@
         @foreach($payroll['session_rows'] as $row)
             <div class="session-item-row">
                 <div>
-                    <strong style="color:var(--text,#0f172a);display:block;">{{ $row['nama_siswa'] }}</strong>
-                    <span style="font-size:11px;color:var(--muted,#64748b);">
+                    <div style="display:flex;align-items:center;gap:6px;">
+                        <strong style="color:var(--text,#0f172a);">{{ $row['nama_siswa'] }}</strong>
+                        @if($row['is_abk'] ?? false)
+                            <span style="display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:800;background:#fef3c7;color:#b45309;">ABK</span>
+                        @endif
+                    </div>
+                    <span style="font-size:11px;color:var(--muted,#64748b);display:block;margin-top:2px;">
                         {{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }} • {{ $row['jam_mulai'] }} - {{ $row['jam_selesai'] }} ({{ $row['durasi_jam'] }} J)
+                    </span>
+                    <span style="font-size:10px;color:#0284c7;font-weight:700;">
+                        {{ $row['kategori_nama'] ?? 'Tutorial Komunitas' }}
                     </span>
                 </div>
                 <div style="text-align:right;">
-                    <div style="font-weight:700;color:#059669;font-size:13px;">{{ $row['formatted_subtotal'] }}</div>
+                    <div style="font-weight:800;color:#059669;font-size:13px;">{{ $row['formatted_subtotal'] }}</div>
                     <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--card-alt,#f1f5f9);color:var(--muted,#475569);font-weight:700;">
                         {{ $row['moda_label'] }}
                     </span>

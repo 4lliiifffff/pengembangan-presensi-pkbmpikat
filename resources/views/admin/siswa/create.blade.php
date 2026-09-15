@@ -33,6 +33,14 @@
                 <input class="input" type="text" name="nama_siswa" value="{{ old('nama_siswa') }}" required />
             </div>
 
+            <div class="formRow">
+                <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);padding:10px 14px;background:var(--card-alt,#f8fafc);border-radius:10px;border:1px solid var(--border,#e2e8f0);">
+                    <input type="checkbox" name="is_abk" value="1" {{ old('is_abk') ? 'checked' : '' }} style="width:18px;height:18px;">
+                    <span>Siswa Berkebutuhan Khusus (ABK)</span>
+                </label>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Centang jika siswa ini merupakan Anak Berkebutuhan Khusus (tarif honor tutor otomatis disesuaikan SK ABK).</div>
+            </div>
+
 
 
             <div class="formRow">
@@ -45,9 +53,20 @@
                 <input class="input" type="text" name="nama_wali" value="{{ old('nama_wali') }}" required />
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Tarif Honor Per Jam (Rp)</div>
-                <input class="input" type="number" step="1000" name="tarif_per_jam" value="{{ old('tarif_per_jam', 50000) }}" required placeholder="Contoh: 50000" />
+            <div class="formRow" style="background:rgba(31,59,138,0.04);border:1px solid rgba(31,59,138,0.15);border-radius:12px;padding:12px 14px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <div style="font-size:12px;font-weight:800;color:#1f3b8a;display:flex;align-items:center;gap:6px;">
+                        <ion-icon name="cash-outline" style="font-size:16px;"></ion-icon>
+                        Skema Tarif Honor Tutor
+                    </div>
+                    <a href="{{ route('admin.kategori-tutorial.index') }}" target="_blank" style="font-size:11px;font-weight:700;color:#1f3b8a;text-decoration:underline;">
+                        Kelola Master SK &rarr;
+                    </a>
+                </div>
+                <div style="font-size:11px;color:var(--muted);line-height:1.4;">
+                    Tarif honor sesi mengajar tutor dihitung <b>secara otomatis dari Master Tarif SK</b> berdasarkan status <b>ABK / Reguler</b> dan durasi sesi tutorial yang dipilih saat presensi.
+                </div>
+                <input type="hidden" name="tarif_per_jam" value="{{ old('tarif_per_jam', 75000) }}" />
             </div>
 
             <div class="formRow">

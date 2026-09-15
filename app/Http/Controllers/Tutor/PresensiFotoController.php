@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Tutor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
+use App\Models\KategoriTutorial;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Services\GeofencingService;
+use App\Services\PayrollService;
 use App\Services\WebPushService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -114,11 +116,15 @@ class PresensiFotoController extends Controller
         // Ambil semua sesi yang sudah selesai hari ini (untuk ditampilkan sebagai riwayat)
         $completedSessions = $allPresensiToday->filter(fn ($p) => $p->foto_mulai && $p->foto_selesai)->values();
 
+        // Ambil data master Kategori & Tarif SK yang aktif untuk dropdown presensi
+        $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
+
         // Kirim semua data ke view
         return view('tutor.presensi_foto', [
             'tutor' => $tutor,
             'today' => $today,
             'siswas' => $siswas,
+            'kategoriTutorials' => $kategoriTutorials, // Master tarif SK aktif untuk searchable dropdown
             'presensiToday' => $presensiToday,       // Status presensi per siswa (untuk badge dropdown)
             'globalActiveSesi' => $globalActiveSesi,   // Sesi yang masih berjalan pertama (null jika tidak ada)
             'activeSessions' => $activeSessions,     // Semua sesi yang masih berjalan
@@ -142,7 +148,7 @@ class PresensiFotoController extends Controller
      * @param  Request  $request  Data form presensi
      * @return RedirectResponse
      */
-    public function store(Request $request, GeofencingService $geofencingService)
+    public function store(Request $request, GeofencingService $geofencingService, PayrollService $payrollService)
     {
         // Verifikasi tutor yang sedang login
         $tutor = $this->resolveTutor();
@@ -156,7 +162,10 @@ class PresensiFotoController extends Controller
             'siswa_id' => ['required', 'array', 'min:1'],
             'siswa_id.*' => ['integer'],
             'mode' => ['required', Rule::in(['mulai', 'selesai'])], // Mode: clock-in atau clock-out
+            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
             'moda_pembelajaran' => ['nullable', Rule::in(['sekolah', 'kunjungan_rumah', 'online'])],
+            'durasi_pilihan' => ['nullable', 'numeric', 'min:0.5', 'max:12'],
+            'is_gabungan' => ['nullable', 'boolean'],
             'link_daring' => ['nullable', 'string', 'max:255'],
             'foto' => ['required', 'image', 'max:5120'],        // Foto wajib, maks 5MB (5120KB)
             'lokasi' => ['nullable', 'string', 'max:255'],        // Lokasi GPS opsional
@@ -195,7 +204,6 @@ class PresensiFotoController extends Controller
             }
 
             // Validasi: tidak boleh membuat sesi baru jika sesi lama belum selesai
-
             foreach ($validated['siswa_id'] as $sId) {
                 $presensiLookup = Presensi::query()
                     ->where('siswa_id', $sId)
@@ -216,15 +224,24 @@ class PresensiFotoController extends Controller
             $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
             $waktuServer = $now->format('H:i:s');
 
+            $durasiPilihan = (float) ($validated['durasi_pilihan'] ?? ($moda === 'online' ? 1.5 : 2.0));
+            $isGabungan = ($moda === 'online') ? false : (bool) ($validated['is_gabungan'] ?? false);
+
             // Buat record presensi baru untuk tiap siswa
             foreach ($validated['siswa_id'] as $sId) {
+                $siswa = Siswa::find($sId);
+                $honorInfo = $payrollService->resolveHonorSesi($moda, $durasiPilihan, $siswa, $isGabungan);
+
                 $presensi = new Presensi;
                 if ($hasPresensiTutorId) {
                     $presensi->tutor_id = $tutor->id;
                 }
                 $presensi->siswa_id = (int) $sId;
-                $presensi->moda_pembelajaran = $validated['moda_pembelajaran'] ?? 'sekolah';
+                $presensi->moda_pembelajaran = $moda;
                 $presensi->link_daring = $validated['link_daring'] ?? null;
+                $presensi->durasi_pilihan = $durasiPilihan;
+                $presensi->kategori_tutorial_id = $honorInfo['kategori_tutorial_id'];
+                $presensi->nominal_honor_snapshot = $honorInfo['nominal_honor'];
                 $presensi->tgl_presensi = $today;
                 $presensi->jam_mulai = $waktuServer;
                 $presensi->foto_mulai = $path;

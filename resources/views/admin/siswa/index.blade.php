@@ -63,12 +63,21 @@
                             {{ $initial }}
                         </div>
                         <div style="min-width:0;">
-                            <div class="siswaName">{{ $siswa->nama_siswa }}</div>
+                            <div class="siswaName" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                <span>{{ $siswa->nama_siswa }}</span>
+                                @if($siswa->is_abk)
+                                    <span style="display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:800;background:#fef3c7;color:#b45309;">ABK</span>
+                                @endif
+                            </div>
                             <div class="siswaMeta">
                                 No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
                                 <br>
                                 Tutor: <span class="td-bold">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</span>
-                                • <span class="text-primary">{{ $siswa->formatted_tarif_per_jam }}/Jam</span>
+                                • @if($siswa->is_abk)
+                                    <span style="display:inline-block;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:800;background:#fef3c7;color:#b45309;">SK: ABK (Rp 100rb-130rb)</span>
+                                @else
+                                    <span style="display:inline-block;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:800;background:#f0fdf4;color:#15803d;">SK: Reguler (Rp 50rb-100rb)</span>
+                                @endif
                             </div>
                         </div>
                     </div>

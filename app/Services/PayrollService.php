@@ -2,14 +2,65 @@
 
 namespace App\Services;
 
+use App\Models\KategoriTutorial;
 use App\Models\Presensi;
+use App\Models\Siswa;
 use App\Models\Tutor;
 use Carbon\Carbon;
 
 class PayrollService
 {
     /**
-     * Kalkulasi honorarium bulanan untuk seorang tutor spesifik berbasis tarif siswa.
+     * Resolusi kategori tutorial dan nominal honor berdasarkan data sesi dan profil siswa.
+     */
+    public function resolveHonorSesi(string $moda, float $durasiJam, Siswa $siswa, bool $isGabungan = false): array
+    {
+        $jenisLayanan = ($moda === 'online') ? 'dl' : 'komunitas';
+        $isAbk = (bool) ($siswa->is_abk ?? false);
+
+        $kategori = KategoriTutorial::resolveKategori($jenisLayanan, $durasiJam, $isAbk, $isGabungan);
+
+        if (! $kategori) {
+            // Fallback cari kategori terdekat atau default
+            $kategori = KategoriTutorial::active()
+                ->where('jenis_layanan', $jenisLayanan)
+                ->where('is_abk', $isAbk)
+                ->orderBy('urutan')
+                ->first();
+        }
+
+        $nominal = $kategori ? (float) $kategori->nominal_honor : (float) ($siswa->tarif_per_jam ?? 75000.0);
+
+        return [
+            'kategori_tutorial_id' => $kategori?->id,
+            'kategori' => $kategori,
+            'nominal_honor' => $nominal,
+        ];
+    }
+
+    /**
+     * Hitung honor untuk satu sesi presensi spesifik (dengan snapshot immutability & backward compatibility).
+     */
+    public function hitungHonorSesi(Presensi $presensi, float $durasiJam = 1.0): float
+    {
+        // 1. Prioritas utama: snapshot nominal saat presensi dibuat
+        if ($presensi->nominal_honor_snapshot !== null) {
+            return (float) $presensi->nominal_honor_snapshot;
+        }
+
+        // 2. Prioritas kedua: relasi master kategori tutorial
+        if ($presensi->kategori_tutorial_id && $presensi->kategoriTutorial) {
+            return (float) $presensi->kategoriTutorial->nominal_honor;
+        }
+
+        // 3. Fallback: Data legacy berbasis tarif per jam siswa
+        $tarifPerJam = $presensi->siswa ? (float) ($presensi->siswa->tarif_per_jam ?? 50000) : 50000.0;
+
+        return round($durasiJam * $tarifPerJam, 2);
+    }
+
+    /**
+     * Kalkulasi honorarium bulanan untuk seorang tutor spesifik berbasis tarif sesi SK.
      */
     public function calculateTutorPayroll(Tutor $tutor, int $bulan, int $tahun): array
     {
@@ -17,7 +68,7 @@ class PayrollService
         $endDate = $startDate->copy()->endOfMonth()->endOfDay();
 
         // Ambil presensi valid tutor ini (hadir + punya jam_selesai)
-        $presensis = Presensi::with('siswa')
+        $presensis = Presensi::with(['siswa', 'kategoriTutorial'])
             ->where('tutor_id', $tutor->id)
             ->whereBetween('tgl_presensi', [$startDate, $endDate])
             ->where('status', 'hadir')
@@ -43,19 +94,23 @@ class PayrollService
             $siswa = $p->siswa;
             $siswaId = $siswa ? $siswa->id : 0;
             $namaSiswa = $siswa ? $siswa->nama_siswa : 'Siswa Umum';
-            $tarifPerJam = $siswa ? (float) ($siswa->tarif_per_jam ?? 50000) : 50000.0;
+            $isAbk = $siswa ? (bool) $siswa->is_abk : false;
 
-            $subtotalHonor = round($durasiJam * $tarifPerJam, 2);
+            // Hitung honor sesi menggunakan engine baru (snapshot / flat per sesi)
+            $subtotalHonor = $this->hitungHonorSesi($p, $durasiJam);
 
             $totalJamMengajar += $durasiJam;
             $totalHonorarium += $subtotalHonor;
+
+            // Tentukan label kategori untuk rincian
+            $kategoriNama = $p->kategoriTutorial ? $p->kategoriTutorial->nama_kategori : ($p->nominal_honor_snapshot !== null ? 'Tutorial Sesuai SK' : 'Tutorial Reguler (Per Jam)');
 
             if (! isset($siswaSummary[$siswaId])) {
                 $siswaSummary[$siswaId] = [
                     'siswa_id' => $siswaId,
                     'nama_siswa' => $namaSiswa,
-                    'tarif_per_jam' => $tarifPerJam,
-                    'formatted_tarif' => 'Rp '.number_format($tarifPerJam, 0, ',', '.'),
+                    'is_abk' => $isAbk,
+                    'is_abk_label' => $isAbk ? 'ABK' : 'Reguler',
                     'total_sesi' => 0,
                     'total_jam' => 0.0,
                     'subtotal_honor' => 0.0,
@@ -74,9 +129,10 @@ class PayrollService
                 'jam_mulai' => $p->jam_mulai,
                 'jam_selesai' => $p->jam_selesai,
                 'durasi_jam' => $durasiJam,
+                'durasi_pilihan' => $p->durasi_pilihan ?? $durasiJam,
                 'nama_siswa' => $namaSiswa,
-                'tarif_per_jam' => $tarifPerJam,
-                'formatted_tarif' => 'Rp '.number_format($tarifPerJam, 0, ',', '.'),
+                'is_abk' => $isAbk,
+                'kategori_nama' => $kategoriNama,
                 'subtotal' => $subtotalHonor,
                 'formatted_subtotal' => 'Rp '.number_format($subtotalHonor, 0, ',', '.'),
                 'moda_label' => $p->moda_label,

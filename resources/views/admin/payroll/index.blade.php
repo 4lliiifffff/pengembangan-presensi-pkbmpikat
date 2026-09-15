@@ -26,6 +26,11 @@
             <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:9px 14px;background:#0284c7;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
                 <ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> Export PDF
             </a>
+            @if($rolePrefix === 'admin')
+            <a href="{{ route('admin.kategori-tutorial.index') }}" class="btnPrimary" style="padding:9px 14px;background:#7c3aed;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+                <ion-icon name="options-outline" style="font-size:16px;"></ion-icon> Master Tarif SK
+            </a>
+            @endif
             <button type="button" onclick="document.getElementById('importTarifModal').style.display='flex'" class="btnPrimary" style="padding:9px 14px;background:#f59e0b;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;">
                 <ion-icon name="cloud-upload-outline" style="font-size:16px;"></ion-icon> Update Tarif
             </button>

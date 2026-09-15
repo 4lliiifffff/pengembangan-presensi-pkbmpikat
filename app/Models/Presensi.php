@@ -23,21 +23,37 @@ class Presensi extends Model
      */
     protected $fillable =
         [
-            'tutor_id',          // ID tutor yang melakukan presensi
-            'siswa_id',          // ID siswa yang diajar dalam sesi ini
-            'moda_pembelajaran', // Moda: 'sekolah', 'kunjungan_rumah', atau 'online'
-            'link_daring',       // Link ruang pertemuan online (misal: Zoom/GMeet link)
-            'tgl_presensi',      // Tanggal sesi mengajar berlangsung
-            'jam_mulai',         // Jam tutor mulai mengajar (clock-in)
-            'jam_selesai',       // Jam tutor selesai mengajar (clock-out) — null jika masih berjalan
-            'foto_mulai',        // Path foto bukti absen masuk
-            'foto_selesai',      // Path foto bukti absen pulang — null jika belum selesai
-            'lokasi_mulai',      // Koordinat GPS / deskripsi lokasi saat masuk (opsional)
-            'lokasi_selesai',    // Koordinat GPS / deskripsi lokasi saat pulang (opsional)
-            'lokasi_akurasi',    // Akurasi sinyal GPS dalam meter
-            'is_mocked',         // Flag terdeteksi Fake GPS / mock location
-            'status',             // Status: 'hadir', 'izin', atau 'alpha'
+            'tutor_id',               // ID tutor yang melakukan presensi
+            'siswa_id',               // ID siswa yang diajar dalam sesi ini
+            'moda_pembelajaran',      // Moda: 'sekolah', 'kunjungan_rumah', atau 'online'
+            'link_daring',            // Link ruang pertemuan online (misal: Zoom/GMeet link)
+            'durasi_pilihan',         // Durasi sesi yang disepakati (misal: 1.5, 2.0, 3.0 jam)
+            'kategori_tutorial_id',   // Foreign key ke tabel kategori_tutorials
+            'nominal_honor_snapshot', // Snapshot nominal honor per sesi saat presensi dibuat
+            'tgl_presensi',           // Tanggal sesi mengajar berlangsung
+            'jam_mulai',              // Jam tutor mulai mengajar (clock-in)
+            'jam_selesai',            // Jam tutor selesai mengajar (clock-out) — null jika masih berjalan
+            'foto_mulai',             // Path foto bukti absen masuk
+            'foto_selesai',           // Path foto bukti absen pulang — null jika belum selesai
+            'lokasi_mulai',           // Koordinat GPS / deskripsi lokasi saat masuk (opsional)
+            'lokasi_selesai',         // Koordinat GPS / deskripsi lokasi saat pulang (opsional)
+            'lokasi_akurasi',         // Akurasi sinyal GPS dalam meter
+            'is_mocked',              // Flag terdeteksi Fake GPS / mock location
+            'status',                 // Status: 'hadir', 'izin', atau 'alpha'
         ];
+
+    /**
+     * Tipe data casts atribut Presensi.
+     */
+    protected function casts(): array
+    {
+        return [
+            'durasi_pilihan' => 'float',
+            'nominal_honor_snapshot' => 'float',
+            'lokasi_akurasi' => 'float',
+            'is_mocked' => 'boolean',
+        ];
+    }
 
     /**
      * Accessor: Label Moda Pembelajaran dalam Bahasa Indonesia baku.
@@ -49,6 +65,14 @@ class Presensi extends Model
             'online' => 'Pembelajaran Online (Daring)',
             default => 'Sekolah (Tatap Muka)',
         };
+    }
+
+    /**
+     * Relasi: Presensi terikat pada satu Kategori Tutorial SK (BelongsTo).
+     */
+    public function kategoriTutorial(): BelongsTo
+    {
+        return $this->belongsTo(KategoriTutorial::class, 'kategori_tutorial_id');
     }
 
     /**

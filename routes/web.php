@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\IzinController;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\KaryawanController;
+use App\Http\Controllers\Admin\KategoriTutorialController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\MagangController;
@@ -127,6 +128,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/payroll/tarif/import', [PayrollController::class, 'importBulkTarif'])->name('payroll.import-tarif');
     Route::get('/payroll/{tutorId}', [PayrollController::class, 'show'])->name('payroll.show');
     Route::get('/payroll/{tutorId}/slip-pdf', [PayrollController::class, 'exportSlipPdf'])->name('payroll.slip-pdf');
+
+    // Master Kategori Tutorial & Tarif SK
+    Route::patch('/kategori-tutorial/{kategoriTutorial}/toggle-status', [KategoriTutorialController::class, 'toggleStatus'])->name('kategori-tutorial.toggleStatus');
+    Route::resource('kategori-tutorial', KategoriTutorialController::class);
 
     // Kelola Mahasiswa / Siswa Magang (PKL)
     Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');

@@ -46,31 +46,31 @@
         </tr>
     </table>
 
-    <div class="section-header">1. Rincian Honorarium Berdasarkan Tarif Per Jam Masing-Masing Siswa</div>
+    <div class="section-header">1. Rincian Honorarium Pembelajaran Tutorial Sesuai SK</div>
     <table class="table-data">
         <thead>
             <tr>
                 <th style="width: 5%;">No</th>
-                <th style="width: 40%;">Nama Siswa</th>
+                <th style="width: 35%;">Nama Siswa</th>
+                <th style="width: 15%; text-align: center;">Status</th>
                 <th style="width: 15%; text-align: center;">Total Sesi</th>
                 <th style="width: 15%; text-align: center;">Total Jam</th>
-                <th style="width: 25%; text-align: right;">Tarif / Jam</th>
-                <th style="width: 25%; text-align: right;">Subtotal</th>
+                <th style="width: 20%; text-align: right;">Subtotal Honor</th>
             </tr>
         </thead>
         <tbody>
             @forelse($payroll['siswa_summary'] as $idx => $s)
             <tr>
                 <td style="text-align: center;">{{ $idx + 1 }}</td>
-                <td>{{ $s['nama_siswa'] }}</td>
-                <td style="text-align: center;">{{ $s['total_sesi'] }} kali</td>
+                <td><strong>{{ $s['nama_siswa'] }}</strong></td>
+                <td style="text-align: center;">{{ $s['is_abk_label'] ?? ($s['is_abk'] ? 'ABK' : 'Reguler') }}</td>
+                <td style="text-align: center;">{{ $s['total_sesi'] }} pertemuan</td>
                 <td style="text-align: center;">{{ $s['total_jam'] }} Jam</td>
-                <td style="text-align: right;">{{ $s['formatted_tarif'] }}</td>
-                <td style="text-align: right; font-weight: bold;">{{ $s['formatted_subtotal'] }}</td>
+                <td style="text-align: right; font-weight: bold; color: #065f46;">{{ $s['formatted_subtotal'] }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="6" style="text-align: center; color: #94a3b8;">Tidak ada data jam mengajar.</td>
+                <td colspan="6" style="text-align: center; color: #94a3b8;">Tidak ada data sesi mengajar.</td>
             </tr>
             @endforelse
         </tbody>

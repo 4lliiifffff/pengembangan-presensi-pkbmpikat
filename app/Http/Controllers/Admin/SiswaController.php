@@ -39,12 +39,18 @@ class SiswaController extends Controller
         $validated = $request->validate([
             'no_absen' => ['required', 'string', 'max:50', 'unique:siswas,no_absen'],
             'nama_siswa' => ['required', 'string', 'max:120'],
+            'is_abk' => ['nullable', 'boolean'],
             'no_hp' => ['required', 'string', 'max:30'],
             'nama_wali' => ['required', 'string', 'max:120'],
             'kelas_id' => ['required', 'exists:kelas,id'],
             'tutor_id' => ['nullable', 'exists:tutors,id'],
-            'tarif_per_jam' => ['required', 'numeric', 'min:0'],
+            'tarif_per_jam' => ['nullable', 'numeric', 'min:0'],
         ]);
+
+        $validated['is_abk'] = $request->boolean('is_abk');
+        if (empty($validated['tarif_per_jam'])) {
+            $validated['tarif_per_jam'] = $validated['is_abk'] ? 100000.00 : 75000.00;
+        }
 
         Siswa::create($validated);
 
@@ -79,12 +85,18 @@ class SiswaController extends Controller
                 Rule::unique('siswas', 'no_absen')->ignore($siswa->id),
             ],
             'nama_siswa' => ['required', 'string', 'max:120'],
+            'is_abk' => ['nullable', 'boolean'],
             'no_hp' => ['required', 'string', 'max:30'],
             'nama_wali' => ['required', 'string', 'max:120'],
             'kelas_id' => ['required', 'exists:kelas,id'],
             'tutor_id' => ['nullable', 'exists:tutors,id'],
-            'tarif_per_jam' => ['required', 'numeric', 'min:0'],
+            'tarif_per_jam' => ['nullable', 'numeric', 'min:0'],
         ]);
+
+        $validated['is_abk'] = $request->boolean('is_abk');
+        if (empty($validated['tarif_per_jam'])) {
+            $validated['tarif_per_jam'] = $validated['is_abk'] ? 100000.00 : 75000.00;
+        }
 
         $siswa->update($validated);
 
