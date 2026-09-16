@@ -61,7 +61,7 @@
         <div class="content-box-header">
             <div style="display:flex;align-items:center;gap:8px;">
                 <ion-icon name="school-outline" style="font-size:18px;color:#0284c7;"></ion-icon>
-                Rincian Honorarium Berdasarkan Tarif Siswa
+                Rincian Honorarium Pembelajaran Siswa
             </div>
             <div style="font-size:12px;font-weight:700;color:var(--muted,#64748b);">
                 {{ count($payroll['siswa_summary']) }} Siswa Diajar
@@ -76,7 +76,7 @@
                         <th>Nama Siswa</th>
                         <th style="text-align:center;">Total Sesi</th>
                         <th style="text-align:center;">Total Jam</th>
-                        <th>Tarif Per Jam</th>
+                        <th>Program / Layanan</th>
                         <th style="text-align:right;">Subtotal Honor</th>
                     </tr>
                 </thead>
@@ -88,7 +88,11 @@
                         </td>
                         <td style="text-align:center;">{{ $s['total_sesi'] }} kali</td>
                         <td style="text-align:center;color:#0284c7;font-weight:700;">{{ $s['total_jam'] }} Jam</td>
-                        <td style="color:var(--muted,#475569);font-weight:600;">{{ $s['formatted_tarif'] }} / jam</td>
+                        <td>
+                            <span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:{{ $s['is_abk'] ? 'rgba(245,158,11,0.12)' : 'rgba(11,94,215,0.1)' }};color:{{ $s['is_abk'] ? '#d97706' : '#0284c7' }};">
+                                {{ $s['is_abk_label'] }}
+                            </span>
+                        </td>
                         <td style="text-align:right;font-weight:800;color:#059669;font-size:14px;">{{ $s['formatted_subtotal'] }}</td>
                     </tr>
                     @empty
@@ -113,7 +117,7 @@
                         <div>•</div>
                         <div style="color:#0284c7;"><strong>{{ $s['total_jam'] }}</strong> Jam</div>
                         <div>•</div>
-                        <div>{{ $s['formatted_tarif'] }}/jam</div>
+                        <div>{{ $s['is_abk_label'] }}</div>
                     </div>
                 </div>
             @empty
