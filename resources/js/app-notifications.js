@@ -319,7 +319,8 @@ class AppNotificationManager {
         }
 
         const backdrop = document.createElement('div');
-        backdrop.className = 'app-modal-backdrop';
+        backdrop.className = 'app-modal-backdrop active';
+        backdrop.style.display = 'flex';
         backdrop.innerHTML = htmlContent;
         backdrop.setAttribute('role', 'dialog');
         backdrop.setAttribute('aria-modal', 'true');

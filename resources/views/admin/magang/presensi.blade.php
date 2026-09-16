@@ -15,10 +15,10 @@
                 <p class="laporanHeaderDesc">Pantau riwayat presensi harian, bukti foto kehadiran, dan unduh laporan resmi.</p>
             </div>
             <div class="laporanHeaderActions header-actions-group">
-                <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger btn-action-pill">
+                <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger">
                     <ion-icon name="document-text-outline" class="text-lg"></ion-icon> Export PDF
                 </a>
-                <a href="{{ route('admin.magang.index') }}" class="btnOutline btn-action-pill">
+                <a href="{{ route('admin.magang.index') }}" class="btnOutline">
                     <ion-icon name="people-outline" class="text-lg"></ion-icon> Data Magang
                 </a>
             </div>

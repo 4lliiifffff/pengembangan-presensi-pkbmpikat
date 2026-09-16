@@ -16,13 +16,13 @@
                 <a href="{{ route('admin.magang.index') }}" class="btnOutline">
                     Peserta Magang
                 </a>
-                <a href="{{ route('admin.karyawan.exportExcel') }}" class="profileBtnPrimary btn-action-success w-auto text-no-decor">
+                <a href="{{ route('admin.karyawan.exportExcel') }}" class="profileBtnPrimary btn-action-success">
                     Export Excel
                 </a>
-                <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='flex'" class="profileBtnPrimary btn-action-info w-auto">
+                <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
                     Import Tutor
                 </button>
-                <a href="{{ route('admin.karyawan.create') }}" class="profileBtnPrimary w-auto text-no-decor">
+                <a href="{{ route('admin.karyawan.create') }}" class="profileBtnPrimary">
                     Tambah Staf
                 </a>
             </div>

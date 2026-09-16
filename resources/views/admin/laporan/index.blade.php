@@ -84,13 +84,13 @@
                     <button type="submit" class="btn-filter-primary">
                         <ion-icon name="filter-outline"></ion-icon> Filter Data Presensi
                     </button>
-                    <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportExcel') }}" class="profileBtnPrimary btn-action-success w-auto">
+                    <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportExcel') }}" class="profileBtnPrimary btn-action-success">
                         <ion-icon name="document-outline"></ion-icon> Excel
                     </button>
-                    <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportPdf') }}" class="profileBtnPrimary btn-action-danger w-auto">
+                    <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportPdf') }}" class="profileBtnPrimary btn-action-danger">
                         <ion-icon name="document-text-outline"></ion-icon> PDF
                     </button>
-                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='flex'" class="profileBtnPrimary btn-action-info w-auto">
+                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
                         <ion-icon name="cloud-upload-outline"></ion-icon> Import Log
                     </button>
                     <a href="{{ route('admin.laporan.index') }}" class="btn-filter-reset">

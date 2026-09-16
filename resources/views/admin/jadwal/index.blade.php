@@ -21,11 +21,11 @@
                 <p class="laporanHeaderDesc">Jadwal kegiatan pembelajaran, kalender akademik, dan agenda PKBM PIKAT.</p>
             </div>
             <div class="laporanHeaderActions header-actions-group">
-                <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline btn-action-pill">
-                    <ion-icon name="download-outline" class="text-lg"></ion-icon> Export
+                <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline">
+                    <ion-icon name="download-outline" class="text-lg"></ion-icon> Export Excel
                 </a>
-                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary btn-action-info text-sm rounded-md w-auto d-inline-flex items-center gap-1 cursor-pointer px-3">
-                    <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import
+                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
+                    <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import Jadwal
                 </button>
             </div>
         </div>

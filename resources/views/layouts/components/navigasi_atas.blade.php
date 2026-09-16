@@ -33,10 +33,10 @@
             <button class="iconBtn" type="button" aria-label="Tema" id="themeToggleBtn" title="Ganti Tema">
                 <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
             </button>
-            <form action="{{ route('logout') }}" method="POST" class="d-none navLogoutForm">
+            <form action="{{ route('logout') }}" method="POST" id="navLogoutForm" class="d-none">
                 @csrf
             </form>
-            <a href="{{ route('logout') }}" class="iconBtn" aria-label="Keluar" title="Keluar dari Akun" onclick="event.preventDefault(); (window.AppNotification ? window.AppNotification.confirm({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun ini?', confirmText: 'Keluar Akun', cancelText: 'Batal', isDanger: true }) : Promise.resolve(confirm('Apakah Anda yakin ingin keluar dari akun?'))).then(ok => { if(ok) this.previousElementSibling.submit(); });">
+            <a href="{{ route('logout') }}" class="iconBtn" aria-label="Keluar" title="Keluar dari Akun" onclick="event.preventDefault(); (window.AppNotification ? window.AppNotification.confirm({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun ini?', confirmText: 'Keluar Akun', cancelText: 'Batal', isDanger: true }) : Promise.resolve(confirm('Apakah Anda yakin ingin keluar dari akun?'))).then(ok => { if(ok) { const f = document.getElementById('navLogoutForm'); if(f) f.submit(); } });">
                 <ion-icon name="log-out-outline"></ion-icon>
             </a>
         </div>
