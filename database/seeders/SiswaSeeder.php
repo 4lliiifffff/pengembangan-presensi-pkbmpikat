@@ -15,13 +15,12 @@ class SiswaSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Ambil Data Master Jenjang Paket
+        // 1. Ambil Data Master Jenjang Paket Pokok (Paket A, Paket B, Paket C)
         $jpA = JenjangPaket::where('kode', 'paket_a')->first();
         $jpB = JenjangPaket::where('kode', 'paket_b')->first();
         $jpC = JenjangPaket::where('kode', 'paket_c')->first();
-        $jpVokasi = JenjangPaket::where('kode', 'vokasi')->first();
 
-        // 2. Master Data Kelas Terstruktur per Paket & Jenjang (Relasi Foreign Key jenjang_paket_id)
+        // 2. Master Data Kelas Terstruktur per Paket A, B, dan C (Relasi Foreign Key jenjang_paket_id)
         $daftarKelas = [
             // Paket A (Setara SD: Kelas 1 - 6)
             'Paket A - Kelas 1' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 1'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '1']),
@@ -40,10 +39,6 @@ class SiswaSeeder extends Seeder
             'Paket C - Kelas 10' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jpC?->id, 'tingkat' => '10']),
             'Paket C - Kelas 11' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 11'], ['jenjang_paket_id' => $jpC?->id, 'tingkat' => '11']),
             'Paket C - Kelas 12' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 12'], ['jenjang_paket_id' => $jpC?->id, 'tingkat' => '12']),
-
-            // Vokasi & Keterampilan
-            'Vokasi - Desain Komputer' => kelas::updateOrCreate(['nama_kelas' => 'Vokasi - Desain Komputer'], ['jenjang_paket_id' => $jpVokasi?->id, 'tingkat' => 'Terampil']),
-            'Vokasi - Tata Busana' => kelas::updateOrCreate(['nama_kelas' => 'Vokasi - Tata Busana'], ['jenjang_paket_id' => $jpVokasi?->id, 'tingkat' => 'Dasar']),
         ];
 
         // 3. Ambil Data Tutor yang Tersedia
@@ -55,7 +50,7 @@ class SiswaSeeder extends Seeder
         $t2Id = $tutor2?->id;
         $t3Id = $tutor3?->id;
 
-        // 4. Data Sample Siswa Tersebar di Beberapa Kelas & Paket
+        // 4. Data Sample Siswa Tersebar di Jenjang Paket A, B, dan C
         $siswaData = [
             // Paket C - Kelas 10 (Single Rombel Skenario 1)
             [
@@ -154,14 +149,14 @@ class SiswaSeeder extends Seeder
                 'tutor_id' => $t1Id,
             ],
 
-            // Vokasi (Tutor 3)
+            // Paket C - Kelas 10 & 11 (Tutor 3)
             [
                 'no_absen' => '011',
                 'nama_siswa' => 'Dimas Bagaskara',
                 'is_abk' => false,
                 'no_hp' => '081234567011',
                 'nama_wali' => 'Gunawan',
-                'kelas_id' => $daftarKelas['Vokasi - Desain Komputer']->id,
+                'kelas_id' => $daftarKelas['Paket C - Kelas 10']->id,
                 'tutor_id' => $t3Id,
             ],
             [
@@ -170,7 +165,7 @@ class SiswaSeeder extends Seeder
                 'is_abk' => false,
                 'no_hp' => '081234567012',
                 'nama_wali' => 'Sri Rahayu',
-                'kelas_id' => $daftarKelas['Vokasi - Tata Busana']->id,
+                'kelas_id' => $daftarKelas['Paket C - Kelas 11']->id,
                 'tutor_id' => $t3Id,
             ],
         ];

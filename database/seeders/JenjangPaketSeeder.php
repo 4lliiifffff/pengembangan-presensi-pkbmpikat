@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\JenjangPaket;
+use App\Models\kelas;
 use Illuminate\Database\Seeder;
 
 class JenjangPaketSeeder extends Seeder
@@ -37,37 +38,30 @@ class JenjangPaketSeeder extends Seeder
                 'urutan' => 3,
                 'is_aktif' => true,
             ],
-            [
-                'kode' => 'vokasi',
-                'nama_jenjang' => 'Vokasi / Keterampilan Kejuruan',
-                'tingkat_label' => 'Dasar / Terampil / Mahir',
-                'keterangan' => 'Program pelatihan kejuruan kerja (Desain Komputer, Tata Busana, Otomotif, dll.).',
-                'urutan' => 4,
-                'is_aktif' => true,
-            ],
-            [
-                'kode' => 'kursus',
-                'nama_jenjang' => 'Kursus & Pelatihan Singkat',
-                'tingkat_label' => 'Level 1 - 3',
-                'keterangan' => 'Kursus intensif dan workshop bersertifikat.',
-                'urutan' => 5,
-                'is_aktif' => true,
-            ],
-            [
-                'kode' => 'umum',
-                'nama_jenjang' => 'Umum / Non-Paket',
-                'tingkat_label' => 'Reguler',
-                'keterangan' => 'Kelas bimbingan umum atau program non-kesetaraan.',
-                'urutan' => 6,
-                'is_aktif' => true,
-            ],
         ];
 
+        $allowedKodes = ['paket_a', 'paket_b', 'paket_c'];
+
+        // 1. Buat atau perbarui 3 Jenjang Pokok
         foreach ($jenjangList as $item) {
             JenjangPaket::updateOrCreate(
                 ['kode' => $item['kode']],
                 $item
             );
+        }
+
+        // 2. Ambil ID Paket C sebagai fallback jika ada kelas lama yang terikat ke jenjang non-A/B/C
+        $paketC = JenjangPaket::where('kode', 'paket_c')->first();
+
+        // 3. Bersihkan jenjang di luar Paket A, B, C
+        $obsoleteJenjangs = JenjangPaket::whereNotIn('kode', $allowedKodes)->get();
+        foreach ($obsoleteJenjangs as $obsolete) {
+            if ($paketC) {
+                kelas::where('jenjang_paket_id', $obsolete->id)->update([
+                    'jenjang_paket_id' => $paketC->id,
+                ]);
+            }
+            $obsolete->delete();
         }
     }
 }

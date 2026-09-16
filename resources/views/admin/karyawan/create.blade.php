@@ -1,17 +1,28 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow">
-        <h2>Tambah Karyawan</h2>
-        <a class="btnOutline" href="{{ route('admin.karyawan.index') }}">
-            Kembali
-        </a>
+
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">FORMULIR PENDAFTARAN</div>
+                <h1 class="laporanHeaderTitle">Tambah Karyawan &amp; Tutor</h1>
+                <div class="laporanHeaderSub">Daftarkan staf pengajar atau administrator baru ke dalam sistem</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a href="{{ route('admin.karyawan.index') }}" class="btnOutline" style="padding:9px 16px;font-size:12.5px;font-weight:700;">
+                    Kembali
+                </a>
+            </div>
+        </div>
     </div>
 
     @if ($errors->any())
-        <div class="errorList">
-            <div style="font-weight:1000;margin-bottom:6px;">Periksa input berikut:</div>
-            <ul style="padding-left:18px;margin:0;">
+        <div class="errorList" style="margin-bottom: 16px;">
+            <div style="font-weight:800;margin-bottom:8px;">Periksa input berikut:</div>
+            <ul style="padding-left:20px;margin:0;line-height:1.5;">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -19,42 +30,52 @@
         </div>
     @endif
 
-    <div class="formCard">
+    <div class="laporanFilterCard" style="padding: 24px;">
         <form method="POST" action="{{ route('admin.karyawan.store') }}" enctype="multipart/form-data">
             @csrf
-            <div class="formRow">
-                <div class="fieldLabel">Nama Lengkap</div>
-                <input class="input" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required />
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;">
+                <div class="filterField">
+                    <label class="filterFieldLabel">Nama Lengkap <span style="color:#ef4444;">*</span></label>
+                    <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" placeholder="Contoh: Budi Santoso, S.Pd." required style="height: 42px; font-size: 13px;" />
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">NIK (Nomor Induk Karyawan) <span style="color:#ef4444;">*</span></label>
+                    <input class="profileInput" type="text" name="nik" value="{{ old('nik') }}" placeholder="Contoh: 3201234567890001" required style="height: 42px; font-size: 13px;" />
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Role &amp; Hak Akses <span style="color:#ef4444;">*</span></label>
+                    <select class="filterSelect" name="role" required>
+                        <option value="">-- Pilih Role --</option>
+                        <option value="tutor" {{ old('role') === 'tutor' ? 'selected' : '' }}>Tutor / Pengajar</option>
+                        <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Administrator</option>
+                        <option value="kepala_sekolah" {{ old('role') === 'kepala_sekolah' ? 'selected' : '' }}>Kepala Sekolah</option>
+                    </select>
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">No HP / WhatsApp <span style="color:#ef4444;">*</span></label>
+                    <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp') }}" placeholder="Contoh: 081234567890" required style="height: 42px; font-size: 13px;" />
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Password Akun <span style="color:#ef4444;">*</span></label>
+                    <input class="profileInput" type="password" name="password" placeholder="Minimal 6 karakter" required style="height: 42px; font-size: 13px;" />
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Konfirmasi Password <span style="color:#ef4444;">*</span></label>
+                    <input class="profileInput" type="password" name="password_confirmation" placeholder="Ulangi password" required style="height: 42px; font-size: 13px;" />
+                </div>
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">NIK</div>
-                <input class="input" type="text" name="nik" value="{{ old('nik') }}" required />
-            </div>
-
-            <div class="formRow">
-                <div class="fieldLabel">Role</div>
-                <select class="input" name="role">
-                    <option value="">-- Pilih Role --</option>
-                    <option value="admin">Admin</option>
-                    <option value="tutor">Tutor</option>
-                    <option value="kepala_sekolah">Kepala Sekolah</option>
-                </select>
-            </div>
-
-            <div class="formRow">
-                <div class="fieldLabel">No HP</div>
-                <input class="input" type="text" name="no_hp" value="{{ old('no_hp') }}" required />
-            </div>
-
-            <div class="formRow">
-                <div class="fieldLabel">Foto Profil (Opsional)</div>
-                <div class="fileUploadBox" style="padding:14px;">
+            <div class="filterField" style="margin-top:18px;">
+                <label class="filterFieldLabel">Foto Profil (Opsional)</label>
+                <div class="fileUploadBox">
                     <input type="file" name="foto" id="fotoKaryawanCreateInput" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelected(this, 'karyawanCreateFotoFeedback')">
-                    <div class="fileUploadIcon" style="width:36px;height:36px;font-size:18px;">
-                        <ion-icon name="image-outline"></ion-icon>
-                    </div>
-                    <div class="fileUploadText" style="font-size:12px;">Pilih foto profil</div>
+                    <div class="fileUploadText" style="margin-top:0;font-size:13px;font-weight:700;">Pilih atau seret foto profil</div>
                     <div class="fileUploadSubtext">
                         <span class="fileUploadInfoPill">Format: JPG, PNG</span>
                         <span class="fileUploadInfoPill">Maks: 2 MB</span>
@@ -63,35 +84,30 @@
                 <div id="karyawanCreateFotoFeedback" class="fileUploadFeedback"></div>
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Password</div>
-                <input class="input" type="password" name="password" value="{{ old('password') }}" required />
+            <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <a href="{{ route('admin.karyawan.index') }}" class="profileBtnDanger" style="height:42px;padding:0 20px;font-size:13px;border-radius:12px;width:auto;text-decoration:none;display:inline-flex;align-items:center;">
+                    Batal
+                </a>
+                <button type="submit" class="profileBtnPrimary" style="height:42px;padding:0 24px;font-size:13px;border-radius:12px;border:none;cursor:pointer;">
+                    Simpan Data Karyawan
+                </button>
             </div>
-
-            <div class="formRow">
-                <div class="fieldLabel">Konfirmasi Password</div>
-                <input class="input" type="password" name="password_confirmation" value="{{ old('password_confirmation') }}" required />
-            </div>
-
-            <button type="submit" class="btnPrimary" style="width:100%;justify-content:center;">
-                <ion-icon name="save-outline"></ion-icon>
-                Simpan
-            </button>
         </form>
     </div>
+</div>
 
 <script>
-function handleFileSelected(input, feedbackId) {
-    const feedback = document.getElementById(feedbackId);
-    if (!feedback) return;
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const sizeKb = Math.round(file.size / 1024);
-        feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
-        feedback.style.display = 'flex';
-    } else {
-        feedback.style.display = 'none';
+    function handleFileSelected(input, feedbackId) {
+        const feedback = document.getElementById(feedbackId);
+        if (!feedback) return;
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const sizeKb = Math.round(file.size / 1024);
+            feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+            feedback.style.display = 'flex';
+        } else {
+            feedback.style.display = 'none';
+        }
     }
-}
 </script>
 @endsection

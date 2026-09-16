@@ -17,34 +17,58 @@ class KaryawanController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->search;
+        $search = $request->input('search') ?? $request->input('q');
+        $status = $request->query('status', 'aktif');
+        $role = $request->query('role');
 
         $karyawanQuery = User::query();
-
-        if ($search) {
-            if (Schema::hasColumn('users', 'nama_lengkap')) {
-                $karyawanQuery->where('nama_lengkap', 'like', "%$search%");
-            } elseif (Schema::hasColumn('users', 'name')) {
-                $karyawanQuery->where('name', 'like', "%$search%");
-            }
-        }
 
         if (Schema::hasColumn('users', 'role')) {
             $karyawanQuery->whereIn('role', ['admin', 'tutor', 'kepala_sekolah']);
         }
 
-        $karyawan = $karyawanQuery->latest()->get();
+        if ($status !== 'semua' && Schema::hasColumn('users', 'is_active')) {
+            $karyawanQuery->where('is_active', $status === 'aktif' ? 1 : 0);
+        }
 
-        $total = $karyawan->count();
+        if ($role && Schema::hasColumn('users', 'role')) {
+            $karyawanQuery->where('role', $role);
+        }
+
+        if ($search) {
+            $karyawanQuery->where(function ($q) use ($search) {
+                if (Schema::hasColumn('users', 'nama_lengkap')) {
+                    $q->where('nama_lengkap', 'like', "%{$search}%");
+                }
+                if (Schema::hasColumn('users', 'name')) {
+                    $q->orWhere('name', 'like', "%{$search}%");
+                }
+                if (Schema::hasColumn('users', 'nik')) {
+                    $q->orWhere('nik', 'like', "%{$search}%");
+                }
+                if (Schema::hasColumn('users', 'no_hp')) {
+                    $q->orWhere('no_hp', 'like', "%{$search}%");
+                }
+            });
+        }
+
+        $karyawan = $karyawanQuery->latest('id')->paginate(15)->withQueryString();
+
+        $allUsers = User::whereIn('role', ['admin', 'tutor', 'kepala_sekolah'])->get();
+        $total = $allUsers->count();
         $hasIsActive = Schema::hasColumn('users', 'is_active');
-        $aktif = $hasIsActive ? $karyawan->where('is_active', 1)->count() : $total;
-        $nonaktif = $hasIsActive ? $karyawan->where('is_active', 0)->count() : 0;
+        $aktif = $hasIsActive ? $allUsers->where('is_active', 1)->count() : $total;
+        $nonaktif = $hasIsActive ? $allUsers->where('is_active', 0)->count() : 0;
+        $tutorCount = $allUsers->where('role', 'tutor')->count();
 
         return view('admin.karyawan.index', compact(
             'karyawan',
             'total',
             'aktif',
-            'nonaktif'
+            'nonaktif',
+            'tutorCount',
+            'status',
+            'role'
         ));
     }
 
@@ -172,11 +196,17 @@ class KaryawanController extends Controller
                 ->with('warning', 'Kolom status (is_active) belum ada di tabel users. Status tidak bisa diubah.');
         }
 
-        $data->update(['is_active' => (int) $request->is_active]);
+        $newStatus = $request->has('is_active')
+            ? (int) $request->is_active
+            : ($data->is_active ? 0 : 1);
+
+        $data->update(['is_active' => $newStatus]);
+
+        $statusText = $newStatus ? 'diaktifkan' : 'dinonaktifkan';
 
         return redirect()
             ->route('admin.karyawan.index')
-            ->with('success', 'Status karyawan berhasil diubah.');
+            ->with('success', "Status karyawan {$data->name} berhasil {$statusText}.");
     }
 
     public function exportExcel()

@@ -60,20 +60,20 @@ class AdminKelasManagementTest extends TestCase
             'is_active' => true,
         ]);
 
-        $jpVokasi = JenjangPaket::where('kode', 'vokasi')->first();
+        $jpB = JenjangPaket::where('kode', 'paket_b')->first();
 
         $response = $this->actingAs($admin)->post(route('admin.kelas.store'), [
-            'nama_kelas' => 'Vokasi - Desain Grafis Kreatif',
-            'jenjang_paket_id' => $jpVokasi->id,
-            'tingkat' => 'Terampil',
-            'keterangan' => 'Pelatihan desain grafis berbasis Adobe & Canva',
+            'nama_kelas' => 'Paket B - Kelas 8 Unggulan',
+            'jenjang_paket_id' => $jpB->id,
+            'tingkat' => '8',
+            'keterangan' => 'Kelas pengayaan IPA & Bahasa Paket B',
         ]);
 
         $response->assertRedirect(route('admin.kelas.index'));
         $this->assertDatabaseHas('kelas', [
-            'nama_kelas' => 'Vokasi - Desain Grafis Kreatif',
-            'jenjang_paket_id' => $jpVokasi->id,
-            'tingkat' => 'Terampil',
+            'nama_kelas' => 'Paket B - Kelas 8 Unggulan',
+            'jenjang_paket_id' => $jpB->id,
+            'tingkat' => '8',
         ]);
     }
 

@@ -108,8 +108,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/karyawan/template/excel', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.downloadTemplate');
     Route::post('/karyawan/import/excel', [KaryawanController::class, 'importExcel'])->name('karyawan.importExcel');
     Route::resource('karyawan', KaryawanController::class);
-
     Route::patch('karyawan/{id}/status', [KaryawanController::class, 'status'])->name('karyawan.status');
+    Route::patch('karyawan/{id}/toggle-status', [KaryawanController::class, 'status'])->name('karyawan.toggleStatus');
 
     // Route presensi karyawan (Admin/Kepsek)
     Route::get('/presensi', [KaryawanPresensiController::class, 'index'])->name('presensi');
