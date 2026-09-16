@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class SiswaExport implements FromCollection, WithEvents, WithHeadings, WithMapping
 {
@@ -24,9 +25,10 @@ class SiswaExport implements FromCollection, WithEvents, WithHeadings, WithMappi
             $siswa->nama_wali ?? '-',
             $siswa->no_hp ?? '-',
             $siswa->relKelas->nama_kelas ?? '-',
+            $siswa->jenjang_paket_label,
+            $siswa->is_abk_label,
             $siswa->tutor->nama_lengkap ?? '-',
             $siswa->tutor->nik ?? '-',
-            (float) ($siswa->tarif_per_jam ?? 50000),
         ];
     }
 
@@ -38,9 +40,10 @@ class SiswaExport implements FromCollection, WithEvents, WithHeadings, WithMappi
             'Nama Wali Murid',
             'No WhatsApp Wali',
             'Kelas / Rombel',
+            'Jenjang Paket',
+            'Status ABK',
             'Nama Tutor Pembimbing',
             'NIK Tutor Pembimbing',
-            'Tarif Honor Per Jam (Rp)',
         ];
     }
 
@@ -49,14 +52,12 @@ class SiswaExport implements FromCollection, WithEvents, WithHeadings, WithMappi
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $sheet->getStyle('A1:H1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:I1')->getFill()
+                    ->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('E0E7FF');
 
-                $highestRow = $sheet->getHighestRow();
-                if ($highestRow >= 2) {
-                    $sheet->getStyle('H2:H'.$highestRow)->getNumberFormat()->setFormatCode('#,##0');
-                }
-
-                foreach (range('A', 'H') as $col) {
+                foreach (range('A', 'I') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
             },

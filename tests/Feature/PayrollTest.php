@@ -8,6 +8,7 @@ use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
 use App\Services\PayrollService;
+use Database\Seeders\KategoriTutorialSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,7 +16,13 @@ class PayrollTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_payroll_service_calculates_honorarium_based_on_student_hourly_rates(): void
+    protected function setUp(): void
+    {
+        parent::setUp();
+        (new KategoriTutorialSeeder)->run();
+    }
+
+    public function test_payroll_service_calculates_honorarium_based_on_sk_categories(): void
     {
         $user = User::factory()->create(['role' => 'tutor']);
         $tutor = Tutor::create([
@@ -26,47 +33,49 @@ class PayrollTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas Payroll', 'tingkat' => 'SMA']);
+        $kelas = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket' => 'paket_c', 'tingkat' => 10]);
 
-        // Siswa A: tarif Rp 60.000 / jam
+        // Siswa Reguler
         $siswaA = Siswa::create([
-            'nama_siswa' => 'Siswa A',
+            'nama_siswa' => 'Siswa A Reguler',
+            'is_abk' => false,
             'tutor_id' => $tutor->id,
             'kelas_id' => $kelas->id,
             'no_absen' => '101',
             'no_hp' => '081234567890',
             'nama_wali' => 'Wali A',
-            'tarif_per_jam' => 60000.00,
         ]);
 
-        // Siswa B: tarif Rp 75.000 / jam
+        // Siswa ABK
         $siswaB = Siswa::create([
-            'nama_siswa' => 'Siswa B',
+            'nama_siswa' => 'Siswa B ABK',
+            'is_abk' => true,
             'tutor_id' => $tutor->id,
             'kelas_id' => $kelas->id,
             'no_absen' => '102',
             'no_hp' => '081234567890',
             'nama_wali' => 'Wali B',
-            'tarif_per_jam' => 75000.00,
         ]);
 
-        // Presensi 1: Siswa A (2 jam: 08:00 - 10:00) -> 2 x 60.000 = 120.000
+        // Presensi 1: Siswa A (Tutorial Komunitas Reguler 2 jam) -> Rp 75.000,-
         Presensi::create([
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaA->id,
             'tgl_presensi' => '2026-09-10',
             'jam_mulai' => '08:00',
             'jam_selesai' => '10:00',
+            'nominal_honor_snapshot' => 75000.00,
             'status' => 'hadir',
         ]);
 
-        // Presensi 2: Siswa B (2 jam: 10:30 - 12:30) -> 2 x 75.000 = 150.000
+        // Presensi 2: Siswa B (Tutorial Komunitas ABK 2 jam) -> Rp 100.000,-
         Presensi::create([
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaB->id,
             'tgl_presensi' => '2026-09-11',
             'jam_mulai' => '10:30',
             'jam_selesai' => '12:30',
+            'nominal_honor_snapshot' => 100000.00,
             'status' => 'hadir',
         ]);
 
@@ -75,8 +84,8 @@ class PayrollTest extends TestCase
 
         $this->assertEquals(2, $payroll['total_sesi_hadir']);
         $this->assertEquals(4.0, $payroll['total_jam']);
-        $this->assertEquals(270000.0, $payroll['total_honor']);
-        $this->assertEquals('Rp 270.000', $payroll['formatted_total_honor']);
+        $this->assertEquals(175000.0, $payroll['total_honor']);
+        $this->assertEquals('Rp 175.000', $payroll['formatted_total_honor']);
         $this->assertCount(2, $payroll['siswa_summary']);
     }
 

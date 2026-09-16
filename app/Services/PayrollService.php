@@ -29,7 +29,7 @@ class PayrollService
                 ->first();
         }
 
-        $nominal = $kategori ? (float) $kategori->nominal_honor : (float) ($siswa->tarif_per_jam ?? 75000.0);
+        $nominal = $kategori ? (float) $kategori->nominal_honor : ($isAbk ? 100000.0 : 75000.0);
 
         return [
             'kategori_tutorial_id' => $kategori?->id,
@@ -39,7 +39,7 @@ class PayrollService
     }
 
     /**
-     * Hitung honor untuk satu sesi presensi spesifik (dengan snapshot immutability & backward compatibility).
+     * Hitung honor untuk satu sesi presensi spesifik (dengan snapshot immutability).
      */
     public function hitungHonorSesi(Presensi $presensi, float $durasiJam = 1.0): float
     {
@@ -53,10 +53,8 @@ class PayrollService
             return (float) $presensi->kategoriTutorial->nominal_honor;
         }
 
-        // 3. Fallback: Data legacy berbasis tarif per jam siswa
-        $tarifPerJam = $presensi->siswa ? (float) ($presensi->siswa->tarif_per_jam ?? 50000) : 50000.0;
-
-        return round($durasiJam * $tarifPerJam, 2);
+        // 3. Fallback: Standar SK sesuai status ABK siswa
+        return ($presensi->siswa?->is_abk) ? 100000.0 : 75000.0;
     }
 
     /**

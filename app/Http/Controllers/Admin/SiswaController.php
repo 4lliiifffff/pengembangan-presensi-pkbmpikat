@@ -44,13 +44,9 @@ class SiswaController extends Controller
             'nama_wali' => ['required', 'string', 'max:120'],
             'kelas_id' => ['required', 'exists:kelas,id'],
             'tutor_id' => ['nullable', 'exists:tutors,id'],
-            'tarif_per_jam' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $validated['is_abk'] = $request->boolean('is_abk');
-        if (empty($validated['tarif_per_jam'])) {
-            $validated['tarif_per_jam'] = $validated['is_abk'] ? 100000.00 : 75000.00;
-        }
 
         Siswa::create($validated);
 
@@ -90,13 +86,9 @@ class SiswaController extends Controller
             'nama_wali' => ['required', 'string', 'max:120'],
             'kelas_id' => ['required', 'exists:kelas,id'],
             'tutor_id' => ['nullable', 'exists:tutors,id'],
-            'tarif_per_jam' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $validated['is_abk'] = $request->boolean('is_abk');
-        if (empty($validated['tarif_per_jam'])) {
-            $validated['tarif_per_jam'] = $validated['is_abk'] ? 100000.00 : 75000.00;
-        }
 
         $siswa->update($validated);
 

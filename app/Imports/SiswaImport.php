@@ -29,7 +29,7 @@ class SiswaImport implements ToCollection, WithHeadingRow, WithValidation
                 $noHp = trim((string) ($row['no_whatsapp_wali_wajib'] ?? ($row['no_whatsapp_wali'] ?? ($row['no_hp'] ?? ''))));
                 $namaKelas = trim((string) ($row['nama_kelas_rombel_wajib'] ?? ($row['nama_kelas_rombel'] ?? ($row['nama_kelas'] ?? ''))));
                 $nikTutor = trim((string) ($row['nik_tutor_pembimbing_opsional'] ?? ($row['nik_tutor_pembimbing'] ?? ($row['nik_tutor'] ?? ''))));
-                $rawTarif = $row['tarif_honor_per_jam_rp_wajib'] ?? ($row['tarif_honor_per_jam_rp'] ?? ($row['tarif_per_jam'] ?? 50000));
+                $rawAbk = strtolower(trim((string) ($row['status_abk_opsional'] ?? ($row['status_abk'] ?? ($row['is_abk'] ?? '')))));
 
                 if (! $noAbsen || ! $namaSiswa) {
                     $this->skippedCount++;
@@ -58,31 +58,28 @@ class SiswaImport implements ToCollection, WithHeadingRow, WithValidation
                     }
                 }
 
-                $cleanTarif = (float) preg_replace('/[^\d.]/', '', str_replace(',', '.', (string) $rawTarif));
-                if ($cleanTarif <= 0) {
-                    $cleanTarif = 50000;
-                }
+                $isAbk = str_contains($rawAbk, 'abk') || in_array($rawAbk, ['1', 'true', 'ya', 'yes']);
 
                 $existingSiswa = Siswa::where('no_absen', $noAbsen)->first();
                 if ($existingSiswa) {
                     $existingSiswa->update([
                         'nama_siswa' => $namaSiswa,
+                        'is_abk' => $isAbk,
                         'nama_wali' => $namaWali ?: $existingSiswa->nama_wali,
                         'no_hp' => $noHp ?: $existingSiswa->no_hp,
                         'kelas_id' => $kelasId,
                         'tutor_id' => $tutorId ?: $existingSiswa->tutor_id,
-                        'tarif_per_jam' => $cleanTarif,
                     ]);
                     $this->updatedCount++;
                 } else {
                     Siswa::create([
                         'no_absen' => $noAbsen,
                         'nama_siswa' => $namaSiswa,
+                        'is_abk' => $isAbk,
                         'nama_wali' => $namaWali ?: '-',
                         'no_hp' => $noHp ?: '-',
                         'kelas_id' => $kelasId,
                         'tutor_id' => $tutorId,
-                        'tarif_per_jam' => $cleanTarif,
                     ]);
                     $this->importedCount++;
                 }

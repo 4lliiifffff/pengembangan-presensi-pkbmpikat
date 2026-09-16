@@ -67,7 +67,6 @@
                 <div style="font-size:11px;color:var(--muted);line-height:1.4;">
                     Tarif honor sesi mengajar tutor dihitung <b>secara otomatis dari Master Tarif SK</b> berdasarkan status <b>ABK / Reguler</b> dan durasi sesi tutorial yang dipilih saat presensi.
                 </div>
-                <input type="hidden" name="tarif_per_jam" value="{{ old('tarif_per_jam', $siswa->tarif_per_jam ?? 75000) }}" />
             </div>
 
             <div class="formRow">

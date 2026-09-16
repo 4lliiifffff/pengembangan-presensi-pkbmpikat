@@ -7,6 +7,7 @@ use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
+use Database\Seeders\KategoriTutorialSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +16,12 @@ use Tests\TestCase;
 class PresensiMultiModaTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        (new KategoriTutorialSeeder)->run();
+    }
 
     public function test_tutor_can_presensi_with_different_moda_pembelajaran(): void
     {
@@ -28,7 +35,7 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'SD']);
+        $kelas = kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'jenjang_paket' => 'paket_a', 'tingkat' => 1]);
         $siswa = Siswa::create([
             'no_absen' => 'TEST903',
             'nama_siswa' => 'Budi Santoso MultiModa',
@@ -209,5 +216,105 @@ class PresensiMultiModaTest extends TestCase
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaB2->id,
         ]);
+    }
+
+    public function test_auto_detect_gabungan_komunitas_when_students_from_different_classes_in_same_package(): void
+    {
+        Storage::fake('public');
+
+        $userTutor = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $userTutor->id,
+            'nik' => $userTutor->nik,
+            'nama_lengkap' => $userTutor->nama_lengkap,
+            'email' => $userTutor->email,
+        ]);
+
+        $kelasB7 = kelas::create(['nama_kelas' => 'Paket B - Kelas 7']);
+        $kelasB8 = kelas::create(['nama_kelas' => 'Paket B - Kelas 8']);
+
+        $siswa1 = Siswa::create([
+            'no_absen' => 'AUTO_B7',
+            'nama_siswa' => 'Siswa Auto B7',
+            'no_hp' => '08123456788',
+            'nama_wali' => 'Wali B7',
+            'kelas_id' => $kelasB7->id,
+        ]);
+
+        $siswa2 = Siswa::create([
+            'no_absen' => 'AUTO_B8',
+            'nama_siswa' => 'Siswa Auto B8',
+            'no_hp' => '08123456789',
+            'nama_wali' => 'Wali B8',
+            'kelas_id' => $kelasB8->id,
+        ]);
+
+        $file = UploadedFile::fake()->image('bukti_auto.jpg');
+        // Tutor tidak mencentang is_gabungan (is_gabungan = 0)
+        $response = $this->actingAs($userTutor)->post('/tutor/presensi', [
+            'siswa_id' => [$siswa1->id, $siswa2->id],
+            'mode' => 'mulai',
+            'moda_pembelajaran' => 'kunjungan_rumah',
+            'is_gabungan' => 0,
+            'foto' => $file,
+        ]);
+
+        $response->assertRedirect(route('tutor.dashboard'));
+
+        // Harus otomatis terdeteksi sebagai Gabungan Komunitas (SK Rp 50.000,- per rombel)
+        $presensi1 = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa1->id)->first();
+        $presensi2 = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa2->id)->first();
+
+        $this->assertNotNull($presensi1);
+        $this->assertNotNull($presensi2);
+        $this->assertEquals(50000.0, (float) $presensi1->nominal_honor_snapshot);
+        $this->assertEquals(50000.0, (float) $presensi2->nominal_honor_snapshot);
+    }
+
+    public function test_auto_detect_single_rombel_when_students_from_same_class(): void
+    {
+        Storage::fake('public');
+
+        $userTutor = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $userTutor->id,
+            'nik' => $userTutor->nik,
+            'nama_lengkap' => $userTutor->nama_lengkap,
+            'email' => $userTutor->email,
+        ]);
+
+        $kelasC10 = kelas::create(['nama_kelas' => 'Paket C - Kelas 10']);
+
+        $siswa1 = Siswa::create([
+            'no_absen' => 'SINGLE_C1',
+            'nama_siswa' => 'Siswa Single C1',
+            'no_hp' => '08123456791',
+            'nama_wali' => 'Wali C1',
+            'kelas_id' => $kelasC10->id,
+        ]);
+
+        $siswa2 = Siswa::create([
+            'no_absen' => 'SINGLE_C2',
+            'nama_siswa' => 'Siswa Single C2',
+            'no_hp' => '08123456792',
+            'nama_wali' => 'Wali C2',
+            'kelas_id' => $kelasC10->id,
+        ]);
+
+        $file = UploadedFile::fake()->image('bukti_single.jpg');
+        $response = $this->actingAs($userTutor)->post('/tutor/presensi', [
+            'siswa_id' => [$siswa1->id, $siswa2->id],
+            'mode' => 'mulai',
+            'moda_pembelajaran' => 'kunjungan_rumah',
+            'durasi_pilihan' => 2.0,
+            'foto' => $file,
+        ]);
+
+        $response->assertRedirect(route('tutor.dashboard'));
+
+        // Harus otomatis terdeteksi sebagai 1 Rombel Tutorial Komunitas Standar (Rp 75.000,-)
+        $presensi1 = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa1->id)->first();
+        $this->assertNotNull($presensi1);
+        $this->assertEquals(75000.0, (float) $presensi1->nominal_honor_snapshot);
     }
 }

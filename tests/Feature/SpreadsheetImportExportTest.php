@@ -104,11 +104,13 @@ class SpreadsheetImportExportTest extends TestCase
         $this->actingAs($this->kepsek)->get(route('kepsek.payroll.rekap-excel'))->assertStatus(200);
     }
 
-    public function test_bulk_import_siswa_creates_and_updates_records(): void
+    public function test_admin_can_download_and_import_siswa_excel(): void
     {
-        $kelas = Kelas::create(['nama_kelas' => 'Paket B']);
-        $csvContent = "nomor_absen_nis_wajib,nama_siswa_wajib,nama_wali_murid_wajib,no_whatsapp_wali_wajib,nama_kelas_rombel_wajib,nik_tutor_pembimbing_opsional,tarif_honor_per_jam_rp_wajib\n";
-        $csvContent .= "SISWA-NEW-1,Rudi Hartono,Pak Hartono,0812334455,Paket B,,65000\n";
+        $response = $this->actingAs($this->admin)->get(route('admin.siswa.exportExcel'));
+        $response->assertSuccessful();
+
+        $csvContent = "nomor_absen_nis_wajib,nama_siswa_wajib,nama_wali_murid_wajib,no_whatsapp_wali_wajib,nama_kelas_rombel_wajib,nik_tutor_pembimbing_opsional,status_abk_opsional\n";
+        $csvContent .= "SISWA-NEW-1,Rudi Hartono,Pak Hartono,0812334455,Paket B,,abk\n";
 
         $file = UploadedFile::fake()->createWithContent('siswa.csv', $csvContent);
 
@@ -120,7 +122,7 @@ class SpreadsheetImportExportTest extends TestCase
         $this->assertDatabaseHas('siswas', [
             'no_absen' => 'SISWA-NEW-1',
             'nama_siswa' => 'Rudi Hartono',
-            'tarif_per_jam' => 65000,
+            'is_abk' => true,
         ]);
     }
 
@@ -130,14 +132,14 @@ class SpreadsheetImportExportTest extends TestCase
         $siswa = Siswa::create([
             'no_absen' => 'SISWA-TARIF-1',
             'nama_siswa' => 'Siswa Tarif',
+            'is_abk' => false,
             'nama_wali' => 'Wali Tarif',
             'no_hp' => '08123456789',
             'kelas_id' => $kelas->id,
-            'tarif_per_jam' => 50000,
         ]);
 
-        $csvContent = "nomor_absen_nis,nama_siswa,kelas_rombel,tutor_pembimbing,tarif_honor_per_jam_rp\n";
-        $csvContent .= "SISWA-TARIF-1,Siswa Tarif,Paket C,-,85000\n";
+        $csvContent = "nomor_absen_nis,nama_siswa,kelas_rombel,jenjang_paket,status_abk_abk_reguler\n";
+        $csvContent .= "SISWA-TARIF-1,Siswa Tarif,Paket C,Paket C (Setara SMA),ABK\n";
 
         $file = UploadedFile::fake()->createWithContent('tarif.csv', $csvContent);
 
@@ -146,7 +148,7 @@ class SpreadsheetImportExportTest extends TestCase
         ]);
 
         $response->assertSessionHas('success');
-        $this->assertEquals(85000, $siswa->fresh()->tarif_per_jam);
+        $this->assertTrue((bool) $siswa->fresh()->is_abk);
     }
 
     public function test_bulk_import_tutor_creates_user_and_tutor_records(): void
@@ -208,7 +210,6 @@ class SpreadsheetImportExportTest extends TestCase
             'no_hp' => '081234567890',
             'kelas_id' => $kelas->id,
             'tutor_id' => $tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $csvContent = "nik_tutor_wajib,nomor_absen_siswa_nis_wajib,tanggal_presensi_yyyy_mm_dd_wajib,jam_mulai_hh_mm_wajib,jam_selesai_hh_mm_wajib,moda_pembelajaran_tatap_muka_home_visit_online_wajib,status_hadir_izin_sakit_alpha_wajib,lokasi_mulai_opsional,lokasi_selesai_opsional,keterangan_opsional\n";

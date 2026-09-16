@@ -63,7 +63,6 @@ class Siswa extends Model
         'nama_wali',  // Nama orang tua/wali yang dapat dihubungi
         'kelas_id',   // ID kelas yang diikuti siswa (foreign key)
         'tutor_id',    // ID tutor yang mengajar siswa ini
-        'tarif_per_jam', // Nominal tarif honor mengajar per jam per siswa (legacy)
     ];
 
     /**
@@ -73,7 +72,6 @@ class Siswa extends Model
     {
         return [
             'is_abk' => 'boolean',
-            'tarif_per_jam' => 'float',
         ];
     }
 
@@ -96,18 +94,17 @@ class Siswa extends Model
     }
 
     /**
-     * Accessor: Format rupiah untuk tarif per jam siswa.
-     */
-    public function getFormattedTarifPerJamAttribute(): string
-    {
-        return 'Rp '.number_format($this->tarif_per_jam ?? 50000, 0, ',', '.');
-    }
-
-    /**
      * Accessor: Resolusi kelompok Paket / Jenjang Pendidikan Kesetaraan siswa.
      */
     public function getJenjangPaketAttribute(): string
     {
+        // 1. Prioritas utama: kolom terstruktur dari relasi Kelas
+        $kelasJenjang = $this->relKelas?->jenjang_paket;
+        if ($kelasJenjang && in_array($kelasJenjang, ['paket_a', 'paket_b', 'paket_c', 'vokasi', 'kursus'])) {
+            return $kelasJenjang;
+        }
+
+        // 2. Fallback: deteksi teks nama kelas (legacy compatibility)
         $namaKelas = strtolower((string) ($this->relKelas?->nama_kelas ?? ''));
 
         if (str_contains($namaKelas, 'paket a') || str_contains($namaKelas, 'kelas a') || str_contains($namaKelas, 'setara sd') || str_contains($namaKelas, 'sd')) {
@@ -119,6 +116,9 @@ class Siswa extends Model
         if (str_contains($namaKelas, 'paket c') || str_contains($namaKelas, 'kelas c') || str_contains($namaKelas, 'setara sma') || str_contains($namaKelas, 'sma') || str_contains($namaKelas, 'smk')) {
             return 'paket_c';
         }
+        if (str_contains($namaKelas, 'vokasi') || str_contains($namaKelas, 'kejuruan') || str_contains($namaKelas, 'keterampilan')) {
+            return 'vokasi';
+        }
 
         return $this->kelas_id ? 'kelas_'.$this->kelas_id : 'umum';
     }
@@ -128,12 +128,26 @@ class Siswa extends Model
      */
     public function getJenjangPaketLabelAttribute(): string
     {
+        if ($this->relKelas?->jenjang_paket && $this->relKelas->jenjang_paket !== 'umum') {
+            return $this->relKelas->jenjang_paket_label;
+        }
+
         return match ($this->jenjang_paket) {
             'paket_a' => 'Paket A (Setara SD)',
             'paket_b' => 'Paket B (Setara SMP)',
             'paket_c' => 'Paket C (Setara SMA)',
+            'vokasi' => 'Vokasi / Keterampilan Kejuruan',
+            'kursus' => 'Kursus & Pelatihan',
             default => $this->relKelas?->nama_kelas ?: 'Umum / Reguler',
         };
+    }
+
+    /**
+     * Accessor: Nama kelas / rombel lengkap siswa.
+     */
+    public function getNamaKelasLengkapAttribute(): string
+    {
+        return $this->relKelas?->nama_kelas ?: 'Belum Ditentukan';
     }
 
     /**

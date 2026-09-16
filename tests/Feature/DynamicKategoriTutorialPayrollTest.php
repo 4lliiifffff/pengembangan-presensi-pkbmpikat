@@ -110,7 +110,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Ayah Budi',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $response->assertRedirect(route('admin.siswa.index'));
@@ -132,7 +131,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Wali Citra',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $response = $this->actingAs($this->tutorUser)->post(route('tutor.presensi.store'), [
@@ -167,7 +165,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Wali Doni',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $response = $this->actingAs($this->tutorUser)->post(route('tutor.presensi.store'), [
@@ -199,7 +196,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Wali 1',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $siswaAbk = Siswa::create([
@@ -210,7 +206,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Wali 2',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $date = Carbon::now();
@@ -269,7 +264,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Wali',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 50000,
         ]);
 
         $date = Carbon::now();
@@ -310,7 +304,6 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'nama_wali' => 'Wali',
             'kelas_id' => $this->kelas->id,
             'tutor_id' => $this->tutor->id,
-            'tarif_per_jam' => 60000, // Rp 60.000 per jam
         ]);
 
         $date = Carbon::now();
@@ -331,8 +324,8 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         $service = app(PayrollService::class);
         $payroll = $service->calculateTutorPayroll($this->tutor, $date->month, $date->year);
 
-        // Fallback calculation: 2 jam * 60.000 = 120.000
-        $this->assertEquals(120000.00, $payroll['total_honor']);
+        // Standar SK Tutorial Komunitas = Rp 75.000
+        $this->assertEquals(75000.00, $payroll['total_honor']);
     }
 
     public function test_presensi_online_distance_learning_auto_resolves_honor(): void

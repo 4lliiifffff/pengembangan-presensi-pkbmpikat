@@ -227,7 +227,7 @@ class PresensiFotoController extends Controller
             $durasiPilihan = (float) ($validated['durasi_pilihan'] ?? ($moda === 'online' ? 1.5 : 2.0));
             $isGabungan = ($moda === 'online') ? false : (bool) ($validated['is_gabungan'] ?? false);
 
-            // Validasi Keseragaman Jenjang Paket: Multi-siswa (baik reguler maupun sesi gabungan rombel) wajib dalam jenjang paket yang sama
+            // Validasi Keseragaman Jenjang Paket & Deteksi Otomatis Sesi Gabungan Komunitas (Multi-Rombel)
             if (count($validated['siswa_id']) > 1) {
                 $selectedSiswaList = Siswa::with('relKelas')->whereIn('id', $validated['siswa_id'])->get();
                 $uniqueJenjangs = $selectedSiswaList->map(fn ($s) => $s->jenjang_paket)->unique();
@@ -235,6 +235,16 @@ class PresensiFotoController extends Controller
                     $paketLabels = $selectedSiswaList->map(fn ($s) => $s->jenjang_paket_label)->unique()->implode(' dan ');
 
                     return back()->with('warning', "Presensi bersamaan hanya dapat dilakukan untuk siswa dalam jenjang paket yang sama (tidak boleh lintas paket). Ditemukan siswa dari jenjang yang berbeda: {$paketLabels}.");
+                }
+
+                // Auto-detect Multi-Rombel (Gabungan Komunitas) untuk moda tatap muka
+                if ($moda !== 'online') {
+                    $uniqueKelasCount = $selectedSiswaList->pluck('kelas_id')->filter()->unique()->count();
+                    if ($uniqueKelasCount > 1) {
+                        $isGabungan = true;
+                    } elseif ($uniqueKelasCount === 1) {
+                        $isGabungan = false;
+                    }
                 }
             }
 

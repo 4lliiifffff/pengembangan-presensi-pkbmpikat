@@ -16,63 +16,109 @@ class UserRoleSeeder extends Seeder
     {
         $passwordHash = Hash::make('password123');
 
-        // 1. Akun Admin Default
-        $adminUser = User::updateOrCreate(
-            ['nik' => '12345'],
+        // 1. Akun Admin
+        $admins = [
             [
-                'nama_lengkap' => 'Admin Presensi',
+                'nik' => '12345',
+                'nama_lengkap' => 'Admin Presensi PKBM',
                 'email' => 'admin@pkbmpikat.com',
-                'password' => $passwordHash,
-                'role' => 'admin',
                 'no_hp' => '081234567890',
-                'is_active' => 1,
-            ]
-        );
-
-        if (Schema::hasTable('admins')) {
-            Admin::updateOrCreate(
-                ['user_id' => $adminUser->id],
-                [
-                    'nik' => $adminUser->nik,
-                    'nama_lengkap' => $adminUser->nama_lengkap,
-                    'email' => $adminUser->email,
-                    'no_hp' => $adminUser->no_hp,
-                ]
-            );
-        }
-
-        // 2. Akun Tutor Default
-        $tutorUser = User::updateOrCreate(
-            ['nik' => '10001'],
+            ],
             [
-                'nama_lengkap' => 'Budi Santoso, S.Pd (Tutor)',
-                'email' => 'tutor@pkbmpikat.com',
-                'password' => $passwordHash,
-                'role' => 'tutor',
-                'no_hp' => '082345678901',
-                'is_active' => 1,
-            ]
-        );
+                'nik' => '12346',
+                'nama_lengkap' => 'Admin Operasional',
+                'email' => 'admin2@pkbmpikat.com',
+                'no_hp' => '081234567891',
+            ],
+        ];
 
-        if (Schema::hasTable('tutors')) {
-            Tutor::updateOrCreate(
-                ['user_id' => $tutorUser->id],
+        foreach ($admins as $adm) {
+            $user = User::updateOrCreate(
+                ['nik' => $adm['nik']],
                 [
-                    'nik' => $tutorUser->nik,
-                    'nama_lengkap' => $tutorUser->nama_lengkap,
-                    'jabatan' => 'Tutor Pengajar',
-                    'email' => $tutorUser->email,
-                    'alamat' => 'Jl. Pikat No. 123, Kota',
-                    'no_hp' => $tutorUser->no_hp,
+                    'nama_lengkap' => $adm['nama_lengkap'],
+                    'email' => $adm['email'],
+                    'password' => $passwordHash,
+                    'role' => 'admin',
+                    'no_hp' => $adm['no_hp'],
+                    'is_active' => 1,
                 ]
             );
+
+            if (Schema::hasTable('admins')) {
+                Admin::updateOrCreate(
+                    ['user_id' => $user->id],
+                    [
+                        'nik' => $user->nik,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'email' => $user->email,
+                        'no_hp' => $user->no_hp,
+                    ]
+                );
+            }
         }
 
-        // 3. Akun Kepala Sekolah Default
+        // 2. Akun Tutor
+        $tutors = [
+            [
+                'nik' => '10001',
+                'nama_lengkap' => 'Budi Santoso, S.Pd',
+                'email' => 'tutor@pkbmpikat.com',
+                'jabatan' => 'Tutor Matematika & IPA',
+                'alamat' => 'Jl. Pikat No. 123, Surabaya',
+                'no_hp' => '082345678901',
+            ],
+            [
+                'nik' => '10002',
+                'nama_lengkap' => 'Siti Aminah, M.Pd',
+                'email' => 'tutor2@pkbmpikat.com',
+                'jabatan' => 'Tutor Bahasa & IPS',
+                'alamat' => 'Jl. Dharmahusada No. 45, Surabaya',
+                'no_hp' => '082345678902',
+            ],
+            [
+                'nik' => '10003',
+                'nama_lengkap' => 'Agus Prasetyo, S.Si',
+                'email' => 'tutor3@pkbmpikat.com',
+                'jabatan' => 'Tutor Vokasi & Komputer',
+                'alamat' => 'Jl. Rungkut Madya No. 88, Surabaya',
+                'no_hp' => '082345678903',
+            ],
+        ];
+
+        foreach ($tutors as $tut) {
+            $tutorUser = User::updateOrCreate(
+                ['nik' => $tut['nik']],
+                [
+                    'nama_lengkap' => $tut['nama_lengkap'],
+                    'email' => $tut['email'],
+                    'password' => $passwordHash,
+                    'role' => 'tutor',
+                    'no_hp' => $tut['no_hp'],
+                    'is_active' => 1,
+                ]
+            );
+
+            if (Schema::hasTable('tutors')) {
+                Tutor::updateOrCreate(
+                    ['user_id' => $tutorUser->id],
+                    [
+                        'nik' => $tutorUser->nik,
+                        'nama_lengkap' => $tutorUser->nama_lengkap,
+                        'jabatan' => $tut['jabatan'],
+                        'email' => $tutorUser->email,
+                        'alamat' => $tut['alamat'],
+                        'no_hp' => $tutorUser->no_hp,
+                    ]
+                );
+            }
+        }
+
+        // 3. Akun Kepala Sekolah
         $kepsekUser = User::updateOrCreate(
             ['nik' => '99001'],
             [
-                'nama_lengkap' => 'Dr. H. Ahmad Dahlan, M.Pd (Kepsek)',
+                'nama_lengkap' => 'Dr. H. Ahmad Dahlan, M.Pd',
                 'email' => 'kepsek@pkbmpikat.com',
                 'password' => $passwordHash,
                 'role' => 'kepala_sekolah',

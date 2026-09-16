@@ -8,6 +8,7 @@ use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class PayrollBulkTarifTemplateExport implements FromCollection, WithEvents, WithHeadings, WithMapping
 {
@@ -22,8 +23,9 @@ class PayrollBulkTarifTemplateExport implements FromCollection, WithEvents, With
             $siswa->no_absen,
             $siswa->nama_siswa,
             $siswa->relKelas->nama_kelas ?? '-',
-            $siswa->tutor->nama_lengkap ?? '-',
-            (float) ($siswa->tarif_per_jam ?? 50000),
+            $siswa->jenjang_paket_label,
+            $siswa->is_abk_label,
+            $siswa->skema_tarif_label,
         ];
     }
 
@@ -33,8 +35,9 @@ class PayrollBulkTarifTemplateExport implements FromCollection, WithEvents, With
             'Nomor Absen (NIS)',
             'Nama Siswa',
             'Kelas / Rombel',
-            'Tutor Pembimbing',
-            'Tarif Honor Per Jam (Rp)',
+            'Jenjang Paket',
+            'Status ABK (ABK / Reguler)',
+            'Skema Master Tarif SK Terhubung',
         ];
     }
 
@@ -43,14 +46,12 @@ class PayrollBulkTarifTemplateExport implements FromCollection, WithEvents, With
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $sheet->getStyle('A1:E1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:F1')->getFill()
+                    ->setFillType(Fill::FILL_SOLID)
+                    ->getStartColor()->setRGB('E0E7FF');
 
-                $highestRow = $sheet->getHighestRow();
-                if ($highestRow >= 2) {
-                    $sheet->getStyle('E2:E'.$highestRow)->getNumberFormat()->setFormatCode('#,##0');
-                }
-
-                foreach (range('A', 'E') as $col) {
+                foreach (range('A', 'F') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
             },

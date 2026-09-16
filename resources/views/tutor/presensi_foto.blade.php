@@ -381,11 +381,14 @@
                     {{-- 4. Checkbox Gabungan Komunitas --}}
                     <div style="margin-bottom:12px; background:var(--card-alt); border:1px solid var(--border); border-radius:12px; padding:10px 12px;"
                         id="boxGabungan">
-                        <label
-                            style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text); margin:0;">
-                            <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} onchange="updateSelectedSiswaCount()" style="width:16px; height:16px; accent-color:#1f3b8a;">
-                            <span>Sesi Gabungan Komunitas (Rombel)</span>
-                        </label>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <label
+                                style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text); margin:0;">
+                                <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} onchange="updateSelectedSiswaCount()" style="width:16px; height:16px; accent-color:#1f3b8a;">
+                                <span>Sesi Gabungan Komunitas (Rombel)</span>
+                            </label>
+                            <span id="badgeAutoGabungan" style="display:none; font-size:10px; font-weight:800; background:#e0e7ff; color:#3730a3; padding:2px 7px; border-radius:6px;">⚡ Otomatis</span>
+                        </div>
                         <div style="font-size:11px; color:var(--muted); margin-top:4px; margin-left:24px; line-height:1.35;">
                             Penggabungan beberapa rombel dalam 1 jenjang paket yang sama (sesama Paket A, B, atau C).
                         </div>
@@ -433,6 +436,9 @@
                                 </div>
                             </div>
 
+                            {{-- Info Banner Deteksi Rombel --}}
+                            <div id="rombelDetectionBadge" style="display:none; margin-bottom:8px; padding:8px 10px; border-radius:8px; font-size:11.5px; font-weight:700; border:1px solid transparent;"></div>
+
                             {{-- Alert Mismatch Paket Siswa Terpilih --}}
                             <div id="gabunganPaketMismatchAlert" style="display:none; margin-bottom:8px; padding:8px 10px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#dc2626; font-size:11.5px; font-weight:700;">
                                 <ion-icon name="alert-circle" style="vertical-align:middle; font-size:14px; margin-right:2px;"></ion-icon>
@@ -446,7 +452,7 @@
                                         $p = collect($presensiToday)->get($siswa->id);
                                         $badge = '';
                                         if ($p?->foto_mulai && !$p?->foto_selesai) {
-                                            $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px; font-weight:700;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
+                                             $badge = ' <span style="color:#d97706; font-size:10px; display:inline-flex; align-items:center; gap:2px; font-weight:700;">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
                                         }
                                         $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
                                         $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
@@ -454,11 +460,15 @@
                                     <label class="siswa-item-row" data-search="{{ $searchKeyword }}"
                                         data-paket="{{ $siswa->jenjang_paket }}"
                                         data-paket-label="{{ $siswa->jenjang_paket_label }}"
+                                        data-kelas-id="{{ $siswa->kelas_id }}"
+                                        data-kelas-nama="{{ $siswa->relKelas?->nama_kelas ?? 'Kelas' }}"
                                         style="display:flex; align-items:center; justify-content:space-between; padding:8px 8px; border-radius:8px; margin-bottom:3px; cursor:pointer; transition:background .15s; border:1px solid transparent;">
                                         <div style="display:flex; align-items:center; gap:10px; min-width:0;">
                                             <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}"
                                                 data-paket="{{ $siswa->jenjang_paket }}"
                                                 data-paket-label="{{ $siswa->jenjang_paket_label }}"
+                                                data-kelas-id="{{ $siswa->kelas_id }}"
+                                                data-kelas-nama="{{ $siswa->relKelas?->nama_kelas ?? 'Kelas' }}"
                                                 {{ $isChecked }} onchange="updateSelectedSiswaCount()"
                                                 style="width:16px; height:16px; accent-color:var(--blue2); cursor:pointer; flex-shrink:0;">
                                             <div style="min-width:0;">
@@ -1406,30 +1416,84 @@
                 countLabel.innerText = checked.length;
             }
 
-            // Realtime Validation: Pemilihan multi-siswa wajib dalam jenjang paket yang sama (Universal)
             var alertBox = document.getElementById('gabunganPaketMismatchAlert');
             var alertMsg = document.getElementById('gabunganPaketMismatchMsg');
+            var rombelBadge = document.getElementById('rombelDetectionBadge');
+            var inputGabungan = document.getElementById('inputIsGabungan');
+            var badgeAuto = document.getElementById('badgeAutoGabungan');
+            var selectModa = document.getElementById('selectModa');
+            var isOnline = selectModa && selectModa.value === 'online';
 
-            if (checked.length > 1) {
-                var paketMap = {};
-                checked.forEach(function (cb) {
-                    var p = cb.getAttribute('data-paket') || 'umum';
-                    var pLbl = cb.getAttribute('data-paket-label') || p;
-                    paketMap[p] = pLbl;
-                });
+            if (checked.length === 0) {
+                if (alertBox) alertBox.style.display = 'none';
+                if (rombelBadge) rombelBadge.style.display = 'none';
+                if (badgeAuto) badgeAuto.style.display = 'none';
+                return;
+            }
 
-                var uniquePakets = Object.keys(paketMap);
-                if (uniquePakets.length > 1) {
-                    var labels = Object.values(paketMap).join(' dan ');
-                    if (alertBox && alertMsg) {
-                        alertMsg.innerText = 'Siswa terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Presensi bersamaan hanya diperbolehkan untuk siswa dalam jenjang paket yang sama.';
-                        alertBox.style.display = 'block';
-                    }
-                } else {
-                    if (alertBox) alertBox.style.display = 'none';
+            // 1. Kumpulkan data paket & kelas siswa terpilih
+            var paketMap = {};
+            var kelasMap = {};
+
+            checked.forEach(function (cb) {
+                var p = cb.getAttribute('data-paket') || 'umum';
+                var pLbl = cb.getAttribute('data-paket-label') || p;
+                paketMap[p] = pLbl;
+
+                var kId = cb.getAttribute('data-kelas-id') || '0';
+                var kNama = cb.getAttribute('data-kelas-nama') || 'Kelas';
+                kelasMap[kId] = kNama;
+            });
+
+            var uniquePakets = Object.keys(paketMap);
+            var uniqueKelas = Object.keys(kelasMap);
+
+            // 2. Cek Keseragaman Paket (Universal Guard)
+            if (checked.length > 1 && uniquePakets.length > 1) {
+                var labels = Object.values(paketMap).join(' dan ');
+                if (alertBox && alertMsg) {
+                    alertMsg.innerText = 'Siswa terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Presensi bersamaan hanya diperbolehkan untuk siswa dalam jenjang paket yang sama.';
+                    alertBox.style.display = 'block';
                 }
+                if (rombelBadge) rombelBadge.style.display = 'none';
+                if (badgeAuto) badgeAuto.style.display = 'none';
+                return;
             } else {
                 if (alertBox) alertBox.style.display = 'none';
+            }
+
+            // 3. Deteksi Otomatis Multi-Rombel (Gabungan Komunitas) vs 1 Rombel Reguler
+            if (!isOnline && checked.length > 1) {
+                if (uniqueKelas.length > 1) {
+                    // Multi-Rombel (Beda Kelas, Paket Sama) -> Otomatis Gabungan Komunitas
+                    if (inputGabungan) inputGabungan.checked = true;
+                    if (badgeAuto) badgeAuto.style.display = 'inline-block';
+
+                    var kelasListStr = Object.values(kelasMap).join(' & ');
+                    if (rombelBadge) {
+                        rombelBadge.style.display = 'block';
+                        rombelBadge.style.background = '#eef2ff';
+                        rombelBadge.style.borderColor = '#c7d2fe';
+                        rombelBadge.style.color = '#3730a3';
+                        rombelBadge.innerHTML = '<span style="font-weight:800;">⚡ Terdeteksi Sesi Gabungan (' + uniqueKelas.length + ' Rombel):</span> ' + kelasListStr + '<div style="font-size:10.5px; font-weight:600; color:#4f46e5; margin-top:2px;">Honor otomatis dihitung Rp 50.000,- / rombel sesuai SK PKBM.</div>';
+                    }
+                } else {
+                    // Single-Rombel (Sama Kelas, Paket Sama) -> Tutorial Komunitas Reguler
+                    if (inputGabungan) inputGabungan.checked = false;
+                    if (badgeAuto) badgeAuto.style.display = 'none';
+
+                    var singleKelas = Object.values(kelasMap)[0] || '1 Rombel';
+                    if (rombelBadge) {
+                        rombelBadge.style.display = 'block';
+                        rombelBadge.style.background = '#f0fdf4';
+                        rombelBadge.style.borderColor = '#bbf7d0';
+                        rombelBadge.style.color = '#15803d';
+                        rombelBadge.innerHTML = '<span style="font-weight:800;">✓ Sesi 1 Rombel Reguler:</span> ' + singleKelas + '<div style="font-size:10.5px; font-weight:600; color:#16a34a; margin-top:2px;">Honor dihitung Tutorial Komunitas Standar (Rp 75.000,- / Rp 100.000,- ABK).</div>';
+                    }
+                }
+            } else {
+                if (rombelBadge) rombelBadge.style.display = 'none';
+                if (badgeAuto) badgeAuto.style.display = 'none';
             }
         }
 

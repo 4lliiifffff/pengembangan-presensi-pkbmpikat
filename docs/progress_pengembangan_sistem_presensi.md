@@ -110,12 +110,17 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Switch Camera (`🔄 Switch`)**: Beralih secara instan antara Kamera Depan (Selfie) dan Kamera Belakang (Kelas/Siswa).
     - **Grid Komposisi (`📐 Grid 3x3`)**: Overlay garis bantu 3x3 *Rule of Thirds* untuk kerapihan foto presensi.
     - **Deteksi Flash/Torch (`⚡ Flash`)**: Integrasi pengontrol senter perangkat jika didukung oleh browser/kamera.
-- 🟢 **Seeder Data Siswa & Kelas (`SiswaSeeder`)**
+- 🟢 **Seeder Data Komprehensif untuk Pengujian Sistem Seluruh Role**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat file seeder `database/seeders/SiswaSeeder.php` yang secara otomatis menyiapkan data sampel kelas (Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA) serta 6 data sampel siswa terikat pada tutor default.
-    - Menggunakan metode `updateOrCreate` untuk keamanan re-seeding tanpa duplikasi data.
-    - Mendaftarkan seeder pada `database/seeders/DatabaseSeeder.php`.
+    - Memperbarui dan menyusun suite seeder lengkap (`DatabaseSeeder.php`):
+      1. `AdminSeeder` & `UserRoleSeeder`: 2 Akun Admin (`admin@pkbmpikat.com`, `admin2@pkbmpikat.com`), 1 Akun Kepala Sekolah (`kepsek@pkbmpikat.com`), 3 Akun Tutor (`tutor@pkbmpikat.com` - Budi Santoso, `tutor2@pkbmpikat.com` - Siti Aminah, `tutor3@pkbmpikat.com` - Agus Prasetyo).
+      2. `MagangSeeder`: 2 Akun Mahasiswa Magang/PKL (`magang@pkbmpikat.com` - UNESA & `magang2@pkbmpikat.com` - UNAIR).
+      3. `KategoriTutorialSeeder`: 6 Master Skema Honor SK Kepala PKBM Pikat.
+      4. `SiswaSeeder`: 14 Master Kelas Terstruktur (Paket A 1-6, Paket B 7-9, Paket C 10-12, Vokasi Desain & Tata Busana) dan 12 data siswa realistis (kombinasi Reguler & ABK tersebar ke tutor berbeda).
+      5. `JadwalSeeder`: 5 data agenda/kegiatan akademik PKBM Pikat.
+      6. `DummyPresensiSeeder`: Data riwayat presensi mengajar multi-moda (Sekolah, Home Visit, Online DL, Gabungan Komunitas) dengan snapshot honor, pengajuan izin/sakit (pending, disetujui, ditolak), permohonan lupa lapor, dan presensi harian magang.
+    - Menggunakan metode `updateOrCreate` untuk keamanan re-seeding tanpa duplikasi data (`php artisan db:seed`).
 - 🟢 **Deteksi Manipulasi GPS (Anti Fake GPS) & Validasi Akurasi Sinyal**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -246,14 +251,29 @@ pie title Status Fitur & Pengkondisian Sistem
     - Grid tanggal adaptif (`.dateInputRow`) yang otomatis 1 kolom pada layar HP (< 520px) dan 2 kolom pada tablet/desktop.
     - Kartu riwayat pengajuan izin lengkap dengan status badge, tombol pratinjau surat bukti, dan dialog pembatalan interaktif.
 
-#### 6.4 Validasi Pedagogis Multi-Siswa & Keseragaman Jenjang Paket (Universal Guard)
-- 🟢 **Validasi Universal Keseragaman Jenjang Paket Siswa**
+#### 6.4 Validasi Pedagogis & Deteksi Otomatis Sesi Gabungan Komunitas (Multi-Rombel)
+- 🟢 **Master Data Kelas Terstruktur per Paket & Deteksi Otomatis Multi-Rombel**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Penambahan accessor `$siswa->jenjang_paket` (`paket_a`, `paket_b`, `paket_c`, `umum`) dan `$siswa->jenjang_paket_label` pada model `Siswa` (khusus jenjang pendidikan kesetaraan: Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA).
-    - **Universal Backend Guard**: Validasi menyeluruh pada `PresensiFotoController::store()` setiap kali tutor memilih lebih dari 1 siswa (`count(siswa_id) > 1`). Menolak presensi multi-siswa baik pada sesi reguler tatap muka, daring, maupun sesi gabungan rombel jika ditemukan siswa lintas paket dengan pesan informatif: *"Presensi bersamaan hanya dapat dilakukan untuk siswa dalam jenjang paket yang sama (tidak boleh lintas paket). Ditemukan siswa dari jenjang yang berbeda: [Paket A dan Paket C]."*
-    - **Frontend Guard**: Pemindahan alert visual `#gabunganPaketMismatchAlert` ke dalam kartu pemilih siswa (`#wrapperSiswaDropdown`) dengan peringatan realtime dan pemblokiran submit formulir presensi pada `tutor/presensi_foto.blade.php`.
-    - Automated feature testing: `tests/Feature/PresensiMultiModaTest.php` (`test_gabungan_komunitas_fails_when_students_belong_to_different_packages`, `test_regular_multi_siswa_fails_when_students_belong_to_different_packages`, dan `test_gabungan_komunitas_succeeds_when_students_belong_to_same_package`).
+    - **Struktur Master Kelas Lengkap & Kolom Terstruktur (`jenjang_paket` & `tingkat`)**:
+      - Menambahkan migrasi `2026_09_16_000005_add_jenjang_paket_and_tingkat_to_kelas_table.php` yang menambahkan kolom `jenjang_paket` (varchar 50, indexed) dan `tingkat` (varchar 50) pada tabel `kelas`.
+      - Mendukung kategorisasi modular fleksibel untuk jenjang masa depan seperti `'Vokasi'`, `'Kursus'`, `'Kejuruan'`, dsb.
+      - Menyiapkan data kelas terstruktur pada database seeder (`SiswaSeeder.php`): Paket A (Kelas 1–6), Paket B (Kelas 7–9), dan Paket C (Kelas 10–12).
+    - **Deteksi Otomatis Sesi Gabungan (Multi-Rombel)**:
+      - Backend (`PresensiFotoController.php`) otomatis mendeteksi jika murid yang dipilih berasal dari $>1$ kelas berbeda dalam jenjang paket yang sama $\rightarrow$ otomatis menetapkan status gabungan rombel (`$isGabungan = true`) dan menghitung honor **Gabungan Komunitas (Rp 50.000,- / rombel)**.
+      - Jika murid berasal dari 1 kelas yang sama $\rightarrow$ otomatis menetapkan sebagai **Tutorial Komunitas Standar** (Rp 75.000,- / Rp 100.000,- ABK).
+      - Jika murid berasal dari paket berbeda $\rightarrow$ ditolak otomatis oleh sistem (*Universal Package Guard*).
+    - **Realtime Frontend Visual Guide**: Di form presensi tutor (`presensi_foto.blade.php`), sistem menampilkan badge interaktif `#rombelDetectionBadge` (*"⚡ Terdeteksi Sesi Gabungan: 2 Rombel"* vs *"✓ Sesi 1 Rombel Reguler"*), auto-check checkbox gabungan dengan badge `[⚡ Otomatis]`, dan alert mismatch paket.
+    - Automated feature testing: `tests/Feature/PresensiMultiModaTest.php` (`test_auto_detect_gabungan_komunitas_when_students_from_different_classes_in_same_package` & `test_auto_detect_single_rombel_when_students_from_same_class`).
+
+#### 6.5 Total Refactoring Eliminasi Kolom Legacy `tarif_per_jam`
+- 🟢 **Pembersihan Total Kolom Redundan `tarif_per_jam`**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Menambahkan migrasi `2026_09_16_000004_drop_tarif_per_jam_from_siswas_table.php` untuk menghapus kolom `tarif_per_jam` dari tabel `siswas`.
+    - Menghapus atribut `$fillable` dan casts `tarif_per_jam` dari model `Siswa.php`.
+    - Membersihkan kode fallback lama di `PayrollService.php` sehingga kalkulasi payroll 100% tersentralisasi pada tabel master `kategori_tutorials` (dan fallback SK default PKBM Pikat).
+    - Memperbarui form Admin `SiswaController.php`, view `create.blade.php`, `edit.blade.php`, serta seluruh class export/import Excel (`SiswaExport`, `SiswaImport`, `PayrollBulkTarifTemplateExport`, `PayrollBulkTarifImport`).
 
 ---
 
@@ -265,7 +285,7 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
 #### 7.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **67 Feature & Unit Tests** lulus 100% (**287 assertions**).
+- 🟢 **PHPUnit Test Suite**: Seluruh **69 Feature & Unit Tests** lulus 100% (**298 assertions**).
 - 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---
@@ -281,7 +301,8 @@ pie title Status Fitur & Pengkondisian Sistem
 | 5 | **Implementasi Web Push Service & VAPID Tooling** | Push Service | Menambahkan `minishlink/web-push`, command `webpush:vapid`, dan integrasi Service Worker PWA v2. | 🟢 Selesai |
 | 6 | **Master Kategori & Skema Tarif SK Kepala PKBM** | Payroll SK | Migrasi `kategori_tutorials`, seeder 6 skema SK, dynamic snapshot resolver, dan eliminasi form manual. | 🟢 Selesai |
 | 7 | **UI/UX Excellence & Unified Dialog System** | Frontend | Standardisasi layout dashboard, sticky navigation, unified modern dialog/toast, dan form izin responsif. | 🟢 Selesai |
-| 8 | **Validasi Pedagogis Universal Keseragaman Jenjang Paket** | Core Presensi | Deteksi jenjang paket siswa & pencegahan multi-siswa lintas paket (baik sesi reguler maupun sesi gabungan rombel). | 🟢 Selesai |
+| 8 | **Master Kelas Terstruktur & Deteksi Otomatis Sesi Gabungan** | Core Presensi | Master kelas Paket A (1-6), B (7-9), C (10-12) & auto-detect multi-rombel vs 1 rombel reguler. | 🟢 Selesai |
+| 9 | **Total Refactoring `tarif_per_jam` & Skema Terstruktur `kelas`** | Database Refactor | Drop `siswas.tarif_per_jam`, tambah `kelas.jenjang_paket` & `kelas.tingkat` (varchar 50) untuk modularitas Vokasi/Paket baru. | 🟢 Selesai |
 
 ---
 

@@ -21,20 +21,18 @@ class PayrollBulkTarifImport implements ToCollection, WithHeadingRow, WithValida
             foreach ($rows as $row) {
                 // Ambil nomor absen / NIS
                 $noAbsen = trim((string) ($row['nomor_absen_nis'] ?? ($row['no_absen'] ?? ($row['nis'] ?? ''))));
-                $rawTarif = $row['tarif_honor_per_jam_rp'] ?? ($row['tarif_per_jam'] ?? ($row['tarif'] ?? null));
+                $rawAbk = strtolower(trim((string) ($row['status_abk_abk_reguler'] ?? ($row['status_abk'] ?? ($row['is_abk'] ?? '')))));
 
-                if (! $noAbsen || $rawTarif === null) {
+                if (! $noAbsen) {
                     $this->skippedCount++;
 
                     continue;
                 }
 
-                // Bersihkan format nominal misal Rp 50.000 atau 50000
-                $cleanTarif = (float) preg_replace('/[^\d.]/', '', str_replace(',', '.', (string) $rawTarif));
-
                 $siswa = Siswa::where('no_absen', $noAbsen)->first();
                 if ($siswa) {
-                    $siswa->update(['tarif_per_jam' => $cleanTarif]);
+                    $isAbk = str_contains($rawAbk, 'abk') || in_array($rawAbk, ['1', 'true', 'ya', 'yes']);
+                    $siswa->update(['is_abk' => $isAbk]);
                     $this->updatedCount++;
                 } else {
                     $this->skippedCount++;
@@ -47,7 +45,6 @@ class PayrollBulkTarifImport implements ToCollection, WithHeadingRow, WithValida
     {
         return [
             '*.nomor_absen_nis' => ['nullable'],
-            '*.tarif_honor_per_jam_rp' => ['nullable'],
         ];
     }
 }
