@@ -36,7 +36,7 @@
             <form action="{{ route('logout') }}" method="POST" style="display:none;" class="navLogoutForm">
                 @csrf
             </form>
-            <a href="{{ route('logout') }}" class="iconBtn" aria-label="Keluar" title="Keluar dari Akun" onclick="event.preventDefault(); if(confirm('Apakah Anda yakin ingin keluar dari akun?')) { this.previousElementSibling.submit(); }">
+            <a href="{{ route('logout') }}" class="iconBtn" aria-label="Keluar" title="Keluar dari Akun" onclick="event.preventDefault(); (window.AppNotification ? window.AppNotification.confirm({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun ini?', confirmText: 'Keluar Akun', cancelText: 'Batal', isDanger: true }) : Promise.resolve(confirm('Apakah Anda yakin ingin keluar dari akun?'))).then(ok => { if(ok) this.previousElementSibling.submit(); });">
                 <ion-icon name="log-out-outline"></ion-icon>
             </a>
         </div>

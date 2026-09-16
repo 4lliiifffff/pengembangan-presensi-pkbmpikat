@@ -235,7 +235,7 @@
     <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display:none;">
         @csrf
     </form>
-    <button type="button" class="profileBtnDanger" onclick="if(confirm('Apakah Anda yakin ingin keluar dari akun ini?')) { document.getElementById('logoutForm').submit(); }">
+    <button type="button" class="profileBtnDanger" onclick="(window.AppNotification ? window.AppNotification.confirm({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun ini?', confirmText: 'Keluar Akun', cancelText: 'Batal', isDanger: true }) : Promise.resolve(confirm('Apakah Anda yakin ingin keluar dari akun ini?'))).then(ok => { if(ok) document.getElementById('logoutForm').submit(); });">
         <ion-icon name="log-out-outline" style="font-size: 17px;"></ion-icon>
         Keluar dari Akun
     </button>
@@ -350,6 +350,13 @@
     }
 
     function showPushFeedback(msg, type) {
+        if (window.showAppToast) {
+            window.showAppToast({
+                type: type === 'success' ? 'success' : (type === 'warning' ? 'warning' : 'error'),
+                title: type === 'success' ? 'Berhasil' : 'Notifikasi',
+                message: msg
+            });
+        }
         const fb = document.getElementById('pushFeedbackMsg');
         if (!fb) return;
         fb.textContent = msg;

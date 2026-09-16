@@ -26,7 +26,7 @@
                         Edit
                     </a>
 
-                    <form method="POST" action="{{ route('admin.kelas.destroy', $k) }}" onsubmit="return confirm('Yakin hapus kelas ini?')">
+                    <form method="POST" action="{{ route('admin.kelas.destroy', $k) }}" data-confirm="Apakah Anda yakin ingin menghapus kelas ini?" data-confirm-title="Hapus Kelas" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="smallBtn delete" style="cursor:pointer;">

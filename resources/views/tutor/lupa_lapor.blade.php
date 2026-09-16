@@ -141,7 +141,10 @@
                         @if(($item->status ?? 'pending') === 'pending')
                             <form method="POST"
                                   action="{{ route('tutor.lupa-lapor.destroy', $item->id) }}"
-                                  onsubmit="return confirm('Hapus pengajuan ini?');">
+                                  data-confirm="Apakah Anda yakin ingin menghapus pengajuan lupa lapor ini?"
+                                  data-confirm-title="Hapus Pengajuan"
+                                  data-confirm-type="danger"
+                                  data-confirm-btn="Ya, Hapus">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="deleteBtn">Hapus</button>
                             </form>

@@ -13,13 +13,6 @@
         <div class="izinHeaderSub">Berikan izin setelah konfirmasi WhatsApp dari tutor</div>
     </div>
 
-    {{-- Flash --}}
-    @if(session('success'))
-        <div class="flashAlert success" style="margin: 14px 16px 0;">{{ session('success') }}</div>
-    @endif
-    @if(session('warning'))
-        <div class="flashAlert warning" style="margin: 14px 16px 0;">{{ session('warning') }}</div>
-    @endif
 
     @if($errors->any())
         <div class="errorList" style="margin: 14px 16px 0;">
@@ -101,7 +94,10 @@
                 <div class="riwayatRight">
                     <span class="pill {{ $pillClass }}">{{ $pillLabel }}</span>
                     <form method="POST" action="{{ route('admin.izin.destroy', $item->id) }}"
-                          onsubmit="return confirm('Batalkan izin ini?')">
+                          data-confirm="Apakah Anda yakin ingin membatalkan izin ini?"
+                          data-confirm-title="Batalkan Izin"
+                          data-confirm-type="danger"
+                          data-confirm-btn="Ya, Batalkan">
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btnBatal">Batalkan</button>

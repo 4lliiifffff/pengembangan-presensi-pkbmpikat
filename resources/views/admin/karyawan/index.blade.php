@@ -198,7 +198,7 @@
     </a>
 
     <!-- Tombol Hapus -->
-    <form id="drawerDeleteForm" method="POST" onsubmit="return confirm('Yakin ingin menghapus karyawan ini?')">
+    <form id="drawerDeleteForm" method="POST" data-confirm="Apakah Anda yakin ingin menghapus karyawan ini?" data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
         @csrf
         @method('DELETE')
         <button type="submit" class="drawerActionBtn danger" style="width:100%;border:none;cursor:pointer;">

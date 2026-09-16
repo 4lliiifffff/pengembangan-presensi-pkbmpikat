@@ -32,7 +32,7 @@
             </a>
             @endif
             @if($rolePrefix === 'admin')
-            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" onsubmit="return confirm('Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor?')" style="display:inline;">
+            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" style="display:inline;">
                 @csrf
                 <input type="hidden" name="bulan" value="{{ $bulan }}">
                 <input type="hidden" name="tahun" value="{{ $tahun }}">

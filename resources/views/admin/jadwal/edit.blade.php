@@ -74,7 +74,10 @@
         </form>
 
         <form method="POST" action="{{ route('admin.jadwal.destroy', $jadwal) }}"
-              onsubmit="return confirm('Yakin ingin menghapus agenda ini?')">
+              data-confirm="Apakah Anda yakin ingin menghapus agenda ini?"
+              data-confirm-title="Hapus Agenda"
+              data-confirm-type="danger"
+              data-confirm-btn="Ya, Hapus">
             @csrf
             @method('DELETE')
             <button type="submit" class="deleteBtn">

@@ -17,17 +17,6 @@
         </div>
     </div>
 
-    {{-- ── Flash Alerts ── --}}
-    @if(session('success'))
-        <div class="flashAlert success" style="margin-bottom: 16px;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('warning'))
-        <div class="flashAlert warning" style="margin-bottom: 16px;">
-            {{ session('warning') }}
-        </div>
-    @endif
 
     {{-- ── Summary Stats ── --}}
     <div class="statRow">
@@ -156,22 +145,22 @@
                     {{-- Actions --}}
                     <div class="kllActions">
                         @if($status === 'pending')
-                            <form method="POST" action="{{ route('kepsek.lupa-lapor.setujui', $item->id) }}" style="flex:1;" onsubmit="return confirm('Setujui pengajuan lupa lapor ini? Presensi mengajar akan otomatis dicatat.');">
+                            <form method="POST" action="{{ route('kepsek.lupa-lapor.setujui', $item->id) }}" style="flex:1;" data-confirm="Setujui permohonan lupa lapor ini? Presensi mengajar tutor akan otomatis dicatat." data-confirm-title="Setujui Lupa Lapor" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
                                 @csrf @method('PATCH')
                                 <button type="submit" class="profileBtnPrimary" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#16a34a;">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Setujui
                                 </button>
                             </form>
 
-                            <form method="POST" action="{{ route('kepsek.lupa-lapor.tolak', $item->id) }}" style="flex:1;" onsubmit="return confirm('Tolak permohonan lupa lapor ini?');">
+                            <form method="POST" action="{{ route('kepsek.lupa-lapor.tolak', $item->id) }}" style="flex:1;" data-confirm="Apakah Anda yakin ingin menolak permohonan lupa lapor ini?" data-confirm-title="Tolak Lupa Lapor" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="profileBtnDanger" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#f59e0b; color:#fff;">
+                                <button type="submit" class="profileBtnDanger" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#ef4444; color:#fff;">
                                     <ion-icon name="close-circle-outline"></ion-icon> Tolak
                                 </button>
                             </form>
                         @endif
 
-                        <form method="POST" action="{{ route('kepsek.lupa-lapor.destroy', $item->id) }}" onsubmit="return confirm('Hapus permanen arsip pengajuan ini?');">
+                        <form method="POST" action="{{ route('kepsek.lupa-lapor.destroy', $item->id) }}" data-confirm="Hapus permanen arsip pengajuan ini?" data-confirm-title="Hapus Arsip Pengajuan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                             @csrf @method('DELETE')
                             <button type="submit" class="profileBtnDanger" style="height:38px; padding:0 12px; font-size:12px; border-radius:10px; width:auto;" title="Hapus Data">
                                 <ion-icon name="trash-outline"></ion-icon>

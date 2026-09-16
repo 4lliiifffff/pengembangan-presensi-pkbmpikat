@@ -316,14 +316,23 @@
 
     <script>
         function showGateError(msg) {
-            document.getElementById('permWarning').style.display = 'flex';
-            document.getElementById('permWarnDesc').innerHTML = msg;
+            const permW = document.getElementById('permWarning');
+            if (permW) permW.style.display = 'flex';
+            const permD = document.getElementById('permWarnDesc');
+            if (permD) permD.innerHTML = msg;
             
             var btnSubmit = document.getElementById('btnSubmit');
-            if(btnSubmit) btnSubmit.disabled = true;
+            if (btnSubmit) btnSubmit.disabled = true;
 
-            alert("Akses Ditolak\n\n" + msg.replace(/<[^>]+>/g, ''));
-            window.location.href = '{{ $dashRoute }}';
+            const cleanMsg = msg.replace(/<[^>]+>/g, '');
+            if (window.showAppToast) {
+                window.showAppToast({
+                    type: 'warning',
+                    title: 'Izin Diperlukan',
+                    message: cleanMsg,
+                    duration: 4000
+                });
+            }
         }
 
         function showMainContent() {

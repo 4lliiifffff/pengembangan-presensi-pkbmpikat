@@ -132,7 +132,7 @@
                 <div style="text-align:right;">
                     @if($r->status === 'pending')
                         <span class="badgeStatus pending">MENUNGGU</span>
-                        <form action="{{ route('tutor.pengajuan-izin.destroy', $r->id) }}" method="POST" style="margin-top:8px;" onsubmit="return confirm('Batalkan pengajuan ini?')">
+                        <form action="{{ route('tutor.pengajuan-izin.destroy', $r->id) }}" method="POST" style="margin-top:8px;" data-confirm="Apakah Anda yakin ingin membatalkan pengajuan ini?" data-confirm-title="Batalkan Pengajuan" data-confirm-type="danger" data-confirm-btn="Ya, Batalkan">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btnDelete" title="Batalkan Pengajuan">

@@ -17,17 +17,6 @@
         </div>
     </div>
 
-    {{-- ── Flash Alerts ── --}}
-    @if(session('success'))
-        <div class="flashAlert success" style="margin-bottom: 16px;">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('warning'))
-        <div class="flashAlert warning" style="margin-bottom: 16px;">
-            {{ session('warning') }}
-        </div>
-    @endif
 
     {{-- ── Summary Stats ── --}}
     <div class="statRow">
@@ -157,17 +146,17 @@
                     {{-- Actions --}}
                     @if($item->status === 'pending')
                         <div class="kllActions">
-                            <form action="{{ route('kepsek.pengajuan-izin.setujui', $item->id) }}" method="POST" style="flex:1;">
+                            <form action="{{ route('kepsek.pengajuan-izin.setujui', $item->id) }}" method="POST" style="flex:1;" data-confirm="Setujui permohonan izin/sakit ini? Log presensi kehadiran tutor akan disinkronkan secara otomatis." data-confirm-title="Setujui Pengajuan Izin" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" onclick="return confirm('Setujui pengajuan izin/sakit ini? Log presensi akan disinkronkan secara otomatis.')" class="profileBtnPrimary" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#16a34a;">
+                                <button type="submit" class="profileBtnPrimary" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#16a34a;">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Setujui
                                 </button>
                             </form>
-                            <form action="{{ route('kepsek.pengajuan-izin.tolak', $item->id) }}" method="POST" style="flex:1;">
+                            <form action="{{ route('kepsek.pengajuan-izin.tolak', $item->id) }}" method="POST" style="flex:1;" data-confirm="Apakah Anda yakin ingin menolak permohonan izin ini?" data-confirm-title="Tolak Pengajuan Izin" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" onclick="return confirm('Tolak permohonan izin ini?')" class="profileBtnDanger" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#f59e0b; color:#fff;">
+                                <button type="submit" class="profileBtnDanger" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#ef4444; color:#fff;">
                                     <ion-icon name="close-circle-outline"></ion-icon> Tolak
                                 </button>
                             </form>

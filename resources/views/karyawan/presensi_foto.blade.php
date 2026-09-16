@@ -376,17 +376,23 @@
 
     <script>
         function showGateError(msg) {
-            // Sembunyikan loading
-            document.getElementById('permWarning').style.display = 'flex';
-            document.getElementById('permWarnDesc').innerHTML = msg;
+            const permW = document.getElementById('permWarning');
+            if (permW) permW.style.display = 'flex';
+            const permD = document.getElementById('permWarnDesc');
+            if (permD) permD.innerHTML = msg;
             
-            // Disable tombol submit supaya tidak bisa absen tanpa izin
             var btnSubmit = document.getElementById('btnSubmit');
-            if(btnSubmit) btnSubmit.disabled = true;
+            if (btnSubmit) btnSubmit.disabled = true;
 
-            // Tampilkan alert JS native. Saat diklik OK, redirect ke dashboard
-            alert("Akses Ditolak\n\n" + msg.replace(/<[^>]+>/g, '')); // hapus tag html untuk alert
-            window.location.href = '{{ $dashRoute }}';
+            const cleanMsg = msg.replace(/<[^>]+>/g, '');
+            if (window.showAppToast) {
+                window.showAppToast({
+                    type: 'warning',
+                    title: 'Izin Diperlukan',
+                    message: cleanMsg,
+                    duration: 4000
+                });
+            }
         }
 
         function showMainContent() {

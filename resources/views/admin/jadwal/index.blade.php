@@ -196,7 +196,7 @@
                                 <a href="{{ route('admin.jadwal.edit', $jadwal) }}" class="scheduleActionBtn edit" title="Edit Agenda" style="width: 28px; height: 28px; font-size: 13px;">
                                     <ion-icon name="create-outline"></ion-icon>
                                 </a>
-                                <form method="POST" action="{{ route('admin.jadwal.destroy', $jadwal) }}" onsubmit="return confirm('Yakin hapus agenda ini?')">
+                                <form method="POST" action="{{ route('admin.jadwal.destroy', $jadwal) }}" data-confirm="Apakah Anda yakin ingin menghapus agenda ini?" data-confirm-title="Hapus Agenda" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="scheduleActionBtn delete" title="Hapus Agenda" style="width: 28px; height: 28px; font-size: 13px;">

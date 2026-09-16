@@ -85,7 +85,7 @@
                                         <ion-icon name="create-outline"></ion-icon> Edit
                                     </button>
                                     @if($k->presensis_count === 0)
-                                        <form method="POST" action="{{ route('admin.kategori-tutorial.destroy', $k) }}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kategori ini?')" style="display:inline;">
+                                        <form method="POST" action="{{ route('admin.kategori-tutorial.destroy', $k) }}" data-confirm="Apakah Anda yakin ingin menghapus kategori tutorial ini?" data-confirm-title="Hapus Kategori" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" style="display:inline;">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btnOutline" style="padding:6px 10px;font-size:11px;border-radius:8px;color:#dc2626;border-color:#fca5a5;" title="Hapus Kategori">

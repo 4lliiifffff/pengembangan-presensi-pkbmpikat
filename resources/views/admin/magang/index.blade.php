@@ -117,7 +117,7 @@
                                 <a href="{{ route('admin.magang.edit', $m->id) }}" class="btnOutline" style="padding:6px 10px; font-size:12px;" title="Edit">
                                     <ion-icon name="create-outline"></ion-icon>
                                 </a>
-                                <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?')">
+                                <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btnOutline" style="padding:6px 10px; font-size:12px; color:#dc2626; border-color:#fca5a5;" title="Hapus">
