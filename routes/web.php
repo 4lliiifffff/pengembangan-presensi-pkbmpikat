@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\IzinController;
 use App\Http\Controllers\Admin\JadwalController;
+use App\Http\Controllers\Admin\JenjangPaketController;
 use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KategoriTutorialController;
 use App\Http\Controllers\Admin\KelasController;
@@ -132,6 +133,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Master Kategori Tutorial & Tarif SK
     Route::patch('/kategori-tutorial/{kategoriTutorial}/toggle-status', [KategoriTutorialController::class, 'toggleStatus'])->name('kategori-tutorial.toggleStatus');
     Route::resource('kategori-tutorial', KategoriTutorialController::class);
+
+    // Master Jenjang & Program Paket
+    Route::patch('/jenjang-paket/{jenjangPaket}/toggle-status', [JenjangPaketController::class, 'toggleStatus'])->name('jenjang-paket.toggleStatus');
+    Route::resource('jenjang-paket', JenjangPaketController::class);
 
     // Kelola Mahasiswa / Siswa Magang (PKL)
     Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');

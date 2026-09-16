@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -15,37 +16,72 @@ class kelas extends Model
 
     protected $fillable = [
         'nama_kelas',
-        'jenjang_paket', // 'paket_a', 'paket_b', 'paket_c', 'vokasi', 'kursus', 'umum'
-        'tingkat',       // 1 - 12 (null untuk vokasi/kursus non-tingkat)
+        'jenjang_paket_id', // Foreign key ke tabel jenjang_pakets
+        'tingkat',          // 1 - 12 (null untuk vokasi/kursus non-tingkat)
         'keterangan',
     ];
 
     protected function casts(): array
     {
-        return [];
+        return [
+            'jenjang_paket_id' => 'integer',
+        ];
     }
 
     /**
-     * Accessor: Label manusiawi untuk Jenjang Paket kelas ini.
+     * Relasi ke Master Jenjang Paket (Strict Foreign Key Relation).
+     */
+    public function jenjangPaket(): BelongsTo
+    {
+        return $this->belongsTo(JenjangPaket::class, 'jenjang_paket_id');
+    }
+
+    /**
+     * Alias relasi masterJenjang untuk backward compatibility.
+     */
+    public function masterJenjang(): BelongsTo
+    {
+        return $this->jenjangPaket();
+    }
+
+    /**
+     * Accessor: Mengembalikan kode jenjang paket (misal: 'paket_a', 'vokasi') untuk backward compatibility.
+     */
+    public function getJenjangPaketAttribute(): string
+    {
+        $relation = $this->getRelationValue('jenjangPaket');
+        if ($relation) {
+            return $relation->kode;
+        }
+
+        return $this->jenjang_paket_id ? ($this->jenjangPaket()->first()?->kode ?: 'umum') : 'umum';
+    }
+
+    /**
+     * Accessor: Label resmi manusiawi untuk Jenjang Paket kelas ini.
      */
     public function getJenjangPaketLabelAttribute(): string
     {
-        return match ($this->jenjang_paket) {
-            'paket_a' => 'Paket A (Setara SD)',
-            'paket_b' => 'Paket B (Setara SMP)',
-            'paket_c' => 'Paket C (Setara SMA)',
-            'vokasi' => 'Vokasi / Keterampilan Kejuruan',
-            'kursus' => 'Kursus & Pelatihan',
-            default => 'Umum / Reguler',
-        };
+        $relation = $this->getRelationValue('jenjangPaket');
+        if ($relation) {
+            return $relation->nama_jenjang;
+        }
+
+        return $this->jenjang_paket_id ? ($this->jenjangPaket()->first()?->nama_jenjang ?: 'Umum / Reguler') : 'Umum / Reguler';
     }
 
     /**
-     * Scope filter per jenjang paket.
+     * Scope filter per jenjang paket (menerima ID integer atau kode string).
      */
-    public function scopeJenjang(Builder $query, string $jenjang): Builder
+    public function scopeJenjang(Builder $query, int|string $jenjang): Builder
     {
-        return $query->where('jenjang_paket', $jenjang);
+        if (is_numeric($jenjang)) {
+            return $query->where('jenjang_paket_id', (int) $jenjang);
+        }
+
+        return $query->whereHas('jenjangPaket', function ($q) use ($jenjang) {
+            $q->where('kode', $jenjang);
+        });
     }
 
     /**

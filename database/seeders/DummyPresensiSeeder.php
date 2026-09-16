@@ -36,18 +36,22 @@ class DummyPresensiSeeder extends Seeder
         $tutor2 = Tutor::where('email', 'tutor2@pkbmpikat.com')->first() ?? $tutor1;
         $tutor3 = Tutor::where('email', 'tutor3@pkbmpikat.com')->first() ?? $tutor1;
 
-        $siswa1 = Siswa::where('no_absen', '001')->first(); // Ahmad Rizky Pratama (Reguler)
-        $siswa2 = Siswa::where('no_absen', '002')->first(); // Siti Nurhaliza (Reguler)
-        $siswa3 = Siswa::where('no_absen', '003')->first(); // Kevin Sanjaya (ABK)
-        $siswa5 = Siswa::where('no_absen', '005')->first(); // Dewi Anggraini
-        $siswa7 = Siswa::where('no_absen', '007')->first(); // Rian Ardianto (ABK)
-        $siswa11 = Siswa::where('no_absen', '011')->first(); // Dimas Bagaskara (Vokasi)
+        $siswa1 = Siswa::where('no_absen', '001')->first(); // Ahmad Rizky Pratama (Paket C - Kelas 10)
+        $siswa2 = Siswa::where('no_absen', '002')->first(); // Siti Nurhaliza (Paket C - Kelas 10)
+        $siswa3 = Siswa::where('no_absen', '003')->first(); // Kevin Sanjaya (Paket C - Kelas 11 ABK)
+        $siswa4 = Siswa::where('no_absen', '004')->first(); // Nanda Prasetya (Paket C - Kelas 12)
+        $siswa5 = Siswa::where('no_absen', '005')->first(); // Dewi Anggraini (Paket B - Kelas 7)
+        $siswa6 = Siswa::where('no_absen', '006')->first(); // Muhammad Fikri (Paket B - Kelas 7)
+        $siswa7 = Siswa::where('no_absen', '007')->first(); // Rian Ardianto (Paket B - Kelas 8 ABK)
+        $siswa8 = Siswa::where('no_absen', '008')->first(); // Zahra Amelia (Paket B - Kelas 9)
+        $siswa11 = Siswa::where('no_absen', '011')->first(); // Dimas Bagaskara (Vokasi Desain Komputer)
+        $siswa12 = Siswa::where('no_absen', '012')->first(); // Putri Ayu Wandira (Vokasi Tata Busana)
 
         // =========================================================================
-        // 1. DATA SAMPLE PRESENSI MENGAJAR TUTOR (Bulan Berjalan & Historis)
+        // 1. DATA SAMPLE PRESENSI MENGAJAR TUTOR 1 (Budi Santoso)
         // =========================================================================
         if ($tutor1 && $siswa1 && $katKomunitas2) {
-            // Sesi 1: Komunitas Reguler Tatap Muka di Sekolah (Tutor 1)
+            // Sesi 1: Komunitas Reguler Tatap Muka di Sekolah
             Presensi::updateOrCreate(
                 [
                     'tutor_id' => $tutor1->id,
@@ -69,7 +73,7 @@ class DummyPresensiSeeder extends Seeder
                 ]
             );
 
-            // Sesi 2: Sesi Komunitas ABK (Tutor 1 mengajar Kevin Sanjaya)
+            // Sesi 2: Sesi Komunitas ABK (Kevin Sanjaya)
             if ($siswa3 && $katKomunitasABK) {
                 Presensi::updateOrCreate(
                     [
@@ -93,7 +97,7 @@ class DummyPresensiSeeder extends Seeder
                 );
             }
 
-            // Sesi 3: Sesi Kunjungan Rumah / Home Visit (Tutor 1 mengajar Siti Nurhaliza)
+            // Sesi 3: Sesi Kunjungan Rumah / Home Visit (Siti Nurhaliza)
             if ($siswa2 && $katKomunitas2) {
                 Presensi::updateOrCreate(
                     [
@@ -117,7 +121,7 @@ class DummyPresensiSeeder extends Seeder
                 );
             }
 
-            // Sesi 4: Pembelajaran Online / Distance Learning (Tutor 1)
+            // Sesi 4: Pembelajaran Online / Distance Learning (Ahmad Rizky)
             if ($siswa1 && $katDL) {
                 Presensi::updateOrCreate(
                     [
@@ -142,7 +146,7 @@ class DummyPresensiSeeder extends Seeder
                 );
             }
 
-            // Sesi 5: Sesi Gabungan Komunitas (Multi-Rombel)
+            // Sesi 5: Sesi Gabungan Komunitas (Multi-Rombel Paket C)
             if ($siswa1 && $katGabungan) {
                 Presensi::updateOrCreate(
                     [
@@ -167,13 +171,15 @@ class DummyPresensiSeeder extends Seeder
             }
         }
 
-        // Sesi Presensi Tutor 2 (Siti Aminah)
+        // =========================================================================
+        // 2. DATA SAMPLE PRESENSI MENGAJAR TUTOR 2 (Siti Aminah - Paket B)
+        // =========================================================================
         if ($tutor2 && $siswa5 && $katKomunitas2) {
             Presensi::updateOrCreate(
                 [
                     'tutor_id' => $tutor2->id,
                     'siswa_id' => $siswa5->id,
-                    'tgl_presensi' => $today->copy()->subDays(3)->toDateString(),
+                    'tgl_presensi' => $today->copy()->subDays(5)->toDateString(),
                 ],
                 [
                     'moda_pembelajaran' => 'sekolah',
@@ -195,7 +201,7 @@ class DummyPresensiSeeder extends Seeder
                     [
                         'tutor_id' => $tutor2->id,
                         'siswa_id' => $siswa7->id,
-                        'tgl_presensi' => $today->copy()->subDays(1)->toDateString(),
+                        'tgl_presensi' => $today->copy()->subDays(3)->toDateString(),
                     ],
                     [
                         'moda_pembelajaran' => 'sekolah',
@@ -212,13 +218,85 @@ class DummyPresensiSeeder extends Seeder
                     ]
                 );
             }
+
+            if ($siswa6 && $katKomunitas3) {
+                Presensi::updateOrCreate(
+                    [
+                        'tutor_id' => $tutor2->id,
+                        'siswa_id' => $siswa6->id,
+                        'tgl_presensi' => $today->copy()->subDays(1)->toDateString(),
+                    ],
+                    [
+                        'moda_pembelajaran' => 'sekolah',
+                        'durasi_pilihan' => 3.0,
+                        'kategori_tutorial_id' => $katKomunitas3->id,
+                        'nominal_honor_snapshot' => $katKomunitas3->nominal_honor,
+                        'jam_mulai' => '08:00:00',
+                        'jam_selesai' => '11:00:00',
+                        'lokasi_mulai' => '-7.257500, 112.752100',
+                        'lokasi_selesai' => '-7.257500, 112.752100',
+                        'lokasi_akurasi' => 11.0,
+                        'is_mocked' => false,
+                        'status' => 'hadir',
+                    ]
+                );
+            }
         }
 
         // =========================================================================
-        // 2. DATA SAMPLE PENGAJUAN IZIN & SAKIT TUTOR
+        // 3. DATA SAMPLE PRESENSI MENGAJAR TUTOR 3 (Agus Prasetyo - Vokasi)
+        // =========================================================================
+        if ($tutor3 && $siswa11 && $katKomunitas2) {
+            Presensi::updateOrCreate(
+                [
+                    'tutor_id' => $tutor3->id,
+                    'siswa_id' => $siswa11->id,
+                    'tgl_presensi' => $today->copy()->subDays(3)->toDateString(),
+                ],
+                [
+                    'moda_pembelajaran' => 'sekolah',
+                    'durasi_pilihan' => 2.0,
+                    'kategori_tutorial_id' => $katKomunitas2->id,
+                    'nominal_honor_snapshot' => $katKomunitas2->nominal_honor,
+                    'jam_mulai' => '13:00:00',
+                    'jam_selesai' => '15:00:00',
+                    'lokasi_mulai' => '-7.257500, 112.752100 (Lab Komputer)',
+                    'lokasi_selesai' => '-7.257500, 112.752100 (Lab Komputer)',
+                    'lokasi_akurasi' => 8.0,
+                    'is_mocked' => false,
+                    'status' => 'hadir',
+                ]
+            );
+
+            if ($siswa12 && $katKomunitas2) {
+                Presensi::updateOrCreate(
+                    [
+                        'tutor_id' => $tutor3->id,
+                        'siswa_id' => $siswa12->id,
+                        'tgl_presensi' => $today->copy()->subDays(1)->toDateString(),
+                    ],
+                    [
+                        'moda_pembelajaran' => 'sekolah',
+                        'durasi_pilihan' => 2.0,
+                        'kategori_tutorial_id' => $katKomunitas2->id,
+                        'nominal_honor_snapshot' => $katKomunitas2->nominal_honor,
+                        'jam_mulai' => '13:00:00',
+                        'jam_selesai' => '15:00:00',
+                        'lokasi_mulai' => '-7.257500, 112.752100 (Ruang Vokasi)',
+                        'lokasi_selesai' => '-7.257500, 112.752100 (Ruang Vokasi)',
+                        'lokasi_akurasi' => 9.5,
+                        'is_mocked' => false,
+                        'status' => 'hadir',
+                    ]
+                );
+            }
+        }
+
+        // =========================================================================
+        // 4. DATA SAMPLE PENGAJUAN IZIN & SAKIT TUTOR (Lengkap 3 Status)
         // =========================================================================
         if ($tutor1) {
-            // Pengajuan 1: Pending (untuk diuji coba persetujuan oleh Kepala Sekolah)
+            // Status: Pending
             PengajuanIzinSakit::updateOrCreate(
                 [
                     'tutor_id' => $tutor1->id,
@@ -227,7 +305,7 @@ class DummyPresensiSeeder extends Seeder
                 [
                     'jenis' => 'izin',
                     'tgl_selesai' => $today->copy()->addDays(2)->toDateString(),
-                    'alasan' => 'Menghadiri Seminar Nasional Pendidikan Kesetaraan & Workshop Kurikulum Merdeka.',
+                    'alasan' => 'Menghadiri Seminar Nasional Kurikulum Merdeka & Pendidikan Kesetaraan.',
                     'dokumen_surat' => null,
                     'status' => 'pending',
                 ]
@@ -235,7 +313,7 @@ class DummyPresensiSeeder extends Seeder
         }
 
         if ($tutor2) {
-            // Pengajuan 2: Disetujui
+            // Status: Disetujui
             PengajuanIzinSakit::updateOrCreate(
                 [
                     'tutor_id' => $tutor2->id,
@@ -244,20 +322,37 @@ class DummyPresensiSeeder extends Seeder
                 [
                     'jenis' => 'sakit',
                     'tgl_selesai' => $today->copy()->subDays(7)->toDateString(),
-                    'alasan' => 'Kondisi demam tinggi dan flu, istirahat sesuai anjuran dokter.',
+                    'alasan' => 'Kondisi demam tinggi dan flu berat, istirahat sesuai anjuran dokter.',
                     'dokumen_surat' => null,
                     'status' => 'disetujui',
                     'disetujui_oleh' => $kepsekUser?->id,
-                    'catatan_verifikasi' => 'Disetujui. Semoga lekas sembuh.',
+                    'catatan_verifikasi' => 'Disetujui oleh Kepala Sekolah. Semoga lekas sembuh.',
+                ]
+            );
+
+            // Status: Ditolak
+            PengajuanIzinSakit::updateOrCreate(
+                [
+                    'tutor_id' => $tutor2->id,
+                    'tgl_mulai' => $today->copy()->subDays(15)->toDateString(),
+                ],
+                [
+                    'jenis' => 'izin',
+                    'tgl_selesai' => $today->copy()->subDays(15)->toDateString(),
+                    'alasan' => 'Keperluan mendadak tanpa konfirmasi pengganti tutor.',
+                    'dokumen_surat' => null,
+                    'status' => 'ditolak',
+                    'disetujui_oleh' => $kepsekUser?->id,
+                    'catatan_verifikasi' => 'Jadwal tutorial ujian tidak dapat ditinggalkan tanpa tutor pengganti.',
                 ]
             );
         }
 
         // =========================================================================
-        // 3. DATA SAMPLE PENGAJUAN LUPA LAPOR (RETROACTIVE REQUESTS)
+        // 5. DATA SAMPLE PENGAJUAN LUPA LAPOR (Lengkap Status)
         // =========================================================================
         if ($tutor1 && $siswa1) {
-            // Pengajuan Lupa Lapor 1: Pending (untuk diuji review oleh Kepala Sekolah)
+            // Status: Pending
             PengajuanLupaLapor::updateOrCreate(
                 [
                     'tutor_id' => $tutor1->id,
@@ -274,7 +369,7 @@ class DummyPresensiSeeder extends Seeder
         }
 
         if ($tutor2 && $siswa5) {
-            // Pengajuan Lupa Lapor 2: Disetujui
+            // Status: Disetujui
             PengajuanLupaLapor::updateOrCreate(
                 [
                     'tutor_id' => $tutor2->id,
@@ -292,7 +387,7 @@ class DummyPresensiSeeder extends Seeder
         }
 
         // =========================================================================
-        // 4. DATA SAMPLE PRESENSI KARYAWAN / MAGANG
+        // 6. DATA SAMPLE PRESENSI KARYAWAN / MAGANG
         // =========================================================================
         $magangUser1 = User::where('email', 'magang@pkbmpikat.com')->first();
         $magangUser2 = User::where('email', 'magang2@pkbmpikat.com')->first();

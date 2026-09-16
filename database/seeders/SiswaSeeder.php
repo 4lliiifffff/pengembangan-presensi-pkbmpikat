@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\JenjangPaket;
 use App\Models\kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -14,32 +15,38 @@ class SiswaSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Master Data Kelas Terstruktur per Paket & Jenjang
+        // 1. Ambil Data Master Jenjang Paket
+        $jpA = JenjangPaket::where('kode', 'paket_a')->first();
+        $jpB = JenjangPaket::where('kode', 'paket_b')->first();
+        $jpC = JenjangPaket::where('kode', 'paket_c')->first();
+        $jpVokasi = JenjangPaket::where('kode', 'vokasi')->first();
+
+        // 2. Master Data Kelas Terstruktur per Paket & Jenjang (Relasi Foreign Key jenjang_paket_id)
         $daftarKelas = [
             // Paket A (Setara SD: Kelas 1 - 6)
-            'Paket A - Kelas 1' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 1'], ['jenjang_paket' => 'paket_a', 'tingkat' => '1']),
-            'Paket A - Kelas 2' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 2'], ['jenjang_paket' => 'paket_a', 'tingkat' => '2']),
-            'Paket A - Kelas 3' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 3'], ['jenjang_paket' => 'paket_a', 'tingkat' => '3']),
-            'Paket A - Kelas 4' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 4'], ['jenjang_paket' => 'paket_a', 'tingkat' => '4']),
-            'Paket A - Kelas 5' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 5'], ['jenjang_paket' => 'paket_a', 'tingkat' => '5']),
-            'Paket A - Kelas 6' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 6'], ['jenjang_paket' => 'paket_a', 'tingkat' => '6']),
+            'Paket A - Kelas 1' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 1'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '1']),
+            'Paket A - Kelas 2' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 2'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '2']),
+            'Paket A - Kelas 3' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 3'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '3']),
+            'Paket A - Kelas 4' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 4'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '4']),
+            'Paket A - Kelas 5' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 5'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '5']),
+            'Paket A - Kelas 6' => kelas::updateOrCreate(['nama_kelas' => 'Paket A - Kelas 6'], ['jenjang_paket_id' => $jpA?->id, 'tingkat' => '6']),
 
             // Paket B (Setara SMP: Kelas 7 - 9)
-            'Paket B - Kelas 7' => kelas::updateOrCreate(['nama_kelas' => 'Paket B - Kelas 7'], ['jenjang_paket' => 'paket_b', 'tingkat' => '7']),
-            'Paket B - Kelas 8' => kelas::updateOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket' => 'paket_b', 'tingkat' => '8']),
-            'Paket B - Kelas 9' => kelas::updateOrCreate(['nama_kelas' => 'Paket B - Kelas 9'], ['jenjang_paket' => 'paket_b', 'tingkat' => '9']),
+            'Paket B - Kelas 7' => kelas::updateOrCreate(['nama_kelas' => 'Paket B - Kelas 7'], ['jenjang_paket_id' => $jpB?->id, 'tingkat' => '7']),
+            'Paket B - Kelas 8' => kelas::updateOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jpB?->id, 'tingkat' => '8']),
+            'Paket B - Kelas 9' => kelas::updateOrCreate(['nama_kelas' => 'Paket B - Kelas 9'], ['jenjang_paket_id' => $jpB?->id, 'tingkat' => '9']),
 
             // Paket C (Setara SMA: Kelas 10 - 12)
-            'Paket C - Kelas 10' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket' => 'paket_c', 'tingkat' => '10']),
-            'Paket C - Kelas 11' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 11'], ['jenjang_paket' => 'paket_c', 'tingkat' => '11']),
-            'Paket C - Kelas 12' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 12'], ['jenjang_paket' => 'paket_c', 'tingkat' => '12']),
+            'Paket C - Kelas 10' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jpC?->id, 'tingkat' => '10']),
+            'Paket C - Kelas 11' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 11'], ['jenjang_paket_id' => $jpC?->id, 'tingkat' => '11']),
+            'Paket C - Kelas 12' => kelas::updateOrCreate(['nama_kelas' => 'Paket C - Kelas 12'], ['jenjang_paket_id' => $jpC?->id, 'tingkat' => '12']),
 
             // Vokasi & Keterampilan
-            'Vokasi - Desain Komputer' => kelas::updateOrCreate(['nama_kelas' => 'Vokasi - Desain Komputer'], ['jenjang_paket' => 'vokasi', 'tingkat' => 'Terampil']),
-            'Vokasi - Tata Busana' => kelas::updateOrCreate(['nama_kelas' => 'Vokasi - Tata Busana'], ['jenjang_paket' => 'vokasi', 'tingkat' => 'Dasar']),
+            'Vokasi - Desain Komputer' => kelas::updateOrCreate(['nama_kelas' => 'Vokasi - Desain Komputer'], ['jenjang_paket_id' => $jpVokasi?->id, 'tingkat' => 'Terampil']),
+            'Vokasi - Tata Busana' => kelas::updateOrCreate(['nama_kelas' => 'Vokasi - Tata Busana'], ['jenjang_paket_id' => $jpVokasi?->id, 'tingkat' => 'Dasar']),
         ];
 
-        // 2. Ambil Data Tutor yang Tersedia
+        // 3. Ambil Data Tutor yang Tersedia
         $tutor1 = Tutor::where('email', 'tutor@pkbmpikat.com')->first() ?? Tutor::first();
         $tutor2 = Tutor::where('email', 'tutor2@pkbmpikat.com')->first() ?? $tutor1;
         $tutor3 = Tutor::where('email', 'tutor3@pkbmpikat.com')->first() ?? $tutor1;
@@ -48,7 +55,7 @@ class SiswaSeeder extends Seeder
         $t2Id = $tutor2?->id;
         $t3Id = $tutor3?->id;
 
-        // 3. Data Sample Siswa Tersebar di Beberapa Kelas & Paket
+        // 4. Data Sample Siswa Tersebar di Beberapa Kelas & Paket
         $siswaData = [
             // Paket C - Kelas 10 (Single Rombel Skenario 1)
             [

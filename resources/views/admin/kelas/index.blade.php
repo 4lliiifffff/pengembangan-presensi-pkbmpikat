@@ -1,21 +1,81 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow">
-        <h2>Data Kelas</h2>
+    <div class="pageHeaderRow" style="flex-wrap:wrap;gap:12px;align-items:center;">
+        <div>
+            <h2 style="margin:0;">Data Kelas &amp; Rombel</h2>
+            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola master rombongan belajar, jenjang paket kesetaraan, dan program vokasi</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="{{ route('admin.jenjang-paket.index') }}" class="btnOutline" style="padding:8px 12px;font-size:12px;gap:6px;">
+                <ion-icon name="layers-outline" style="font-size:16px;"></ion-icon> Kelola Master Jenjang &rarr;
+            </a>
+            <a href="{{ route('admin.kelas.create') }}" class="btnPrimary" style="padding:8px 14px;background:var(--blue-gradient);font-size:12px;gap:6px;">
+                <ion-icon name="add-outline" style="font-size:16px;"></ion-icon> Tambah Kelas Baru
+            </a>
+        </div>
+    </div>
+
+    {{-- Filter Quick Tabs & Search Dinamis --}}
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <a href="{{ route('admin.kelas.index') }}" class="{{ !request('jenjang') ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;">
+                Semua
+            </a>
+            @foreach($jenjangPakets as $jp)
+                <a href="{{ route('admin.kelas.index', ['jenjang' => $jp->kode]) }}" class="{{ request('jenjang') === $jp->kode ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;">
+                    {{ $jp->nama_jenjang }}
+                </a>
+            @endforeach
+        </div>
+
+        <form method="GET" action="{{ route('admin.kelas.index') }}" style="display:flex;gap:6px;width:100%;max-width:280px;">
+            @if(request('jenjang'))
+                <input type="hidden" name="jenjang" value="{{ request('jenjang') }}">
+            @endif
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama kelas..." class="input" style="height:34px;padding:4px 10px;font-size:12px;" />
+            <button type="submit" class="btnOutline" style="padding:0 10px;height:34px;font-size:12px;">
+                <ion-icon name="search-outline"></ion-icon>
+            </button>
+        </form>
     </div>
 
     <div class="siswaGrid">
         @forelse($kelas as $k)
+            @php
+                $badgeStyle = match($k->jenjang_paket) {
+                    'paket_a' => 'background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;',
+                    'paket_b' => 'background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe;',
+                    'paket_c' => 'background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;',
+                    'vokasi' => 'background:#fef3c7;color:#b45309;border:1px solid #fde68a;',
+                    'kursus' => 'background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;',
+                    default => 'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;',
+                };
+            @endphp
             <div class="siswaCard">
                 <div class="siswaTop">
-                    <div style="display:flex;align-items:center;gap:12px;">
-                        <div class="activityAvatar" class="activityAvatar">
+                    <div style="display:flex;align-items:flex-start;gap:12px;width:100%;">
+                        <div class="activityAvatar" style="background:var(--blue-gradient);color:#fff;flex-shrink:0;">
                             {{ strtoupper(substr((string) $k->nama_kelas, 0, 1)) }}
                         </div>
-                        <div>
-                            <div class="siswaName">{{ $k->nama_kelas }}</div>
-                            <div class="siswaMeta">Total siswa: {{ $k->siswas_count }}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div class="siswaName" style="margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                <span>{{ $k->nama_kelas }}</span>
+                                <span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:800;{{ $badgeStyle }}">
+                                    {{ $k->jenjang_paket_label }}
+                                </span>
+                            </div>
+                            <div class="siswaMeta" style="line-height:1.5;">
+                                @if($k->tingkat)
+                                    <span>Tingkat: <b>{{ $k->tingkat }}</b></span> •
+                                @endif
+                                <span>Total Murid: <b>{{ $k->siswas_count }} Siswa</b></span>
+                                @if($k->keterangan)
+                                    <div style="font-size:11px;color:var(--muted);margin-top:2px;font-style:italic;">
+                                        {{ $k->keterangan }}
+                                    </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -37,7 +97,7 @@
                 </div>
             </div>
         @empty
-            <div class="emptyState">Belum ada data kelas.</div>
+            <div class="emptyState" style="grid-column:1/-1;">Belum ada data kelas yang sesuai kriteria.</div>
         @endforelse
     </div>
 

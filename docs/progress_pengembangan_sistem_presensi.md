@@ -275,6 +275,26 @@ pie title Status Fitur & Pengkondisian Sistem
     - Membersihkan kode fallback lama di `PayrollService.php` sehingga kalkulasi payroll 100% tersentralisasi pada tabel master `kategori_tutorials` (dan fallback SK default PKBM Pikat).
     - Memperbarui form Admin `SiswaController.php`, view `create.blade.php`, `edit.blade.php`, serta seluruh class export/import Excel (`SiswaExport`, `SiswaImport`, `PayrollBulkTarifTemplateExport`, `PayrollBulkTarifImport`).
 
+#### 6.6 Antarmuka & Modul Manajemen Data Kelas & Rombel (Admin)
+- 🟢 **Penyempurnaan CRUD Kelas, Filter Jenjang & Visual Rombel**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Controller (`KelasController.php`)**: Validasi dan penyimpanan kolom terstruktur `jenjang_paket`, `tingkat`, dan `keterangan`. Mendukung pencarian teks cepat (`q`) dan filter tab per jenjang paket secara dinamis.
+    - **Tampilan Form (`create.blade.php` & `edit.blade.php`)**: Form modern yang membaca opsi jenjang paket secara dinamis dari tabel `jenjang_pakets`, tombol format otomatis (`[⚡ Format Otomatis]`), dan quick link ke Master Jenjang.
+    - **Tampilan Daftar Kelas (`index.blade.php`)**: Filter quick tabs dinamis, badge warna jenjang paket, indikator tingkat, jumlah siswa terdaftar, dan proteksi penghapusan kelas aktif.
+    - **Pengelompokan Dropdown Siswa (`SiswaController.php`, `admin/siswa/create.blade.php` & `edit.blade.php`)**: Dropdown pemilihan kelas dikelompokkan rapi per jenjang paket menggunakan `<optgroup>`.
+    - **Automated Feature Test**: `tests/Feature/AdminKelasManagementTest.php`.
+
+#### 6.7 Modul Master Jenjang & Program Paket Dinamis (`jenjang_pakets`)
+- 🟢 **Master Data Jenjang / Program Kesetaraan & Vokasi 100% Dinamis**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Database Migration (`2026_09_16_000006_create_jenjang_pakets_table.php`)**: Tabel `jenjang_pakets` dengan kolom `kode`, `nama_jenjang`, `tingkat_label`, `keterangan`, `urutan`, dan `is_aktif`.
+    - **Model (`App\Models\JenjangPaket.php`)**: Relasi `hasMany(kelas::class, 'jenjang_paket', 'kode')`, scope `scopeAktif()`, dan scope `scopeOrdered()`. Relasi timbal balik di `kelas::masterJenjang()` dengan fallback dinamis.
+    - **Admin Controller & CRUD UI (`JenjangPaketController.php` & `admin/jenjang_paket/index.blade.php`)**: Antarmuka master lengkap dengan tabel responsif, modal create/edit dengan slug/kode generator otomatis, toggle status aktif/nonaktif, dan proteksi penghapusan bila ada kelas/rombel yang terikat.
+    - **Seeder Awal (`JenjangPaketSeeder.php`)**: 6 Master Jenjang baku (Paket A, Paket B, Paket C, Vokasi, Kursus, Umum).
+    - **Automated Feature Tests (`tests/Feature/AdminJenjangPaketTest.php`)**: 6 skenario pengujian komprehensif (Index, Store, Update, Toggle Status, Delete Protection, dan Dynamic Loader di Form Kelas).
+
 ---
 
 ### 7. Refactored Codebase, Standardisasi & QA
@@ -285,7 +305,7 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
 #### 7.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **69 Feature & Unit Tests** lulus 100% (**298 assertions**).
+- 🟢 **PHPUnit Test Suite**: Seluruh **79 Feature & Unit Tests** lulus 100% (**330 assertions**).
 - 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---
@@ -302,7 +322,9 @@ pie title Status Fitur & Pengkondisian Sistem
 | 6 | **Master Kategori & Skema Tarif SK Kepala PKBM** | Payroll SK | Migrasi `kategori_tutorials`, seeder 6 skema SK, dynamic snapshot resolver, dan eliminasi form manual. | 🟢 Selesai |
 | 7 | **UI/UX Excellence & Unified Dialog System** | Frontend | Standardisasi layout dashboard, sticky navigation, unified modern dialog/toast, dan form izin responsif. | 🟢 Selesai |
 | 8 | **Master Kelas Terstruktur & Deteksi Otomatis Sesi Gabungan** | Core Presensi | Master kelas Paket A (1-6), B (7-9), C (10-12) & auto-detect multi-rombel vs 1 rombel reguler. | 🟢 Selesai |
-| 9 | **Total Refactoring `tarif_per_jam` & Skema Terstruktur `kelas`** | Database Refactor | Drop `siswas.tarif_per_jam`, tambah `kelas.jenjang_paket` & `kelas.tingkat` (varchar 50) untuk modularitas Vokasi/Paket baru. | 🟢 Selesai |
+| 9 | **Total Refactoring `tarif_per_jam` & Skema Terstruktur `kelas`** | Database Refactor | Drop `siswas.tarif_per_jam`, tambah `kelas.tingkat` (varchar 50) untuk modularitas Vokasi/Paket baru. | 🟢 Selesai |
+| 10 | **Refactoring Foreign Key Relasional `kelas.jenjang_paket_id`** | Database Integrity | Migrasi Foreign Key murni `kelas.jenjang_paket_id` $\rightarrow$ `jenjang_pakets.id` dengan ON DELETE SET NULL, menggantikan kolom kode string legacy demi integritas referensial database MySQL. | 🟢 Selesai |
+| 11 | **Penguatan Integrasi Murid > Kelas > Paket & Anti Data-Loss** | Academic Lifecycle | Menambahkan status siklus siswa (`aktif`, `alumni`, `cuti`, `nonaktif`), SoftDeletes (`deleted_at`), relasi `hasOneThrough` (`masterJenjang`), dan fitur migrasi pengalihan kelas saat hapus jenjang. | 🟢 Selesai |
 
 ---
 

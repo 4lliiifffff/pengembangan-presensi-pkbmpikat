@@ -77,33 +77,75 @@
 
 
 
+    {{-- ── Quick Filter Status Siswa & Search Bar ── --}}
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <a href="{{ route('admin.siswa.index', ['status' => 'aktif']) }}" class="{{ $status === 'aktif' ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <span>Aktif</span>
+                <span style="background:rgba(255,255,255,0.25);padding:1px 6px;border-radius:10px;font-size:10px;font-weight:800;">{{ $stats['aktif'] ?? 0 }}</span>
+            </a>
+            <a href="{{ route('admin.siswa.index', ['status' => 'alumni']) }}" class="{{ $status === 'alumni' ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <span>🎓 Alumni</span>
+                <span style="background:rgba(255,255,255,0.25);padding:1px 6px;border-radius:10px;font-size:10px;font-weight:800;">{{ $stats['alumni'] ?? 0 }}</span>
+            </a>
+            <a href="{{ route('admin.siswa.index', ['status' => 'cuti']) }}" class="{{ $status === 'cuti' ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <span>Cuti</span>
+                <span style="background:rgba(255,255,255,0.25);padding:1px 6px;border-radius:10px;font-size:10px;font-weight:800;">{{ $stats['cuti'] ?? 0 }}</span>
+            </a>
+            <a href="{{ route('admin.siswa.index', ['status' => 'nonaktif']) }}" class="{{ $status === 'nonaktif' ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <span>Nonaktif</span>
+                <span style="background:rgba(255,255,255,0.25);padding:1px 6px;border-radius:10px;font-size:10px;font-weight:800;">{{ $stats['nonaktif'] ?? 0 }}</span>
+            </a>
+            <a href="{{ route('admin.siswa.index', ['status' => 'semua']) }}" class="{{ $status === 'semua' ? 'profileBtnPrimary' : 'btnOutline' }}" style="height:32px;padding:0 12px;font-size:11.5px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                <span>Semua</span>
+                <span style="background:rgba(255,255,255,0.25);padding:1px 6px;border-radius:10px;font-size:10px;font-weight:800;">{{ $stats['total'] ?? 0 }}</span>
+            </a>
+        </div>
+
+        <form method="GET" action="{{ route('admin.siswa.index') }}" style="display:flex;gap:6px;width:100%;max-width:280px;">
+            <input type="hidden" name="status" value="{{ $status }}">
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama, absen, wali..." class="input" style="height:34px;padding:4px 10px;font-size:12px;" />
+            <button type="submit" class="btnOutline" style="padding:0 10px;height:34px;font-size:12px;">
+                <ion-icon name="search-outline"></ion-icon>
+            </button>
+        </form>
+    </div>
+
     <div class="siswaGrid">
         @forelse($siswas as $siswa)
+            @php
+                $statusBadge = match($siswa->status_siswa) {
+                    'alumni' => 'background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;',
+                    'cuti' => 'background:#fef3c7;color:#b45309;border:1px solid #fde68a;',
+                    'nonaktif' => 'background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;',
+                    default => 'background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;',
+                };
+            @endphp
             <div class="siswaCard">
                 <div class="siswaTop">
-                    <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+                    <div style="display:flex;align-items:flex-start;gap:12px;min-width:0;width:100%;">
                         @php
                             $initial = strtoupper(substr((string) ($siswa->nama_siswa ?? ''), 0, 1));
                         @endphp
-                        <div class="activityAvatar">
+                        <div class="activityAvatar" style="flex-shrink:0;">
                             {{ $initial }}
                         </div>
-                        <div style="min-width:0;">
-                            <div class="siswaName" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                        <div style="min-width:0;flex:1;">
+                            <div class="siswaName" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
                                 <span>{{ $siswa->nama_siswa }}</span>
+                                <span style="display:inline-block;padding:2px 7px;border-radius:6px;font-size:10px;font-weight:800;{{ $statusBadge }}">
+                                    {{ $siswa->status_label }}
+                                </span>
                                 @if($siswa->is_abk)
                                     <span style="display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:800;background:#fef3c7;color:#b45309;">ABK</span>
                                 @endif
                             </div>
                             <div class="siswaMeta">
-                                No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
+                                No Absen: <b>{{ $siswa->no_absen }}</b> • Kelas: <b>{{ $siswa->relKelas->nama_kelas ?? '-' }}</b>
+                                <br>
+                                Jenjang: <span style="font-weight:700;color:var(--text);">{{ $siswa->jenjang_paket_label }}</span> • Wali: {{ $siswa->nama_wali }}
                                 <br>
                                 Tutor: <span class="td-bold">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</span>
-                                • @if($siswa->is_abk)
-                                    <span style="display:inline-block;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:800;background:#fef3c7;color:#b45309;">SK: ABK (Rp 100rb-130rb)</span>
-                                @else
-                                    <span style="display:inline-block;padding:1px 6px;border-radius:6px;font-size:11px;font-weight:800;background:#f0fdf4;color:#15803d;">SK: Reguler (Rp 50rb-100rb)</span>
-                                @endif
                             </div>
                         </div>
                     </div>
@@ -115,18 +157,18 @@
                         Edit
                     </a>
 
-                    <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Apakah Anda yakin ingin menghapus data siswa ini?" data-confirm-title="Hapus Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
+                    <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="smallBtn delete cursor-pointer">
-                            <ion-icon name="trash-outline"></ion-icon>
-                            Hapus
+                        <button type="submit" class="smallBtn delete cursor-pointer" title="Arsipkan Siswa">
+                            <ion-icon name="archive-outline"></ion-icon>
+                            Arsipkan
                         </button>
                     </form>
                 </div>
             </div>
         @empty
-            <div class="emptyState">Belum ada data siswa.</div>
+            <div class="emptyState" style="grid-column:1/-1;">Belum ada data siswa untuk kategori ini.</div>
         @endforelse
     </div>
 

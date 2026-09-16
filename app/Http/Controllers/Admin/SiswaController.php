@@ -17,18 +17,41 @@ class SiswaController extends Controller
 {
     public function __construct(protected TutorService $tutorService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $siswas = Siswa::with(['relKelas', 'tutor'])
-            ->orderByDesc('id')
-            ->paginate(10);
+        $status = $request->query('status', 'aktif');
 
-        return view('admin.siswa.index', compact('siswas'));
+        $query = Siswa::with(['relKelas.jenjangPaket', 'tutor'])->orderByDesc('id');
+
+        if ($status !== 'semua') {
+            $query->where('status_siswa', $status);
+        }
+
+        if ($request->filled('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_siswa', 'like', "%{$search}%")
+                    ->orWhere('no_absen', 'like', "%{$search}%")
+                    ->orWhere('nama_wali', 'like', "%{$search}%");
+            });
+        }
+
+        $siswas = $query->paginate(15)->withQueryString();
+
+        $stats = [
+            'aktif' => Siswa::where('status_siswa', 'aktif')->count(),
+            'alumni' => Siswa::where('status_siswa', 'alumni')->count(),
+            'cuti' => Siswa::where('status_siswa', 'cuti')->count(),
+            'nonaktif' => Siswa::where('status_siswa', 'nonaktif')->count(),
+            'total' => Siswa::count(),
+        ];
+
+        return view('admin.siswa.index', compact('siswas', 'stats', 'status'));
     }
 
     public function create()
     {
-        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $kelas = Kelas::with('jenjangPaket')->orderBy('jenjang_paket_id')->orderBy('tingkat')->orderBy('nama_kelas')->get();
         $tutors = $this->tutorService->getAssignableTutors();
 
         return view('admin.siswa.create', compact('kelas', 'tutors'));
@@ -39,6 +62,7 @@ class SiswaController extends Controller
         $validated = $request->validate([
             'no_absen' => ['required', 'string', 'max:50', 'unique:siswas,no_absen'],
             'nama_siswa' => ['required', 'string', 'max:120'],
+            'status_siswa' => ['nullable', 'string', 'in:aktif,alumni,cuti,nonaktif'],
             'is_abk' => ['nullable', 'boolean'],
             'no_hp' => ['required', 'string', 'max:30'],
             'nama_wali' => ['required', 'string', 'max:120'],
@@ -47,6 +71,7 @@ class SiswaController extends Controller
         ]);
 
         $validated['is_abk'] = $request->boolean('is_abk');
+        $validated['status_siswa'] = $validated['status_siswa'] ?? 'aktif';
 
         Siswa::create($validated);
 
@@ -57,16 +82,16 @@ class SiswaController extends Controller
 
     public function show(Siswa $siswa)
     {
-        $siswa->load('relKelas');
+        $siswa->load(['relKelas.jenjangPaket', 'tutor']);
 
         return view('admin.siswa.show', compact('siswa'));
     }
 
     public function edit(Siswa $siswa)
     {
-        $kelas = Kelas::orderBy('nama_kelas')->get();
+        $kelas = Kelas::with('jenjangPaket')->orderBy('jenjang_paket_id')->orderBy('tingkat')->orderBy('nama_kelas')->get();
         $tutors = $this->tutorService->getAssignableTutors();
-        $siswa->load('relKelas', 'tutor');
+        $siswa->load(['relKelas.jenjangPaket', 'tutor']);
 
         return view('admin.siswa.edit', compact('siswa', 'kelas', 'tutors'));
     }
@@ -81,6 +106,7 @@ class SiswaController extends Controller
                 Rule::unique('siswas', 'no_absen')->ignore($siswa->id),
             ],
             'nama_siswa' => ['required', 'string', 'max:120'],
+            'status_siswa' => ['nullable', 'string', 'in:aktif,alumni,cuti,nonaktif'],
             'is_abk' => ['nullable', 'boolean'],
             'no_hp' => ['required', 'string', 'max:30'],
             'nama_wali' => ['required', 'string', 'max:120'],
@@ -89,6 +115,7 @@ class SiswaController extends Controller
         ]);
 
         $validated['is_abk'] = $request->boolean('is_abk');
+        $validated['status_siswa'] = $validated['status_siswa'] ?? $siswa->status_siswa;
 
         $siswa->update($validated);
 
@@ -99,11 +126,12 @@ class SiswaController extends Controller
 
     public function destroy(Siswa $siswa)
     {
+        $namaSiswa = $siswa->nama_siswa;
         $siswa->delete();
 
         return redirect()
             ->route('admin.siswa.index')
-            ->with('success', 'Data siswa berhasil dihapus.');
+            ->with('success', 'Data siswa "'.$namaSiswa.'" berhasil diarsipkan (Soft Delete). Seluruh data riwayat presensi tetap aman.');
     }
 
     public function exportExcel()

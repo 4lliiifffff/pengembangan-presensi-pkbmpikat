@@ -2,49 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Model Siswa — Data Murid/Peserta Didik
- *
- * Model ini merepresentasikan data siswa yang menjadi peserta didik di lembaga.
- * Siswa bukan pengguna sistem (tidak bisa login), namun hadir sebagai entitas
- * yang direlasikan dalam setiap sesi presensi mengajar.
- *
- * STRUKTUR TABEL 'siswas':
- *   - id         : Primary key
- *   - nis        : Nomor Induk Siswa
- *   - nama_siswa : Nama lengkap siswa
- *   - alamat     : Alamat tempat tinggal siswa
- *   - no_hp      : Nomor handphone siswa/wali
- *   - nama_wali  : Nama orang tua/wali siswa
- *   - kelas_id   : Foreign key ke tabel kelas (kelas yang diikuti siswa)
- *
- * RELASI:
- *   - Siswa belongsTo Kelas    (1 siswa berada di 1 kelas)
- *   - Siswa hasMany Presensi   (1 siswa bisa punya banyak record kehadiran dari tutor berbeda)
- *
- * SIDANG FAQ:
- *   Q: Mengapa nama tabel 'siswas' (bukan 'siswas' atau 'student')?
- *   A: Laravel secara default menggunakan nama model dalam bentuk plural + snake_case.
- *      'Siswa' → 'siswa' + 's' = 'siswas'. Nama tabel juga di-set eksplisit via
- *      $table untuk memastikan tidak ada ambiguitas.
- *
- *   Q: Mengapa siswa tidak bisa login ke sistem?
- *   A: Sistem ini dirancang sebagai aplikasi presensi untuk tutor/pengajar, bukan
- *      untuk siswa. Siswa hanya sebagai entitas yang direkam dalam data kehadiran.
- *
- *   Q: Apa relasi antara Siswa dan Presensi?
- *   A: Satu Siswa bisa memiliki banyak record Presensi karena ia bisa diajar oleh
- *      tutor yang berbeda pada hari yang berbeda. Setiap sesi mengajar menghasilkan
- *      satu record Presensi yang mengandung siswa_id.
  */
 class Siswa extends Model
 {
+    use SoftDeletes;
+
     /**
-     * Nama tabel di database (didefinisikan eksplisit karena bentuk plural tidak standar).
+     * Nama tabel di database.
      *
      * @var string
      */
@@ -56,13 +29,14 @@ class Siswa extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'no_absen',   // Nomor Absen Siswa
-        'nama_siswa', // Nama lengkap siswa
-        'is_abk',     // Status Anak Berkebutuhan Khusus (ABK)
-        'no_hp',      // Nomor handphone siswa atau wali
-        'nama_wali',  // Nama orang tua/wali yang dapat dihubungi
-        'kelas_id',   // ID kelas yang diikuti siswa (foreign key)
-        'tutor_id',    // ID tutor yang mengajar siswa ini
+        'no_absen',     // Nomor Absen Siswa
+        'nama_siswa',   // Nama lengkap siswa
+        'is_abk',       // Status Anak Berkebutuhan Khusus (ABK)
+        'status_siswa', // Status siklus murid: 'aktif', 'alumni', 'cuti', 'nonaktif'
+        'no_hp',        // Nomor handphone siswa atau wali
+        'nama_wali',    // Nama orang tua/wali yang dapat dihubungi
+        'kelas_id',     // ID kelas yang diikuti siswa (foreign key)
+        'tutor_id',     // ID tutor yang mengajar siswa ini
     ];
 
     /**
@@ -73,6 +47,43 @@ class Siswa extends Model
         return [
             'is_abk' => 'boolean',
         ];
+    }
+
+    /**
+     * Scope: Hanya siswa dengan status aktif.
+     */
+    public function scopeAktif(Builder $query): Builder
+    {
+        return $query->where('status_siswa', 'aktif');
+    }
+
+    /**
+     * Scope: Hanya siswa dengan status alumni / lulus.
+     */
+    public function scopeAlumni(Builder $query): Builder
+    {
+        return $query->where('status_siswa', 'alumni');
+    }
+
+    /**
+     * Scope: Filter berdasarkan status tertentu.
+     */
+    public function scopeStatus(Builder $query, string $status): Builder
+    {
+        return $query->where('status_siswa', $status);
+    }
+
+    /**
+     * Accessor: Label manusiawi status siswa.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return match ($this->status_siswa) {
+            'alumni' => 'Lulus / Alumni',
+            'cuti' => 'Cuti Belajar',
+            'nonaktif' => 'Nonaktif / Keluar',
+            default => 'Aktif Belajar',
+        };
     }
 
     /**
@@ -100,7 +111,7 @@ class Siswa extends Model
     {
         // 1. Prioritas utama: kolom terstruktur dari relasi Kelas
         $kelasJenjang = $this->relKelas?->jenjang_paket;
-        if ($kelasJenjang && in_array($kelasJenjang, ['paket_a', 'paket_b', 'paket_c', 'vokasi', 'kursus'])) {
+        if (! empty($kelasJenjang) && $kelasJenjang !== 'umum') {
             return $kelasJenjang;
         }
 
@@ -120,7 +131,7 @@ class Siswa extends Model
             return 'vokasi';
         }
 
-        return $this->kelas_id ? 'kelas_'.$this->kelas_id : 'umum';
+        return $kelasJenjang ?: ($this->kelas_id ? 'kelas_'.$this->kelas_id : 'umum');
     }
 
     /**
@@ -152,25 +163,40 @@ class Siswa extends Model
 
     /**
      * Relasi: Siswa terdaftar di satu Kelas (Many-to-One / BelongsTo).
-     * Menggunakan nama relasi 'relKelas' (bukan 'kelas') untuk menghindari
-     * konflik nama dengan class lain.
-     * Contoh: $siswa->relKelas->nama_kelas
-     *
-     * @return BelongsTo
      */
-    public function relKelas()
+    public function relKelas(): BelongsTo
     {
         return $this->belongsTo(kelas::class, 'kelas_id');
     }
 
     /**
-     * Relasi: Siswa memiliki banyak record Presensi (One-to-Many / HasMany).
-     * Setiap kali seorang tutor mengajar siswa ini, muncul satu record presensi.
-     * Contoh: $siswa->presensis()->whereBetween('tgl_presensi', [$awal, $akhir])->get()
-     *
-     * @return HasMany
+     * Relasi: Menghubungkan langsung Siswa ke Master Jenjang Paket melalui Kelas (HasOneThrough).
+     * Memungkinkan pemanggilan: $siswa->masterJenjang->nama_jenjang atau $siswa->relJenjangPaket
      */
-    public function presensis()
+    public function masterJenjang(): HasOneThrough
+    {
+        return $this->hasOneThrough(
+            JenjangPaket::class,
+            kelas::class,
+            'id',               // Foreign key di tabel kelas (kelas.id)
+            'id',               // Foreign key di tabel jenjang_pakets (jenjang_pakets.id)
+            'kelas_id',         // Local key di tabel siswas (siswas.kelas_id)
+            'jenjang_paket_id'  // Local key di tabel kelas (kelas.jenjang_paket_id)
+        );
+    }
+
+    /**
+     * Alias relasi masterJenjang.
+     */
+    public function relJenjangPaket(): HasOneThrough
+    {
+        return $this->masterJenjang();
+    }
+
+    /**
+     * Relasi: Siswa memiliki banyak record Presensi (One-to-Many / HasMany).
+     */
+    public function presensis(): HasMany
     {
         return $this->hasMany(Presensi::class);
     }
@@ -178,7 +204,7 @@ class Siswa extends Model
     /**
      * Relasi: Siswa dibimbing oleh satu Tutor (Many-to-One / BelongsTo).
      */
-    public function tutor()
+    public function tutor(): BelongsTo
     {
         return $this->belongsTo(Tutor::class, 'tutor_id');
     }

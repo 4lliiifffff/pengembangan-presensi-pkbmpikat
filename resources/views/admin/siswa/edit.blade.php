@@ -30,8 +30,19 @@
             </div>
 
             <div class="formRow">
-                <div class="fieldLabel">Nama Siswa</div>
+                <div class="fieldLabel">Nama Siswa <span style="color:#ef4444;">*</span></div>
                 <input class="input" type="text" name="nama_siswa" value="{{ old('nama_siswa', $siswa->nama_siswa) }}" required />
+            </div>
+
+            <div class="formRow">
+                <div class="fieldLabel">Status Siklus Murid <span style="color:#ef4444;">*</span></div>
+                <select class="input" name="status_siswa" required>
+                    <option value="aktif" {{ old('status_siswa', $siswa->status_siswa) === 'aktif' ? 'selected' : '' }}>🟢 Aktif Belajar</option>
+                    <option value="alumni" {{ old('status_siswa', $siswa->status_siswa) === 'alumni' ? 'selected' : '' }}>🎓 Lulus / Alumni</option>
+                    <option value="cuti" {{ old('status_siswa', $siswa->status_siswa) === 'cuti' ? 'selected' : '' }}>🟡 Cuti Belajar</option>
+                    <option value="nonaktif" {{ old('status_siswa', $siswa->status_siswa) === 'nonaktif' ? 'selected' : '' }}>⚪ Nonaktif / Keluar</option>
+                </select>
+                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Status 'Alumni', 'Cuti', atau 'Nonaktif' mengarsipkan data murid tanpa menghapus riwayat presensinya.</div>
             </div>
 
             <div class="formRow">
@@ -70,20 +81,27 @@
             </div>
 
             <div class="formRow">
-                <div class="fieldLabel">Kelas</div>
+                <div class="fieldLabel">Kelas / Rombongan Belajar <span style="color:#ef4444;">*</span></div>
                 @if ($kelas->isEmpty())
                     <div class="input">
                         Belum ada data kelas.
                         <a href="{{ route('admin.kelas.create') }}" class="link-primary">Tambah kelas sekarang</a>.
                     </div>
                 @endif
-                <select class="input" name="kelas_id" onchange="if(this.value === 'tambah_kelas') { window.location.href = '{{ route('admin.kelas.create') }}'; }">
-                    <option value="">-- Pilih Kelas --</option>
-                    <option value="tambah_kelas" class="link-primary">+ Tambah Kelas</option>
-                    @foreach ($kelas as $k)
-                        <option value="{{ $k->id }}" {{ (int) old('kelas_id', $siswa->kelas_id) === (int) $k->id ? 'selected' : '' }}>
-                            {{ $k->nama_kelas }}
-                        </option>
+                <select class="input" name="kelas_id" required onchange="if(this.value === 'tambah_kelas') { window.location.href = '{{ route('admin.kelas.create') }}'; }">
+                    <option value="">-- Pilih Kelas / Rombel --</option>
+                    <option value="tambah_kelas" class="link-primary">+ Tambah Kelas Baru</option>
+                    @php
+                        $groupedKelas = $kelas->groupBy(fn($k) => $k->jenjang_paket_label);
+                    @endphp
+                    @foreach ($groupedKelas as $jenjangLabel => $kelasList)
+                        <optgroup label="{{ $jenjangLabel }}">
+                            @foreach ($kelasList as $k)
+                                <option value="{{ $k->id }}" {{ (int) old('kelas_id', $siswa->kelas_id) === (int) $k->id ? 'selected' : '' }}>
+                                    {{ $k->nama_kelas }}
+                                </option>
+                            @endforeach
+                        </optgroup>
                     @endforeach
                 </select>
             </div>
