@@ -3,15 +3,22 @@
 @section('title', 'Tambah Peserta Magang / PKL')
 
 @section('content')
-<div class="pageHeaderRow">
-    <div >
-        <h2 class="mb-0 mt-0">Tambah Peserta Magang / PKL</h2>
-        <p class="mt-1 text-sm text-muted">Daftarkan mahasiswa magang atau siswa PKL beserta informasi instansi</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">FORMULIR PESERTA MAGANG</div>
+                <h1 class="laporanHeaderTitle">Tambah Peserta Magang / PKL</h1>
+                <div class="laporanHeaderSub">Daftarkan mahasiswa magang atau siswa PKL beserta informasi instansi</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.magang.index') }}">
+                    Kembali
+                </a>
+            </div>
+        </div>
     </div>
-    <a class="btnOutline" href="{{ route('admin.magang.index') }}">
-        <ion-icon name="arrow-back-outline"></ion-icon> Kembali
-    </a>
-</div>
 
 @if ($errors->any())
     <div class="error-list-container">
@@ -132,4 +139,5 @@ function handleFileSelected(input, feedbackId) {
     }
 }
 </script>
+</div>
 @endsection

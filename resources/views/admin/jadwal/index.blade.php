@@ -10,21 +10,26 @@
     $dayLabels = ['SEN','SEL','RAB','KAM','JUM','SAB'];
 @endphp
 
-<!-- HEADER -->
-<div  class="pageHeaderRow header-actions-group justify-between px-4 pt-4 pb-2">
-    <div >
-        <h2 class="m-0 text-xl font-extrabold text-dark">Agenda &amp; Jadwal Sekolah</h2>
-        <p class="mt-1 text-sm text-muted">{{ $selectedDate->translatedFormat('l, d F Y') }}</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">AKADEMIK &amp; KALENDER</div>
+                <h1 class="laporanHeaderTitle">Agenda &amp; Jadwal Sekolah</h1>
+                <div class="laporanHeaderSub">{{ $selectedDate->translatedFormat('l, d F Y') }}</div>
+                <p class="laporanHeaderDesc">Jadwal kegiatan pembelajaran, kalender akademik, dan agenda PKBM PIKAT.</p>
+            </div>
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline btn-action-pill">
+                    <ion-icon name="download-outline" class="text-lg"></ion-icon> Export
+                </a>
+                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary btn-action-info text-sm rounded-md w-auto d-inline-flex items-center gap-1 cursor-pointer px-3">
+                    <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="header-actions-group">
-        <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline btn-action-pill">
-            <ion-icon name="download-outline" class="text-lg"></ion-icon> Export
-        </a>
-        <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary text-sm rounded-md w-auto d-inline-flex items-center gap-1 cursor-pointer px-3">
-            <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import
-        </button>
-    </div>
-</div>
 
 {{-- ── Modal Impor Jadwal / Agenda ── --}}
 <div id="importJadwalModal" class="app-modal-backdrop">

@@ -4,14 +4,21 @@
 
 @section('content')
 
-    <div class="pageHeaderRow">
-        <div >
-            <h2 class="mb-0 mt-0">Edit Agenda</h2>
-            <p class="mt-1 text-sm text-muted">Perbarui informasi agenda atau kalender kegiatan</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PERBARUI AGENDA</div>
+                <h1 class="laporanHeaderTitle">Edit Agenda</h1>
+                <div class="laporanHeaderSub">Perbarui informasi agenda atau kalender kegiatan</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.jadwal.index', ['tanggal' => $jadwal->tanggal]) }}">
+                    Kembali
+                </a>
+            </div>
         </div>
-        <a class="btnOutline" href="{{ route('admin.jadwal.index', ['tanggal' => $jadwal->tanggal]) }}">
-            Kembali
-        </a>
     </div>
 
     @if($errors->any())
@@ -85,5 +92,6 @@
             </form>
         </div>
     </div>
+</div>
 
 @endsection

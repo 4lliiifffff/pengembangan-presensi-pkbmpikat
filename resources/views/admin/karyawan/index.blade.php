@@ -12,7 +12,7 @@
                 <div class="laporanHeaderSub">Kelola tenaga pendidik, staf pengajar, dan hak akses akun sistem</div>
                 <p class="laporanHeaderDesc">Daftar staf, pembaruan data login, status keaktifan, dan impor/ekspor data.</p>
             </div>
-            <div class="header-actions-group">
+            <div class="laporanHeaderActions header-actions-group">
                 <a href="{{ route('admin.magang.index') }}" class="btnOutline">
                     Peserta Magang
                 </a>

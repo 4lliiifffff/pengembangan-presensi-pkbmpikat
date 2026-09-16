@@ -6,11 +6,17 @@
 
 @section('content')
 
-    {{-- Header --}}
-    <div class="izinHeader">
-        <div class="izinHeaderLabel">Admin</div>
-        <div class="izinHeaderTitle">Kelola Izin Tutor</div>
-        <div class="izinHeaderSub">Berikan izin setelah konfirmasi WhatsApp dari tutor</div>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">MANAJEMEN PERIZINAN</div>
+                <h1 class="laporanHeaderTitle">Kelola Izin Tutor</h1>
+                <div class="laporanHeaderSub">Verifikasi dan catat izin/sakit tutor setelah konfirmasi WhatsApp</div>
+                <p class="laporanHeaderDesc">Pencatatan izin resmi tutor untuk sinkronisasi otomatis kalender KBM dan rekapitulasi kehadiran.</p>
+            </div>
+        </div>
     </div>
 
 
@@ -107,6 +113,7 @@
             <div class="emptyState">Belum ada riwayat izin.</div>
         @endforelse
     </div>
+</div>
 
 @endsection
 

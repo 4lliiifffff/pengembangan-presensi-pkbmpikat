@@ -2,15 +2,21 @@
 
 @section('content')
 
-    <div class="pageHeaderRow header-actions-group flex-between mb-4">
-        <div >
-            <h2 class="m-0 text-xl font-extrabold text-dark">Master Jenjang &amp; Program Paket</h2>
-            <p class="mt-1 text-sm text-muted">Kelola program pendidikan kesetaraan (Paket A/B/C), vokasi keterampilan, kursus, dan program kustom lainnya</p>
-        </div>
-        <div class="header-actions-group">
-            <button type="button" onclick="bukaModalTambah()" class="btnPrimary px-3 py-2 text-sm d-inline-flex items-center gap-1">
-                <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Jenjang Baru
-            </button>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">MASTER PENDIDIKAN &amp; KURSUS</div>
+                <h1 class="laporanHeaderTitle">Master Jenjang &amp; Program Paket</h1>
+                <div class="laporanHeaderSub">Program pendidikan kesetaraan (Paket A/B/C), vokasi keterampilan, dan kursus</div>
+                <p class="laporanHeaderDesc">Kelola hierarki jenjang, kode sistem, dan format tingkatan kelas secara dinamis.</p>
+            </div>
+            <div class="laporanHeaderActions header-actions-group">
+                <button type="button" onclick="bukaModalTambah()" class="profileBtnPrimary">
+                    <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Jenjang Baru
+                </button>
+            </div>
         </div>
     </div>
 
@@ -339,5 +345,6 @@
             this.dataset.manualEdit = 'true';
         });
     </script>
+</div>
 
 @endsection

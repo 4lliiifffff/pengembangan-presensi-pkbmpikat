@@ -1,14 +1,21 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow">
-        <div >
-            <h2 class="mb-0 mt-0">Tambah Jenjang &amp; Program Paket</h2>
-            <p class="mt-1 text-sm text-muted">Daftarkan jenjang pendidikan kesetaraan atau program kejuruan baru</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">FORMULIR MASTER JENJANG</div>
+                <h1 class="laporanHeaderTitle">Tambah Jenjang &amp; Program Paket</h1>
+                <div class="laporanHeaderSub">Daftarkan jenjang pendidikan kesetaraan atau program kejuruan baru</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.jenjang-paket.index') }}">
+                    Kembali
+                </a>
+            </div>
         </div>
-        <a class="btnOutline" href="{{ route('admin.jenjang-paket.index') }}">
-            Kembali
-        </a>
     </div>
 
     @if ($errors->any())
@@ -87,4 +94,5 @@
             this.dataset.manualEdit = 'true';
         });
     </script>
+</div>
 @endsection

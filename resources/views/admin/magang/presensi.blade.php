@@ -4,18 +4,24 @@
 
 @section('content')
 
-    <div  class="pageHeaderRow header-actions-group justify-between px-4 pt-4 pb-2">
-        <div >
-            <h2 class="m-0 text-xl font-extrabold text-dark">Monitoring Presensi Magang &amp; PKL</h2>
-            <p class="mt-1 text-sm text-muted">Rekapitulasi log absensi masuk dan pulang mahasiswa/siswa magang</p>
-        </div>
-        <div class="header-actions-group">
-            <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger" class="btn-action-pill">
-                <ion-icon name="document-text-outline" class="text-lg"></ion-icon> Export PDF
-            </a>
-            <a href="{{ route('admin.magang.index') }}" class="btnOutline btn-action-pill">
-                <ion-icon name="people-outline" class="text-lg"></ion-icon> Data Magang
-            </a>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">LOG AKTIVITAS MAGANG</div>
+                <h1 class="laporanHeaderTitle">Monitoring Presensi Magang &amp; PKL</h1>
+                <div class="laporanHeaderSub">Rekapitulasi log absensi masuk, pulang, dan jam kerja peserta magang</div>
+                <p class="laporanHeaderDesc">Pantau riwayat presensi harian, bukti foto kehadiran, dan unduh laporan resmi.</p>
+            </div>
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger btn-action-pill">
+                    <ion-icon name="document-text-outline" class="text-lg"></ion-icon> Export PDF
+                </a>
+                <a href="{{ route('admin.magang.index') }}" class="btnOutline btn-action-pill">
+                    <ion-icon name="people-outline" class="text-lg"></ion-icon> Data Magang
+                </a>
+            </div>
         </div>
     </div>
 
@@ -201,5 +207,6 @@
             }
         });
     </script>
+</div>
 
 @endsection

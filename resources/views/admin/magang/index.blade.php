@@ -4,20 +4,26 @@
 
 @section('content')
 
-<div class="pageHeaderRow header-actions-group flex-between">
-    <div >
-        <h2 class="mb-0 mt-0">Data Peserta Magang &amp; PKL</h2>
-        <p class="mt-1 text-sm text-muted">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">KEMITRAAN &amp; PRAKTIK KERJA</div>
+                <h1 class="laporanHeaderTitle">Data Peserta Magang &amp; PKL</h1>
+                <div class="laporanHeaderSub">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</div>
+                <p class="laporanHeaderDesc">Pendaftaran peserta PKL, verifikasi instansi asal, dan status keaktifan penugasan.</p>
+            </div>
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route('admin.magang.presensi') }}" class="btnOutline">
+                    <ion-icon name="calendar-outline"></ion-icon> Monitoring Presensi
+                </a>
+                <a href="{{ route('admin.magang.create') }}" class="profileBtnPrimary">
+                    <ion-icon name="add-outline"></ion-icon> Tambah Peserta Magang
+                </a>
+            </div>
+        </div>
     </div>
-    <div class="header-actions-group">
-        <a href="{{ route('admin.magang.presensi') }}" class="btnOutline p-2 text-sm gap-1">
-            <ion-icon name="calendar-outline"></ion-icon> Monitoring Presensi
-        </a>
-        <a href="{{ route('admin.magang.create') }}" class="btnPrimary p-2 text-sm gap-1 bg-primary-gradient">
-            <ion-icon name="add-outline"></ion-icon> Tambah Peserta Magang
-        </a>
-    </div>
-</div>
 
 <!-- Statistik -->
 <div class="statsRow px-4">
@@ -144,6 +150,7 @@
             {{ $magangs->links() }}
         </div>
     @endif
+</div>
 </div>
 
 @endsection

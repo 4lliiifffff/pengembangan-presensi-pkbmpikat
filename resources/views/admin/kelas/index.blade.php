@@ -1,18 +1,24 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow header-actions-group flex-between">
-        <div >
-            <h2 class="mb-0 mt-0">Data Kelas &amp; Rombel</h2>
-            <p class="mt-1 text-sm text-muted">Kelola master rombongan belajar, jenjang paket kesetaraan, dan program vokasi</p>
-        </div>
-        <div class="header-actions-group">
-            <a href="{{ route('admin.jenjang-paket.index') }}" class="btnOutline p-2 text-sm gap-1">
-                <ion-icon name="layers-outline" class="icon-sm"></ion-icon> Kelola Master Jenjang &rarr;
-            </a>
-            <a href="{{ route('admin.kelas.create') }}" class="btnPrimary text-sm gap-1 bg-primary-gradient px-3 py-2">
-                <ion-icon name="add-outline" class="icon-sm"></ion-icon> Tambah Kelas Baru
-            </a>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">ROMBONGAN BELAJAR &amp; KELAS</div>
+                <h1 class="laporanHeaderTitle">Data Kelas &amp; Rombel</h1>
+                <div class="laporanHeaderSub">Kelola rombongan belajar, jenjang paket kesetaraan, dan program vokasi</div>
+                <p class="laporanHeaderDesc">Daftar kelas aktif, alokasi jenjang kesetaraan, dan pemetaan tingkatan siswa.</p>
+            </div>
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route('admin.jenjang-paket.index') }}" class="btnOutline">
+                    <ion-icon name="layers-outline" class="icon-sm"></ion-icon> Kelola Master Jenjang
+                </a>
+                <a href="{{ route('admin.kelas.create') }}" class="profileBtnPrimary">
+                    <ion-icon name="add-outline" class="icon-sm"></ion-icon> Tambah Kelas Baru
+                </a>
+            </div>
         </div>
     </div>
 
@@ -109,4 +115,5 @@
     <a href="{{ route('admin.kelas.create') }}" class="fabAdd" aria-label="Tambah Kelas">
         <ion-icon name="add-outline"></ion-icon>
     </a>
+</div>
 @endsection

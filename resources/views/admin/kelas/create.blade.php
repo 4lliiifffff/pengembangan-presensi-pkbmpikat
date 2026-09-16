@@ -1,14 +1,21 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow">
-        <div >
-            <h2 class="mb-0 mt-0">Tambah Kelas Baru</h2>
-            <p class="mt-1 text-sm text-muted">Daftarkan rombongan belajar atau kelas program kesetaraan/vokasi</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">FORMULIR KELAS &amp; ROMBEL</div>
+                <h1 class="laporanHeaderTitle">Tambah Kelas Baru</h1>
+                <div class="laporanHeaderSub">Daftarkan rombongan belajar atau kelas program kesetaraan/vokasi</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.kelas.index') }}">
+                    Kembali
+                </a>
+            </div>
         </div>
-        <a class="btnOutline" href="{{ route('admin.kelas.index') }}">
-            Kembali
-        </a>
     </div>
 
     @if ($errors->any())
@@ -134,4 +141,5 @@
             this.dataset.autofilled = 'false';
         });
     </script>
+</div>
 @endsection

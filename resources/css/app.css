@@ -2964,7 +2964,7 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
 /* Kepsek & Admin Laporan Modern & Responsive */
 .laporanPageWrapper {
     width: 100%;
-    padding: 0 16px;
+    padding: 16px 16px;
     padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
     box-sizing: border-box;
 }
@@ -3394,7 +3394,8 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
 
 @media (max-width: 640px) {
     .laporanPageWrapper {
-        padding: 0 12px;
+        padding: 14px 12px;
+        padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
     }
     .laporanHeaderCard {
         padding: 14px;

@@ -7,15 +7,22 @@
     $detail = $magang->magang;
 @endphp
 
-<div class="pageHeaderRow">
-    <div >
-        <h2 class="mb-0 mt-0">Edit Peserta Magang: {{ $magang->nama_lengkap ?? $magang->name }}</h2>
-        <p class="mt-1 text-sm text-muted">Perbarui data informasi instansi, akun, atau masa berlaku magang</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PERBARUI DATA MAGANG</div>
+                <h1 class="laporanHeaderTitle">Edit Peserta Magang: {{ $magang->nama_lengkap ?? $magang->name }}</h1>
+                <div class="laporanHeaderSub">Perbarui data informasi instansi, akun, atau masa berlaku magang</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.magang.index') }}">
+                    Kembali
+                </a>
+            </div>
+        </div>
     </div>
-    <a class="btnOutline" href="{{ route('admin.magang.index') }}">
-        <ion-icon name="arrow-back-outline"></ion-icon> Kembali
-    </a>
-</div>
 
 @if ($errors->any())
     <div class="error-list-container">
@@ -145,4 +152,5 @@ function handleFileSelected(input, feedbackId) {
     }
 }
 </script>
+</div>
 @endsection

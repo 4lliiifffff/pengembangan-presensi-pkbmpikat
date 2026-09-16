@@ -4,14 +4,21 @@
 
 @section('content')
 
-    <div class="pageHeaderRow">
-        <div >
-            <h2 class="mb-0 mt-0">Tambah Agenda Baru</h2>
-            <p class="mt-1 text-sm text-muted">Tambahkan kalender akademik, ujian, atau kegiatan sekolah</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">FORMULIR AGENDA</div>
+                <h1 class="laporanHeaderTitle">Tambah Agenda Baru</h1>
+                <div class="laporanHeaderSub">Tambahkan kalender akademik, ujian, atau kegiatan sekolah</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.jadwal.index') }}">
+                    Kembali
+                </a>
+            </div>
         </div>
-        <a class="btnOutline" href="{{ route('admin.jadwal.index') }}">
-            Kembali
-        </a>
     </div>
 
     @if($errors->any())
@@ -71,5 +78,6 @@
             </button>
         </form>
     </div>
+</div>
 
 @endsection

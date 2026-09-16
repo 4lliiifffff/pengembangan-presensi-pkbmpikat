@@ -2,15 +2,21 @@
 
 @section('content')
 
-    <div class="pageHeaderRow header-actions-group justify-between mb-4">
-        <div >
-            <h2 class="m-0 text-xl font-extrabold text-dark">Master Kategori &amp; Tarif SK</h2>
-            <p class="mt-1 text-sm text-muted">Kelola kategori pembelajaran, durasi acuan, status ABK, dan besaran tarif honor per pertemuan sesuai SK Kepala PKBM</p>
-        </div>
-        <div class="header-actions-group">
-            <button type="button" onclick="bukaModalTambah()" class="btnPrimary px-3 py-2 text-sm d-inline-flex items-center gap-1">
-                <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Kategori SK
-            </button>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">KEBIJAKAN HONORARIUM &amp; SK</div>
+                <h1 class="laporanHeaderTitle">Master Kategori &amp; Tarif SK</h1>
+                <div class="laporanHeaderSub">Kategori pembelajaran, durasi acuan, status ABK, dan besaran tarif honor tutor</div>
+                <p class="laporanHeaderDesc">Standar acuan honorarium mengajar per pertemuan sesuai Surat Keputusan Kepala PKBM PIKAT.</p>
+            </div>
+            <div class="laporanHeaderActions header-actions-group">
+                <button type="button" onclick="bukaModalTambah()" class="profileBtnPrimary">
+                    <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Kategori SK
+                </button>
+            </div>
         </div>
     </div>
 
@@ -219,5 +225,6 @@
             document.getElementById('modalKategori').style.display = 'none';
         }
     </script>
+</div>
 
 @endsection

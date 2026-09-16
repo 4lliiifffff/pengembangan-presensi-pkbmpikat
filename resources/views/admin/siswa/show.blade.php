@@ -2,12 +2,13 @@
 
 @section('content')
 <div class="laporanPageWrapper">
-    <div class="laporanHeaderCard">
-        <div class="laporanHeaderMain">
-            <div class="laporanTitleBlock">
-                <span class="laporanSubtitle">MODUL PESERTA DIDIK</span>
-                <h1 class="laporanMainTitle">Detail Siswa: {{ $siswa->nama_siswa }}</h1>
-                <p class="laporanDesc">Informasi lengkap data peserta didik, wali murid, dan rombongan belajar</p>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">MODUL PESERTA DIDIK</div>
+                <h1 class="laporanHeaderTitle">Detail Siswa: {{ $siswa->nama_siswa }}</h1>
+                <div class="laporanHeaderSub">Informasi lengkap data peserta didik, wali murid, dan rombongan belajar</div>
             </div>
             <div class="laporanHeaderActions header-actions-group">
                 <a href="{{ route('admin.siswa.index') }}" class="btnOutline">

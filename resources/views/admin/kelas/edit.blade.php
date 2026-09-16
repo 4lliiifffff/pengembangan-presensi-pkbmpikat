@@ -1,14 +1,21 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow">
-        <div >
-            <h2 class="mb-0 mt-0">Edit Data Kelas</h2>
-            <p class="mt-1 text-sm text-muted">Perbarui informasi jenjang paket, tingkatan, dan nama kelas</p>
+<div class="laporanPageWrapper">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PERBARUI KELAS &amp; ROMBEL</div>
+                <h1 class="laporanHeaderTitle">Edit Data Kelas</h1>
+                <div class="laporanHeaderSub">Perbarui informasi jenjang paket, tingkatan, dan nama kelas</div>
+            </div>
+            <div class="laporanHeaderActions">
+                <a class="btnOutline" href="{{ route('admin.kelas.index') }}">
+                    Kembali
+                </a>
+            </div>
         </div>
-        <a class="btnOutline" href="{{ route('admin.kelas.index') }}">
-            Kembali
-        </a>
     </div>
 
     @if ($errors->any())
@@ -111,4 +118,5 @@
             }
         }
     </script>
+</div>
 @endsection
