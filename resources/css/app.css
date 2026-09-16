@@ -1144,10 +1144,38 @@ h1, h2, h3, h4, h5, h6 {
 .smallBtn.delete { border: 1px solid rgba(239,68,68,0.22); color: #dc2626; background: rgba(239,68,68,0.08); }
 .smallBtn.delete:hover { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); }
 
+.btn-table-action {
+    min-width: 64px;
+    height: 32px;
+    padding: 0 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    width: auto !important;
+}
+
+.btn-status-toggle {
+    border: 1px solid rgba(100, 116, 139, 0.22);
+    color: var(--text, #0f172a);
+    background: var(--card-alt, #f8fafc);
+}
+.btn-status-toggle:hover {
+    background: #f1f5f9;
+    border-color: rgba(100, 116, 139, 0.4);
+}
+
 /* Filter Pills Container */
 .filterPillsContainer {
     display: flex;
     gap: 8px;
+
     align-items: center;
     flex-wrap: wrap;
 }
@@ -4546,9 +4574,81 @@ button, a, input, select, textarea {
     justify-content: flex-end;
 }
 
+.dmc-actions .btn-table-action,
+.dmc-actions .smallBtn {
+    flex: 1 1 auto;
+    min-width: 64px;
+    height: 32px;
+    text-align: center;
+    justify-content: center;
+}
+
+.dmc-actions form {
+    flex: 1 1 auto;
+    display: flex;
+    margin: 0;
+}
+
+.dmc-actions form .btn-table-action,
+.dmc-actions form .smallBtn {
+    width: 100% !important;
+}
+
+/* Siswa & Kelas Grid Cards */
+.siswaGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.siswaCard {
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.siswaTop {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.siswaActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border, #f1f5f9);
+}
+
+.siswaActions .smallBtn,
+.siswaActions .btn-table-action {
+    flex: 1;
+    min-width: 0;
+}
+
+.siswaActions form {
+    flex: 1;
+    display: flex;
+    margin: 0;
+}
+
+.siswaActions form .smallBtn,
+.siswaActions form .btn-table-action {
+    width: 100% !important;
+}
+
 /* ==========================================
    PERMISSIONS WARNING BANNER
    ========================================== */
+
 .permWarning {
     margin: 10px 14px 0;
     padding: 12px 14px;

@@ -82,15 +82,16 @@
                             </td>
                             <td class="p-3 text-center">
                                 <div class="d-flex gap-1 flex-center">
-                                    <button type="button" onclick="bukaModalEdit({{ json_encode($jp) }})" class="smallBtn edit cursor-pointer">
+                                    <button type="button" onclick="bukaModalEdit({{ json_encode($jp) }})" class="smallBtn edit cursor-pointer btn-table-action" title="Edit Master Jenjang">
                                         <ion-icon name="create-outline"></ion-icon> Edit
                                     </button>
 
-                                    <button type="button" onclick="bukaModalHapus({{ json_encode($jp) }})" title="Hapus Master Jenjang" class="smallBtn delete cursor-pointer">
+                                    <button type="button" onclick="bukaModalHapus({{ json_encode($jp) }})" title="Hapus Master Jenjang" class="smallBtn delete cursor-pointer btn-table-action">
                                         <ion-icon name="trash-outline"></ion-icon> Hapus
                                     </button>
                                 </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr >

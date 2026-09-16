@@ -174,10 +174,10 @@
                         </td>
                         <td class="text-right">
                             <div class="d-flex gap-1 justify-end">
-                                <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" class="px-2 py-1 text-xs font-bold d-inline-flex items-center gap-1" title="Lihat rincian per siswa">
+                                <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit btn-table-action" title="Lihat rincian per siswa">
                                     <ion-icon name="eye-outline"></ion-icon> Detail
                                 </a>
-                                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" class="btn-emerald-sm px-2 py-1 text-xs" title="Unduh Slip Gaji PDF">
+                                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn btn-emerald-sm btn-table-action" title="Unduh Slip Gaji PDF">
                                     <ion-icon name="download-outline"></ion-icon> Slip
                                 </a>
                             </div>
@@ -239,15 +239,16 @@
                             <div class="pmc-honor-val">{{ $p['formatted_total_honor'] }}</div>
                         </div>
                         <div class="d-flex gap-1">
-                            <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" class="px-3 py-1 text-sm font-bold d-inline-flex items-center gap-1">
+                            <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit btn-table-action">
                                 <ion-icon name="eye-outline"></ion-icon> Rincian
                             </a>
-                            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" class="btn-emerald-sm">
+                            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn btn-emerald-sm btn-table-action">
                                 <ion-icon name="download-outline"></ion-icon> PDF
                             </a>
                         </div>
                     </div>
                 </div>
+
             @empty
                 <div class="text-center table-empty-cell text-muted">
                     <ion-icon name="wallet-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>

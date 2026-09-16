@@ -77,20 +77,21 @@
                             </td>
                             <td class="p-3 text-center">
                                 <div class="d-flex gap-1 justify-center">
-                                    <button type="button" onclick="bukaModalEdit({{ json_encode($k) }})" title="Edit Kategori" class="btnOutline text-xs rounded-md p-1">
+                                    <button type="button" onclick="bukaModalEdit({{ json_encode($k) }})" title="Edit Kategori" class="smallBtn edit cursor-pointer btn-table-action">
                                         <ion-icon name="create-outline"></ion-icon> Edit
                                     </button>
                                     @if($k->presensis_count === 0)
-                                        <form method="POST" action="{{ route('admin.kategori-tutorial.destroy', $k) }}" data-confirm="Apakah Anda yakin ingin menghapus kategori tutorial ini?" data-confirm-title="Hapus Kategori" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline">
+                                        <form method="POST" action="{{ route('admin.kategori-tutorial.destroy', $k) }}" data-confirm="Apakah Anda yakin ingin menghapus kategori tutorial ini?" data-confirm-title="Hapus Kategori" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" title="Hapus Kategori" class="btnOutline text-xs rounded-md text-danger p-1 border-danger-light">
-                                                <ion-icon name="trash-outline"></ion-icon>
+                                            <button type="submit" title="Hapus Kategori" class="smallBtn delete cursor-pointer btn-table-action">
+                                                <ion-icon name="trash-outline"></ion-icon> Hapus
                                             </button>
                                         </form>
                                     @endif
                                 </div>
                             </td>
+
                         </tr>
                     @empty
                         <tr >

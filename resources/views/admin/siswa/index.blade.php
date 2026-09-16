@@ -171,18 +171,18 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex gap-1 flex-center flex-wrap">
-                                    <a class="smallBtn btn-status-toggle" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
+                                    <a class="smallBtn btn-status-toggle btn-table-action" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
                                         Detail
                                     </a>
 
-                                    <a href="{{ route('admin.siswa.edit', $siswa) }}" class="smallBtn edit text-sm p-1 text-sm">
+                                    <a href="{{ route('admin.siswa.edit', $siswa) }}" class="smallBtn edit btn-table-action" title="Edit Data Siswa">
                                         Edit
                                     </a>
 
                                     <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" class="d-inline m-0">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" title="Arsipkan Siswa" class="smallBtn delete cursor-pointer text-sm p-1 text-sm">
+                                        <button type="submit" title="Arsipkan Siswa" class="smallBtn delete cursor-pointer btn-table-action">
                                             Arsipkan
                                         </button>
                                     </form>
@@ -250,24 +250,25 @@
                         No. {{ $siswas->firstItem() + $index }}
                     </div>
                     <div class="dmc-actions">
-                        <a class="smallBtn btn-status-toggle" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
+                        <a class="smallBtn btn-status-toggle btn-table-action" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
                             Detail
                         </a>
 
-                        <a href="{{ route('admin.siswa.edit', $siswa) }}" class="smallBtn edit text-sm px-3 py-1">
+                        <a href="{{ route('admin.siswa.edit', $siswa) }}" class="smallBtn edit btn-table-action" title="Edit Data Siswa">
                             Edit
                         </a>
 
                         <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" class="d-inline m-0">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="smallBtn delete cursor-pointer text-sm px-3 py-1">
+                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Arsipkan Siswa">
                                 Arsipkan
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
+
         @empty
             <div class="data-mobile-card table-empty-cell">
                 <div class="font-bold text-md mb-1">Belum Ada Data Siswa</div>

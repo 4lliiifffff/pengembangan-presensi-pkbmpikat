@@ -114,18 +114,19 @@
                         </td>
                         <td class="p-3 text-right">
                             <div class="d-flex justify-end gap-1">
-                                <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit" title="Edit">
+                                <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit btn-table-action" title="Edit Data Magang">
                                     <ion-icon name="create-outline"></ion-icon> Edit
                                 </a>
                                 <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="smallBtn delete cursor-pointer" title="Hapus">
+                                    <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Data Magang">
                                         <ion-icon name="trash-outline"></ion-icon> Hapus
                                     </button>
                                 </form>
                             </div>
                         </td>
+
                     </tr>
                 @empty
                     <tr >

@@ -81,7 +81,7 @@
                 </div>
 
                 <div class="siswaActions">
-                    <a class="smallBtn edit" href="{{ route('admin.kelas.edit', $k) }}">
+                    <a class="smallBtn edit btn-table-action" href="{{ route('admin.kelas.edit', $k) }}">
                         <ion-icon name="create-outline"></ion-icon>
                         Edit
                     </a>
@@ -89,12 +89,13 @@
                     <form method="POST" action="{{ route('admin.kelas.destroy', $k) }}" data-confirm="Apakah Anda yakin ingin menghapus kelas ini?" data-confirm-title="Hapus Kelas" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="smallBtn delete cursor-pointer">
+                        <button type="submit" class="smallBtn delete cursor-pointer btn-table-action">
                             <ion-icon name="trash-outline"></ion-icon>
                             Hapus
                         </button>
                     </form>
                 </div>
+
             </div>
         @empty
             <div class="emptyState grid-span-full">Belum ada data kelas yang sesuai kriteria.</div>

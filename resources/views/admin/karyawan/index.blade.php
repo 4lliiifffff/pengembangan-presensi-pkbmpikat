@@ -197,14 +197,14 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex gap-1 flex-center flex-wrap">
-                                    <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}">
+                                    <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}" title="Edit Staf">
                                         Edit
                                     </a>
 
                                     <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" class="d-inline m-0">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="btn-status-toggle" title="Klik untuk ubah status aktif/nonaktif">
+                                        <button type="submit" class="smallBtn btn-status-toggle btn-table-action" title="Klik untuk ubah status aktif/nonaktif">
                                             {{ $isActive ? 'Nonaktifkan' : 'Aktifkan' }}
                                         </button>
                                     </form>
@@ -296,14 +296,14 @@
                         No. {{ $karyawan->firstItem() + $index }}
                     </div>
                     <div class="dmc-actions">
-                        <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}">
+                        <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}" title="Edit Staf">
                             Edit
                         </a>
 
                         <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" class="d-inline m-0">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="btn-status-toggle">
+                            <button type="submit" class="smallBtn btn-status-toggle btn-table-action" title="Ubah Status">
                                 {{ $isActive ? 'Nonaktifkan' : 'Aktifkan' }}
                             </button>
                         </form>
@@ -311,7 +311,7 @@
                         <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action">
+                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Staf">
                                 Hapus
                             </button>
                         </form>

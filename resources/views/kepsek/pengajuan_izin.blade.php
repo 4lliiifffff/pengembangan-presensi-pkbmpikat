@@ -136,12 +136,13 @@
 
                     @if($item->dokumen_url)
                         <div class="mt-1">
-                            <a href="{{ $item->dokumen_url }}" target="_blank" class="btnOutline" class="btn-action-pill px-3 text-sm">
+                            <a href="{{ $item->dokumen_url }}" target="_blank" class="btnOutline btn-action-pill px-3 text-sm">
                                 <ion-icon name="document-attach-outline" class="icon-sm text-primary"></ion-icon>
                                 <span >Lihat Surat Lampiran</span>
                             </a>
                         </div>
                     @endif
+
 
                     {{-- Actions --}}
                     @if($item->status === 'pending')
