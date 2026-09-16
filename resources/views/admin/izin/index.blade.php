@@ -15,9 +15,9 @@
 
 
     @if($errors->any())
-        <div class="errorList" style="margin: 14px 16px 0;">
+        <div class="errorList px-4 mt-3">
             @foreach($errors->all() as $err)
-                <div>• {{ $err }}</div>
+                <div >• {{ $err }}</div>
             @endforeach
         </div>
     @endif
@@ -48,13 +48,12 @@
                 {{-- Pilih Tanggal --}}
                 <div class="fieldGroup">
                     <div class="fieldLabel">Tanggal Izin</div>
-                    <input type="date" name="tanggal" id="tanggalInput" class="dateInput"
-                           value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                    <input type="date" name="tanggal" id="tanggalInput" class="dateInput" value="{{ old('tanggal', date('Y-m-d')) }}" required>
                 </div>
 
                 {{-- Daftar Siswa (muncul via AJAX) --}}
                 <div class="fieldGroup">
-                    <div class="fieldLabel">Siswa <span style="font-weight:600;color:var(--muted);">(bisa lebih dari 1)</span></div>
+                    <div class="fieldLabel">Siswa <span class="font-semibold text-muted">(bisa lebih dari 1)</span></div>
                     <div class="siswaCheckList" id="siswaList">
                         <div class="siswaCheckEmpty" id="siswaPlaceholder">
                             Pilih tutor terlebih dahulu
@@ -112,7 +111,7 @@
 @endsection
 
 @push('scripts')
-<script>
+<script >
     const tutorSelect  = document.getElementById('tutorSelect');
     const siswaList    = document.getElementById('siswaList');
     const placeholder  = document.getElementById('siswaPlaceholder');

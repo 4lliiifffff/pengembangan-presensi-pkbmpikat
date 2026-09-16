@@ -25,7 +25,7 @@
             <div class="statLabel">Total Pengajuan</div>
         </div>
         <div class="statCard">
-            <div class="statNum" style="color: #f59e0b;">{{ $totalPending ?? 0 }}</div>
+            <div class="statNum text-warning">{{ $totalPending ?? 0 }}</div>
             <div class="statLabel">Menunggu Persetujuan</div>
         </div>
         <div class="statCard">
@@ -57,7 +57,7 @@
                     </select>
                 </div>
 
-                <div class="filterField" style="grid-column: span 2;">
+                <div class="filterField grid-span-2">
                     <label class="filterFieldLabel">Cari Tutor</label>
                     <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}" placeholder="Ketik nama tutor...">
                 </div>
@@ -78,7 +78,7 @@
 
     {{-- ── Section Title ── --}}
     <div class="sectionRow">
-        <h2>Daftar Permohonan Izin / Sakit</h2>
+        <h2 >Daftar Permohonan Izin / Sakit</h2>
         <span class="badgeCount">{{ $items->total() }} Data</span>
     </div>
 
@@ -94,8 +94,8 @@
             <div class="kllCard">
                 {{-- Header Card --}}
                 <div class="kllCardStrip">
-                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                        <div class="tutorAvatar" style="width: 36px; height: 36px; font-size: 12.5px;">{{ $initials }}</div>
+                    <div class="d-flex items-center gap-2 min-w-0 flex-1">
+                        <div class="tutorAvatar text-sm avatar-icon-36">{{ $initials }}</div>
                         <div class="kllTutorInfo">
                             <div class="kllTutorName">{{ $tutorNama }}</div>
                             <div class="kllTutorId">
@@ -107,7 +107,7 @@
                             </div>
                         </div>
                     </div>
-                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 4px;">
+                    <div class="d-flex flex-col items-end gap-1">
                         <span class="badgeBadge {{ $item->jenis === 'sakit' ? 'sakit' : 'izin' }}">
                             {{ strtoupper($item->jenis_label) }}
                         </span>
@@ -135,10 +135,10 @@
                     </div>
 
                     @if($item->dokumen_url)
-                        <div style="margin-top: 4px;">
-                            <a href="{{ $item->dokumen_url }}" target="_blank" class="btnOutline" style="display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; font-size: 12px; border-radius: 10px; text-decoration: none;">
-                                <ion-icon name="document-attach-outline" style="font-size: 16px; color: var(--blue2);"></ion-icon>
-                                <span>Lihat Surat Lampiran</span>
+                        <div class="mt-1">
+                            <a href="{{ $item->dokumen_url }}" target="_blank" class="btnOutline" class="btn-action-pill px-3 text-sm">
+                                <ion-icon name="document-attach-outline" class="icon-sm text-primary"></ion-icon>
+                                <span >Lihat Surat Lampiran</span>
                             </a>
                         </div>
                     @endif
@@ -146,25 +146,25 @@
                     {{-- Actions --}}
                     @if($item->status === 'pending')
                         <div class="kllActions">
-                            <form action="{{ route('kepsek.pengajuan-izin.setujui', $item->id) }}" method="POST" style="flex:1;" data-confirm="Setujui permohonan izin/sakit ini? Log presensi kehadiran tutor akan disinkronkan secara otomatis." data-confirm-title="Setujui Pengajuan Izin" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
+                            <form action="{{ route('kepsek.pengajuan-izin.setujui', $item->id) }}" method="POST" class="flex-1" data-confirm="Setujui permohonan izin/sakit ini? Log presensi kehadiran tutor akan disinkronkan secara otomatis." data-confirm-title="Setujui Pengajuan Izin" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="profileBtnPrimary" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#16a34a;">
+                                <button type="submit" class="profileBtnPrimary w-full text-sm rounded-md btn-success-h38">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Setujui
                                 </button>
                             </form>
-                            <form action="{{ route('kepsek.pengajuan-izin.tolak', $item->id) }}" method="POST" style="flex:1;" data-confirm="Apakah Anda yakin ingin menolak permohonan izin ini?" data-confirm-title="Tolak Pengajuan Izin" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
+                            <form action="{{ route('kepsek.pengajuan-izin.tolak', $item->id) }}" method="POST" class="flex-1" data-confirm="Apakah Anda yakin ingin menolak permohonan izin ini?" data-confirm-title="Tolak Pengajuan Izin" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="profileBtnDanger" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#ef4444; color:#fff;">
+                                <button type="submit" class="profileBtnDanger w-full text-sm rounded-md text-white btn-danger-h38">
                                     <ion-icon name="close-circle-outline"></ion-icon> Tolak
                                 </button>
                             </form>
                         </div>
                     @else
-                        <div style="margin-top: 8px; border-top: 1px dashed var(--border); padding-top: 8px; font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 6px;">
-                            <ion-icon name="shield-checkmark-outline" style="color: #16a34a; font-size: 15px;"></ion-icon>
-                            <span>Diverifikasi oleh <strong>{{ $item->verifikator->name ?? 'Kepala Sekolah' }}</strong> pada {{ $item->updated_at->translatedFormat('d M Y H:i') }}</span>
+                        <div  class="mt-2 py-2 text-sm text-muted d-flex items-center gap-1 border-t-dashed">
+                            <ion-icon name="shield-checkmark-outline" class="text-success text-lg"></ion-icon>
+                            <span >Diverifikasi oleh <strong >{{ $item->verifikator->name ?? 'Kepala Sekolah' }}</strong> pada {{ $item->updated_at->translatedFormat('d M Y H:i') }}</span>
                         </div>
                     @endif
                 </div>

@@ -25,7 +25,7 @@
             <div class="laporanHeaderActions">
                 <a href="{{ route('kepsek.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPayrollShortcut">
                     <ion-icon name="wallet-outline"></ion-icon>
-                    <span>Buka Rekapitulasi Payroll ({{ $namaBulan[$bulan] ?? '' }})</span>
+                    <span >Buka Rekapitulasi Payroll ({{ $namaBulan[$bulan] ?? '' }})</span>
                 </a>
             </div>
         </div>
@@ -109,7 +109,7 @@
 
     {{-- ── Rekapitulasi Per Tutor ── --}}
     <div class="sectionRow">
-        <h2>Rekapitulasi Kinerja Tutor</h2>
+        <h2 >Rekapitulasi Kinerja Tutor</h2>
         <span class="badgeCount">{{ $totalTutorAktif }} Tutor Aktif</span>
     </div>
 

@@ -4,54 +4,54 @@
 
 @section('content')
 
-    <div class="pageHeaderRow header-actions-group" style="padding: 16px 16px 6px; justify-content: space-between;">
-        <div>
-            <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text);">Monitoring Presensi Magang &amp; PKL</h2>
-            <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Rekapitulasi log absensi masuk dan pulang mahasiswa/siswa magang</p>
+    <div  class="pageHeaderRow header-actions-group justify-between px-4 pt-4 pb-2">
+        <div >
+            <h2 class="m-0 text-xl font-extrabold text-dark">Monitoring Presensi Magang &amp; PKL</h2>
+            <p class="mt-1 text-sm text-muted">Rekapitulasi log absensi masuk dan pulang mahasiswa/siswa magang</p>
         </div>
         <div class="header-actions-group">
-            <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; width: auto; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                <ion-icon name="document-text-outline" style="font-size: 15px;"></ion-icon> Export PDF
+            <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger" class="btn-action-pill">
+                <ion-icon name="document-text-outline" class="text-lg"></ion-icon> Export PDF
             </a>
-            <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-                <ion-icon name="people-outline" style="font-size: 15px;"></ion-icon> Data Magang
+            <a href="{{ route('admin.magang.index') }}" class="btnOutline btn-action-pill">
+                <ion-icon name="people-outline" class="text-lg"></ion-icon> Data Magang
             </a>
         </div>
     </div>
 
     <!-- Statistik -->
-    <div class="statsRow" style="padding: 0 16px 14px; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
-        <div class="statBox dark" style="padding: 14px; border-radius: 14px;">
-            <ion-icon name="calendar-outline" style="font-size: 22px; margin-bottom: 4px;"></ion-icon>
-            <h2 style="font-size: 20px; margin: 4px 0 2px;">{{ $totalPresensi }}</h2>
-            <div style="font-size: 10px; letter-spacing: 0.5px; opacity: 0.85;">TOTAL LOG</div>
+    <div  class="statsRow gap-3 px-4 pb-3 grid-stats-auto">
+        <div class="statBox dark p-3 rounded-lg">
+            <ion-icon name="calendar-outline" class="icon-xl mb-1"></ion-icon>
+            <h2 class="icon-lg mt-1 mb-1">{{ $totalPresensi }}</h2>
+            <div class="text-xs letter-spacing-sm opacity-85">TOTAL LOG</div>
         </div>
-        <div class="statBox active" style="padding: 14px; border-radius: 14px;">
-            <ion-icon name="checkmark-done-circle-outline" style="font-size: 22px; margin-bottom: 4px;"></ion-icon>
-            <h2 style="font-size: 20px; margin: 4px 0 2px;">{{ $totalHadirLengkap }}</h2>
-            <div style="font-size: 10px; letter-spacing: 0.5px; opacity: 0.85;">HADIR LENGKAP</div>
+        <div class="statBox active p-3 rounded-lg">
+            <ion-icon name="checkmark-done-circle-outline" class="icon-xl mb-1"></ion-icon>
+            <h2 class="icon-lg mt-1 mb-1">{{ $totalHadirLengkap }}</h2>
+            <div class="text-xs letter-spacing-sm opacity-85">HADIR LENGKAP</div>
         </div>
-        <div class="statBox" style="background: #fffbeb; border: 1px solid #fde68a; color: #92400e; padding: 14px; border-radius: 14px;">
-            <ion-icon name="time-outline" style="font-size: 22px; margin-bottom: 4px; color: #d97706;"></ion-icon>
-            <h2 style="font-size: 20px; margin: 4px 0 2px; color: #92400e;">{{ $totalSedangProses }}</h2>
-            <div style="font-size: 10px; letter-spacing: 0.5px; color: #b45309;">SEDANG BERLANGSUNG</div>
+        <div  class="statBox p-3 rounded-lg stat-box-amber">
+            <ion-icon name="time-outline" class="icon-xl mb-1 text-warning"></ion-icon>
+            <h2  class="icon-lg mt-1 mb-1 text-warning">{{ $totalSedangProses }}</h2>
+            <div class="text-xs text-warning letter-spacing-sm">SEDANG BERLANGSUNG</div>
         </div>
     </div>
 
     <!-- Filter Box -->
-    <div class="laporanFilterCard" style="margin: 0 16px 16px; padding: 14px;">
-        <form method="GET" action="{{ route('admin.magang.presensi') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end;">
-            <div>
+    <div class="laporanFilterCard p-3 px-4 mb-4">
+        <form method="GET" action="{{ route('admin.magang.presensi') }}" class="gap-2 grid-stats-auto items-end">
+            <div >
                 <label class="form-field-label">Dari Tanggal</label>
-                <input type="date" name="start_date" value="{{ $startDateStr }}" class="profileInput" style="height: 40px; font-size: 12.5px;">
+                <input type="date" name="start_date" value="{{ $startDateStr }}" class="profileInput text-sm">
             </div>
-            <div>
+            <div >
                 <label class="form-field-label">Sampai Tanggal</label>
-                <input type="date" name="end_date" value="{{ $endDateStr }}" class="profileInput" style="height: 40px; font-size: 12.5px;">
+                <input type="date" name="end_date" value="{{ $endDateStr }}" class="profileInput text-sm">
             </div>
-            <div>
+            <div >
                 <label class="form-field-label">Peserta Magang</label>
-                <select name="user_id" class="profileInput" style="height: 40px; font-size: 12.5px;">
+                <select name="user_id" class="profileInput text-sm">
                     <option value="">Semua Peserta</option>
                     @foreach($allMagangUsers as $u)
                         <option value="{{ $u->id }}" {{ $magangUserId == $u->id ? 'selected' : '' }}>
@@ -60,19 +60,19 @@
                     @endforeach
                 </select>
             </div>
-            <div>
+            <div >
                 <label class="form-field-label">Status Kehadiran</label>
-                <select name="status" class="profileInput" style="height: 40px; font-size: 12.5px;">
+                <select name="status" class="profileInput text-sm">
                     <option value="">Semua Status</option>
                     <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir Lengkap</option>
                     <option value="proses" {{ $statusFilter === 'proses' ? 'selected' : '' }}>Sedang Berlangsung</option>
                 </select>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button type="submit" class="profileBtnPrimary" style="height: 40px; padding: 0 16px; font-size: 12.5px; border-radius: 12px; flex: 1;">
+            <div class="d-flex gap-2">
+                <button type="submit" class="profileBtnPrimary text-sm rounded-lg flex-1 px-4 text-sm">
                     <ion-icon name="filter-outline"></ion-icon> Filter
                 </button>
-                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnDanger" style="height: 40px; padding: 0 12px; font-size: 12.5px; border-radius: 12px; width: auto; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnDanger text-sm rounded-lg w-auto text-no-decor d-inline-flex items-center justify-center px-3 text-sm">
                     Reset
                 </a>
             </div>
@@ -80,19 +80,19 @@
     </div>
 
     <!-- Tabel Log Presensi -->
-    <div class="tableContainer" style="margin: 0 16px 20px; border-radius: 18px; border: 1px solid var(--border);">
+    <div class="tableContainer rounded-xl border-base px-4 mb-4">
         <table class="laporanTable">
-            <thead>
-                <tr>
-                    <th style="padding: 12px 14px;">TANGGAL</th>
-                    <th>PESERTA MAGANG</th>
-                    <th>ABSEN MASUK</th>
-                    <th>ABSEN PULANG</th>
-                    <th>DURASI</th>
-                    <th>STATUS</th>
+            <thead >
+                <tr >
+                    <th class="p-3">TANGGAL</th>
+                    <th >PESERTA MAGANG</th>
+                    <th >ABSEN MASUK</th>
+                    <th >ABSEN PULANG</th>
+                    <th >DURASI</th>
+                    <th >STATUS</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
                 @forelse($presensis as $p)
                     @php
                         $u = $p->user;
@@ -111,35 +111,35 @@
                             } catch (\Throwable) {}
                         }
                     @endphp
-                    <tr>
-                        <td style="white-space: nowrap;">
-                            <div style="font-weight: 700; font-size: 13px; color: var(--text);">{{ $tgl }}</div>
-                            <div style="font-size: 11px; color: var(--muted);">{{ $hari }}</div>
+                    <tr >
+                        <td class="white-space-nowrap">
+                            <div class="font-bold text-md text-dark">{{ $tgl }}</div>
+                            <div class="text-xs text-muted">{{ $hari }}</div>
                         </td>
-                        <td>
-                            <div style="font-weight: 700; font-size: 13px; color: var(--text);">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</div>
-                            <div style="font-size: 11px; color: var(--muted);">{{ $u->magang?->asal_instansi ?: '-' }} (NIM: {{ $u->magang?->nim_nisn ?: $u->nik }})</div>
+                        <td >
+                            <div class="font-bold text-md text-dark">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</div>
+                            <div class="text-xs text-muted">{{ $u->magang?->asal_instansi ?: '-' }} (NIM: {{ $u->magang?->nim_nisn ?: $u->nik }})</div>
                         </td>
-                        <td>
-                            <div style="font-weight: 700; font-size: 13px; color: #0284c7;">{{ $masuk }} WIB</div>
+                        <td >
+                            <div class="font-bold text-md text-primary">{{ $masuk }} WIB</div>
                             @if($p->foto_mulai)
-                                <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $u->nama_lengkap ?? $u->name }}')" style="font-size: 11px; color: #0284c7; display: inline-flex; align-items: center; gap: 3px; margin-top: 3px; text-decoration: none; font-weight: 600;">
+                                <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-primary font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
                                     <ion-icon name="image-outline"></ion-icon> Lihat Foto
                                 </a>
                             @endif
                         </td>
-                        <td>
-                            <div style="font-weight: 700; font-size: 13px; color: {{ $p->jam_selesai ? '#16a34a' : 'var(--muted)' }};">{{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}</div>
+                        <td >
+                            <div class="font-bold text-md {{ $p->jam_selesai ? 'text-success' : 'text-muted' }}">{{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}</div>
                             @if($p->foto_selesai)
-                                <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $u->nama_lengkap ?? $u->name }}')" style="font-size: 11px; color: #16a34a; display: inline-flex; align-items: center; gap: 3px; margin-top: 3px; text-decoration: none; font-weight: 600;">
+                                <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-success font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
                                     <ion-icon name="image-outline"></ion-icon> Lihat Foto
                                 </a>
                             @endif
                         </td>
-                        <td style="font-size: 12px; font-weight: 700; color: var(--text);">
+                        <td class="text-sm font-bold text-dark">
                             {{ $durasi }}
                         </td>
-                        <td>
+                        <td >
                             @if($p->jam_selesai)
                                 <span class="app-badge badge-status-aktif">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Hadir Lengkap
@@ -152,10 +152,10 @@
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="6" style="padding: 36px 16px; text-align: center; color: var(--muted);">
-                            <ion-icon name="calendar-outline" style="font-size: 36px; opacity: 0.4; margin-bottom: 6px; display: block; margin-inline: auto;"></ion-icon>
-                            <div style="font-size: 13px; font-weight: 600;">Tidak ada riwayat presensi magang pada periode filter ini.</div>
+                    <tr >
+                        <td colspan="6" class="table-empty-cell text-center text-muted">
+                            <ion-icon name="calendar-outline" class="icon-2xl mb-1 d-block opacity-40 mx-auto"></ion-icon>
+                            <div class="text-md font-semibold">Tidak ada riwayat presensi magang pada periode filter ini.</div>
                         </td>
                     </tr>
                 @endforelse
@@ -164,25 +164,25 @@
     </div>
 
     @if($presensis->hasPages())
-        <div style="margin: 0 16px 20px;">
+        <div class="px-4 mb-4">
             {{ $presensis->links() }}
         </div>
     @endif
 
     {{-- Photo Preview Modal --}}
     <div id="photoPreviewModal" class="app-modal-backdrop">
-        <div class="app-modal-card" style="max-width: 480px; padding: 0; overflow: hidden;">
-            <div class="app-modal-header" style="padding: 14px 18px; margin-bottom: 0; border-bottom: 1px solid var(--border);">
-                <h4 id="previewModalTitle" class="app-modal-title" style="font-size: 14px;">Foto Presensi</h4>
+        <div class="app-modal-card p-0 overflow-hidden max-w-md">
+            <div class="app-modal-header p-3 mb-0 table-body-row">
+                <h4 id="previewModalTitle" class="app-modal-title text-md">Foto Presensi</h4>
                 <button type="button" onclick="closePreviewModal()" class="app-modal-close">&times;</button>
             </div>
-            <div style="padding: 16px; text-align: center; background: #0f172a;">
-                <img id="previewModalImg" src="" alt="Foto Presensi" style="max-width: 100%; max-height: 65vh; border-radius: 12px; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            <div class="p-4 text-center bg-dark">
+                <img id="previewModalImg" src="" alt="Foto Presensi" class="rounded-lg object-contain modal-preview-img">
             </div>
         </div>
     </div>
 
-    <script>
+    <script >
         function openPreviewModal(imgUrl, title) {
             document.getElementById('previewModalImg').src = imgUrl;
             document.getElementById('previewModalTitle').innerText = title || 'Foto Presensi';

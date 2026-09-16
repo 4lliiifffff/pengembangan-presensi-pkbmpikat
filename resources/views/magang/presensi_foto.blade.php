@@ -45,14 +45,14 @@
     ])
 
     {{-- ── Warning Banner Izin ── --}}
-    <div id="permWarning" class="permWarning" style="display:none;">
-        <ion-icon name="warning-outline" style="font-size:20px; color:#d97706; flex-shrink:0;"></ion-icon>
-        <div style="flex:1; min-width:0;">
+    <div id="permWarning" class="permWarning d-none">
+        <ion-icon name="warning-outline" class="icon-lg text-warning flex-shrink-0"></ion-icon>
+        <div class="flex-1 min-w-0">
             <div class="permWarnTitle" id="permWarnTitle">Izin belum diberikan</div>
             <div class="permWarnDesc" id="permWarnDesc">Kamera dan lokasi GPS diperlukan untuk absen.</div>
         </div>
         <button onclick="checkPermissions()" class="permWarnBtn">
-            <ion-icon name="refresh-outline" style="font-size:14px;"></ion-icon> Coba Lagi
+            <ion-icon name="refresh-outline" class="text-md"></ion-icon> Coba Lagi
         </button>
     </div>
 
@@ -69,9 +69,9 @@
                 <div class="statusIcon warn">
                     <ion-icon name="time-outline"></ion-icon>
                 </div>
-                <div>
+                <div >
                     <div class="statusTitle">Sesi Magang Sedang Berjalan</div>
-                    <div class="statusSub">Absen Masuk tercatat pukul <strong>{{ $jamMasuk }} WIB</strong></div>
+                    <div class="statusSub">Absen Masuk tercatat pukul <strong >{{ $jamMasuk }} WIB</strong></div>
                 </div>
             </div>
 
@@ -88,11 +88,11 @@
                     <div class="countdownSub">menit lagi (minimal 1 jam durasi magang)</div>
                 </div>
             @else
-                <div class="statusBanner ready" style="margin-bottom:14px;">
+                <div class="statusBanner ready mb-4">
                     <div class="statusIcon blue">
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
                     </div>
-                    <div>
+                    <div >
                         <div class="statusTitle">Siap Absen Pulang</div>
                         <div class="statusSub">Durasi magang sudah memenuhi syarat minimal (≥ 1 jam)</div>
                     </div>
@@ -108,18 +108,18 @@
                     <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                     <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-                    <div class="card" style="margin-bottom:14px;">
+                    <div class="card mb-4">
                         <div class="cardTitle">
                             <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius GPS
                         </div>
-                        <div class="mapBox" id="mapBox" style="position:relative;">
+                        <div id="mapBox" class="mapBox pos-relative">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                            <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
+                            <div id="leafletMap" class="map-camera-box d-none"></div>
                         </div>
-                        <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                        <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
                         
                         {{-- Proximity Radar & Live Track Card --}}
-                        <div id="proximityRadarCard" class="proximityRadarCard" style="display:none;">
+                        <div id="proximityRadarCard" class="proximityRadarCard d-none">
                             <div class="radarHeader">
                                 <div class="radarStatusDot" id="radarStatusDot"></div>
                                 <div class="radarInfo">
@@ -128,7 +128,7 @@
                                 </div>
                             </div>
                             <div class="radarActions">
-                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps" style="display:none;">
+                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
                                     <ion-icon name="navigate-circle-outline"></ion-icon> Petunjuk Arah (Maps)
                                 </a>
                                 <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
@@ -148,12 +148,12 @@
                         <div class="cardTitle">
                             <ion-icon name="camera-outline"></ion-icon>Foto Selfie Presensi Pulang
                         </div>
-                        <div class="photoFrame" style="position:relative; overflow:hidden;">
+                        <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
                             <img id="previewImg" alt="Preview foto" />
 
                             {{-- Grid Overlay --}}
-                            <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                            <div id="cameraGrid" class="cameraGridOverlay d-none">
                                 <div class="gridBox">
                                     <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
                                     <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
@@ -162,7 +162,7 @@
                             </div>
 
                             {{-- Floating Camera Toolbar Overlay --}}
-                            <div id="camControlBar" class="camControlBar" style="display:none;">
+                            <div id="camControlBar" class="camControlBar d-none">
                                 <div class="camControlGroup">
                                     <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
                                         <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
@@ -175,66 +175,66 @@
                                     <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
                                         <ion-icon name="grid-outline"></ion-icon> Grid
                                     </button>
-                                    <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" class="camToolBtn d-none">
                                         <ion-icon name="flash-outline"></ion-icon> Flash
                                     </button>
                                 </div>
                             </div>
 
                             <div class="photoPlaceholder" id="placeholder">
-                                Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
+                                Ketuk <b >Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
                             </div>
                         </div>
 
-                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
+                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
                         <div class="camActions" id="camActions">
                             <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                                <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
+                                <ion-icon name="camera" class="icon-lg"></ion-icon> Buka Kamera
                             </button>
-                            <div class="camRow" id="camRowStreaming" style="display:none;">
+                            <div id="camRowStreaming" class="camRow d-none">
                                 <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                    <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
+                                    <ion-icon name="radio-button-on" class="icon-lg"></ion-icon> Ambil Foto
                                 </button>
                                 <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                             </div>
-                            <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
-                                <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
+                            <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
+                                <ion-icon name="refresh-outline" class="icon-md"></ion-icon> Ulangi Foto
                             </button>
                         </div>
 
                         {{-- Tombol SELESAI --}}
-                        <button type="submit" class="captureBtn primary-red" id="btnSubmit" style="margin-top:14px;">
-                            <ion-icon name="log-out-outline" style="font-size:20px;"></ion-icon>
+                        <button type="submit" id="btnSubmit" class="captureBtn primary-red mt-4">
+                            <ion-icon name="log-out-outline" class="icon-lg"></ion-icon>
                             Absen Pulang Sekarang
                         </button>
                     </div>
                 </form>
             @else
-                <div class="card" style="text-align:center; padding:24px 16px; border-radius:18px;">
-                    <div style="font-size:32px; margin-bottom:8px; color:var(--warn);"><ion-icon name="time-outline"></ion-icon></div>
-                    <div style="font-size:13.5px; font-weight:800; color:var(--text);">Tombol Absen Pulang Terbuka Otomatis</div>
-                    <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi magang)</div>
+                <div class="card text-center p-4 rounded-xl">
+                    <div class="icon-2xl mb-2 text-warning"><ion-icon name="time-outline"></ion-icon></div>
+                    <div class="text-md font-extrabold text-dark">Tombol Absen Pulang Terbuka Otomatis</div>
+                    <div class="text-sm text-muted mt-1">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi magang)</div>
                 </div>
             @endif
 
         {{-- ── BELUM ABSEN MASUK ATAU SUDAH SELESAI HARI INI ── --}}
         @else
             @if ($todayPresensi && $todayPresensi->jam_selesai)
-                <div class="statusBanner ready" style="margin-bottom:14px; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.3);">
-                    <div class="statusIcon" style="background: rgba(16, 185, 129, 0.15); color: #10b981;">
+                <div  class="statusBanner ready mb-3 bg-success-light">
+                    <div  class="statusIcon bg-success-light text-success">
                         <ion-icon name="checkmark-done-circle-outline"></ion-icon>
                     </div>
-                    <div>
-                        <div class="statusTitle" style="color: #065f46;">Presensi Hari Ini Selesai</div>
+                    <div >
+                        <div  class="statusTitle text-success">Presensi Hari Ini Selesai</div>
                         <div class="statusSub">Anda sudah absen masuk ({{ substr((string)$todayPresensi->jam_mulai,0,5) }}) dan pulang ({{ substr((string)$todayPresensi->jam_selesai,0,5) }}).</div>
                     </div>
                 </div>
             @else
-                <div class="statusBanner ready" style="margin-bottom:14px;">
+                <div class="statusBanner ready mb-4">
                     <div class="statusIcon blue">
                         <ion-icon name="log-in-outline"></ion-icon>
                     </div>
-                    <div>
+                    <div >
                         <div class="statusTitle">Belum Absen Masuk</div>
                         <div class="statusSub">Silakan lakukan presensi masuk untuk memulai magang hari ini</div>
                     </div>
@@ -248,18 +248,18 @@
                     <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                     <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-                    <div class="card" style="margin-bottom:14px;">
+                    <div class="card mb-4">
                         <div class="cardTitle">
                             <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Radius GPS
                         </div>
-                        <div class="mapBox" id="mapBox" style="position:relative;">
+                        <div id="mapBox" class="mapBox pos-relative">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                            <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
+                            <div id="leafletMap" class="map-camera-box d-none"></div>
                         </div>
-                        <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                        <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
                         
                         {{-- Proximity Radar & Live Track Card --}}
-                        <div id="proximityRadarCard" class="proximityRadarCard" style="display:none;">
+                        <div id="proximityRadarCard" class="proximityRadarCard d-none">
                             <div class="radarHeader">
                                 <div class="radarStatusDot" id="radarStatusDot"></div>
                                 <div class="radarInfo">
@@ -268,7 +268,7 @@
                                 </div>
                             </div>
                             <div class="radarActions">
-                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps" style="display:none;">
+                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
                                     <ion-icon name="navigate-circle-outline"></ion-icon> Petunjuk Arah (Maps)
                                 </a>
                                 <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
@@ -288,12 +288,12 @@
                         <div class="cardTitle">
                             <ion-icon name="camera-outline"></ion-icon>Foto Selfie Presensi Masuk
                         </div>
-                        <div class="photoFrame" style="position:relative; overflow:hidden;">
+                        <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
                             <img id="previewImg" alt="Preview foto" />
 
                             {{-- Grid Overlay --}}
-                            <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                            <div id="cameraGrid" class="cameraGridOverlay d-none">
                                 <div class="gridBox">
                                     <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
                                     <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
@@ -302,7 +302,7 @@
                             </div>
 
                             {{-- Floating Camera Toolbar Overlay --}}
-                            <div id="camControlBar" class="camControlBar" style="display:none;">
+                            <div id="camControlBar" class="camControlBar d-none">
                                 <div class="camControlGroup">
                                     <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
                                         <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
@@ -315,36 +315,36 @@
                                     <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
                                         <ion-icon name="grid-outline"></ion-icon> Grid
                                     </button>
-                                    <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" class="camToolBtn d-none">
                                         <ion-icon name="flash-outline"></ion-icon> Flash
                                     </button>
                                 </div>
                             </div>
 
                             <div class="photoPlaceholder" id="placeholder">
-                                Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi masuk.
+                                Ketuk <b >Buka Kamera</b> untuk mengambil foto selfie presensi masuk.
                             </div>
                         </div>
 
-                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
+                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
                         <div class="camActions" id="camActions">
                             <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                                <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
+                                <ion-icon name="camera" class="icon-lg"></ion-icon> Buka Kamera
                             </button>
-                            <div class="camRow" id="camRowStreaming" style="display:none;">
+                            <div id="camRowStreaming" class="camRow d-none">
                                 <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                    <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
+                                    <ion-icon name="radio-button-on" class="icon-lg"></ion-icon> Ambil Foto
                                 </button>
                                 <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                             </div>
-                            <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
-                                <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
+                            <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
+                                <ion-icon name="refresh-outline" class="icon-md"></ion-icon> Ulangi Foto
                             </button>
                         </div>
 
                         {{-- Tombol MULAI --}}
-                        <button type="submit" class="captureBtn primary-blue" id="btnSubmit" style="margin-top:14px;">
-                            <ion-icon name="log-in-outline" style="font-size:20px;"></ion-icon>
+                        <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
+                            <ion-icon name="log-in-outline" class="icon-lg"></ion-icon>
                             Mulai Presensi Masuk
                         </button>
                     </div>
@@ -354,7 +354,7 @@
 
     </div>{{-- #mainContent --}}
 
-    <script>
+    <script >
         function showGateError(msg) {
             const permW = document.getElementById('permWarning');
             if (permW) permW.style.display = 'flex';
@@ -408,7 +408,7 @@
             }).catch(function(err) {
                 var name = err && err.name ? err.name : '';
                 if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-                    showGateError('Izin <strong>kamera</strong> dan <strong>lokasi GPS</strong> wajib diaktifkan.');
+                    showGateError('Izin <strong >kamera</strong> dan <strong >lokasi GPS</strong> wajib diaktifkan.');
                 } else if (err && err.message === 'no_media_devices') {
                     showGateError('Peramban tidak mendukung kamera. Gunakan Chrome atau Safari terbaru.');
                 } else {
@@ -490,7 +490,7 @@
             });
 
             sekolahMarker = L.marker([GEOFENCE_LAT, GEOFENCE_LNG], { icon: redIcon }).addTo(leafletMap);
-            sekolahMarker.bindPopup('<b>🏢 ' + GEOFENCE_NAMA + '</b><br>Titik Lokasi Kantor (Batas Maksimal: ' + GEOFENCE_RADIUS + ' meter)');
+            sekolahMarker.bindPopup('<b >🏢 ' + GEOFENCE_NAMA + '</b><br >Titik Lokasi Kantor (Batas Maksimal: ' + GEOFENCE_RADIUS + ' meter)');
 
             geofenceCircle = L.circle([GEOFENCE_LAT, GEOFENCE_LNG], {
                 color: '#0284c7',
@@ -538,7 +538,7 @@
                 } else {
                     userMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(leafletMap);
                 }
-                userMarker.bindPopup('<b>📍 Lokasi Anda</b><br>Jarak ke ' + GEOFENCE_NAMA + ': ' + distFormatted + ' meter');
+                userMarker.bindPopup('<b >📍 Lokasi Anda</b><br >Jarak ke ' + GEOFENCE_NAMA + ': ' + distFormatted + ' meter');
 
                 // Track Line Polyline
                 if (trackPolyline) {
@@ -572,13 +572,13 @@
                         badge.style.background = 'rgba(22, 163, 74, 0.12)';
                         badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
                         badge.style.color = '#15803d';
-                        badge.innerHTML = '🟢 <b>Di Dalam Radius ' + GEOFENCE_NAMA + '</b> (' + distFormatted + ' m — Maks: ' + GEOFENCE_RADIUS + 'm)';
+                        badge.innerHTML = '🟢 <b >Di Dalam Radius ' + GEOFENCE_NAMA + '</b> (' + distFormatted + ' m — Maks: ' + GEOFENCE_RADIUS + 'm)';
                     } else {
                         geofenceCircle.setStyle({ color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.3 });
                         badge.style.background = 'rgba(220, 38, 38, 0.12)';
                         badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
                         badge.style.color = '#dc2626';
-                        badge.innerHTML = '🔴 <b>Di Luar Radius ' + GEOFENCE_NAMA + '</b> (' + distFormatted + ' m — Maks: ' + GEOFENCE_RADIUS + 'm)';
+                        badge.innerHTML = '🔴 <b >Di Luar Radius ' + GEOFENCE_NAMA + '</b> (' + distFormatted + ' m — Maks: ' + GEOFENCE_RADIUS + 'm)';
                     }
                 }
 

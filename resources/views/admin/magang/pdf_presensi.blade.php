@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html >
+<head >
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Laporan Presensi Magang / PKL</title>
-    <style>
+    <title >Laporan Presensi Magang / PKL</title>
+    <style >
         body { font-family: sans-serif; font-size: 11px; color: #333; line-height: 1.4; }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
         .header h2 { margin: 0 0 4px; font-size: 16px; text-transform: uppercase; }
@@ -20,43 +20,43 @@
         .footer td { font-size: 11px; vertical-align: top; }
     </style>
 </head>
-<body>
+<body >
     <div class="header">
-        <h2>PKBM PIKAT</h2>
-        <p><strong>Laporan Rekap Presensi Mahasiswa / Siswa Magang (PKL)</strong></p>
-        <p>Periode: {{ \Carbon\Carbon::parse($startDateStr)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($endDateStr)->translatedFormat('d F Y') }}</p>
+        <h2 >PKBM PIKAT</h2>
+        <p ><strong >Laporan Rekap Presensi Mahasiswa / Siswa Magang (PKL)</strong></p>
+        <p >Periode: {{ \Carbon\Carbon::parse($startDateStr)->translatedFormat('d F Y') }} s/d {{ \Carbon\Carbon::parse($endDateStr)->translatedFormat('d F Y') }}</p>
     </div>
 
     @if($selectedUser)
         <div class="info-box">
             <table class="info-table">
-                <tr>
-                    <td width="20%"><strong>Nama Peserta</strong></td>
+                <tr >
+                    <td width="20%"><strong >Nama Peserta</strong></td>
                     <td width="3%">:</td>
-                    <td>{{ $selectedUser->nama_lengkap ?? $selectedUser->name }}</td>
+                    <td >{{ $selectedUser->nama_lengkap ?? $selectedUser->name }}</td>
                 </tr>
-                <tr>
-                    <td><strong>NIM / NIK</strong></td>
-                    <td>:</td>
-                    <td>{{ $selectedUser->magang?->nim_nisn ?: $selectedUser->nik }}</td>
+                <tr >
+                    <td ><strong >NIM / NIK</strong></td>
+                    <td >:</td>
+                    <td >{{ $selectedUser->magang?->nim_nisn ?: $selectedUser->nik }}</td>
                 </tr>
-                <tr>
-                    <td><strong>Asal Instansi / Jurusan</strong></td>
-                    <td>:</td>
-                    <td>{{ $selectedUser->magang?->asal_instansi ?: '-' }} ({{ $selectedUser->magang?->jurusan ?: '-' }})</td>
+                <tr >
+                    <td ><strong >Asal Instansi / Jurusan</strong></td>
+                    <td >:</td>
+                    <td >{{ $selectedUser->magang?->asal_instansi ?: '-' }} ({{ $selectedUser->magang?->jurusan ?: '-' }})</td>
                 </tr>
-                <tr>
-                    <td><strong>Dosen / Guru Pembimbing</strong></td>
-                    <td>:</td>
-                    <td>{{ $selectedUser->magang?->pembimbing_lapangan ?: '-' }}</td>
+                <tr >
+                    <td ><strong >Dosen / Guru Pembimbing</strong></td>
+                    <td >:</td>
+                    <td >{{ $selectedUser->magang?->pembimbing_lapangan ?: '-' }}</td>
                 </tr>
             </table>
         </div>
     @endif
 
     <table class="data-table">
-        <thead>
-            <tr>
+        <thead >
+            <tr >
                 <th width="4%">No</th>
                 <th width="14%">Tanggal</th>
                 @if(!$selectedUser)
@@ -69,7 +69,7 @@
                 <th width="12%">Status</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody >
             @forelse($items as $idx => $p)
                 @php
                     $u = $p->user;
@@ -86,13 +86,13 @@
                         } catch (\Throwable) {}
                     }
                 @endphp
-                <tr>
+                <tr >
                     <td class="text-center">{{ $idx + 1 }}</td>
-                    <td>{{ \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('d/m/Y') }}</td>
+                    <td >{{ \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('d/m/Y') }}</td>
                     @if(!$selectedUser)
-                        <td>
-                            <strong>{{ $u->nama_lengkap ?? $u->name }}</strong><br>
-                            <small>{{ $u->magang?->asal_instansi ?: '-' }}</small>
+                        <td >
+                            <strong >{{ $u->nama_lengkap ?? $u->name }}</strong><br >
+                            <small >{{ $u->magang?->asal_instansi ?: '-' }}</small>
                         </td>
                     @endif
                     <td class="text-center">{{ $masuk }} WIB</td>
@@ -103,14 +103,14 @@
                     </td>
                     <td class="text-center">
                         @if($p->jam_selesai)
-                            <strong>Hadir</strong>
+                            <strong >Hadir</strong>
                         @else
                             Proses
                         @endif
                     </td>
                 </tr>
             @empty
-                <tr>
+                <tr >
                     <td colspan="{{ $selectedUser ? 7 : 8 }}" class="text-center">Tidak ada catatan presensi pada periode ini.</td>
                 </tr>
             @endforelse
@@ -118,14 +118,14 @@
     </table>
 
     <div class="footer">
-        <table style="width: 100%;">
-            <tr>
+        <table class="w-full">
+            <tr >
                 <td width="60%"></td>
-                <td width="40%" style="text-align: center;">
-                    <p>Yogyakarta, {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y') }}</p>
-                    <p>Pengelola / Kepala PKBM,</p>
-                    <br><br><br><br>
-                    <p><strong>( .................................................... )</strong></p>
+                <td width="40%" class="text-center">
+                    <p >Yogyakarta, {{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d F Y') }}</p>
+                    <p >Pengelola / Kepala PKBM,</p>
+                    <br ><br ><br ><br >
+                    <p ><strong >( .................................................... )</strong></p>
                 </td>
             </tr>
         </table>

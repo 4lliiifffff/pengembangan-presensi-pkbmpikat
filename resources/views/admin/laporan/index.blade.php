@@ -25,7 +25,7 @@
             <div class="laporanHeaderActions">
                 <a href="{{ route('admin.payroll.index') }}" class="btnPayrollShortcut">
                     <ion-icon name="wallet-outline"></ion-icon>
-                    <span>Buka Rekap Payroll &amp; Honor</span>
+                    <span >Buka Rekap Payroll &amp; Honor</span>
                 </a>
             </div>
         </div>
@@ -33,14 +33,12 @@
 
     {{-- Date & Advanced Filter --}}
     <form method="GET" action="{{ route('admin.laporan.index') }}">
-        <div class="monthFilter" style="flex-wrap: wrap; margin-bottom: 20px;">
-            <input type="date" name="start_date" class="monthInput" value="{{ $inputStartDate }}"
-                style="flex:1; min-width: 140px; color-scheme: light dark;">
-            <span style="font-size:12px; font-weight:bold; color: var(--muted); padding-top: 10px;">s/d</span>
-            <input type="date" name="end_date" class="monthInput" value="{{ $inputEndDate }}"
-                style="flex:1; min-width: 140px; color-scheme: light dark;">
+        <div class="monthFilter flex-wrap mb-4">
+            <input type="date" name="start_date" value="{{ $inputStartDate }}" class="monthInput flex-1">
+            <span class="text-sm font-bold text-muted pt-2">s/d</span>
+            <input type="date" name="end_date" value="{{ $inputEndDate }}" class="monthInput flex-1">
 
-            <select name="tutor_id" class="monthInput" style="flex:1; min-width: 140px;">
+            <select name="tutor_id" class="monthInput flex-1">
                 <option value="">Semua Tutor</option>
                 @foreach ($tutors as $tutor)
                     <option value="{{ $tutor->id }}" {{ $tutorId == $tutor->id ? 'selected' : '' }}>
@@ -48,7 +46,7 @@
                 @endforeach
             </select>
 
-            <select name="siswa_id" class="monthInput" style="flex:1; min-width: 140px;">
+            <select name="siswa_id" class="monthInput flex-1">
                 <option value="">Semua Siswa</option>
                 @foreach ($siswas as $siswa)
                     <option value="{{ $siswa->id }}" {{ $siswaId == $siswa->id ? 'selected' : '' }}>
@@ -56,26 +54,23 @@
                 @endforeach
             </select>
 
-            <select name="status" class="monthInput" style="flex:1; min-width: 140px;">
+            <select name="status" class="monthInput flex-1">
                 <option value="">Semua Status</option>
                 <option value="hadir" {{ $statusFilter == 'hadir' ? 'selected' : '' }}>Hadir (Selesai)</option>
                 <option value="proses" {{ $statusFilter == 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
                 <option value="izin" {{ $statusFilter == 'izin' ? 'selected' : '' }}>Izin/Sakit</option>
             </select>
 
-            <button type="submit" class="filterBtn" style="background: #1a3a5c; width: 100%;">Filter Data Presensi</button>
-            <div style="display: flex; gap: 8px; width: 100%; flex-wrap: wrap;">
-                <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportExcel') }}"
-                    class="filterBtn" style="background: #16a34a; flex:1;">
-                    <ion-icon name="document-outline" style="vertical-align:middle;margin-right:2px;"></ion-icon> Excel
+            <button type="submit" class="filterBtn w-full bg-dark">Filter Data Presensi</button>
+            <div class="d-flex gap-2 w-full flex-wrap">
+                <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportExcel') }}" class="filterBtn flex-1 btn-success-h38">
+                    <ion-icon name="document-outline" class="align-middle mr-1"></ion-icon> Excel
                 </button>
-                <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportPdf') }}"
-                    class="filterBtn" style="background: #dc2626; flex:1;">
-                    <ion-icon name="document-text-outline" style="vertical-align:middle;margin-right:2px;"></ion-icon> PDF
+                <button type="submit" formtarget="_blank" formaction="{{ route('admin.laporan.exportPdf') }}" class="filterBtn flex-1 btn-danger-h38">
+                    <ion-icon name="document-text-outline" class="align-middle mr-1"></ion-icon> PDF
                 </button>
-                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='flex'"
-                    class="filterBtn" style="background: #0284c7; flex:1;">
-                    <ion-icon name="cloud-upload-outline" style="vertical-align:middle;margin-right:2px;"></ion-icon> Import Log
+                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='flex'" class="filterBtn flex-1 btn-action-pill">
+                    <ion-icon name="cloud-upload-outline" class="align-middle mr-1"></ion-icon> Import Log
                 </button>
             </div>
         </div>
@@ -83,23 +78,23 @@
 
     {{-- ── Modal Impor Presensi Retroaktif / Log Manual ── --}}
     <div id="importPresensiModal" class="app-modal-backdrop">
-        <div class="app-modal-card" style="max-width: 480px;">
+        <div class="app-modal-card max-w-md">
             <div class="app-modal-header">
-                <h3 class="app-modal-title" style="font-size:17px;">Impor Rekapan Presensi Manual</h3>
+                <h3 class="app-modal-title text-xl">Impor Rekapan Presensi Manual</h3>
                 <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="app-modal-close">&times;</button>
             </div>
             <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk menyinkronkan rekapan data presensi fisik atau kegiatan offline luar jaringan secara massal.
             </p>
-            <div style="margin-bottom:18px;">
-                <a href="{{ route('admin.laporan.downloadTemplate') }}" class="btnOutline" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:12px;font-weight:700;">
+            <div class="mb-4">
+                <a href="{{ route('admin.laporan.downloadTemplate') }}" class="btnOutline d-inline-flex items-center gap-1 text-sm font-bold px-3 py-2">
                     <ion-icon name="download-outline"></ion-icon> Download Template Presensi (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.laporan.importExcel') }}" enctype="multipart/form-data">
                 @csrf
-                <div style="margin-bottom:16px;">
-                    <label style="display:block;font-size:11.5px;font-weight:800;text-transform:uppercase;margin-bottom:6px;color:var(--muted);">Pilih Berkas Rekap Presensi:</label>
+                <div class="mb-4">
+                    <label class="d-block text-sm font-extrabold text-uppercase mb-1 text-muted">Pilih Berkas Rekap Presensi:</label>
                     <div class="fileUploadBox">
                         <input type="file" name="file_excel" id="laporanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'laporanFileFeedback')">
                         <div class="fileUploadIcon">
@@ -114,21 +109,21 @@
                     <div id="laporanFileFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div class="app-modal-footer">
-                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
-                    <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;">Unggah &amp; Impor Presensi</button>
+                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="profileBtnDanger px-3 text-sm rounded-md w-auto">Batal</button>
+                    <button type="submit" class="profileBtnPrimary px-4 text-sm rounded-md w-auto">Unggah &amp; Impor Presensi</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
+    <script >
         function handleFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+                feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span >' + file.name + ' (' + sizeKb + ' KB)</span>';
                 feedback.style.display = 'flex';
             } else {
                 feedback.style.display = 'none';
@@ -153,7 +148,7 @@
     <div class="chartContainer">
         <div class="chartCard">
             <div class="chartTitle">Tren Kehadiran Harian</div>
-            <canvas id="trendChart" style="max-height: 250px;"></canvas>
+            <canvas id="trendChart" class="max-h-180"></canvas>
         </div>
     </div>
 
@@ -181,22 +176,22 @@
 
     {{-- Recent Presensi (Table View) --}}
     <div class="sectionTitle">MONITORING PRESENSI TUTOR</div>
-    <div style="padding: 0 16px;">
+    <div class="px-4">
         <div class="tableContainer">
             <table class="laporanTable">
-                <thead>
-                    <tr>
-                        <th>NO.</th>
-                        <th>TANGGAL</th>
-                        <th>NAMA TUTOR</th>
-                        <th>NAMA SISWA</th>
-                        <th>MASUK</th>
-                        <th>SELESAI</th>
-                        <th>FOTO (M/S)</th>
-                        <th>LOKASI</th>
+                <thead >
+                    <tr >
+                        <th >NO.</th>
+                        <th >TANGGAL</th>
+                        <th >NAMA TUTOR</th>
+                        <th >NAMA SISWA</th>
+                        <th >MASUK</th>
+                        <th >SELESAI</th>
+                        <th >FOTO (M/S)</th>
+                        <th >LOKASI</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($recentPresensi as $index => $presensi)
                         @php
                             $tutor = $presensi->tutor;
@@ -216,20 +211,20 @@
                                     ? 'https://www.google.com/maps/search/?api=1&query=' . urlencode($lokasi)
                                     : '#';
                         @endphp
-                        <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td>{{ $tgl }}</td>
-                            <td style="font-weight: 600; color: var(--text);">{{ $tutorName }}</td>
-                            <td>{{ $siswaName }}</td>
-                            <td style="font-weight: 700; color: var(--success);">{{ $jamMasuk }}</td>
-                            <td style="font-weight: 700; color: var(--blue2);">{{ $jamSelesai }}</td>
-                            <td>
+                        <tr >
+                            <td >{{ $index + 1 }}</td>
+                            <td >{{ $tgl }}</td>
+                            <td class="font-semibold text-dark">{{ $tutorName }}</td>
+                            <td >{{ $siswaName }}</td>
+                            <td class="font-bold text-success">{{ $jamMasuk }}</td>
+                            <td class="font-bold text-primary">{{ $jamSelesai }}</td>
+                            <td >
                                 <div class="fotoStack">
                                     @if ($presensi->foto_mulai)
                                         <img src="{{ asset($presensi->foto_mulai) }}" class="fotoThumbnail"
                                             title="Foto Mulai"
                                             onclick="openPhotoModal('{{ asset($presensi->foto_mulai) }}', 'Foto Masuk — ' + '{{ $tutorName }}')"
-                                            style="cursor:pointer;">
+                                            class="cursor-pointer">
                                     @else
                                         <div class="fotoPlaceholder">M -</div>
                                     @endif
@@ -238,16 +233,15 @@
                                         <img src="{{ asset($presensi->foto_selesai) }}" class="fotoThumbnail"
                                             title="Foto Selesai"
                                             onclick="openPhotoModal('{{ asset($presensi->foto_selesai) }}', 'Foto Pulang — ' + '{{ $tutorName }}')"
-                                            style="cursor:pointer;">
+                                            class="cursor-pointer">
                                     @else
                                         <div class="fotoPlaceholder">S -</div>
                                     @endif
                                 </div>
                             </td>
-                            <td>
+                            <td >
                                 @if ($lokasi !== '-')
-                                    <button type="button" class="mapBtn" title="Lihat Peta"
-                                        onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}')">
+                                    <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}')">
                                         <ion-icon name="map-outline"></ion-icon>
                                     </button>
                                 @else
@@ -256,7 +250,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
+                        <tr >
                             <td colspan="8" class="emptyState">Belum ada data presensi periode ini.</td>
                         </tr>
                     @endforelse
@@ -268,22 +262,22 @@
     {{-- Karyawan Presensi (Table View) --}}
     @if ($karyawanPresensi->isNotEmpty())
         <div class="sectionTitle">MONITORING PRESENSI KARYAWAN (ADMIN/KEPSEK)</div>
-        <div style="padding: 0 16px;">
+        <div class="px-4">
             <div class="tableContainer">
                 <table class="laporanTable">
-                    <thead>
-                        <tr>
-                            <th>NO.</th>
-                            <th>TANGGAL</th>
-                            <th>NAMA KARYAWAN</th>
-                            <th>ROLE</th>
-                            <th>MASUK</th>
-                            <th>SELESAI</th>
-                            <th>FOTO (M/S)</th>
-                            <th>LOKASI</th>
+                    <thead >
+                        <tr >
+                            <th >NO.</th>
+                            <th >TANGGAL</th>
+                            <th >NAMA KARYAWAN</th>
+                            <th >ROLE</th>
+                            <th >MASUK</th>
+                            <th >SELESAI</th>
+                            <th >FOTO (M/S)</th>
+                            <th >LOKASI</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody >
                         @foreach ($karyawanPresensi as $index => $kp)
                             @php
                                 $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/y');
@@ -300,22 +294,21 @@
                                     ? 'https://www.google.com/maps/search/?api=1&query=' . urlencode($lokasi)
                                     : '#';
                             @endphp
-                            <tr>
-                                <td>{{ $index + 1 }}</td>
-                                <td>{{ $kpTgl }}</td>
-                                <td style="font-weight: 600; color: var(--text);">{{ $kpName }}</td>
-                                <td><span
-                                        style="background: rgba(100,116,139,0.1); padding: 4px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; color: var(--muted);">{{ $kpRole }}</span>
+                            <tr >
+                                <td >{{ $index + 1 }}</td>
+                                <td >{{ $kpTgl }}</td>
+                                <td class="font-semibold text-dark">{{ $kpName }}</td>
+                                <td ><span  class="rounded-sm text-xs font-bold text-muted px-2 py-1 bg-muted-light">{{ $kpRole }}</span>
                                 </td>
-                                <td style="font-weight: 700; color: var(--success);">{{ $kpJamMasuk }}</td>
-                                <td style="font-weight: 700; color: var(--blue2);">{{ $kpJamSelesai }}</td>
-                                <td>
+                                <td class="font-bold text-success">{{ $kpJamMasuk }}</td>
+                                <td class="font-bold text-primary">{{ $kpJamSelesai }}</td>
+                                <td >
                                     <div class="fotoStack">
                                         @if ($kp->foto_mulai)
                                             <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail"
                                                 title="Foto Mulai"
                                                 onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — ' + '{{ $kpName }}')"
-                                                style="cursor:pointer;">
+                                                class="cursor-pointer">
                                         @else
                                             <div class="fotoPlaceholder">M -</div>
                                         @endif
@@ -324,16 +317,15 @@
                                             <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail"
                                                 title="Foto Selesai"
                                                 onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — ' + '{{ $kpName }}')"
-                                                style="cursor:pointer;">
+                                                class="cursor-pointer">
                                         @else
                                             <div class="fotoPlaceholder">S -</div>
                                         @endif
                                     </div>
                                 </td>
-                                <td>
+                                <td >
                                     @if ($lokasi && $lokasi !== '-')
-                                        <button type="button" class="mapBtn" title="Lihat Peta"
-                                            onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}')">
+                                        <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}')">
                                             <ion-icon name="map-outline"></ion-icon>
                                         </button>
                                     @else
@@ -349,7 +341,7 @@
     @endif
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
+    <script >
         document.addEventListener('DOMContentLoaded', function() {
             const trendCtx = document.getElementById('trendChart').getContext('2d');
             new Chart(trendCtx, {
@@ -418,20 +410,20 @@
 
     {{-- ── Modal Maps (Leaflet Interactive GIS) ── --}}
     <div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeModal('mapModal')">
-        <div class="modal-box" style="max-width: 600px; width: 95%;">
-            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <span id="mapModalTitle" style="font-size:15px; font-weight:800; color:var(--text);">Verifikasi Lokasi Presensi</span>
-                    <div id="mapModalSub" style="font-size:11.5px; color:var(--muted); font-weight:600;">Memuat koordinat GPS...</div>
+        <div  class="modal-box max-w-lg w-full">
+            <div class="modal-header flex-between">
+                <div >
+                    <span id="mapModalTitle" class="text-lg font-extrabold text-dark">Verifikasi Lokasi Presensi</span>
+                    <div id="mapModalSub" class="text-sm text-muted font-semibold">Memuat koordinat GPS...</div>
                 </div>
                 <button class="modal-close" onclick="closeModal('mapModal')">&times;</button>
             </div>
-            <div class="modal-body" style="padding:14px;">
-                <div id="mapModalBadge" style="padding:8px 12px; border-radius:10px; font-size:12px; font-weight:800; margin-bottom:10px; display:none;"></div>
-                <div id="adminMapContainer" style="width:100%; height:320px; border-radius:12px; z-index:1;"></div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:8px;">
-                    <span id="mapModalCoords" style="font-size:11px; color:var(--muted); font-family:monospace; font-weight:700;"></span>
-                    <a id="btnAdminGoogleMaps" href="#" target="_blank" class="btnNavMaps" style="font-size:11px; padding:6px 12px;">
+            <div class="modal-body p-3">
+                <div id="mapModalBadge" class="p-2 rounded-md text-sm font-extrabold mb-2 d-none"></div>
+                <div id="adminMapContainer" class="w-full rounded-lg map-container-leaflet"></div>
+                <div class="d-flex justify-between items-center mt-3 flex-wrap gap-2">
+                    <span id="mapModalCoords" class="text-xs text-muted font-bold font-mono"></span>
+                    <a id="btnAdminGoogleMaps" href="#" target="_blank" class="btnNavMaps text-xs px-3 py-1">
                         <ion-icon name="open-outline"></ion-icon> Buka di Google Maps
                     </a>
                 </div>
@@ -439,7 +431,7 @@
         </div>
     </div>
 
-    <script>
+    <script >
         const SEKOLAH_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
         const SEKOLAH_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
         const SEKOLAH_RADIUS = {{ config('lokasi.radius_meter', 100) }};
@@ -510,12 +502,12 @@
                     badge.style.background = 'rgba(22, 163, 74, 0.12)';
                     badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
                     badge.style.color = '#15803d';
-                    badge.innerHTML = '🟢 <b>Di Dalam Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
+                    badge.innerHTML = '🟢 <b >Di Dalam Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
                 } else {
                     badge.style.background = 'rgba(220, 38, 38, 0.12)';
                     badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
                     badge.style.color = '#dc2626';
-                    badge.innerHTML = '🔴 <b>Di Luar Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
+                    badge.innerHTML = '🔴 <b >Di Luar Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
                 }
             }
 
@@ -537,7 +529,7 @@
                 });
 
                 adminSekolahMarker = L.marker([SEKOLAH_LAT, SEKOLAH_LNG], { icon: redIcon }).addTo(adminLeafletMap);
-                adminSekolahMarker.bindPopup('<b>🏢 ' + SEKOLAH_NAMA + '</b><br>Pusat Geofence (Radius ' + SEKOLAH_RADIUS + 'm)');
+                adminSekolahMarker.bindPopup('<b >🏢 ' + SEKOLAH_NAMA + '</b><br >Pusat Geofence (Radius ' + SEKOLAH_RADIUS + 'm)');
 
                 adminGeofenceCircle = L.circle([SEKOLAH_LAT, SEKOLAH_LNG], {
                     color: '#0284c7',
@@ -563,7 +555,7 @@
             } else {
                 adminPresensiMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(adminLeafletMap);
             }
-            adminPresensiMarker.bindPopup('<b>📍 ' + (nama || 'Presensi') + '</b><br>Jarak ke ' + SEKOLAH_NAMA + ': ' + distFormatted + ' meter<br>Moda: ' + (moda || 'Tatap Muka'));
+            adminPresensiMarker.bindPopup('<b >📍 ' + (nama || 'Presensi') + '</b><br >Jarak ke ' + SEKOLAH_NAMA + ': ' + distFormatted + ' meter<br >Moda: ' + (moda || 'Tatap Muka'));
 
             if (adminMeasureLine) {
                 adminMeasureLine.setLatLngs([[lat, lng], [SEKOLAH_LAT, SEKOLAH_LNG]]);

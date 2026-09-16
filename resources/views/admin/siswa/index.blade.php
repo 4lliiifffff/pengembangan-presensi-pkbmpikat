@@ -36,7 +36,7 @@
             <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan siswa baru secara massal atau memperbarui data siswa berdasarkan nomor absen (NIS).
             </p>
-            <div style="margin-bottom: 20px;">
+            <div class="mb-4">
                 <a href="{{ route('admin.siswa.downloadTemplate') }}" class="btnOutline">
                     Download Template Siswa (.xlsx)
                 </a>
@@ -56,21 +56,21 @@
                     <div id="siswaFileFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div class="app-modal-footer">
-                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="profileBtnDanger" style="width:auto; height:40px; padding:0 18px;">Batal</button>
-                    <button type="submit" class="profileBtnPrimary" style="width:auto; height:40px; padding:0 20px;">Unggah &amp; Impor</button>
+                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="profileBtnDanger w-auto px-4 text-md">Batal</button>
+                    <button type="submit" class="profileBtnPrimary w-auto px-4 text-md">Unggah &amp; Impor</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
+    <script >
         function handleFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+                feedback.innerHTML = '<span >' + file.name + ' (' + sizeKb + ' KB)</span>';
                 feedback.style.display = 'flex';
             } else {
                 feedback.style.display = 'none';
@@ -84,7 +84,7 @@
             <div class="laporanFilterGrid">
                 <div class="filterField">
                     <label class="filterFieldLabel">Pencarian</label>
-                    <input type="text" name="q" class="profileInput" value="{{ request('q') }}" placeholder="Nama, Absen/NIS, Wali..." style="height: 42px; font-size: 13px;">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Nama, Absen/NIS, Wali..." class="profileInput text-md">
                 </div>
 
                 <div class="filterField">
@@ -98,11 +98,11 @@
                     </select>
                 </div>
 
-                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                <div class="filterActionGroup grid-span-full mt-1 d-flex flex-wrap gap-2">
+                    <button type="submit" class="profileBtnPrimary px-4 text-md rounded-lg flex-1">
                         Terapkan Filter
                     </button>
-                    <a href="{{ route('admin.siswa.index') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <a href="{{ route('admin.siswa.index') }}" class="profileBtnDanger px-3 text-md rounded-lg w-auto text-no-decor flex-center">
                         Reset
                     </a>
                 </div>
@@ -112,47 +112,47 @@
 
     {{-- ── Section Title ── --}}
     <div class="sectionRow">
-        <h2>Daftar Peserta Didik</h2>
+        <h2 >Daftar Peserta Didik</h2>
         <span class="badgeCount">{{ $siswas->total() }} Siswa Terdata</span>
     </div>
 
     {{-- ── Data Table Container (Desktop) ── --}}
     <div class="table-responsive-desktop">
-        <div class="tableContainer" style="margin: 0 0 20px; border-radius: 18px; border: 1px solid var(--border);">
+        <div class="tableContainer m-0 mb-4 rounded-xl border-base">
             <table class="laporanTable">
-                <thead>
-                    <tr>
-                        <th style="padding: 12px 14px; width: 50px;">NO</th>
-                        <th>ABSEN / NIS</th>
-                        <th>NAMA LENGKAP</th>
-                        <th>KELAS / ROMBEL</th>
-                        <th>JENJANG</th>
-                        <th>STATUS SIKLUS</th>
-                        <th>NAMA WALI</th>
-                        <th>TUTOR</th>
-                        <th style="text-align: center; width: 180px;">AKSI</th>
+                <thead >
+                    <tr >
+                        <th class="table-col-num">NO</th>
+                        <th >ABSEN / NIS</th>
+                        <th >NAMA LENGKAP</th>
+                        <th >KELAS / ROMBEL</th>
+                        <th >JENJANG</th>
+                        <th >STATUS SIKLUS</th>
+                        <th >NAMA WALI</th>
+                        <th >TUTOR</th>
+                        <th class="text-center">AKSI</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($siswas as $index => $siswa)
-                        <tr>
-                            <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">
+                        <tr >
+                            <td class="p-3 font-bold text-muted">
                                 {{ $siswas->firstItem() + $index }}
                             </td>
-                            <td style="font-weight: 700; color: var(--text);">
+                            <td class="font-bold text-dark">
                                 {{ $siswa->no_absen ?? '-' }}
                             </td>
-                            <td style="font-weight: 800; color: var(--text);">
+                            <td class="font-extrabold text-dark">
                                 {{ $siswa->nama_siswa }}
                             </td>
-                            <td style="font-weight: 600;">
+                            <td class="font-semibold">
                                 {{ $siswa->relKelas->nama_kelas ?? '-' }}
                             </td>
-                            <td style="font-weight: 700; color: var(--blue2);">
+                            <td class="font-bold text-primary">
                                 {{ $siswa->jenjang_paket_label }}
                             </td>
-                            <td>
-                                <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+                            <td >
+                                <div class="d-flex gap-1 flex-wrap items-center">
                                     <span class="app-badge badge-status-{{ $siswa->status_siswa }}">
                                         {{ $siswa->status_label }}
                                     </span>
@@ -163,26 +163,26 @@
                                     @endif
                                 </div>
                             </td>
-                            <td style="color:var(--muted);font-size:12px;">
+                            <td class="text-muted text-sm">
                                 {{ $siswa->nama_wali ?? '-' }}
                             </td>
-                            <td style="font-size:12px;font-weight:600;">
+                            <td class="text-sm font-semibold">
                                 {{ $siswa->tutor->nama_lengkap ?? '-' }}
                             </td>
-                            <td style="text-align: center;">
-                                <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <td class="text-center">
+                                <div class="d-flex gap-1 flex-center flex-wrap">
                                     <a class="smallBtn btn-status-toggle" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
                                         Detail
                                     </a>
 
-                                    <a class="smallBtn edit" href="{{ route('admin.siswa.edit', $siswa) }}" style="padding: 6px 10px; min-height: 32px; font-size: 11.5px;">
+                                    <a href="{{ route('admin.siswa.edit', $siswa) }}" class="smallBtn edit text-sm p-1 text-sm">
                                         Edit
                                     </a>
 
-                                    <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" style="display:inline; margin:0;">
+                                    <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" class="d-inline m-0">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="smallBtn delete cursor-pointer" title="Arsipkan Siswa" style="padding: 6px 10px; min-height: 32px; font-size: 11.5px;">
+                                        <button type="submit" title="Arsipkan Siswa" class="smallBtn delete cursor-pointer text-sm p-1 text-sm">
                                             Arsipkan
                                         </button>
                                     </form>
@@ -190,10 +190,10 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="9" style="text-align: center; color: var(--muted); padding: 36px 16px;">
-                                <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Siswa</div>
-                                <div style="font-size: 12px;">Tidak ada data peserta didik pada filter yang dipilih.</div>
+                        <tr >
+                            <td colspan="9" class="table-empty-cell">
+                                <div class="font-bold text-md mb-1">Belum Ada Data Siswa</div>
+                                <div class="text-sm">Tidak ada data peserta didik pada filter yang dipilih.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -207,11 +207,11 @@
         @forelse($siswas as $index => $siswa)
             <div class="data-mobile-card">
                 <div class="dmc-header">
-                    <div>
+                    <div >
                         <h3 class="dmc-title">{{ $siswa->nama_siswa }}</h3>
                         <div class="dmc-subtitle">Absen / NIS: {{ $siswa->no_absen ?? '-' }}</div>
                     </div>
-                    <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end;">
+                    <div class="flex-col gap-1 flex-items-end">
                         <span class="app-badge badge-status-{{ $siswa->status_siswa }}">
                             {{ $siswa->status_label }}
                         </span>
@@ -231,22 +231,22 @@
 
                     <div class="dmc-field">
                         <div class="dmc-label">Jenjang Paket</div>
-                        <div class="dmc-value" style="color:var(--blue2);">{{ $siswa->jenjang_paket_label }}</div>
+                        <div class="dmc-value text-primary">{{ $siswa->jenjang_paket_label }}</div>
                     </div>
 
                     <div class="dmc-field">
                         <div class="dmc-label">Tutor Pembimbing</div>
-                        <div class="dmc-value" style="font-size:12px;">{{ $siswa->tutor->nama_lengkap ?? '-' }}</div>
+                        <div class="dmc-value text-sm">{{ $siswa->tutor->nama_lengkap ?? '-' }}</div>
                     </div>
 
                     <div class="dmc-field">
                         <div class="dmc-label">Wali Murid</div>
-                        <div class="dmc-value" style="font-size:12px;">{{ $siswa->nama_wali ?? '-' }}</div>
+                        <div class="dmc-value text-sm">{{ $siswa->nama_wali ?? '-' }}</div>
                     </div>
                 </div>
 
                 <div class="dmc-footer">
-                    <div style="font-size:11px;font-weight:700;color:var(--muted);">
+                    <div class="text-xs font-bold text-muted">
                         No. {{ $siswas->firstItem() + $index }}
                     </div>
                     <div class="dmc-actions">
@@ -254,14 +254,14 @@
                             Detail
                         </a>
 
-                        <a class="smallBtn edit" href="{{ route('admin.siswa.edit', $siswa) }}" style="padding: 7px 14px; font-size: 12px;">
+                        <a href="{{ route('admin.siswa.edit', $siswa) }}" class="smallBtn edit text-sm px-3 py-1">
                             Edit
                         </a>
 
-                        <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" style="display:inline; margin:0;">
+                        <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh data riwayat presensi dan honor mengajar tutor akan tetap aman tersimpan." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" class="d-inline m-0">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="smallBtn delete cursor-pointer" style="padding: 7px 12px; font-size: 12px;">
+                            <button type="submit" class="smallBtn delete cursor-pointer text-sm px-3 py-1">
                                 Arsipkan
                             </button>
                         </form>
@@ -269,15 +269,15 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card" style="text-align:center;padding:32px 16px;color:var(--muted);">
-                <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Siswa</div>
-                <div style="font-size: 12px;">Tidak ada data peserta didik pada filter yang dipilih.</div>
+            <div class="data-mobile-card table-empty-cell">
+                <div class="font-bold text-md mb-1">Belum Ada Data Siswa</div>
+                <div class="text-sm">Tidak ada data peserta didik pada filter yang dipilih.</div>
             </div>
         @endforelse
     </div>
 
     @if(method_exists($siswas, 'links'))
-        <div class="paginatePad" style="padding: 0 0 16px;">
+        <div class="paginatePad py-4">
             {{ $siswas->links() }}
         </div>
     @endif

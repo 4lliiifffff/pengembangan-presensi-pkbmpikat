@@ -22,9 +22,9 @@
     @if ($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul>
+            <ul >
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li >{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
@@ -36,17 +36,17 @@
 
             <div class="form-grid-responsive">
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">Nama Lengkap <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">Nama Lengkap <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" placeholder="Contoh: Budi Santoso, S.Pd." required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NIK (Nomor Induk Karyawan) <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">NIK (Nomor Induk Karyawan) <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nik" value="{{ old('nik') }}" placeholder="Contoh: 3201234567890001" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">Role &amp; Hak Akses <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">Role &amp; Hak Akses <span class="text-danger">*</span></label>
                     <select class="filterSelect" name="role" required>
                         <option value="">-- Pilih Role --</option>
                         <option value="tutor" {{ old('role') === 'tutor' ? 'selected' : '' }}>Tutor / Pengajar</option>
@@ -56,22 +56,22 @@
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">No HP / WhatsApp <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">No HP / WhatsApp <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp') }}" placeholder="Contoh: 081234567890" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">Password Akun <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">Password Akun <span class="text-danger">*</span></label>
                     <input class="profileInput" type="password" name="password" placeholder="Minimal 6 karakter" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">Konfirmasi Password <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">Konfirmasi Password <span class="text-danger">*</span></label>
                     <input class="profileInput" type="password" name="password_confirmation" placeholder="Ulangi password" required />
                 </div>
             </div>
 
-            <div class="form-field-wrapper" style="margin-top:18px;">
+            <div class="form-field-wrapper mt-4">
                 <label class="filterFieldLabel">Foto Profil (Opsional)</label>
                 <div class="fileUploadBox">
                     <input type="file" name="foto" id="fotoKaryawanCreateInput" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelected(this, 'karyawanCreateFotoFeedback')">
@@ -96,14 +96,14 @@
     </div>
 </div>
 
-<script>
+<script >
     function handleFileSelected(input, feedbackId) {
         const feedback = document.getElementById(feedbackId);
         if (!feedback) return;
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const sizeKb = Math.round(file.size / 1024);
-            feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+            feedback.innerHTML = '<span >' + file.name + ' (' + sizeKb + ' KB)</span>';
             feedback.style.display = 'flex';
         } else {
             feedback.style.display = 'none';

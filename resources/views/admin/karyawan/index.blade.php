@@ -16,13 +16,13 @@
                 <a href="{{ route('admin.magang.index') }}" class="btnOutline">
                     Peserta Magang
                 </a>
-                <a href="{{ route('admin.karyawan.exportExcel') }}" class="profileBtnPrimary btn-action-success" style="width:auto;text-decoration:none;">
+                <a href="{{ route('admin.karyawan.exportExcel') }}" class="profileBtnPrimary btn-action-success w-auto text-no-decor">
                     Export Excel
                 </a>
-                <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='flex'" class="profileBtnPrimary btn-action-info" style="width:auto;">
+                <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='flex'" class="profileBtnPrimary btn-action-info w-auto">
                     Import Tutor
                 </button>
-                <a href="{{ route('admin.karyawan.create') }}" class="profileBtnPrimary" style="width:auto;text-decoration:none;">
+                <a href="{{ route('admin.karyawan.create') }}" class="profileBtnPrimary w-auto text-no-decor">
                     Tambah Staf
                 </a>
             </div>
@@ -39,14 +39,14 @@
             <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan tutor dan staf baru secara massal. Akun login akan otomatis digenerate dengan password default berbasis NIK.
             </p>
-            <div style="margin-bottom:20px;">
+            <div class="mb-4">
                 <a href="{{ route('admin.karyawan.downloadTemplate') }}" class="btnOutline">
                     Download Template Tutor (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.karyawan.importExcel') }}" enctype="multipart/form-data">
                 @csrf
-                <div style="margin-bottom:20px;">
+                <div class="mb-4">
                     <label class="filterFieldLabel">Pilih Berkas Data Tutor/Staf:</label>
                     <div class="fileUploadBox">
                         <input type="file" name="file_excel" id="karyawanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'karyawanFileFeedback')">
@@ -59,21 +59,21 @@
                     <div id="karyawanFileFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div class="app-modal-footer">
-                    <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="btnOutline" style="width:auto;">Batal</button>
-                    <button type="submit" class="profileBtnPrimary" style="width:auto;">Unggah &amp; Impor Tutor</button>
+                    <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="btnOutline w-auto">Batal</button>
+                    <button type="submit" class="profileBtnPrimary w-auto">Unggah &amp; Impor Tutor</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script>
+    <script >
         function handleFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+                feedback.innerHTML = '<span >' + file.name + ' (' + sizeKb + ' KB)</span>';
                 feedback.style.display = 'flex';
             } else {
                 feedback.style.display = 'none';
@@ -87,7 +87,7 @@
             <div class="laporanFilterGrid">
                 <div class="filterField">
                     <label class="filterFieldLabel">Pencarian</label>
-                    <input type="text" name="search" class="profileInput" value="{{ request('search') ?? request('q') }}" placeholder="Nama, NIK, No HP..." style="height: 42px; font-size: 13px;">
+                    <input type="text" name="search" value="{{ request('search') ?? request('q') }}" placeholder="Nama, NIK, No HP..." class="profileInput text-md">
                 </div>
 
                 <div class="filterField">
@@ -109,11 +109,11 @@
                     </select>
                 </div>
 
-                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                <div class="filterActionGroup grid-span-full mt-1 d-flex flex-wrap gap-2">
+                    <button type="submit" class="profileBtnPrimary px-4 text-md rounded-lg flex-1">
                         Terapkan Filter
                     </button>
-                    <a href="{{ route('admin.karyawan.index') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                    <a href="{{ route('admin.karyawan.index') }}" class="profileBtnDanger px-3 text-md rounded-lg w-auto text-no-decor flex-center">
                         Reset
                     </a>
                 </div>
@@ -123,27 +123,27 @@
 
     {{-- ── Section Title ── --}}
     <div class="sectionRow">
-        <h2>Daftar Karyawan &amp; Tenaga Pendidik</h2>
+        <h2 >Daftar Karyawan &amp; Tenaga Pendidik</h2>
         <span class="badgeCount">{{ $karyawan->total() }} Staf Terdaftar</span>
     </div>
 
     {{-- ── Data Table Container (Desktop) ── --}}
     <div class="table-responsive-desktop">
-        <div class="tableContainer" style="margin: 0 0 20px; border-radius: 18px; border: 1px solid var(--border);">
+        <div class="tableContainer m-0 mb-4 rounded-xl border-base">
             <table class="laporanTable">
-                <thead>
-                    <tr>
-                        <th style="padding: 12px 14px; width: 50px;">NO</th>
-                        <th>NAMA LENGKAP</th>
-                        <th>NIK</th>
-                        <th>ROLE / JABATAN</th>
-                        <th>NO HP / WHATSAPP</th>
-                        <th>EMAIL</th>
-                        <th>STATUS</th>
-                        <th style="text-align: center; width: 180px;">AKSI</th>
+                <thead >
+                    <tr >
+                        <th class="table-col-num">NO</th>
+                        <th >NAMA LENGKAP</th>
+                        <th >NIK</th>
+                        <th >ROLE / JABATAN</th>
+                        <th >NO HP / WHATSAPP</th>
+                        <th >EMAIL</th>
+                        <th >STATUS</th>
+                        <th class="text-center">AKSI</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($karyawan as $index => $k)
                         @php
                             $displayName = (string) ($k->nama_lengkap ?? $k->name ?? '-');
@@ -161,47 +161,47 @@
                                 default => 'badge-role-magang',
                             };
                         @endphp
-                        <tr>
-                            <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">
+                        <tr >
+                            <td class="p-3 font-bold text-muted">
                                 {{ $karyawan->firstItem() + $index }}
                             </td>
-                            <td style="font-weight: 800; color: var(--text);">
+                            <td class="font-extrabold text-dark">
                                 {{ $displayName }}
                             </td>
-                            <td style="font-weight: 700; color: var(--muted);">
+                            <td class="font-bold text-muted">
                                 {{ $k->nik ?? '-' }}
                             </td>
-                            <td>
+                            <td >
                                 <span class="app-badge {{ $roleBadgeClass }}">
                                     {{ $roleLabel }}
                                 </span>
                             </td>
-                            <td style="font-weight: 700;">
+                            <td class="font-bold">
                                 @if($k->no_hp)
-                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $k->no_hp) }}" target="_blank" style="color:var(--blue2);text-decoration:none;">
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $k->no_hp) }}" target="_blank" class="text-primary text-no-decor">
                                         {{ $k->no_hp }}
                                     </a>
                                 @else
-                                    <span style="color:var(--muted);">-</span>
+                                    <span class="text-muted">-</span>
                                 @endif
                             </td>
-                            <td style="color:var(--muted);font-size:12px;">
+                            <td class="text-muted text-sm">
                                 {{ $k->email ?? '-' }}
                             </td>
-                            <td>
+                            <td >
                                 @if($isActive)
                                     <span class="app-badge badge-status-aktif">Aktif</span>
                                 @else
                                     <span class="app-badge badge-status-nonaktif">Nonaktif</span>
                                 @endif
                             </td>
-                            <td style="text-align: center;">
-                                <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
+                            <td class="text-center">
+                                <div class="d-flex gap-1 flex-center flex-wrap">
                                     <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}">
                                         Edit
                                     </a>
 
-                                    <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" style="display:inline; margin:0;">
+                                    <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" class="d-inline m-0">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn-status-toggle" title="Klik untuk ubah status aktif/nonaktif">
@@ -209,7 +209,7 @@
                                         </button>
                                     </form>
 
-                                    <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" style="display:inline; margin:0;">
+                                    <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Staf">
@@ -220,10 +220,10 @@
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="8" style="text-align: center; color: var(--muted); padding: 36px 16px;">
-                                <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Karyawan</div>
-                                <div style="font-size: 12px;">Tidak ada data staf atau tutor pada filter yang dipilih.</div>
+                        <tr >
+                            <td colspan="8" class="table-empty-cell">
+                                <div class="font-bold text-md mb-1">Belum Ada Data Karyawan</div>
+                                <div class="text-sm">Tidak ada data staf atau tutor pada filter yang dipilih.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -253,11 +253,11 @@
             @endphp
             <div class="data-mobile-card">
                 <div class="dmc-header">
-                    <div>
+                    <div >
                         <h3 class="dmc-title">{{ $displayName }}</h3>
                         <div class="dmc-subtitle">NIK: {{ $k->nik ?? '-' }}</div>
                     </div>
-                    <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end;">
+                    <div class="flex-col gap-1 flex-items-end">
                         @if($isActive)
                             <span class="app-badge badge-status-aktif">Aktif</span>
                         @else
@@ -274,25 +274,25 @@
                         <div class="dmc-label">No WhatsApp</div>
                         <div class="dmc-value">
                             @if($k->no_hp)
-                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $k->no_hp) }}" target="_blank" style="color:var(--blue2);text-decoration:none;">
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $k->no_hp) }}" target="_blank" class="text-primary text-no-decor">
                                     {{ $k->no_hp }}
                                 </a>
                             @else
-                                <span style="color:var(--muted);">-</span>
+                                <span class="text-muted">-</span>
                             @endif
                         </div>
                     </div>
 
                     <div class="dmc-field">
                         <div class="dmc-label">Email</div>
-                        <div class="dmc-value" style="font-size:11.5px;color:var(--muted);">
+                        <div class="dmc-value text-sm text-muted">
                             {{ $k->email ?? '-' }}
                         </div>
                     </div>
                 </div>
 
                 <div class="dmc-footer">
-                    <div style="font-size:11px;font-weight:700;color:var(--muted);">
+                    <div class="text-xs font-bold text-muted">
                         No. {{ $karyawan->firstItem() + $index }}
                     </div>
                     <div class="dmc-actions">
@@ -300,7 +300,7 @@
                             Edit
                         </a>
 
-                        <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" style="display:inline; margin:0;">
+                        <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" class="d-inline m-0">
                             @csrf
                             @method('PATCH')
                             <button type="submit" class="btn-status-toggle">
@@ -308,7 +308,7 @@
                             </button>
                         </form>
 
-                        <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" style="display:inline; margin:0;">
+                        <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="smallBtn delete cursor-pointer btn-table-action">
@@ -319,15 +319,15 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card" style="text-align:center;padding:32px 16px;color:var(--muted);">
-                <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Karyawan</div>
-                <div style="font-size: 12px;">Tidak ada data staf atau tutor pada filter yang dipilih.</div>
+            <div class="data-mobile-card table-empty-cell">
+                <div class="font-bold text-md mb-1">Belum Ada Data Karyawan</div>
+                <div class="text-sm">Tidak ada data staf atau tutor pada filter yang dipilih.</div>
             </div>
         @endforelse
     </div>
 
     @if(method_exists($karyawan, 'links'))
-        <div class="paginatePad" style="padding: 0 0 16px;">
+        <div class="paginatePad py-4">
             {{ $karyawan->links() }}
         </div>
     @endif

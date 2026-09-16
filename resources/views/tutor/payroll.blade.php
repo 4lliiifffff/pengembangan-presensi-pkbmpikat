@@ -22,8 +22,8 @@
 
     {{-- ── Filter Month & Year ── --}}
     <form method="GET" action="{{ route('tutor.payroll.index') }}" class="filter-box">
-        <div style="flex: 1; min-width: 120px;">
-            <select name="bulan" class="formControl" style="width:100%;padding:9px 12px;font-size:13px;border-radius:8px;font-weight:600;" onchange="this.form.submit()">
+        <div  class="flex-1 min-w-120">
+            <select name="bulan" onchange="this.form.submit()" class="formControl w-full text-md rounded-md font-semibold px-3 py-2">
                 @foreach(range(1, 12) as $m)
                     <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
                         {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
@@ -32,17 +32,17 @@
             </select>
         </div>
 
-        <div style="flex: 1; min-width: 100px;">
-            <select name="tahun" class="formControl" style="width:100%;padding:9px 12px;font-size:13px;border-radius:8px;font-weight:600;" onchange="this.form.submit()">
+        <div  class="flex-1 min-w-100">
+            <select name="tahun" onchange="this.form.submit()" class="formControl w-full text-md rounded-md font-semibold px-3 py-2">
                 @foreach($tahunOptions as $y)
                     <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
                 @endforeach
             </select>
         </div>
 
-        <div>
-            <a href="{{ route('tutor.payroll.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:9px 14px;font-size:12px;font-weight:700;background:#059669;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;border-radius:8px;text-decoration:none;">
-                <ion-icon name="download-outline" style="font-size:16px;"></ion-icon> Cetak PDF
+        <div >
+            <a href="{{ route('tutor.payroll.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm">
+                <ion-icon name="download-outline" class="icon-sm"></ion-icon> Cetak PDF
             </a>
         </div>
     </form>
@@ -75,15 +75,15 @@
     {{-- ── Rincian Per Siswa ── --}}
     <div class="section-card">
         <h4 class="section-card-title">
-            <ion-icon name="school-outline" style="font-size:18px;color:#0284c7;"></ion-icon>
+            <ion-icon name="school-outline" class="text-primary"></ion-icon>
             Rincian Honorarium Per Siswa
         </h4>
 
         @forelse($payroll['siswa_summary'] as $s)
             <div class="student-item-row">
-                <div>
-                    <div class="sir-name" style="display:flex;align-items:center;gap:6px;">
-                        <span>{{ $s['nama_siswa'] }}</span>
+                <div >
+                    <div class="sir-name d-flex items-center gap-1">
+                        <span >{{ $s['nama_siswa'] }}</span>
                         @if($s['is_abk'] ?? false)
                             <span class="app-badge badge-abk">ABK</span>
                         @endif
@@ -108,28 +108,28 @@
     @if(count($payroll['session_rows'] ?? []) > 0)
     <div class="section-card">
         <h4 class="section-card-title">
-            <ion-icon name="time-outline" style="font-size:18px;color:#059669;"></ion-icon>
+            <ion-icon name="time-outline" class="text-success"></ion-icon>
             Riwayat Sesi Mengajar
         </h4>
 
         @foreach($payroll['session_rows'] as $row)
             <div class="session-item-row">
-                <div>
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <strong style="color:var(--text,#0f172a);">{{ $row['nama_siswa'] }}</strong>
+                <div >
+                    <div class="d-flex items-center gap-1">
+                        <strong class="text-dark">{{ $row['nama_siswa'] }}</strong>
                         @if($row['is_abk'] ?? false)
                             <span class="app-badge badge-abk">ABK</span>
                         @endif
                     </div>
-                    <span style="font-size:11px;color:var(--muted,#64748b);display:block;margin-top:2px;">
+                    <span class="text-xs text-muted d-block mt-1">
                         {{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }} • {{ $row['jam_mulai'] }} - {{ $row['jam_selesai'] }} ({{ $row['durasi_jam'] }} J)
                     </span>
-                    <span style="font-size:10px;color:#0284c7;font-weight:700;">
+                    <span class="text-xs font-bold text-primary">
                         {{ $row['kategori_nama'] ?? 'Tutorial Komunitas' }}
                     </span>
                 </div>
-                <div style="text-align:right;">
-                    <div style="font-weight:800;color:#059669;font-size:13px;">{{ $row['formatted_subtotal'] }}</div>
+                <div class="text-right">
+                    <div class="font-extrabold text-success text-md">{{ $row['formatted_subtotal'] }}</div>
                     <span class="app-badge badge-reguler">
                         {{ $row['moda_label'] }}
                     </span>

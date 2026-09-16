@@ -11,12 +11,12 @@
             {{-- Ringkasan Hari Ini --}}
             <div class="sectionTitleRow">
                 <div class="sectionTitleWrap">
-                    <h2>Ringkasan Hari ini</h2>
+                    <h2 >Ringkasan Hari ini</h2>
                     <span class="sectionSubtitle">Monitoring presensi bimbingan & kinerja tutor</span>
                 </div>
                 <div class="badgeDate">
                     <ion-icon name="calendar-outline"></ion-icon>
-                    <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+                    <span >{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
                 </div>
             </div>
 
@@ -49,17 +49,17 @@
                     {{-- Visualisasi Grafik Interaktif Tren Kehadiran & Jam Mengajar (Chart.js) --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <div>
-                                <h2>
-                                    <ion-icon name="bar-chart-outline" style="color:var(--blue2);"></ion-icon>
-                                    <span>Analytics Tren Kehadiran &amp; Jam Mengajar</span>
+                            <div >
+                                <h2 >
+                                    <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon>
+                                    <span >Analytics Tren Kehadiran &amp; Jam Mengajar</span>
                                 </h2>
-                                <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Histori kinerja 6 bulan terakhir</span>
+                                <span class="text-xs text-muted font-semibold">Histori kinerja 6 bulan terakhir</span>
                             </div>
-                            <span class="badgeDate" style="font-size: 10px; padding: 4px 10px;">Chart.js Live</span>
+                            <span class="badgeDate text-xs px-2 py-1">Chart.js Live</span>
                         </div>
 
-                        <div style="position: relative; height: 240px; width: 100%;">
+                        <div  class="pos-relative w-full h-60">
                             <canvas id="monthlyTrendChart"></canvas>
                         </div>
                     </div>
@@ -67,11 +67,11 @@
                     {{-- Statistik Mingguan --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <h2>
-                                <ion-icon name="calendar-number-outline" style="color:var(--blue2);"></ion-icon>
-                                <span>Statistik Mingguan</span>
+                            <h2 >
+                                <ion-icon name="calendar-number-outline" class="text-primary"></ion-icon>
+                                <span >Statistik Mingguan</span>
                             </h2>
-                            <span class="badgeDate" style="font-size: 10px; padding: 4px 10px;">7 Hari Terakhir</span>
+                            <span class="badgeDate text-xs px-2 py-1">7 Hari Terakhir</span>
                         </div>
 
                         <div class="barChart">
@@ -101,12 +101,12 @@
                     {{-- Pemeringkatan Indikator Kinerja Utama (KPI Tutor) --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <div>
-                                <h2>
-                                    <ion-icon name="trophy-outline" style="color:#d97706;"></ion-icon>
-                                    <span>Pemeringkatan KPI Tutor</span>
+                            <div >
+                                <h2 >
+                                    <ion-icon name="trophy-outline" class="text-warning"></ion-icon>
+                                    <span >Pemeringkatan KPI Tutor</span>
                                 </h2>
-                                <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Evaluasi kedisiplinan & akumulasi jam mengajar</span>
+                                <span class="text-xs text-muted font-semibold">Evaluasi kedisiplinan & akumulasi jam mengajar</span>
                             </div>
                             <a href="{{ route('kepsek.laporan') }}" class="mutedLink">Rekap &rsaquo;</a>
                         </div>
@@ -144,7 +144,7 @@
                                         
                                         <div class="kpiAvatar">
                                             @if ($tutor->foto ?? null)
-                                                <img src="{{ asset($tutor->foto) }}" alt="Avatar" style="width:100%;height:100%;object-fit:cover;" />
+                                                <img src="{{ asset($tutor->foto) }}" alt="Avatar" class="w-full h-full object-cover" />
                                             @else
                                                 {{ $initial }}
                                             @endif
@@ -155,9 +155,9 @@
                                                 {{ $tutor->nama_lengkap }}
                                             </div>
                                             <div class="kpiMeta">
-                                                <span><ion-icon name="time-outline" style="vertical-align:middle;font-size:12px;"></ion-icon> {{ $totalJam }} Jam</span>
-                                                <span>•</span>
-                                                <span><ion-icon name="checkmark-done-outline" style="vertical-align:middle;font-size:12px;"></ion-icon> {{ $totalHadir }} Sesi</span>
+                                                <span ><ion-icon name="time-outline" class="align-middle text-sm"></ion-icon> {{ $totalJam }} Jam</span>
+                                                <span >•</span>
+                                                <span ><ion-icon name="checkmark-done-outline" class="align-middle text-sm"></ion-icon> {{ $totalHadir }} Sesi</span>
                                             </div>
                                         </div>
                                     </div>
@@ -166,13 +166,13 @@
                                         <div class="kpiScore">
                                             {{ $kpiScore }} <span class="kpiScoreSub">/ 100</span>
                                         </div>
-                                        <span class="pill {{ $badgeColor == 'success' ? 'hadir' : ($badgeColor == 'warning' ? 'izin' : 'alpha') }}" style="font-size: 10px; padding: 2px 8px;">
+                                        <span class="pill {{ $badgeColor == 'success' ? 'hadir' : ($badgeColor == 'warning' ? 'izin' : 'alpha') }} text-xs px-2 py-1">
                                             {{ $kategori }} ({{ $pctDisiplin }}%)
                                         </span>
                                     </div>
                                 </div>
                             @empty
-                                <div class="emptyState" style="margin: 0; padding: 20px;">Belum ada data evaluasi KPI Tutor.</div>
+                                <div class="emptyState m-0 p-4">Belum ada data evaluasi KPI Tutor.</div>
                             @endforelse
                         </div>
                     </div>
@@ -180,14 +180,14 @@
                     {{-- Aktivitas Terbaru --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <h2>
-                                <ion-icon name="pulse-outline" style="color:var(--blue2);"></ion-icon>
-                                <span>Aktivitas Presensi Terbaru</span>
+                            <h2 >
+                                <ion-icon name="pulse-outline" class="text-primary"></ion-icon>
+                                <span >Aktivitas Presensi Terbaru</span>
                             </h2>
                             <a class="mutedLink" href="{{ route('kepsek.presensi-tutor') }}">Lihat Semua &rsaquo;</a>
                         </div>
 
-                        <div class="activityList" style="padding: 0; margin-top: 8px;">
+                        <div class="activityList p-0 mt-2">
                             @forelse($latest as $item)
                                 @php
                                     $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
@@ -198,17 +198,17 @@
                                     $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
                                     $jam = (string) ($item->jam_mulai ?? '');
                                 @endphp
-                                <div class="activityRow" style="margin-bottom: 8px;">
+                                <div class="activityRow mb-2">
                                     <div class="activityLeft">
                                         <div class="activityAvatar">
                                             @if ($item->tutor->foto ?? null)
                                                 <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
-                                                    style="width:100%;height:100%;object-fit:cover;" />
+                                                    class="w-full h-full object-cover" />
                                             @else
                                                 {{ $initial }}
                                             @endif
                                         </div>
-                                        <div style="min-width:0;">
+                                        <div class="min-w-0">
                                             <div class="activityName">{{ $tutorName }}</div>
                                             <div class="activityMeta">
                                                 {{ $siswaName }}{{ $jam ? ' · ' . $jam : '' }}
@@ -221,7 +221,7 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="emptyState" style="margin: 0; padding: 24px 16px;">Belum ada data presensi.</div>
+                                <div class="emptyState m-0 p-4">Belum ada data presensi.</div>
                             @endforelse
                         </div>
                     </div>
@@ -233,7 +233,7 @@
     </div>{{-- end .page-wrapper --}}
 
     {{-- Script Inisialisasi Grafik Chart.js --}}
-    <script>
+    <script >
         document.addEventListener('DOMContentLoaded', function () {
             const ctx = document.getElementById('monthlyTrendChart');
             if (!ctx) return;

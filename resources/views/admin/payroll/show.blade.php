@@ -14,7 +14,7 @@
 @section('content')
 <div class="show-payroll-container">
     {{-- ── Top Navigation & Header ── --}}
-    <div>
+    <div >
         <a href="{{ route($rolePrefix . '.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="back-nav-link">
             <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Rekapitulasi Payroll
         </a>
@@ -22,17 +22,17 @@
 
     <div class="show-header-row">
         <div class="show-title-box">
-            <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#059669;text-transform:uppercase;">Rincian Slip Gaji Personal</span>
-            <h2>Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h2>
-            <p>Periode {{ $payroll['periode_label'] }} • NIK: {{ $tutor->nik }}</p>
+            <span class="text-xs font-extrabold text-success text-uppercase letter-spacing-sm">Rincian Slip Gaji Personal</span>
+            <h2 >Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h2>
+            <p >Periode {{ $payroll['periode_label'] }} • NIK: {{ $tutor->nik }}</p>
         </div>
 
         <div class="show-header-actions">
-            <a href="{{ $logPresensiUrl }}" class="btnOutline" style="padding:9px 14px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;">
-                <ion-icon name="bar-chart-outline" style="font-size:16px;color:#0284c7;"></ion-icon> Buka Log Presensi KBM
+            <a href="{{ $logPresensiUrl }}" class="btnOutline text-no-decor d-inline-flex items-center gap-1 text-sm font-bold px-3 py-2">
+                <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Buka Log Presensi KBM
             </a>
-            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:9px 16px;background:linear-gradient(135deg,#059669,#10b981);font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;">
-                <ion-icon name="download-outline" style="font-size:16px;"></ion-icon> Cetak Slip Gaji PDF
+            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm">
+                <ion-icon name="download-outline" class="icon-sm"></ion-icon> Cetak Slip Gaji PDF
             </a>
         </div>
     </div>
@@ -42,62 +42,62 @@
         <div class="kpi-card emerald">
             <div class="kpi-label">Total Take Home Pay</div>
             <div class="kpi-val">{{ $payroll['formatted_total_honor'] }}</div>
-            <div style="font-size:12px;color:var(--muted,#64748b);margin-top:4px;">Honorarium Terakumulasi</div>
+            <div class="text-sm text-muted mt-1">Honorarium Terakumulasi</div>
         </div>
         <div class="kpi-card blue">
             <div class="kpi-label">Total Jam Mengajar</div>
             <div class="kpi-val">{{ $payroll['total_jam'] }} Jam</div>
-            <div style="font-size:12px;color:var(--muted,#64748b);margin-top:4px;">Durasi Sesi Tervalidasi</div>
+            <div class="text-sm text-muted mt-1">Durasi Sesi Tervalidasi</div>
         </div>
         <div class="kpi-card indigo">
             <div class="kpi-label">Sesi Kehadiran Valid</div>
             <div class="kpi-val">{{ $payroll['total_sesi_hadir'] }} Sesi</div>
-            <div style="font-size:12px;color:var(--muted,#64748b);margin-top:4px;">Izin/Sakit: {{ $payroll['total_izin_sakit'] }} Hari</div>
+            <div class="text-sm text-muted mt-1">Izin/Sakit: {{ $payroll['total_izin_sakit'] }} Hari</div>
         </div>
     </div>
 
     {{-- ── Rincian Per Siswa ── --}}
     <div class="content-box">
         <div class="content-box-header">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <ion-icon name="school-outline" style="font-size:18px;color:#0284c7;"></ion-icon>
+            <div class="d-flex items-center gap-2">
+                <ion-icon name="school-outline" class="text-primary"></ion-icon>
                 Rincian Honorarium Pembelajaran Siswa
             </div>
-            <div style="font-size:12px;font-weight:700;color:var(--muted,#64748b);">
+            <div class="text-sm font-bold text-muted">
                 {{ count($payroll['siswa_summary']) }} Siswa Diajar
             </div>
         </div>
 
         {{-- Desktop View --}}
-        <div class="table-responsive-desktop" style="overflow-x:auto;">
+        <div class="table-responsive-desktop overflow-x-auto">
             <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th>Nama Siswa</th>
-                        <th style="text-align:center;">Total Sesi</th>
-                        <th style="text-align:center;">Total Jam</th>
-                        <th>Program / Layanan</th>
-                        <th style="text-align:right;">Subtotal Honor</th>
+                <thead >
+                    <tr >
+                        <th >Nama Siswa</th>
+                        <th class="text-center">Total Sesi</th>
+                        <th class="text-center">Total Jam</th>
+                        <th >Program / Layanan</th>
+                        <th class="text-right">Subtotal Honor</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($payroll['siswa_summary'] as $s)
-                    <tr>
-                        <td>
-                            <strong style="color:var(--text,#0f172a);font-size:14px;">{{ $s['nama_siswa'] }}</strong>
+                    <tr >
+                        <td >
+                            <strong class="text-dark text-md">{{ $s['nama_siswa'] }}</strong>
                         </td>
-                        <td style="text-align:center;">{{ $s['total_sesi'] }} kali</td>
-                        <td style="text-align:center;color:#0284c7;font-weight:700;">{{ $s['total_jam'] }} Jam</td>
-                        <td>
-                            <span style="font-size:11px;font-weight:800;padding:4px 8px;border-radius:6px;background:{{ $s['is_abk'] ? 'rgba(245,158,11,0.12)' : 'rgba(11,94,215,0.1)' }};color:{{ $s['is_abk'] ? '#d97706' : '#0284c7' }};">
+                        <td class="text-center">{{ $s['total_sesi'] }} kali</td>
+                        <td class="text-center font-bold text-primary">{{ $s['total_jam'] }} Jam</td>
+                        <td >
+                            <span class="{{ $s['is_abk'] ? 'badge-abk' : 'badge-reguler' }} text-xs">
                                 {{ $s['is_abk_label'] }}
                             </span>
                         </td>
-                        <td style="text-align:right;font-weight:800;color:#059669;font-size:14px;">{{ $s['formatted_subtotal'] }}</td>
+                        <td class="text-right font-extrabold text-success text-md">{{ $s['formatted_subtotal'] }}</td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="5" style="text-align:center;padding:30px;color:var(--muted,#94a3b8);">Belum ada rincian mengajar siswa.</td>
+                    <tr >
+                        <td colspan="5" class="text-center p-4 text-muted">Belum ada rincian mengajar siswa.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -113,15 +113,15 @@
                         <div class="sci-subtotal">{{ $s['formatted_subtotal'] }}</div>
                     </div>
                     <div class="sci-meta">
-                        <div><strong>{{ $s['total_sesi'] }}</strong> Sesi</div>
-                        <div>•</div>
-                        <div style="color:#0284c7;"><strong>{{ $s['total_jam'] }}</strong> Jam</div>
-                        <div>•</div>
-                        <div>{{ $s['is_abk_label'] }}</div>
+                        <div ><strong >{{ $s['total_sesi'] }}</strong> Sesi</div>
+                        <div >•</div>
+                        <div class="text-primary"><strong >{{ $s['total_jam'] }}</strong> Jam</div>
+                        <div >•</div>
+                        <div >{{ $s['is_abk_label'] }}</div>
                     </div>
                 </div>
             @empty
-                <div style="text-align:center;padding:24px;color:var(--muted,#94a3b8);">Belum ada rincian mengajar siswa.</div>
+                <div class="text-center p-4 text-muted">Belum ada rincian mengajar siswa.</div>
             @endforelse
         </div>
     </div>
@@ -129,54 +129,54 @@
     {{-- ── Log Rincian Sesi Mengajar ── --}}
     <div class="content-box">
         <div class="content-box-header">
-            <div style="display:flex;align-items:center;gap:8px;">
-                <ion-icon name="time-outline" style="font-size:18px;color:#059669;"></ion-icon>
+            <div class="d-flex items-center gap-2">
+                <ion-icon name="time-outline" class="text-success"></ion-icon>
                 Log Sesi Kehadiran Terverifikasi (KBM)
             </div>
-            <div style="font-size:12px;font-weight:700;color:var(--muted,#64748b);">
+            <div class="text-sm font-bold text-muted">
                 {{ count($payroll['session_rows']) }} Sesi Masuk
             </div>
         </div>
 
-        <div style="overflow-x:auto;">
+        <div class="overflow-x-auto">
             <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th>Tanggal</th>
-                        <th>Siswa</th>
-                        <th>Waktu Mengajar</th>
-                        <th style="text-align:center;">Durasi</th>
-                        <th>Moda Belajar</th>
-                        <th style="text-align:right;">Subtotal</th>
+                <thead >
+                    <tr >
+                        <th >Tanggal</th>
+                        <th >Siswa</th>
+                        <th >Waktu Mengajar</th>
+                        <th class="text-center">Durasi</th>
+                        <th >Moda Belajar</th>
+                        <th class="text-right">Subtotal</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($payroll['session_rows'] as $row)
-                    <tr>
-                        <td style="color:var(--text,#1e293b);font-weight:600;white-space:nowrap;">
+                    <tr >
+                        <td  class="font-semibold white-space-nowrap text-dark">
                             {{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}
                         </td>
-                        <td>
-                            <strong style="color:var(--text,#0f172a);">{{ $row['nama_siswa'] }}</strong>
+                        <td >
+                            <strong class="text-dark">{{ $row['nama_siswa'] }}</strong>
                         </td>
-                        <td style="color:var(--muted,#64748b);font-size:12px;white-space:nowrap;">
+                        <td class="text-muted text-sm white-space-nowrap">
                             {{ $row['jam_mulai'] }} s/d {{ $row['jam_selesai'] }}
                         </td>
-                        <td style="text-align:center;color:#0284c7;font-weight:700;">
+                        <td class="text-center font-bold text-primary">
                             {{ $row['durasi_jam'] }} Jam
                         </td>
-                        <td>
-                            <span style="font-size:11px;padding:3px 8px;border-radius:6px;background:var(--card-alt,#f1f5f9);font-weight:700;color:var(--text,#334155);">
+                        <td >
+                            <span  class="text-xs rounded-sm font-bold badge-code">
                                 {{ $row['moda_label'] }}
                             </span>
                         </td>
-                        <td style="text-align:right;font-weight:800;color:#059669;">
+                        <td class="text-right font-extrabold text-success">
                             {{ $row['formatted_subtotal'] }}
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="6" style="text-align:center;padding:30px;color:var(--muted,#94a3b8);">Belum ada log sesi mengajar terverifikasi.</td>
+                    <tr >
+                        <td colspan="6" class="text-center p-4 text-muted">Belum ada log sesi mengajar terverifikasi.</td>
                     </tr>
                     @endforelse
                 </tbody>

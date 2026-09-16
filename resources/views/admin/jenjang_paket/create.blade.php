@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="pageHeaderRow">
-        <div>
-            <h2 style="margin:0;">Tambah Jenjang &amp; Program Paket</h2>
-            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Daftarkan jenjang pendidikan kesetaraan atau program kejuruan baru</p>
+        <div >
+            <h2 class="mb-0 mt-0">Tambah Jenjang &amp; Program Paket</h2>
+            <p class="mt-1 text-sm text-muted">Daftarkan jenjang pendidikan kesetaraan atau program kejuruan baru</p>
         </div>
         <a class="btnOutline" href="{{ route('admin.jenjang-paket.index') }}">
             Kembali
@@ -14,9 +14,9 @@
     @if ($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul>
+            <ul >
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li >{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
@@ -27,14 +27,14 @@
             @csrf
 
             <div class="form-field-wrapper">
-                <label class="form-field-label">Nama Jenjang / Program <span style="color:#ef4444;">*</span></label>
+                <label class="form-field-label">Nama Jenjang / Program <span class="text-danger">*</span></label>
                 <input class="profileInput" type="text" name="nama_jenjang" id="nama_jenjang" value="{{ old('nama_jenjang') }}" placeholder="Contoh: Paket A (Setara SD) atau Vokasi Tata Boga" required oninput="autoGenerateKode()" />
             </div>
 
             <div class="form-field-wrapper">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                    <label class="form-field-label" style="margin:0;">Kode Sistem (Unique ID) <span style="color:#ef4444;">*</span></label>
-                    <span style="font-size:10.5px;color:var(--muted);">Format: huruf_kecil_dan_underscore</span>
+                <div class="flex-between mb-1">
+                    <label class="form-field-label mb-0 mt-0">Kode Sistem (Unique ID) <span class="text-danger">*</span></label>
+                    <span class="text-xs text-muted">Format: huruf_kecil_dan_underscore</span>
                 </div>
                 <input class="profileInput" type="text" name="kode" id="kode" value="{{ old('kode') }}" placeholder="Contoh: paket_a atau vokasi_tata_boga" required />
             </div>
@@ -52,26 +52,26 @@
 
             <div class="form-field-wrapper">
                 <label class="form-field-label">Keterangan / Deskripsi Program</label>
-                <textarea class="profileInput" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi">{{ old('keterangan') }}</textarea>
+                <textarea name="keterangan" rows="2" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi" class="profileInput h-auto p-2">{{ old('keterangan') }}</textarea>
             </div>
 
             <div class="form-field-wrapper">
                 <div class="checkbox-toggle-card">
                     <label class="checkbox-label">
-                        <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', true) ? 'checked' : '' }} style="width:16px;height:16px;" />
+                        <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', true) ? 'checked' : '' }} class="w-auto" />
                         Status Aktif (dapat dipilih di form kelas)
                     </label>
                 </div>
             </div>
 
-            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
+            <button type="submit" class="profileBtnPrimary mt-3">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan Master Jenjang
             </button>
         </form>
     </div>
 
-    <script>
+    <script >
         function autoGenerateKode() {
             const nama = document.getElementById('nama_jenjang').value;
             const kodeInput = document.getElementById('kode');

@@ -11,12 +11,12 @@
             {{-- Ringkasan Hari Ini --}}
             <div class="sectionTitleRow">
                 <div class="sectionTitleWrap">
-                    <h2>Ringkasan Hari ini</h2>
+                    <h2 >Ringkasan Hari ini</h2>
                     <span class="sectionSubtitle">Rekapitulasi presensi bimbingan & tutor</span>
                 </div>
                 <div class="badgeDate">
                     <ion-icon name="calendar-outline"></ion-icon>
-                    <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+                    <span >{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
                 </div>
             </div>
 
@@ -49,11 +49,11 @@
                     {{-- Statistik Mingguan --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <h2>
-                                <ion-icon name="bar-chart-outline" style="color:var(--blue2);"></ion-icon>
-                                <span>Statistik Mingguan</span>
+                            <h2 >
+                                <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon>
+                                <span >Statistik Mingguan</span>
                             </h2>
-                            <span class="badgeDate" style="font-size: 10px; padding: 4px 10px;">7 Hari Terakhir</span>
+                            <span class="badgeDate text-xs px-2 py-1">7 Hari Terakhir</span>
                         </div>
 
                         <div class="barChart">
@@ -83,14 +83,14 @@
                     {{-- Aktivitas Terbaru --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <h2>
-                                <ion-icon name="pulse-outline" style="color:var(--blue2);"></ion-icon>
-                                <span>Aktivitas Presensi Terbaru</span>
+                            <h2 >
+                                <ion-icon name="pulse-outline" class="text-primary"></ion-icon>
+                                <span >Aktivitas Presensi Terbaru</span>
                             </h2>
                             <a class="mutedLink" href="{{ route('admin.laporan.index') }}">Lihat Semua &rsaquo;</a>
                         </div>
 
-                        <div class="activityList" style="padding: 0; margin-top: 8px;">
+                        <div class="activityList p-0 mt-2">
                             @forelse($latest as $item)
                                 @php
                                     $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
@@ -101,17 +101,17 @@
                                     $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
                                     $jam = (string) ($item->jam_mulai ?? '');
                                 @endphp
-                                <div class="activityRow" style="margin-bottom: 8px;">
+                                <div class="activityRow mb-2">
                                     <div class="activityLeft">
                                         <div class="activityAvatar">
                                             @if ($item->tutor->foto ?? null)
                                                 <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
-                                                    style="width:100%;height:100%;object-fit:cover;" />
+                                                    class="w-full h-full object-cover" />
                                             @else
                                                 {{ $initial }}
                                             @endif
                                         </div>
-                                        <div style="min-width:0;">
+                                        <div class="min-w-0">
                                             <div class="activityName">{{ $tutorName }}</div>
                                             <div class="activityMeta">
                                                 {{ $siswaName }} {{ $jam ? ' · ' . $jam : '' }}
@@ -124,7 +124,7 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="emptyState" style="margin: 0; padding: 24px 16px;">Belum ada data presensi terbaru.</div>
+                                <div class="emptyState m-0 p-4">Belum ada data presensi terbaru.</div>
                             @endforelse
                         </div>
                     </div>

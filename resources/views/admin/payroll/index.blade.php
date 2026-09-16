@@ -11,33 +11,33 @@
     {{-- ── Page Header ── --}}
     <div class="payroll-header">
         <div class="payroll-title-box">
-            <span style="font-size:11px;font-weight:800;letter-spacing:1px;color:#059669;text-transform:uppercase;">Laporan Keuangan &amp; Payroll</span>
-            <h2>Rekapitulasi Penggajian &amp; Honorarium Tutor</h2>
-            <p>Kalkulasi honorarium mengajar terverifikasi berbasis Master Tarif SK, durasi sesi KBM, dan anggaran bulanan lembaga.</p>
+            <span class="text-xs font-extrabold text-success text-uppercase letter-spacing-sm">Laporan Keuangan &amp; Payroll</span>
+            <h2 >Rekapitulasi Penggajian &amp; Honorarium Tutor</h2>
+            <p >Kalkulasi honorarium mengajar terverifikasi berbasis Master Tarif SK, durasi sesi KBM, dan anggaran bulanan lembaga.</p>
         </div>
 
         <div class="payroll-actions">
-            <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline" style="padding:9px 14px;display:inline-flex;align-items:center;gap:6px;font-size:12px;text-decoration:none;font-weight:700;">
-                <ion-icon name="bar-chart-outline" style="font-size:16px;color:#0284c7;"></ion-icon> Log Presensi KBM
+            <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline" class="btn-emerald-sm">
+                <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
             </a>
-            <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:9px 14px;background:#16a34a;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-                <ion-icon name="document-outline" style="font-size:16px;"></ion-icon> Export Excel
+            <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm bg-success">
+                <ion-icon name="document-outline" class="icon-sm"></ion-icon> Export Excel
             </a>
-            <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" style="padding:9px 14px;background:#0284c7;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-                <ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> Export PDF
+            <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm bg-primary">
+                <ion-icon name="document-text-outline" class="icon-sm"></ion-icon> Export PDF
             </a>
             @if($rolePrefix === 'admin')
-            <a href="{{ route('admin.kategori-tutorial.index') }}" class="btnPrimary" style="padding:9px 14px;background:#7c3aed;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
-                <ion-icon name="options-outline" style="font-size:16px;"></ion-icon> Master Tarif SK
+            <a href="{{ route('admin.kategori-tutorial.index') }}" class="btnPrimary text-sm font-bold d-inline-flex items-center gap-1 btn-emerald-sm bg-purple">
+                <ion-icon name="options-outline" class="icon-sm"></ion-icon> Master Tarif SK
             </a>
             @endif
             @if($rolePrefix === 'admin')
-            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" style="display:inline;">
+            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" class="d-inline">
                 @csrf
                 <input type="hidden" name="bulan" value="{{ $bulan }}">
                 <input type="hidden" name="tahun" value="{{ $tahun }}">
-                <button type="submit" class="btnPrimary" style="padding:9px 14px;background:#8b5cf6;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;border:none;cursor:pointer;">
-                    <ion-icon name="notifications-outline" style="font-size:16px;"></ion-icon> Umumkan ke Tutor
+                <button type="submit" class="btnPrimary text-sm font-bold d-inline-flex items-center gap-1 border-none cursor-pointer btn-emerald-sm bg-purple-light">
+                    <ion-icon name="notifications-outline" class="icon-sm"></ion-icon> Umumkan ke Tutor
                 </button>
             </form>
             @endif
@@ -67,9 +67,9 @@
                 </select>
             </div>
 
-            <div>
-                <button type="submit" class="btnOutline" style="padding:9px 16px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;height:38px;">
-                    <ion-icon name="funnel-outline" style="vertical-align:middle;margin-right:3px;"></ion-icon> Terapkan Filter
+            <div >
+                <button type="submit" class="btnOutline rounded-md font-bold text-md cursor-pointer px-3 py-2 h-9">
+                    <ion-icon name="funnel-outline" class="align-middle mr-1"></ion-icon> Terapkan Filter
                 </button>
             </div>
         </form>
@@ -84,7 +84,7 @@
                     <ion-icon name="wallet"></ion-icon>
                 </div>
             </div>
-            <div>
+            <div >
                 <div class="kpi-val">{{ $summary['formatted_total_anggaran'] }}</div>
                 <div class="kpi-sub">Periode {{ $summary['periode_label'] }}</div>
             </div>
@@ -97,7 +97,7 @@
                     <ion-icon name="time"></ion-icon>
                 </div>
             </div>
-            <div>
+            <div >
                 <div class="kpi-val">{{ $summary['total_jam_global'] }} Jam</div>
                 <div class="kpi-sub">{{ $summary['total_sesi_global'] }} Total Sesi Terverifikasi</div>
             </div>
@@ -110,7 +110,7 @@
                     <ion-icon name="people"></ion-icon>
                 </div>
             </div>
-            <div>
+            <div >
                 <div class="kpi-val">{{ $summary['total_tutor'] }} Tutor</div>
                 <div class="kpi-sub">Terdaftar Aktif di PKBM Pikat</div>
             </div>
@@ -121,43 +121,43 @@
     <div class="table-container">
         <div class="table-header-bar">
             <div class="table-header-title">
-                <ion-icon name="list-outline" style="font-size:18px;color:#0284c7;"></ion-icon>
+                <ion-icon name="list-outline" class="text-primary"></ion-icon>
                 Daftar Honorarium Tutor — Periode {{ $summary['periode_label'] }}
             </div>
-            <div style="font-size:12px;font-weight:700;color:var(--muted,#64748b);">
+            <div class="text-sm font-bold text-muted">
                 Menampilkan {{ count($summary['payrolls']) }} Tutor
             </div>
         </div>
 
         {{-- Desktop Table --}}
-        <div class="table-responsive-desktop" style="overflow-x:auto;">
+        <div class="table-responsive-desktop overflow-x-auto">
             <table class="modern-table">
-                <thead>
-                    <tr>
-                        <th style="width:40px;text-align:center;">No</th>
-                        <th>Nama Tutor &amp; Identitas</th>
-                        <th style="text-align:center;">Sesi Hadir</th>
-                        <th style="text-align:center;">Izin / Sakit</th>
-                        <th style="text-align:center;">Total Jam</th>
-                        <th style="text-align:right;">Total Honorarium</th>
-                        <th style="text-align:right;width:140px;">Aksi</th>
+                <thead >
+                    <tr >
+                        <th  class="text-center w-10">No</th>
+                        <th >Nama Tutor &amp; Identitas</th>
+                        <th class="text-center">Sesi Hadir</th>
+                        <th class="text-center">Izin / Sakit</th>
+                        <th class="text-center">Total Jam</th>
+                        <th class="text-right">Total Honorarium</th>
+                        <th  class="text-right min-w-140">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($summary['payrolls'] as $idx => $p)
-                    <tr>
-                        <td style="text-align:center;color:var(--muted,#64748b);font-weight:700;">{{ $idx + 1 }}</td>
-                        <td>
-                            <strong style="color:var(--text,#0f172a);display:block;font-size:14px;">{{ $p['tutor']->nama_lengkap }}</strong>
-                            <span style="font-size:11px;color:var(--muted,#64748b);">NIK: {{ $p['tutor']->nik }}</span>
+                    <tr >
+                        <td class="text-center text-muted font-bold">{{ $idx + 1 }}</td>
+                        <td >
+                            <strong class="text-dark d-block text-md">{{ $p['tutor']->nama_lengkap }}</strong>
+                            <span class="text-xs text-muted">NIK: {{ $p['tutor']->nik }}</span>
                         </td>
-                        <td style="text-align:center;">
+                        <td class="text-center">
                             <span class="badge-chip hadir">{{ $p['total_sesi_hadir'] }} sesi</span>
                         </td>
-                        <td style="text-align:center;">
+                        <td class="text-center">
                             <span class="badge-chip izin">{{ $p['total_izin_sakit'] }} hari</span>
                         </td>
-                        <td style="text-align:center;">
+                        <td class="text-center">
                             @php
                                 $startDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
                                 $endDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
@@ -169,24 +169,24 @@
                                 {{ $p['total_jam'] }} Jam <ion-icon name="open-outline"></ion-icon>
                             </a>
                         </td>
-                        <td style="text-align:right;font-weight:800;color:#059669;font-size:14px;">
+                        <td class="text-right font-extrabold text-success text-md">
                             {{ $p['formatted_total_honor'] }}
                         </td>
-                        <td style="text-align:right;">
-                            <div style="display:flex;gap:6px;justify-content:flex-end;">
-                                <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" style="padding:6px 10px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:3px;" title="Lihat rincian per siswa">
+                        <td class="text-right">
+                            <div class="d-flex gap-1 justify-end">
+                                <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" class="px-2 py-1 text-xs font-bold d-inline-flex items-center gap-1" title="Lihat rincian per siswa">
                                     <ion-icon name="eye-outline"></ion-icon> Detail
                                 </a>
-                                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" style="padding:6px 10px;font-size:11px;font-weight:700;background:#059669;color:#fff;display:inline-flex;align-items:center;gap:3px;" title="Unduh Slip Gaji PDF">
+                                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" class="btn-emerald-sm px-2 py-1 text-xs" title="Unduh Slip Gaji PDF">
                                     <ion-icon name="download-outline"></ion-icon> Slip
                                 </a>
                             </div>
                         </td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="7" style="text-align:center;padding:40px 20px;color:var(--muted,#94a3b8);">
-                            <ion-icon name="wallet-outline" style="font-size:36px;display:block;margin:0 auto 8px;opacity:0.5;"></ion-icon>
+                    <tr >
+                        <td colspan="7" class="text-center text-muted p-4">
+                            <ion-icon name="wallet-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>
                             Belum ada data presensi/honorarium untuk periode ini.
                         </td>
                     </tr>
@@ -207,50 +207,50 @@
                 @endphp
                 <div class="payroll-mobile-card">
                     <div class="pmc-header">
-                        <div>
+                        <div >
                             <h4 class="pmc-name">{{ $p['tutor']->nama_lengkap }}</h4>
                             <div class="pmc-nik">NIK: {{ $p['tutor']->nik }}</div>
                         </div>
-                        <span style="font-size:11px;font-weight:700;color:var(--muted,#94a3b8);">#{{ $idx + 1 }}</span>
+                        <span class="text-xs font-bold text-muted">#{{ $idx + 1 }}</span>
                     </div>
 
                     <div class="pmc-stats">
                         <div class="pmc-stat-item">
-                            <div class="val" style="color:#059669;">{{ $p['total_sesi_hadir'] }}</div>
+                            <div class="val text-success">{{ $p['total_sesi_hadir'] }}</div>
                             <div class="lbl">Hadir</div>
                         </div>
                         <div class="pmc-stat-item">
-                            <div class="val" style="color:#64748b;">{{ $p['total_izin_sakit'] }}</div>
+                            <div class="val text-muted">{{ $p['total_izin_sakit'] }}</div>
                             <div class="lbl">Izin/Sakit</div>
                         </div>
                         <div class="pmc-stat-item">
-                            <a href="{{ $logPresensiUrl }}" style="text-decoration:none;" title="Lihat log presensi">
-                                <div class="val" style="color:#0284c7;display:flex;align-items:center;justify-content:center;gap:2px;">
-                                    {{ $p['total_jam'] }} J <ion-icon name="open-outline" style="font-size:10px;"></ion-icon>
+                            <a href="{{ $logPresensiUrl }}" class="text-no-decor" title="Lihat log presensi">
+                                <div class="val d-flex items-center justify-center gap-1 text-primary">
+                                    {{ $p['total_jam'] }} J <ion-icon name="open-outline" class="text-xs"></ion-icon>
                                 </div>
-                                <div class="lbl" style="color:#0284c7;">Jam</div>
+                                <div class="lbl text-primary">Jam</div>
                             </a>
                         </div>
                     </div>
 
                     <div class="pmc-footer">
-                        <div>
+                        <div >
                             <div class="pmc-honor-label">Take-Home Pay</div>
                             <div class="pmc-honor-val">{{ $p['formatted_total_honor'] }}</div>
                         </div>
-                        <div style="display:flex;gap:6px;">
-                            <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" style="padding:6px 12px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px;">
+                        <div class="d-flex gap-1">
+                            <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit" class="px-3 py-1 text-sm font-bold d-inline-flex items-center gap-1">
                                 <ion-icon name="eye-outline"></ion-icon> Rincian
                             </a>
-                            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" style="padding:6px 12px;font-size:12px;font-weight:700;background:#059669;color:#fff;display:inline-flex;align-items:center;gap:4px;">
+                            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn" class="btn-emerald-sm">
                                 <ion-icon name="download-outline"></ion-icon> PDF
                             </a>
                         </div>
                     </div>
                 </div>
             @empty
-                <div style="text-align:center;padding:32px 16px;color:var(--muted,#94a3b8);">
-                    <ion-icon name="wallet-outline" style="font-size:36px;display:block;margin:0 auto 8px;opacity:0.5;"></ion-icon>
+                <div class="text-center table-empty-cell text-muted">
+                    <ion-icon name="wallet-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>
                     Belum ada data honorarium untuk periode ini.
                 </div>
             @endforelse

@@ -21,12 +21,12 @@
 {{-- ── HEADER HALAMAN IZIN ── --}}
 <div class="sectionTitleRow">
     <div class="sectionTitleWrap">
-        <h2>Pengajuan Izin &amp; Sakit</h2>
+        <h2 >Pengajuan Izin &amp; Sakit</h2>
         <span class="sectionSubtitle">Formulir izin ketidakhadiran &amp; riwayat persetujuan</span>
     </div>
     <div class="badgeDate">
         <ion-icon name="calendar-outline"></ion-icon>
-        <span>{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+        <span >{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
     </div>
 </div>
 
@@ -35,11 +35,11 @@
     <div class="tabBar">
         <button class="tabBtn active" id="tabForm" onclick="switchTab('form', this)">
             <ion-icon name="add-circle-outline"></ion-icon>
-            <span>Ajukan Izin</span>
+            <span >Ajukan Izin</span>
         </button>
         <button class="tabBtn" id="tabRiwayat" onclick="switchTab('riwayat', this)">
             <ion-icon name="time-outline"></ion-icon>
-            <span>Riwayat ({{ $riwayat->count() }})</span>
+            <span >Riwayat ({{ $riwayat->count() }})</span>
         </button>
     </div>
 
@@ -48,20 +48,20 @@
 
         @if($errors->any())
         <div class="errorBox">
-            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-                <ion-icon name="alert-circle-outline" style="font-size:18px;"></ion-icon>
-                <strong>Terdapat kesalahan pada input Anda:</strong>
+            <div class="d-flex items-center gap-1 mb-1">
+                <ion-icon name="alert-circle-outline" class="icon-md"></ion-icon>
+                <strong >Terdapat kesalahan pada input Anda:</strong>
             </div>
-            <ul>
+            <ul >
                 @foreach($errors->all() as $e)
-                    <li>{{ $e }}</li>
+                    <li >{{ $e }}</li>
                 @endforeach
             </ul>
         </div>
         @endif
 
         <div class="izinFormCard">
-            <form action="{{ route('tutor.pengajuan-izin.store') }}" method="POST" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:18px;">
+            <form action="{{ route('tutor.pengajuan-izin.store') }}" method="POST" enctype="multipart/form-data" class="d-flex flex-col gap-4">
                 @csrf
 
                 <div class="formGroup">
@@ -99,7 +99,7 @@
 
                 <div class="formGroup">
                     <label class="formLabel" for="dokumen_surat">
-                        Unggah Dokumen / Surat Bukti <span style="font-size:11px;color:var(--muted);font-weight:600;">(Opsional)</span>
+                        Unggah Dokumen / Surat Bukti <span class="text-xs text-muted font-semibold">(Opsional)</span>
                     </label>
                     <div class="fileUploadBox">
                         <input type="file" name="dokumen_surat" id="dokumen_surat" accept=".pdf,.jpg,.jpeg,.png" onchange="handleFileSelected(this, 'izinDocFeedback')">
@@ -115,9 +115,9 @@
                     <div id="izinDocFeedback" class="fileUploadFeedback"></div>
                 </div>
 
-                <button type="submit" class="submitBtn" style="margin-top:6px;">
+                <button type="submit" class="submitBtn mt-1">
                     <ion-icon name="send-outline"></ion-icon>
-                    <span>Kirim Pengajuan Izin</span>
+                    <span >Kirim Pengajuan Izin</span>
                 </button>
             </form>
         </div>
@@ -130,9 +130,9 @@
         @if($riwayat->isEmpty())
         <div class="emptyLL">
             <ion-icon name="folder-open-outline"></ion-icon>
-            <p style="margin: 0; font-weight: 700;">Belum ada riwayat pengajuan izin/sakit.</p>
-            <button type="button" class="btnOutline" onclick="switchTab('form', document.getElementById('tabForm'))" style="margin-top: 8px;">
-                <span>Buat Pengajuan Baru</span>
+            <p class="m-0 font-bold">Belum ada riwayat pengajuan izin/sakit.</p>
+            <button type="button" onclick="switchTab('form', document.getElementById('tabForm'))" class="btnOutline mt-2">
+                <span >Buat Pengajuan Baru</span>
             </button>
         </div>
         @else
@@ -140,13 +140,13 @@
             @foreach($riwayat as $r)
             <div class="izinCard">
                 <div class="izinCardHeader">
-                    <div>
+                    <div >
                         <span class="pill {{ $r->jenis === 'sakit' ? 'sakit' : 'izin' }}">
                             {{ strtoupper($r->jenis_label) }}
                         </span>
                         <div class="izinDateTitle">
-                            <ion-icon name="calendar-outline" style="color:var(--blue2);"></ion-icon>
-                            <span>
+                            <ion-icon name="calendar-outline" class="text-primary"></ion-icon>
+                            <span >
                                 {{ \Carbon\Carbon::parse($r->tgl_mulai)->translatedFormat('d M Y') }}
                                 @if($r->tgl_mulai !== $r->tgl_selesai)
                                     — {{ \Carbon\Carbon::parse($r->tgl_selesai)->translatedFormat('d M Y') }}
@@ -155,7 +155,7 @@
                         </div>
                     </div>
 
-                    <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+                    <div class="text-right d-flex flex-col items-end gap-1">
                         @if($r->status === 'pending')
                             <span class="pill pending">MENUNGGU</span>
                             <form action="{{ route('tutor.pengajuan-izin.destroy', $r->id) }}" method="POST"
@@ -167,7 +167,7 @@
                                 @method('DELETE')
                                 <button type="submit" class="deleteBtn" title="Batalkan Pengajuan">
                                     <ion-icon name="trash-outline"></ion-icon>
-                                    <span>Batalkan</span>
+                                    <span >Batalkan</span>
                                 </button>
                             </form>
                         @elseif($r->status === 'disetujui')
@@ -179,24 +179,24 @@
                 </div>
 
                 <div class="izinAlasan">
-                    <div style="font-size:10.5px; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:3px; letter-spacing:0.3px;">
+                    <div  class="text-xs font-extrabold text-uppercase text-muted mb-1 letter-spacing-sm">
                         Alasan / Keterangan:
                     </div>
                     {{ $r->alasan }}
                 </div>
 
                 @if($r->dokumen_url)
-                    <div style="margin-top:10px;">
+                    <div class="mt-2">
                         <a href="{{ $r->dokumen_url }}" target="_blank" class="izinDocBtn">
                             <ion-icon name="document-attach-outline"></ion-icon>
-                            <span>Lihat Dokumen Surat Bukti</span>
+                            <span >Lihat Dokumen Surat Bukti</span>
                         </a>
                     </div>
                 @endif
 
                 @if($r->catatan_verifikasi)
                     <div class="izinCatatan">
-                        <strong style="color:var(--blue2);">Catatan Verifikasi:</strong> {{ $r->catatan_verifikasi }}
+                        <strong class="text-primary">Catatan Verifikasi:</strong> {{ $r->catatan_verifikasi }}
                     </div>
                 @endif
             </div>
@@ -207,7 +207,7 @@
     </div>
 </div>
 
-<script>
+<script >
 function switchTab(tab, btn) {
     document.querySelectorAll('.tabBtn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tabPanel').forEach(p => p.classList.remove('active'));
@@ -226,7 +226,7 @@ function handleFileSelected(input, feedbackId) {
     if (input.files && input.files[0]) {
         const file = input.files[0];
         const sizeKb = Math.round(file.size / 1024);
-        feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+        feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span >' + file.name + ' (' + sizeKb + ' KB)</span>';
         feedback.style.display = 'flex';
     } else {
         feedback.style.display = 'none';

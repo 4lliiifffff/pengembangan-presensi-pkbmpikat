@@ -25,7 +25,7 @@
             <div class="statLabel">Total Pengajuan</div>
         </div>
         <div class="statCard">
-            <div class="statNum" style="color: #f59e0b;">{{ $totalPending ?? 0 }}</div>
+            <div class="statNum text-warning">{{ $totalPending ?? 0 }}</div>
             <div class="statLabel">Menunggu Verifikasi</div>
         </div>
         <div class="statCard">
@@ -53,7 +53,7 @@
                     <input type="date" name="tanggal" class="profileInput" value="{{ request('tanggal') }}">
                 </div>
 
-                <div class="filterField" style="grid-column: span 2;">
+                <div class="filterField grid-span-2">
                     <label class="filterFieldLabel">Cari Tutor / Siswa</label>
                     <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}" placeholder="Nama tutor atau siswa...">
                 </div>
@@ -74,7 +74,7 @@
 
     {{-- ── Section Title ── --}}
     <div class="sectionRow">
-        <h2>Daftar Permohonan</h2>
+        <h2 >Daftar Permohonan</h2>
         <span class="badgeCount">{{ $items->total() }} Data</span>
     </div>
 
@@ -93,8 +93,8 @@
             <div class="kllCard">
                 {{-- Header Card --}}
                 <div class="kllCardStrip">
-                    <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
-                        <div class="tutorAvatar" style="width: 36px; height: 36px; font-size: 12.5px;">{{ $initials }}</div>
+                    <div class="d-flex items-center gap-2 min-w-0 flex-1">
+                        <div class="tutorAvatar text-sm avatar-icon-36">{{ $initials }}</div>
                         <div class="kllTutorInfo">
                             <div class="kllTutorName">{{ $tutorNama }}</div>
                             <div class="kllTutorId">
@@ -102,7 +102,7 @@
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div >
                         @if($status === 'disetujui')
                             <span class="badgeStatus disetujui">
                                 <ion-icon name="checkmark-circle-outline"></ion-icon> DISETUJUI
@@ -126,7 +126,7 @@
                             <div class="kllSiswaLabel">Siswa yang Diajar:</div>
                             <div class="kllSiswaVal">{{ $siswaNama }}</div>
                             <div class="kllJamBox">
-                                <span>Jam KBM:</span>
+                                <span >Jam KBM:</span>
                                 <span class="kllJamChip">{{ $jMulai }} - {{ $jSelesai }} WIB</span>
                             </div>
                         </div>
@@ -136,8 +136,8 @@
                         <div class="kllAlasanLbl">Alasan Lupa Lapor:</div>
                         <div class="kllAlasanTxt">{{ $item->alasan }}</div>
                         @if($item->catatan_kepsek)
-                            <div style="margin-top:8px; border-top:1px dashed var(--border); padding-top:6px; font-size:11.5px; color:var(--blue2);">
-                                <strong>Catatan Respon:</strong> {{ $item->catatan_kepsek }}
+                            <div  class="mt-2 text-sm text-primary border-t-dashed pt-1">
+                                <strong >Catatan Respon:</strong> {{ $item->catatan_kepsek }}
                             </div>
                         @endif
                     </div>
@@ -145,16 +145,16 @@
                     {{-- Actions --}}
                     <div class="kllActions">
                         @if($status === 'pending')
-                            <form method="POST" action="{{ route('kepsek.lupa-lapor.setujui', $item->id) }}" style="flex:1;" data-confirm="Setujui permohonan lupa lapor ini? Presensi mengajar tutor akan otomatis dicatat." data-confirm-title="Setujui Lupa Lapor" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
+                            <form method="POST" action="{{ route('kepsek.lupa-lapor.setujui', $item->id) }}" class="flex-1" data-confirm="Setujui permohonan lupa lapor ini? Presensi mengajar tutor akan otomatis dicatat." data-confirm-title="Setujui Lupa Lapor" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="profileBtnPrimary" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#16a34a;">
+                                <button type="submit" class="profileBtnPrimary w-full text-sm rounded-md btn-success-h38">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Setujui
                                 </button>
                             </form>
 
-                            <form method="POST" action="{{ route('kepsek.lupa-lapor.tolak', $item->id) }}" style="flex:1;" data-confirm="Apakah Anda yakin ingin menolak permohonan lupa lapor ini?" data-confirm-title="Tolak Lupa Lapor" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
+                            <form method="POST" action="{{ route('kepsek.lupa-lapor.tolak', $item->id) }}" class="flex-1" data-confirm="Apakah Anda yakin ingin menolak permohonan lupa lapor ini?" data-confirm-title="Tolak Lupa Lapor" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="profileBtnDanger" style="width:100%; height:38px; font-size:12px; border-radius:10px; background:#ef4444; color:#fff;">
+                                <button type="submit" class="profileBtnDanger w-full text-sm rounded-md text-white btn-danger-h38">
                                     <ion-icon name="close-circle-outline"></ion-icon> Tolak
                                 </button>
                             </form>
@@ -162,7 +162,7 @@
 
                         <form method="POST" action="{{ route('kepsek.lupa-lapor.destroy', $item->id) }}" data-confirm="Hapus permanen arsip pengajuan ini?" data-confirm-title="Hapus Arsip Pengajuan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                             @csrf @method('DELETE')
-                            <button type="submit" class="profileBtnDanger" style="height:38px; padding:0 12px; font-size:12px; border-radius:10px; width:auto;" title="Hapus Data">
+                            <button type="submit" title="Hapus Data" class="profileBtnDanger text-sm rounded-md w-auto px-3 text-sm">
                                 <ion-icon name="trash-outline"></ion-icon>
                             </button>
                         </form>

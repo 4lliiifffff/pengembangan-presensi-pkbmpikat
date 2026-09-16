@@ -24,10 +24,10 @@
 
     {{-- Header & Statistik (Tanpa Icon Dekoratif) --}}
     <div class="riwayatHeaderCard">
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap;">
-            <div>
-                <h2 style="margin: 0; font-size: 17px; font-weight: 800; color: var(--text);">Riwayat Presensi</h2>
-                <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Periode {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</p>
+        <div class="d-flex justify-between items-start gap-2 flex-wrap">
+            <div >
+                <h2 class="m-0 text-xl font-extrabold text-dark">Riwayat Presensi</h2>
+                <p class="mt-1 text-sm text-muted">Periode {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</p>
             </div>
         </div>
 
@@ -35,25 +35,25 @@
         <div class="riwayatStatsGrid">
             <div class="riwayatStatCard">
                 <div class="riwayatStatLabel">Total Hadir</div>
-                <div class="riwayatStatValue">{{ $hadir }} <span style="font-size: 12px; font-weight: 600; color: var(--muted);">Hari</span></div>
+                <div class="riwayatStatValue">{{ $hadir }} <span class="text-sm font-semibold text-muted">Hari</span></div>
             </div>
             <div class="riwayatStatCard">
                 <div class="riwayatStatLabel">Total Izin</div>
-                <div class="riwayatStatValue">{{ $izin }} <span style="font-size: 12px; font-weight: 600; color: var(--muted);">Hari</span></div>
+                <div class="riwayatStatValue">{{ $izin }} <span class="text-sm font-semibold text-muted">Hari</span></div>
             </div>
             <div class="riwayatStatCard">
                 <div class="riwayatStatLabel">Persentase</div>
-                <div class="riwayatStatValue" style="color: #16a34a;">{{ $persentase }}%</div>
+                <div class="riwayatStatValue text-success">{{ $persentase }}%</div>
             </div>
         </div>
 
         <!-- FILTER TANGGAL & STATUS -->
         <form action="{{ route('tutor.riwayat') }}" method="GET" class="riwayatFilterForm">
-            <div>
-                <input type="date" name="tanggal" value="{{ $selectedDate }}" onchange="this.form.submit()" class="profileInput" style="height: 40px; font-size: 12.5px;">
+            <div >
+                <input type="date" name="tanggal" value="{{ $selectedDate }}" onchange="this.form.submit()" class="profileInput text-sm">
             </div>
-            <div>
-                <select name="status" onchange="this.form.submit()" class="profileInput" style="height: 40px; font-size: 12.5px;">
+            <div >
+                <select name="status" onchange="this.form.submit()" class="profileInput text-sm">
                     <option value="">Semua Status</option>
                     <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir Lengkap</option>
                     <option value="proses" {{ $statusFilter === 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
@@ -87,7 +87,7 @@
 
             <div class="riwayatCard">
                 <div class="riwayatCardHeader">
-                    <div>
+                    <div >
                         <div class="riwayatDateTitle">{{ $hari }}</div>
                         <div class="riwayatDateSub">Sesi Mengajar • {{ $p->siswa?->nama_siswa ?? 'Siswa' }}</div>
                     </div>
@@ -99,8 +99,8 @@
                 <div class="riwayatTimeGrid">
                     <div class="riwayatTimeBox">
                         <div class="riwayatTimeLabel">Jam Masuk</div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="riwayatTimeVal" style="color: #0284c7;">{{ $masuk }} WIB</span>
+                        <div class="flex-items-center gap-2">
+                            <span class="riwayatTimeVal text-primary">{{ $masuk }} WIB</span>
                             @if($p->foto_mulai)
                                 <img src="{{ asset($p->foto_mulai) }}" onclick="openRiwayatModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Masuk" title="Klik untuk perbesar">
                             @endif
@@ -109,8 +109,8 @@
 
                     <div class="riwayatTimeBox">
                         <div class="riwayatTimeLabel">Jam Pulang</div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <span class="riwayatTimeVal" style="color: {{ $p->jam_selesai ? '#16a34a' : 'var(--muted)' }};">{{ $keluar }} {{ $p->jam_selesai ? 'WIB' : '' }}</span>
+                        <div class="flex-items-center gap-2">
+                            <span  class="riwayatTimeVal {{ $p->jam_selesai ? 'text-success' : 'text-muted' }}">{{ $keluar }} {{ $p->jam_selesai ? 'WIB' : '' }}</span>
                             @if($p->foto_selesai)
                                 <img src="{{ asset($p->foto_selesai) }}" onclick="openRiwayatModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Pulang" title="Klik untuk perbesar">
                             @endif
@@ -127,7 +127,7 @@
     </div>
 
     @if($items->hasPages())
-        <div style="margin-top: 16px;">
+        <div class="mt-4">
             {{ $items->links() }}
         </div>
     @endif
@@ -136,20 +136,20 @@
 
 {{-- Modal Preview Foto --}}
 <div id="riwayatPhotoModal" class="app-modal-backdrop">
-    <div class="app-modal-card" style="max-width: 460px; padding: 0; overflow: hidden;">
-        <div class="app-modal-header" style="padding: 14px 18px; margin-bottom: 0; border-bottom: 1px solid var(--border);">
-            <h4 id="riwayatModalTitle" class="app-modal-title" style="font-size: 14px;">Foto Presensi</h4>
+    <div class="app-modal-card p-0 overflow-hidden max-w-md">
+        <div class="app-modal-header p-3 mb-0 table-body-row">
+            <h4 id="riwayatModalTitle" class="app-modal-title text-md">Foto Presensi</h4>
             <button type="button" onclick="closeRiwayatModal()" class="app-modal-close">
                 <ion-icon name="close-circle-outline"></ion-icon>
             </button>
         </div>
-        <div style="padding: 14px; text-align: center; background: #0f172a;">
-            <img id="riwayatModalImg" src="" alt="Foto" style="max-width: 100%; max-height: 65vh; border-radius: 12px; object-fit: contain;">
+        <div class="p-3 text-center bg-dark">
+            <img id="riwayatModalImg" src="" alt="Foto" class="rounded-lg object-contain modal-preview-img">
         </div>
     </div>
 </div>
 
-<script>
+<script >
     function openRiwayatModal(url, title) {
         document.getElementById('riwayatModalImg').src = url;
         document.getElementById('riwayatModalTitle').innerText = title || 'Foto Presensi';

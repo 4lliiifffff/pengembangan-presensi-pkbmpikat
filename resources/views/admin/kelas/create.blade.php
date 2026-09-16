@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="pageHeaderRow">
-        <div>
-            <h2 style="margin:0;">Tambah Kelas Baru</h2>
-            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Daftarkan rombongan belajar atau kelas program kesetaraan/vokasi</p>
+        <div >
+            <h2 class="mb-0 mt-0">Tambah Kelas Baru</h2>
+            <p class="mt-1 text-sm text-muted">Daftarkan rombongan belajar atau kelas program kesetaraan/vokasi</p>
         </div>
         <a class="btnOutline" href="{{ route('admin.kelas.index') }}">
             Kembali
@@ -14,9 +14,9 @@
     @if ($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul>
+            <ul >
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li >{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
@@ -27,10 +27,10 @@
             @csrf
 
             {{-- Banner Edukasi Arsitektur Rombel & Paket --}}
-            <div class="info-callout-box" style="margin-top: 0; margin-bottom: 20px;">
+            <div class="info-callout-box mt-0 mb-4">
                 <div class="info-callout-title">
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <ion-icon name="layers-outline" style="font-size:16px;"></ion-icon>
+                    <div class="d-flex items-center gap-1">
+                        <ion-icon name="layers-outline" class="icon-sm"></ion-icon>
                         Struktur Rombel &amp; Validasi Presensi Otomatis
                     </div>
                     <a href="{{ route('admin.jenjang-paket.index') }}" target="_blank" class="info-callout-link">
@@ -38,14 +38,14 @@
                     </a>
                 </div>
                 <div class="info-callout-desc">
-                    Pemilihan <b>Jenjang Paket</b> digunakan oleh sistem untuk <b>Universal Package Guard</b> (mencegah absen campur paket) serta <b>Deteksi Otomatis Sesi Gabungan Komunitas</b> ketika tutor mengajar murid dari beberapa kelas dalam jenjang yang sama.
+                    Pemilihan <b >Jenjang Paket</b> digunakan oleh sistem untuk <b >Universal Package Guard</b> (mencegah absen campur paket) serta <b >Deteksi Otomatis Sesi Gabungan Komunitas</b> ketika tutor mengajar murid dari beberapa kelas dalam jenjang yang sama.
                 </div>
             </div>
 
             <div class="form-field-wrapper">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                    <label class="form-field-label" style="margin:0;">Jenjang / Kategori Paket <span style="color:#ef4444;">*</span></label>
-                    <a href="{{ route('admin.jenjang-paket.index') }}" target="_blank" style="font-size:11px;font-weight:700;color:#2563eb;text-decoration:none;display:inline-flex;align-items:center;gap:2px;">
+                <div class="flex-between mb-1">
+                    <label class="form-field-label mb-0 mt-0">Jenjang / Kategori Paket <span class="text-danger">*</span></label>
+                    <a href="{{ route('admin.jenjang-paket.index') }}" target="_blank" class="text-xs font-bold text-primary text-no-decor d-inline-flex items-center gap-1">
                         <ion-icon name="add-circle-outline"></ion-icon> Tambah Jenjang Baru
                     </a>
                 </div>
@@ -66,9 +66,9 @@
             </div>
 
             <div class="form-field-wrapper">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                    <label class="form-field-label" style="margin:0;">Nama Kelas <span style="color:#ef4444;">*</span></label>
-                    <button type="button" onclick="generateAutoNama()" style="background:none;border:none;color:#2563eb;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">
+                <div class="flex-between mb-1">
+                    <label class="form-field-label mb-0 mt-0">Nama Kelas <span class="text-danger">*</span></label>
+                    <button type="button" onclick="generateAutoNama()" class="bg-none border-none text-primary text-xs font-bold cursor-pointer d-flex items-center gap-1">
                         <ion-icon name="flash-outline"></ion-icon> Format Otomatis
                     </button>
                 </div>
@@ -77,24 +77,24 @@
 
             <div class="form-field-wrapper">
                 <label class="form-field-label">Keterangan / Catatan Rombel</label>
-                <textarea class="profileInput" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Catatan tambahan rombongan belajar (opsional)">{{ old('keterangan') }}</textarea>
+                <textarea name="keterangan" rows="2" placeholder="Catatan tambahan rombongan belajar (opsional)" class="profileInput h-auto p-2">{{ old('keterangan') }}</textarea>
             </div>
 
-            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
+            <button type="submit" class="profileBtnPrimary mt-3">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan Kelas
             </button>
         </form>
     </div>
 
-    <script>
+    <script >
         function handleJenjangChange(val) {
             const select = document.getElementById('jenjang_paket_id');
             const selectedOpt = select.options[select.selectedIndex];
             const tingkatInfo = selectedOpt.getAttribute('data-tingkat');
             const helper = document.getElementById('tingkatHelper');
             if (tingkatInfo && helper) {
-                helper.innerHTML = 'Rekomendasi format tingkatan: <b>' + tingkatInfo + '</b>';
+                helper.innerHTML = 'Rekomendasi format tingkatan: <b >' + tingkatInfo + '</b>';
             }
             autoSuggestNamaKelas();
         }

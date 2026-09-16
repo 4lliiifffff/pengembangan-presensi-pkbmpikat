@@ -20,9 +20,9 @@
     @if ($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul>
+            <ul >
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li >{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
@@ -35,17 +35,17 @@
 
             <div class="form-grid-responsive">
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NOMOR ABSEN / NIS <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">NOMOR ABSEN / NIS <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="no_absen" value="{{ old('no_absen', $siswa->no_absen) }}" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NAMA LENGKAP SISWA <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">NAMA LENGKAP SISWA <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nama_siswa" value="{{ old('nama_siswa', $siswa->nama_siswa) }}" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">STATUS SIKLUS MURID <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">STATUS SIKLUS MURID <span class="text-danger">*</span></label>
                     <select class="filterSelect" name="status_siswa" required>
                         <option value="aktif" {{ old('status_siswa', $siswa->status_siswa) === 'aktif' ? 'selected' : '' }}>Aktif Belajar</option>
                         <option value="alumni" {{ old('status_siswa', $siswa->status_siswa) === 'alumni' ? 'selected' : '' }}>Lulus / Alumni</option>
@@ -55,21 +55,21 @@
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NO HP / WHATSAPP SISWA <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">NO HP / WHATSAPP SISWA <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp', $siswa->no_hp) }}" required />
                 </div>
 
                 <div class="form-field-wrapper form-grid-full">
-                    <label class="filterFieldLabel">NAMA ORANG TUA / WALI <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">NAMA ORANG TUA / WALI <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nama_wali" value="{{ old('nama_wali', $siswa->nama_wali) }}" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">KELAS / ROMBONGAN BELAJAR <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">KELAS / ROMBONGAN BELAJAR <span class="text-danger">*</span></label>
                     @if ($kelas->isEmpty())
-                        <div class="profileInput" style="font-size:12px;color:var(--muted);background:#f8fafc;">
+                        <div class="profileInput text-sm text-muted bg-card-alt">
                             Belum ada data kelas.
-                            <a href="{{ route('admin.kelas.create') }}" class="link-primary" style="font-weight:700;">Tambah kelas</a>.
+                            <a href="{{ route('admin.kelas.create') }}" class="link-primary font-bold">Tambah kelas</a>.
                         </div>
                     @endif
                     <select class="filterSelect" name="kelas_id" required onchange="if(this.value === 'tambah_kelas') { window.location.href = '{{ route('admin.kelas.create') }}'; }">
@@ -105,17 +105,17 @@
                 </div>
             </div>
 
-            <div style="margin-top:20px;">
+            <div class="mt-4">
                 <label class="checkbox-toggle-card">
                     <input type="checkbox" name="is_abk" value="1" {{ old('is_abk', $siswa->is_abk) ? 'checked' : '' }}>
-                    <span>Siswa Berkebutuhan Khusus (ABK)</span>
+                    <span >Siswa Berkebutuhan Khusus (ABK)</span>
                 </label>
                 <div class="field-help-text">Centang jika siswa ini merupakan Anak Berkebutuhan Khusus (tarif honor tutor otomatis disesuaikan SK ABK).</div>
             </div>
 
             <div class="info-callout-box">
                 <div class="info-callout-title">
-                    <span>Skema Tarif Honor Tutor</span>
+                    <span >Skema Tarif Honor Tutor</span>
                     <a href="{{ route('admin.kategori-tutorial.index') }}" target="_blank" class="info-callout-link">
                         Kelola Master SK &rarr;
                     </a>

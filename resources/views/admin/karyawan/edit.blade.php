@@ -22,9 +22,9 @@
     @if ($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul>
+            <ul >
                 @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li >{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
@@ -37,17 +37,17 @@
 
             <div class="form-grid-responsive">
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">Nama Lengkap <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">Nama Lengkap <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap', $karyawan->nama_lengkap) }}" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NIK (Nomor Induk Karyawan) <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">NIK (Nomor Induk Karyawan) <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nik" value="{{ old('nik', $karyawan->nik) }}" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">Role &amp; Hak Akses <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">Role &amp; Hak Akses <span class="text-danger">*</span></label>
                     <select class="filterSelect" name="role" required>
                         <option value="">-- Pilih Role --</option>
                         <option value="tutor" {{ old('role', $karyawan->role) == 'tutor' ? 'selected' : '' }}>Tutor / Pengajar</option>
@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">No HP / WhatsApp <span style="color:#ef4444;">*</span></label>
+                    <label class="filterFieldLabel">No HP / WhatsApp <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp', $karyawan->no_hp) }}" required />
                 </div>
 
@@ -72,7 +72,7 @@
                 </div>
             </div>
 
-            <div class="form-field-wrapper" style="margin-top:18px;">
+            <div class="form-field-wrapper mt-4">
                 <label class="filterFieldLabel">Foto Profil</label>
                 @if ($karyawan->foto)
                     @php
@@ -80,10 +80,10 @@
                             ? asset($karyawan->foto)
                             : asset('storage/' . $karyawan->foto);
                     @endphp
-                    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+                    <div class="d-flex items-center gap-3 mb-3">
                         <img src="{{ $fotoEditUrl }}" alt="Foto {{ $karyawan->nama_lengkap }}"
-                            style="width:52px;height:52px;object-fit:cover;border-radius:12px;border:1px solid var(--border);display:block;" />
-                        <span style="font-size:12.5px;color:var(--muted);font-weight:600;">Foto saat ini tersimpan</span>
+                            class="avatar-thumb-52" />
+                        <span class="text-sm text-muted font-semibold">Foto saat ini tersimpan</span>
                     </div>
                 @endif
                 <div class="fileUploadBox">
@@ -109,14 +109,14 @@
     </div>
 </div>
 
-<script>
+<script >
     function handleFileSelected(input, feedbackId) {
         const feedback = document.getElementById(feedbackId);
         if (!feedback) return;
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const sizeKb = Math.round(file.size / 1024);
-            feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+            feedback.innerHTML = '<span >' + file.name + ' (' + sizeKb + ' KB)</span>';
             feedback.style.display = 'flex';
         } else {
             feedback.style.display = 'none';

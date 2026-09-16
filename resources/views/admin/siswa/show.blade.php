@@ -13,18 +13,18 @@
                 <a href="{{ route('admin.siswa.index') }}" class="btnOutline">
                     Kembali ke Daftar
                 </a>
-                <a href="{{ route('admin.siswa.edit', $siswa) }}" class="profileBtnPrimary" style="width: auto; padding: 0 20px;">
+                <a href="{{ route('admin.siswa.edit', $siswa) }}" class="profileBtnPrimary w-auto px-4">
                     Edit Data Siswa
                 </a>
             </div>
         </div>
     </div>
 
-    <div class="form-card-container" style="padding: 24px 28px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; padding-bottom:18px; border-bottom:1px solid var(--border); flex-wrap:wrap; gap:12px;">
-            <div>
-                <span class="form-field-label" style="margin-bottom:4px;">STATUS & KATEGORI</span>
-                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+    <div  class="form-card-container p-4">
+        <div  class="d-flex justify-between items-center flex-wrap gap-3 border-b-base pb-4">
+            <div >
+                <span class="form-field-label mb-1">STATUS & KATEGORI</span>
+                <div class="d-flex items-center gap-2 flex-wrap">
                     <span class="app-badge badge-lg badge-status-{{ $siswa->status_siswa }}">
                         {{ $siswa->status_label }}
                     </span>
@@ -39,41 +39,41 @@
                     @endif
                 </div>
             </div>
-            <div style="text-align:right;">
-                <span class="form-field-label" style="margin-bottom:4px;">NOMOR ABSEN / NIS</span>
-                <span style="font-size:16px; font-weight:800; color:var(--text);">{{ $siswa->no_absen ?? '-' }}</span>
+            <div class="text-right">
+                <span class="form-field-label mb-1">NOMOR ABSEN / NIS</span>
+                <span class="icon-sm font-extrabold text-dark">{{ $siswa->no_absen ?? '-' }}</span>
             </div>
         </div>
 
-        <div class="form-grid-responsive" style="margin-top: 20px;">
-            <div style="background:var(--card-alt, #f8fafc); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
-                <div class="form-field-label" style="margin-bottom:4px;">NAMA LENGKAP SISWA</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text);">{{ $siswa->nama_siswa }}</div>
+        <div class="form-grid-responsive mt-4">
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">NAMA LENGKAP SISWA</div>
+                <div class="text-md font-bold text-dark">{{ $siswa->nama_siswa }}</div>
             </div>
 
-            <div style="background:var(--card-alt, #f8fafc); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
-                <div class="form-field-label" style="margin-bottom:4px;">KELAS / ROMBEL</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text);">{{ $siswa->relKelas->nama_kelas ?? '-' }}</div>
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">KELAS / ROMBEL</div>
+                <div class="text-md font-bold text-dark">{{ $siswa->relKelas->nama_kelas ?? '-' }}</div>
             </div>
 
-            <div style="background:var(--card-alt, #f8fafc); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
-                <div class="form-field-label" style="margin-bottom:4px;">JENJANG PAKET</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text);">{{ $siswa->jenjang_paket_label ?? '-' }}</div>
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">JENJANG PAKET</div>
+                <div class="text-md font-bold text-dark">{{ $siswa->jenjang_paket_label ?? '-' }}</div>
             </div>
 
-            <div style="background:var(--card-alt, #f8fafc); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
-                <div class="form-field-label" style="margin-bottom:4px;">TUTOR PEMBIMBING</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text);">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</div>
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">TUTOR PEMBIMBING</div>
+                <div class="text-md font-bold text-dark">{{ $siswa->tutor->nama_lengkap ?? 'Belum Ditentukan' }}</div>
             </div>
 
-            <div style="background:var(--card-alt, #f8fafc); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
-                <div class="form-field-label" style="margin-bottom:4px;">KONTAK NO HP SISWA</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text);">{{ $siswa->no_hp ?? '-' }}</div>
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">KONTAK NO HP SISWA</div>
+                <div class="text-md font-bold text-dark">{{ $siswa->no_hp ?? '-' }}</div>
             </div>
 
-            <div style="background:var(--card-alt, #f8fafc); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
-                <div class="form-field-label" style="margin-bottom:4px;">NAMA ORANG TUA / WALI</div>
-                <div style="font-size:14px; font-weight:700; color:var(--text);">{{ $siswa->nama_wali ?? '-' }}</div>
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">NAMA ORANG TUA / WALI</div>
+                <div class="text-md font-bold text-dark">{{ $siswa->nama_wali ?? '-' }}</div>
             </div>
         </div>
 
@@ -85,7 +85,7 @@
             <form method="POST" action="{{ route('admin.siswa.destroy', $siswa) }}" data-confirm="Arsipkan data siswa ini (Soft Delete)? Seluruh riwayat presensi tetap aman." data-confirm-title="Arsipkan Siswa" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="profileBtnDanger cursor-pointer" style="width: auto; padding: 0 18px; height: 42px;">
+                <button type="submit" class="profileBtnDanger cursor-pointer w-auto px-4 text-md">
                     Arsipkan Siswa
                 </button>
             </form>

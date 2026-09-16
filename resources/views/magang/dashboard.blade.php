@@ -21,12 +21,12 @@
     {{-- ── HEADER DASHBOARD MAGANG ── --}}
     <div class="sectionTitleRow">
         <div class="sectionTitleWrap">
-            <h2>Dashboard Magang / PKL</h2>
+            <h2 >Dashboard Magang / PKL</h2>
             <span class="sectionSubtitle">Selamat datang kembali, {{ $displayName }}!</span>
         </div>
         <div class="badgeDate">
             <ion-icon name="calendar-outline"></ion-icon>
-            <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+            <span >{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
         </div>
     </div>
 
@@ -87,7 +87,7 @@
                         <div class="magangInfoIcon">
                             <ion-icon name="school-outline"></ion-icon>
                         </div>
-                        <div style="min-width: 0; flex: 1;">
+                        <div class="min-w-0 flex-1">
                             <div class="magangInfoTitle">
                                 {{ $magang->asal_instansi }}
                             </div>
@@ -130,16 +130,16 @@
                     <div class="activeBody">
                         <div class="activeTitle">Sesi Magang Sedang Berlangsung</div>
                         <div class="activeSub">
-                            Masuk pukul <strong>{{ substr((string) $activeSesi->jam_mulai, 0, 5) }} WIB</strong>
+                            Masuk pukul <strong >{{ substr((string) $activeSesi->jam_mulai, 0, 5) }} WIB</strong>
                         </div>
                         <div class="activeLoc">
                             <ion-icon name="location-outline"></ion-icon>
-                            <span>Lokasi Masuk Terverifikasi (PKBM Pikat)</span>
+                            <span >Lokasi Masuk Terverifikasi (PKBM Pikat)</span>
                         </div>
                     </div>
                     <a href="{{ route('magang.presensi.foto') }}" class="activeActionBtn">
                         <ion-icon name="camera-outline"></ion-icon>
-                        <span>{{ $bisaPulang ? 'Absen Pulang Sekarang' : 'Absen Pulang' }}</span>
+                        <span >{{ $bisaPulang ? 'Absen Pulang Sekarang' : 'Absen Pulang' }}</span>
                     </a>
                 </div>
             @elseif ($todayStatus !== 'selesai')
@@ -151,8 +151,8 @@
                         Ambil foto selfie presensi masuk dan pastikan Anda berada di area PKBM Pikat.
                     </div>
                     <a href="{{ route('magang.presensi.foto') }}" class="magangCtaBtn">
-                        <ion-icon name="camera-outline" style="font-size: 18px;"></ion-icon>
-                        <span>Absen Masuk Sekarang</span>
+                        <ion-icon name="camera-outline" class="icon-md"></ion-icon>
+                        <span >Absen Masuk Sekarang</span>
                     </a>
                 </div>
             @endif
@@ -160,9 +160,9 @@
             {{-- ── STATISTIK KEHADIRAN BULAN INI ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2>
-                        <ion-icon name="pie-chart-outline" style="color:var(--blue2);"></ion-icon>
-                        <span>Statistik Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
+                    <h2 >
+                        <ion-icon name="pie-chart-outline" class="text-primary"></ion-icon>
+                        <span >Statistik Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
                     </h2>
                 </div>
                 <div class="statsGrid">
@@ -187,9 +187,9 @@
             {{-- ── RIWAYAT TERAKHIR ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2>
-                        <ion-icon name="time-outline" style="color:var(--blue2);"></ion-icon>
-                        <span>Riwayat Presensi Terbaru</span>
+                    <h2 >
+                        <ion-icon name="time-outline" class="text-primary"></ion-icon>
+                        <span >Riwayat Presensi Terbaru</span>
                     </h2>
                     @if (Route::has('magang.riwayat'))
                         <a href="{{ route('magang.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
@@ -208,7 +208,7 @@
                             <div class="recentLeft">
                                 <div class="recentCheck {{ ($p->foto_mulai && !$p->foto_selesai) ? 'pending' : '' }}">
                                     <ion-icon name="{{ $p->foto_selesai ? 'checkmark' : 'time-outline' }}"
-                                        style="font-size:14px;"></ion-icon>
+                                        class="text-md"></ion-icon>
                                 </div>
                                 <div class="recentMeta">
                                     <div class="recentDay">{{ $hari }}</div>
@@ -217,14 +217,14 @@
                                     </div>
                                 </div>
                             </div>
-                            <div>
+                            <div >
                                 <span class="pillSmall {{ $p->foto_selesai ? 'pillOk' : 'pillPending' }}">
                                     {{ $p->foto_selesai ? 'Selesai' : 'Proses' }}
                                 </span>
                             </div>
                         </div>
                     @empty
-                        <div class="emptyState" style="margin: 0; padding: 24px 16px;">
+                        <div class="emptyState m-0 p-4">
                             Belum ada riwayat presensi bulan ini.
                         </div>
                     @endforelse
@@ -235,7 +235,7 @@
     </div>
 
     @push('head')
-        <script>
+        <script >
             function updateLiveClock() {
                 const clockEl = document.getElementById('clockTime');
                 if (!clockEl) return;

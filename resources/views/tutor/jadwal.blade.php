@@ -56,9 +56,9 @@
                     title="Bulan Sebelumnya">
                     <ion-icon name="chevron-back-outline"></ion-icon>
                 </a>
-                <div style="text-align: center;">
+                <div class="text-center">
                     <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
-                    <span style="font-size: 11px; font-weight: 700; color: var(--muted);">Kalender Agenda PKBM</span>
+                    <span class="text-xs font-bold text-muted">Kalender Agenda PKBM</span>
                 </div>
                 <a href="{{ route('tutor.jadwal', ['tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
                     title="Bulan Berikutnya">
@@ -67,7 +67,7 @@
             </div>
 
             <!-- 7 Kolom Header Hari -->
-            <div class="agendaMonthGrid" style="margin-bottom: 4px;">
+            <div class="agendaMonthGrid mb-1">
                 @foreach($dayNames as $dName)
                     <div class="agendaDayNameHeader {{ $dName['sunday'] ? 'sunday' : '' }}">
                         {{ $dName['code'] }}
@@ -110,11 +110,11 @@
         @if($hasAgendasToday)
             <div class="agendaBannerBox">
                 <div class="agendaBannerHeader">
-                    <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="flex-items-center gap-2">
                         <span class="agendaBannerBadge {{ $isToday ? 'today' : '' }}">
                             {{ $isToday ? 'Kegiatan Hari Ini' : 'Agenda Terjadwal' }}
                         </span>
-                        <span style="font-size: 11px; font-weight: 700; color: var(--blue);">
+                        <span class="text-xs font-bold text-primary">
                             {{ $items->count() }} Agenda
                         </span>
                     </div>
@@ -124,7 +124,7 @@
                 </div>
 
                 <!-- List Card Detail Agenda -->
-                <div>
+                <div >
                     @foreach($items as $j)
                         @php
                             $judul = $j->judul ?? 'Agenda Kegiatan';
@@ -133,20 +133,20 @@
                         @endphp
 
                         <div class="agendaCardItem {{ $isToday ? 'today' : '' }}">
-                            <h4 style="margin: 0 0 6px; font-size: 15px; font-weight: 800; color: var(--text);">
+                            <h4  class="text-lg font-extrabold text-dark m-0 mb-1">
                                 {{ $judul }}
                             </h4>
 
                             @if($deskripsi)
-                                <div style="font-size: 12.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.4;">
+                                <div class="text-sm text-muted mb-2">
                                     {{ $deskripsi }}
                                 </div>
                             @endif
 
                             @if($lokasi)
                                 <div class="agendaMetaRow">
-                                    <ion-icon name="location-outline" style="color: var(--blue);"></ion-icon>
-                                    <span><strong style="color: var(--text);">Lokasi:</strong> {{ $lokasi }}</span>
+                                    <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                                    <span ><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
                                 </div>
                             @endif
                         </div>

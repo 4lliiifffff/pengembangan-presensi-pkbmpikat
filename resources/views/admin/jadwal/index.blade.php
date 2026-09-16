@@ -11,17 +11,17 @@
 @endphp
 
 <!-- HEADER -->
-<div class="pageHeaderRow header-actions-group" style="padding: 16px 16px 8px; justify-content: space-between;">
-    <div>
-        <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text);">Agenda &amp; Jadwal Sekolah</h2>
-        <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">{{ $selectedDate->translatedFormat('l, d F Y') }}</p>
+<div  class="pageHeaderRow header-actions-group justify-between px-4 pt-4 pb-2">
+    <div >
+        <h2 class="m-0 text-xl font-extrabold text-dark">Agenda &amp; Jadwal Sekolah</h2>
+        <p class="mt-1 text-sm text-muted">{{ $selectedDate->translatedFormat('l, d F Y') }}</p>
     </div>
     <div class="header-actions-group">
-        <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
-            <ion-icon name="download-outline" style="font-size: 15px;"></ion-icon> Export
+        <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline btn-action-pill">
+            <ion-icon name="download-outline" class="text-lg"></ion-icon> Export
         </a>
-        <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; width: auto; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-            <ion-icon name="cloud-upload-outline" style="font-size: 15px;"></ion-icon> Import
+        <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary text-sm rounded-md w-auto d-inline-flex items-center gap-1 cursor-pointer px-3">
+            <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import
         </button>
     </div>
 </div>
@@ -36,7 +36,7 @@
         <p class="app-modal-desc">
             Unggah berkas spreadsheet Excel/CSV untuk menambahkan agenda kegiatan belajar dan kalender akademik secara massal.
         </p>
-        <div style="margin-bottom:16px;">
+        <div class="mb-4">
             <a href="{{ route('admin.jadwal.downloadTemplate') }}" class="btnOutline">
                 <ion-icon name="download-outline"></ion-icon> Download Template (.xlsx)
             </a>
@@ -59,21 +59,21 @@
                 <div id="jadwalFileFeedback" class="fileUploadFeedback"></div>
             </div>
             <div class="app-modal-footer">
-                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
-                <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;">Unggah &amp; Impor</button>
+                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" class="profileBtnDanger px-3 text-sm rounded-md w-auto">Batal</button>
+                <button type="submit" class="profileBtnPrimary px-4 text-sm rounded-md w-auto">Unggah &amp; Impor</button>
             </div>
         </form>
     </div>
 </div>
 
-<script>
+<script >
     function handleFileSelected(input, feedbackId) {
         const feedback = document.getElementById(feedbackId);
         if (!feedback) return;
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const sizeKb = Math.round(file.size / 1024);
-            feedback.innerHTML = '<ion-icon name="document-text-outline" style="font-size:16px;"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
+            feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span >' + file.name + ' (' + sizeKb + ' KB)</span>';
             feedback.style.display = 'flex';
         } else {
             feedback.style.display = 'none';
@@ -103,7 +103,7 @@
     $isToday = $selectedDate->isToday();
 @endphp
 
-<div style="padding: 0 16px 96px; max-width: 900px; margin: 0 auto;">
+<div  class="max-w-2xl px-4 mx-auto pb-6">
 
     {{-- ── 1. KALENDER BULANAN (MONTH GRID VIEW) ── --}}
     <div class="agendaHeaderCard">
@@ -112,9 +112,9 @@
             <a href="{{ route('admin.jadwal.index', ['tanggal' => $prevMonthDate]) }}" class="agendaNavBtn" title="Bulan Sebelumnya">
                 <ion-icon name="chevron-back-outline"></ion-icon>
             </a>
-            <div style="text-align: center;">
+            <div class="text-center">
                 <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
-                <span style="font-size: 11px; font-weight: 700; color: var(--muted);">Kalender Akademik &amp; Kegiatan</span>
+                <span class="text-xs font-bold text-muted">Kalender Akademik &amp; Kegiatan</span>
             </div>
             <a href="{{ route('admin.jadwal.index', ['tanggal' => $nextMonthDate]) }}" class="agendaNavBtn" title="Bulan Berikutnya">
                 <ion-icon name="chevron-forward-outline"></ion-icon>
@@ -122,7 +122,7 @@
         </div>
 
         <!-- 7 Kolom Header Hari -->
-        <div class="agendaMonthGrid" style="margin-bottom: 4px;">
+        <div class="agendaMonthGrid mb-1">
             @foreach($dayNames as $dName)
                 <div class="agendaDayNameHeader {{ $dName['sunday'] ? 'sunday' : '' }}">
                     {{ $dName['code'] }}
@@ -165,11 +165,11 @@
     @if($hasAgendasToday)
         <div class="agendaBannerBox">
             <div class="agendaBannerHeader">
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="flex-items-center gap-2">
                     <span class="agendaBannerBadge {{ $isToday ? 'today' : '' }}">
                         {{ $isToday ? 'Kegiatan Hari Ini' : 'Agenda Terjadwal' }}
                     </span>
-                    <span style="font-size: 11px; font-weight: 700; color: var(--blue);">
+                    <span class="text-xs font-bold text-primary">
                         {{ $jadwals->count() }} Agenda
                     </span>
                 </div>
@@ -179,7 +179,7 @@
             </div>
 
             <!-- List Card Detail Agenda -->
-            <div>
+            <div >
                 @foreach($jadwals as $jadwal)
                     @php
                         $judul = $jadwal->judul ?? 'Agenda';
@@ -188,18 +188,18 @@
                     @endphp
 
                     <div class="agendaCardItem {{ $isToday ? 'today' : '' }}">
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px;">
-                            <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: var(--text);">
+                        <div class="d-flex justify-between items-start gap-2 mb-1">
+                            <h4 class="m-0 text-lg font-extrabold text-dark">
                                 {{ $judul }}
                             </h4>
-                            <div style="display: flex; gap: 4px; flex-shrink: 0;">
-                                <a href="{{ route('admin.jadwal.edit', $jadwal) }}" class="scheduleActionBtn edit" title="Edit Agenda" style="width: 28px; height: 28px; font-size: 13px;">
+                            <div class="d-flex gap-1 flex-shrink-0">
+                                <a href="{{ route('admin.jadwal.edit', $jadwal) }}" title="Edit Agenda" class="scheduleActionBtn edit avatar-icon-28">
                                     <ion-icon name="create-outline"></ion-icon>
                                 </a>
                                 <form method="POST" action="{{ route('admin.jadwal.destroy', $jadwal) }}" data-confirm="Apakah Anda yakin ingin menghapus agenda ini?" data-confirm-title="Hapus Agenda" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="scheduleActionBtn delete" title="Hapus Agenda" style="width: 28px; height: 28px; font-size: 13px;">
+                                    <button type="submit" title="Hapus Agenda" class="scheduleActionBtn delete avatar-icon-28">
                                         <ion-icon name="trash-outline"></ion-icon>
                                     </button>
                                 </form>
@@ -207,23 +207,23 @@
                         </div>
 
                         @if($deskripsi)
-                            <div style="font-size: 12.5px; color: var(--muted); margin-bottom: 8px; line-height: 1.4;">
+                            <div class="text-sm text-muted mb-2">
                                 {{ $deskripsi }}
                             </div>
                         @endif
 
                         <div class="agendaMetaRow">
-                            <ion-icon name="location-outline" style="color: var(--blue);"></ion-icon>
-                            <span><strong style="color: var(--text);">Lokasi:</strong> {{ $lokasi }}</span>
+                            <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                            <span ><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
     @else
-        <div style="text-align: center; padding: 36px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; color: var(--muted); margin-bottom: 16px;">
-            <div style="font-size: 14px; font-weight: 700; color: var(--text);">Tidak ada agenda kegiatan</div>
-            <div style="font-size: 12px; margin-top: 4px;">Pada tanggal {{ $selectedDate->translatedFormat('l, d F Y') }}</div>
+        <div class="text-center table-empty-cell border-base rounded-xl text-muted mb-4 bg-card">
+            <div class="text-md font-bold text-dark">Tidak ada agenda kegiatan</div>
+            <div class="text-sm mt-1">Pada tanggal {{ $selectedDate->translatedFormat('l, d F Y') }}</div>
         </div>
     @endif
 

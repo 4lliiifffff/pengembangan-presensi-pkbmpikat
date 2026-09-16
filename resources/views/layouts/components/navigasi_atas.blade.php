@@ -2,13 +2,13 @@
     <div class="topBarRow">
         <div class="profileGroup">
             @if(isset($backRoute))
-                <a href="{{ $backRoute }}" class="iconBtn" aria-label="Kembali" title="Kembali" style="flex-shrink:0;">
+                <a href="{{ $backRoute }}" aria-label="Kembali" title="Kembali" class="iconBtn flex-shrink-0">
                     <ion-icon name="arrow-back-outline"></ion-icon>
                 </a>
             @endif
-            <a href="{{ route('profil.index') }}" style="text-decoration: none; flex-shrink: 0;" aria-label="Buka Profil">
+            <a href="{{ route('profil.index') }}" aria-label="Buka Profil" class="text-no-decor flex-shrink-0">
                 @if(auth()->check() && auth()->user()->foto)
-                    <img src="{{ auth()->user()->foto_url }}" class="avatar" alt="Avatar" style="object-fit:cover;" />
+                    <img src="{{ auth()->user()->foto_url }}" class="avatar" alt="Avatar" class="object-cover" />
                 @else
                     <div class="avatar" title="{{ $roleTitle ?? 'Profil' }}">
                         {{ strtoupper(substr(auth()->user()->nama_lengkap ?? auth()->user()->name ?? 'U', 0, 1)) }}
@@ -33,7 +33,7 @@
             <button class="iconBtn" type="button" aria-label="Tema" id="themeToggleBtn" title="Ganti Tema">
                 <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
             </button>
-            <form action="{{ route('logout') }}" method="POST" style="display:none;" class="navLogoutForm">
+            <form action="{{ route('logout') }}" method="POST" class="d-none navLogoutForm">
                 @csrf
             </form>
             <a href="{{ route('logout') }}" class="iconBtn" aria-label="Keluar" title="Keluar dari Akun" onclick="event.preventDefault(); (window.AppNotification ? window.AppNotification.confirm({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun ini?', confirmText: 'Keluar Akun', cancelText: 'Batal', isDanger: true }) : Promise.resolve(confirm('Apakah Anda yakin ingin keluar dari akun?'))).then(ok => { if(ok) this.previousElementSibling.submit(); });">

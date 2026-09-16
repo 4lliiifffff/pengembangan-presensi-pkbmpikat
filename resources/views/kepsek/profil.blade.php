@@ -18,7 +18,7 @@
             <img src="{{ $fotoUrl }}" alt="Avatar" class="profileAvatarImg" id="avatarPreview">
         @else
             <div class="profileAvatarInitial" id="avatarInitial">{{ $initial }}</div>
-            <img src="" alt="Avatar" class="profileAvatarImg" id="avatarPreview" style="display:none;">
+            <img src="" alt="Avatar" id="avatarPreview" class="profileAvatarImg d-none">
         @endif
 
         <label for="fotoUpload" class="profileCameraBtn" title="Ganti Foto Profil">
@@ -37,11 +37,11 @@
 <div class="profileTabs">
     <button type="button" class="profileTabBtn active" id="tabBtnData" onclick="switchProfileTab('data')">
         <ion-icon name="person-outline"></ion-icon>
-        <span>Informasi Pribadi</span>
+        <span >Informasi Pribadi</span>
     </button>
     <button type="button" class="profileTabBtn" id="tabBtnKeamanan" onclick="switchProfileTab('keamanan')">
         <ion-icon name="key-outline"></ion-icon>
-        <span>Keamanan Sandi</span>
+        <span >Keamanan Sandi</span>
     </button>
 </div>
 
@@ -49,12 +49,12 @@
 @if ($errors->any())
     <div class="error-list-container">
         <div class="error-title">
-            <ion-icon name="alert-circle-outline" style="vertical-align:middle; font-size:16px;"></ion-icon>
+            <ion-icon name="alert-circle-outline" class="align-middle icon-sm"></ion-icon>
             Terdapat beberapa kesalahan:
         </div>
-        <ul>
+        <ul >
             @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
+                <li >{{ $error }}</li>
             @endforeach
         </ul>
     </div>
@@ -66,11 +66,11 @@
     @method('PATCH')
 
     {{-- Hidden file input --}}
-    <input type="file" name="foto" id="fotoUpload" accept=".png,.jpg,.jpeg,image/*" style="display:none;" onchange="previewProfileImage(event)">
+    <input type="file" name="foto" id="fotoUpload" accept=".png,.jpg,.jpeg,image/*" class="d-none" onchange="previewProfileImage(event)">
 
     <div class="profileCard">
         <div class="profileSectionTitle">
-            <ion-icon name="id-card-outline" style="font-size: 15px; color: var(--blue2);"></ion-icon>
+            <ion-icon name="id-card-outline" class="text-lg text-primary"></ion-icon>
             Data Akun Kepala Sekolah
         </div>
 
@@ -97,13 +97,13 @@
 </form>
 
 {{-- ── TAB 2: FORM KEAMANAN SANDI ── --}}
-<form action="{{ route('profil.password') }}" method="POST" id="formKeamanan" style="display:none;">
+<form action="{{ route('profil.password') }}" method="POST" id="formKeamanan" class="d-none">
     @csrf
     @method('PATCH')
 
     <div class="profileCard">
         <div class="profileSectionTitle">
-            <ion-icon name="lock-closed-outline" style="font-size: 15px; color: var(--blue2);"></ion-icon>
+            <ion-icon name="lock-closed-outline" class="text-lg text-primary"></ion-icon>
             Ganti Kata Sandi
         </div>
 
@@ -136,20 +136,20 @@
 {{-- ── ACTION BUTTONS (SIMPAN & KELUAR) ── --}}
 <div class="profileActionGroup">
     <button type="button" class="profileBtnPrimary" id="btnSubmitProfile" onclick="submitActiveProfileForm()">
-        <ion-icon name="checkmark-circle-outline" style="font-size: 18px;"></ion-icon>
+        <ion-icon name="checkmark-circle-outline" class="icon-md"></ion-icon>
         Simpan Perubahan
     </button>
 
-    <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display:none;">
+    <form action="{{ route('logout') }}" method="POST" id="logoutForm" class="d-none">
         @csrf
     </form>
     <button type="button" class="profileBtnDanger" onclick="(window.AppNotification ? window.AppNotification.confirm({ title: 'Konfirmasi Keluar', message: 'Apakah Anda yakin ingin keluar dari akun ini?', confirmText: 'Keluar Akun', cancelText: 'Batal', isDanger: true }) : Promise.resolve(confirm('Apakah Anda yakin ingin keluar dari akun ini?'))).then(ok => { if(ok) document.getElementById('logoutForm').submit(); });">
-        <ion-icon name="log-out-outline" style="font-size: 17px;"></ion-icon>
+        <ion-icon name="log-out-outline" class="text-xl"></ion-icon>
         Keluar dari Akun
     </button>
 </div>
 
-<script>
+<script >
     let activeProfileTab = 'data';
 
     function switchProfileTab(tabName) {

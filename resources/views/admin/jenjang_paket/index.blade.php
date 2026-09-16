@@ -2,76 +2,76 @@
 
 @section('content')
 
-    <div class="pageHeaderRow header-actions-group" style="justify-content: space-between; margin-bottom:18px;">
-        <div>
-            <h2 style="margin:0;font-size:20px;font-weight:800;color:var(--text);">Master Jenjang &amp; Program Paket</h2>
-            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola program pendidikan kesetaraan (Paket A/B/C), vokasi keterampilan, kursus, dan program kustom lainnya</p>
+    <div class="pageHeaderRow header-actions-group flex-between mb-4">
+        <div >
+            <h2 class="m-0 text-xl font-extrabold text-dark">Master Jenjang &amp; Program Paket</h2>
+            <p class="mt-1 text-sm text-muted">Kelola program pendidikan kesetaraan (Paket A/B/C), vokasi keterampilan, kursus, dan program kustom lainnya</p>
         </div>
         <div class="header-actions-group">
-            <button type="button" onclick="bukaModalTambah()" class="btnPrimary" style="padding:8px 14px;background:var(--blue-gradient);font-size:12px;display:inline-flex;align-items:center;gap:6px;">
-                <ion-icon name="add-circle-outline" style="font-size:16px;"></ion-icon> Tambah Jenjang Baru
+            <button type="button" onclick="bukaModalTambah()" class="btnPrimary px-3 py-2 text-sm d-inline-flex items-center gap-1">
+                <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Jenjang Baru
             </button>
         </div>
     </div>
 
     {{-- Banner Edukasi --}}
-    <div class="info-callout-box" style="margin-top: 0; margin-bottom: 18px; display: flex; align-items: center; gap: 12px;">
-        <div style="font-size:24px; color:#1f3b8a; flex-shrink: 0;">
+    <div class="info-callout-box mt-0 mb-4 d-flex items-center gap-3">
+        <div class="icon-xl text-primary flex-shrink-0">
             <ion-icon name="information-circle-outline"></ion-icon>
         </div>
-        <div class="info-callout-desc" style="font-size: 12px;">
-            Daftar Jenjang &amp; Program Paket di bawah ini digunakan secara <b>dinamis</b> pada form pembuatan kelas, filter rombel, <b>Universal Package Guard</b>, dan penentuan <b>Sesi Gabungan Komunitas</b>. Anda dapat menambah jenjang baru (misal: <i>Keaksaraan Fungsional, Vokasi Otomotif</i>) kapan saja.
+        <div class="info-callout-desc text-sm">
+            Daftar Jenjang &amp; Program Paket di bawah ini digunakan secara <b >dinamis</b> pada form pembuatan kelas, filter rombel, <b >Universal Package Guard</b>, dan penentuan <b >Sesi Gabungan Komunitas</b>. Anda dapat menambah jenjang baru (misal: <i >Keaksaraan Fungsional, Vokasi Otomotif</i>) kapan saja.
         </div>
     </div>
 
     {{-- Tabel Master Jenjang Paket --}}
-    <div style="background:var(--card,#fff);border-radius:18px;border:1px solid var(--border,#e2e8f0);overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,0.03);">
-        <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left;">
-                <thead>
-                    <tr style="background:var(--card-alt,#f8fafc);border-bottom:1px solid var(--border,#e2e8f0);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:0.5px;">
-                        <th style="padding:14px 16px;width:50px;text-align:center;">Urutan</th>
-                        <th style="padding:14px 16px;">Kode Sistem</th>
-                        <th style="padding:14px 16px;">Nama Jenjang &amp; Program</th>
-                        <th style="padding:14px 16px;">Format Tingkat</th>
-                        <th style="padding:14px 16px;text-align:center;">Rombel / Kelas</th>
-                        <th style="padding:14px 16px;text-align:center;">Status</th>
-                        <th style="padding:14px 16px;text-align:center;">Aksi</th>
+    <div class="table-wrapper-card">
+        <div class="overflow-x-auto">
+            <table class="table-modern">
+                <thead >
+                    <tr class="table-head-row">
+                        <th class="table-col-num">Urutan</th>
+                        <th class="p-3">Kode Sistem</th>
+                        <th class="p-3">Nama Jenjang &amp; Program</th>
+                        <th class="p-3">Format Tingkat</th>
+                        <th class="p-3 text-center">Rombel / Kelas</th>
+                        <th class="p-3 text-center">Status</th>
+                        <th class="p-3 text-center">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($jenjangPakets as $jp)
-                        <tr style="border-bottom:1px solid var(--border,#e2e8f0);">
-                            <td style="padding:14px 16px;text-align:center;font-weight:700;color:var(--muted);">{{ $jp->urutan ?: $loop->iteration }}</td>
-                            <td style="padding:14px 16px;">
-                                <code style="font-size:12px;font-weight:700;background:#f1f5f9;color:#0f172a;padding:3px 8px;border-radius:6px;border:1px solid #e2e8f0;">{{ $jp->kode }}</code>
+                        <tr class="table-body-row">
+                            <td class="p-3 text-center font-bold text-muted">{{ $jp->urutan ?: $loop->iteration }}</td>
+                            <td class="p-3">
+                                <code  class="text-sm font-bold text-dark rounded-sm badge-code">{{ $jp->kode }}</code>
                             </td>
-                            <td style="padding:14px 16px;">
-                                <div style="font-weight:800;color:var(--text);font-size:14px;">{{ $jp->nama_jenjang }}</div>
+                            <td class="p-3">
+                                <div class="font-extrabold text-dark text-md">{{ $jp->nama_jenjang }}</div>
                                 @if($jp->keterangan)
-                                    <div style="font-size:11.5px;color:var(--muted);margin-top:2px;">{{ $jp->keterangan }}</div>
+                                    <div class="text-sm text-muted mt-1">{{ $jp->keterangan }}</div>
                                 @endif
                             </td>
-                            <td style="padding:14px 16px;">
+                            <td class="p-3">
                                 @if($jp->tingkat_label)
                                     <span class="app-badge badge-jenjang-paket_c">
                                         {{ $jp->tingkat_label }}
                                     </span>
                                 @else
-                                    <span style="color:var(--muted);font-size:11px;">-</span>
+                                    <span class="text-muted text-xs">-</span>
                                 @endif
                             </td>
-                            <td style="padding:14px 16px;text-align:center;">
-                                <a href="{{ route('admin.kelas.index', ['jenjang' => $jp->kode]) }}" style="font-weight:800;color:#2563eb;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
-                                    <span>{{ $jp->kelas_count }} Kelas</span>
-                                    <ion-icon name="open-outline" style="font-size:13px;"></ion-icon>
+                            <td class="p-3 text-center">
+                                <a href="{{ route('admin.kelas.index', ['jenjang' => $jp->kode]) }}" class="font-extrabold text-primary text-no-decor d-inline-flex items-center gap-1">
+                                    <span >{{ $jp->kelas_count }} Kelas</span>
+                                    <ion-icon name="open-outline" class="text-md"></ion-icon>
                                 </a>
                             </td>
-                            <td style="padding:14px 16px;text-align:center;">
-                                <form method="POST" action="{{ route('admin.jenjang-paket.toggleStatus', $jp) }}" style="display:inline;">
+                            <td class="p-3 text-center">
+                                <form method="POST" action="{{ route('admin.jenjang-paket.toggleStatus', $jp) }}" class="d-inline">
                                     @csrf
                                     @method('PATCH')
-                                    <button type="submit" style="background:none;border:none;cursor:pointer;padding:0;" title="Klik untuk ubah status">
+                                    <button type="submit" class="bg-none border-none cursor-pointer p-0" title="Klik untuk ubah status">
                                         @if($jp->is_aktif)
                                             <span class="app-badge badge-status-aktif">Aktif</span>
                                         @else
@@ -80,21 +80,21 @@
                                     </button>
                                 </form>
                             </td>
-                            <td style="padding:14px 16px;text-align:center;">
-                                <div style="display:flex;gap:6px;justify-content:center;align-items:center;">
-                                    <button type="button" class="smallBtn edit" onclick="bukaModalEdit({{ json_encode($jp) }})" style="cursor:pointer;">
+                            <td class="p-3 text-center">
+                                <div class="d-flex gap-1 flex-center">
+                                    <button type="button" onclick="bukaModalEdit({{ json_encode($jp) }})" class="smallBtn edit cursor-pointer">
                                         <ion-icon name="create-outline"></ion-icon> Edit
                                     </button>
 
-                                    <button type="button" class="smallBtn delete" onclick="bukaModalHapus({{ json_encode($jp) }})" style="cursor:pointer;" title="Hapus Master Jenjang">
+                                    <button type="button" onclick="bukaModalHapus({{ json_encode($jp) }})" title="Hapus Master Jenjang" class="smallBtn delete cursor-pointer">
                                         <ion-icon name="trash-outline"></ion-icon> Hapus
                                     </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="7" style="padding:32px 16px;text-align:center;color:var(--muted);">
+                        <tr >
+                            <td colspan="7" class="table-empty-cell">
                                 Belum ada data Master Jenjang Paket. Klik "Tambah Jenjang Baru" untuk mendaftarkan.
                             </td>
                         </tr>
@@ -117,14 +117,14 @@
                 <div id="methodSpoof"></div>
 
                 <div class="form-field-wrapper">
-                    <label class="form-field-label">Nama Jenjang / Program Paket <span style="color:#ef4444;">*</span></label>
+                    <label class="form-field-label">Nama Jenjang / Program Paket <span class="text-danger">*</span></label>
                     <input class="profileInput" type="text" name="nama_jenjang" id="input_nama_jenjang" placeholder="Contoh: Paket A (Setara SD) atau Vokasi Tata Boga" required oninput="autoGenerateKode()" />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <label class="form-field-label" style="margin:0;">Kode Unik Sistem <span style="color:#ef4444;">*</span></label>
-                        <span style="font-size:10.5px;color:var(--muted);">Format: huruf_kecil_dan_underscore</span>
+                    <div class="flex-between mb-1">
+                        <label class="form-field-label mb-0 mt-0">Kode Unik Sistem <span class="text-danger">*</span></label>
+                        <span class="text-xs text-muted">Format: huruf_kecil_dan_underscore</span>
                     </div>
                     <input class="profileInput" type="text" name="kode" id="input_kode" placeholder="Contoh: paket_a atau vokasi_tata_boga" required />
                 </div>
@@ -142,21 +142,21 @@
 
                 <div class="form-field-wrapper">
                     <label class="form-field-label">Keterangan / Deskripsi Program</label>
-                    <textarea class="profileInput" name="keterangan" id="input_keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi"></textarea>
+                    <textarea name="keterangan" id="input_keterangan" rows="2" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi" class="profileInput h-auto p-2"></textarea>
                 </div>
 
                 <div class="form-field-wrapper">
                     <div class="checkbox-toggle-card">
                         <label class="checkbox-label">
-                            <input type="checkbox" name="is_aktif" id="input_is_aktif" value="1" checked style="width:16px;height:16px;" />
+                            <input type="checkbox" name="is_aktif" id="input_is_aktif" value="1" checked class="w-auto" />
                             Status Aktif (dapat dipilih di form kelas)
                         </label>
                     </div>
                 </div>
 
                 <div class="app-modal-footer">
-                    <button type="button" onclick="tutupModal()" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
-                    <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;">Simpan Master</button>
+                    <button type="button" onclick="tutupModal()" class="profileBtnDanger px-3 text-sm rounded-md w-auto">Batal</button>
+                    <button type="submit" class="profileBtnPrimary px-4 text-sm rounded-md w-auto">Simpan Master</button>
                 </div>
             </form>
         </div>
@@ -166,8 +166,8 @@
     <div id="modalHapusJenjang" class="app-modal-backdrop">
         <div class="app-modal-card">
             <div class="app-modal-header">
-                <div style="display:flex;align-items:center;gap:8px;">
-                    <ion-icon name="warning-outline" style="font-size:22px;color:#dc2626;"></ion-icon>
+                <div class="d-flex items-center gap-2">
+                    <ion-icon name="warning-outline" class="icon-xl text-danger"></ion-icon>
                     <h3 id="hapusModalTitle" class="app-modal-title">Hapus Master Jenjang</h3>
                 </div>
                 <button type="button" onclick="tutupModalHapus()" class="app-modal-close">&times;</button>
@@ -178,26 +178,26 @@
                 <input type="hidden" name="_method" value="DELETE">
                 <input type="hidden" name="confirm_unlink" id="confirm_unlink_val" value="1">
 
-                <div id="hapusInfoBox" style="background:#fee2e2;border:1px solid #fecaca;border-radius:12px;padding:14px;margin-bottom:16px;color:#991b1b;font-size:12.5px;line-height:1.5;">
-                    <div style="font-weight:800;margin-bottom:4px;" id="hapusNamaJenjangLabel">Perhatian: Jenjang ini memiliki kelas aktif!</div>
+                <div id="hapusInfoBox" class="rounded-lg p-3 mb-4 text-danger text-sm line-height-relaxed alert-danger-box">
+                    <div id="hapusNamaJenjangLabel" class="font-extrabold mb-1">Perhatian: Jenjang ini memiliki kelas aktif!</div>
                     <div id="hapusDeskripsiWarning">
                         Jenjang ini sedang digunakan oleh <b id="hapusKelasCountText">0</b> kelas.
                     </div>
                 </div>
 
                 {{-- Opsi Pengalihan Kelas --}}
-                <div id="reassignBox" style="margin-bottom:18px;display:none;">
-                    <label class="form-field-label" style="font-size:12px;margin-bottom:6px;">Tindakan untuk Kelas yang Terdaftar:</label>
-                    <div style="display:flex;flex-direction:column;gap:8px;">
-                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;padding:8px 10px;border-radius:8px;border:1px solid var(--border,#e2e8f0);background:var(--card-alt,#f8fafc);">
-                            <input type="radio" name="delete_action" value="reassign" checked onchange="toggleDeleteAction(this.value)" style="margin-top:2px;">
-                            <div>
-                                <div style="font-weight:700;color:var(--text);">Pindahkan Seluruh Kelas ke Jenjang Lain (Direkomendasikan)</div>
-                                <div style="font-size:11px;color:var(--muted);">Kelas dan data murid akan otomatis dialihkan ke jenjang pengganti.</div>
+                <div id="reassignBox" class="mb-4 d-none">
+                    <label class="form-field-label text-sm mb-1">Tindakan untuk Kelas yang Terdaftar:</label>
+                    <div class="flex-col gap-2">
+                        <label class="d-flex items-start gap-2 text-sm cursor-pointer rounded-md border-base bg-card-alt p-2">
+                            <input type="radio" name="delete_action" value="reassign" checked onchange="toggleDeleteAction(this.value)" class="mt-1">
+                            <div >
+                                <div class="font-bold text-dark">Pindahkan Seluruh Kelas ke Jenjang Lain (Direkomendasikan)</div>
+                                <div class="text-xs text-muted">Kelas dan data murid akan otomatis dialihkan ke jenjang pengganti.</div>
                             </div>
                         </label>
-                        <div id="targetJenjangSelectWrapper" style="padding-left:24px;margin-top:-2px;">
-                            <select class="profileInput" name="target_jenjang_paket_id" id="target_jenjang_paket_id" style="font-size:12px;height:36px;">
+                        <div id="targetJenjangSelectWrapper" class="pl-4 mt-1">
+                            <select name="target_jenjang_paket_id" id="target_jenjang_paket_id" class="profileInput text-sm avatar-icon-36">
                                 <option value="">-- Pilih Jenjang Pengganti --</option>
                                 @foreach($jenjangPakets as $otherJp)
                                     <option value="{{ $otherJp->id }}" data-kode="{{ $otherJp->kode }}">
@@ -207,19 +207,19 @@
                             </select>
                         </div>
 
-                        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;cursor:pointer;padding:8px 10px;border-radius:8px;border:1px solid var(--border,#e2e8f0);background:var(--card-alt,#f8fafc);">
-                            <input type="radio" name="delete_action" value="set_null" onchange="toggleDeleteAction(this.value)" style="margin-top:2px;">
-                            <div>
-                                <div style="font-weight:700;color:var(--text);">Lepaskan Relasi (Atur Foreign Key menjadi NULL / Umum)</div>
-                                <div style="font-size:11px;color:var(--muted);">Kelas dan murid tetap aman tersimpan, tetapi tidak terikat jenjang tertentu.</div>
+                        <label class="d-flex items-start gap-2 text-sm cursor-pointer rounded-md border-base bg-card-alt p-2">
+                            <input type="radio" name="delete_action" value="set_null" onchange="toggleDeleteAction(this.value)" class="mt-1">
+                            <div >
+                                <div class="font-bold text-dark">Lepaskan Relasi (Atur Foreign Key menjadi NULL / Umum)</div>
+                                <div class="text-xs text-muted">Kelas dan murid tetap aman tersimpan, tetapi tidak terikat jenjang tertentu.</div>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <div class="app-modal-footer">
-                    <button type="button" onclick="tutupModalHapus()" class="btnOutline" style="height:36px;padding:0 14px;font-size:12px;border-radius:8px;">Batal</button>
-                    <button type="submit" class="profileBtnDanger" style="height:36px;padding:0 16px;font-size:12px;border-radius:8px;width:auto;">
+                    <button type="button" onclick="tutupModalHapus()" class="btnOutline px-3 text-sm rounded-md">Batal</button>
+                    <button type="submit" class="profileBtnDanger px-4 text-sm rounded-md w-auto">
                         <ion-icon name="trash-outline"></ion-icon> Ya, Hapus Jenjang
                     </button>
                 </div>
@@ -227,7 +227,7 @@
         </div>
     </div>
 
-    <script>
+    <script >
         function bukaModalTambah() {
             document.getElementById('modalTitle').textContent = 'Tambah Jenjang & Program Baru';
             const form = document.getElementById('formJenjang');

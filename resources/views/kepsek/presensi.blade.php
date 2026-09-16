@@ -17,7 +17,7 @@
             <div class="laporanHeaderActions">
                 <a href="{{ route('kepsek.laporan') }}" class="btnPayrollShortcut btn-action-info">
                     <ion-icon name="document-text-outline"></ion-icon>
-                    <span>Buka Rekapitulasi Laporan</span>
+                    <span >Buka Rekapitulasi Laporan</span>
                 </a>
             </div>
         </div>
@@ -85,27 +85,27 @@
 
     {{-- ── Section Title ── --}}
     <div class="sectionRow">
-        <h2>Log Presensi Tutor &amp; Siswa</h2>
+        <h2 >Log Presensi Tutor &amp; Siswa</h2>
         <span class="badgeCount">{{ $presensi->total() }} Sesi Terdata</span>
     </div>
 
     {{-- ── Log Table Container (Desktop) ── --}}
     <div class="table-responsive-desktop">
-        <div class="tableContainer" style="margin: 0 0 20px; border-radius: 18px; border: 1px solid var(--border);">
+        <div class="tableContainer m-0 mb-4 rounded-xl border-base">
             <table class="laporanTable">
-                <thead>
-                    <tr>
-                        <th style="padding: 12px 14px; width: 50px;">NO</th>
-                        <th>TANGGAL</th>
-                        <th>TUTOR</th>
-                        <th>SISWA</th>
-                        <th>JAM MASUK</th>
-                        <th>JAM SELESAI</th>
-                        <th>FOTO BUKTI</th>
-                        <th style="text-align: center;">GPS</th>
+                <thead >
+                    <tr >
+                        <th class="table-col-num">NO</th>
+                        <th >TANGGAL</th>
+                        <th >TUTOR</th>
+                        <th >SISWA</th>
+                        <th >JAM MASUK</th>
+                        <th >JAM SELESAI</th>
+                        <th >FOTO BUKTI</th>
+                        <th class="text-center">GPS</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody >
                     @forelse($presensi as $index => $item)
                         @php
                             $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
@@ -118,14 +118,14 @@
 
                             $lokasi = $item->lokasi_mulai ?? '-';
                         @endphp
-                        <tr>
-                            <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">{{ $presensi->firstItem() + $index }}</td>
-                            <td style="font-weight: 700; white-space: nowrap;">{{ $tgl }}</td>
-                            <td style="font-weight: 800; color: var(--text);">{{ $tutorName }}</td>
-                            <td style="font-weight: 600;">{{ $siswaName }}</td>
-                            <td style="font-weight: 800; color: #16a34a;">{{ $jamMasuk }}</td>
-                            <td style="font-weight: 800; color: var(--blue2);">{{ $jamSelesai }}</td>
-                            <td>
+                        <tr >
+                            <td class="p-3 font-bold text-muted">{{ $presensi->firstItem() + $index }}</td>
+                            <td class="font-bold white-space-nowrap">{{ $tgl }}</td>
+                            <td class="font-extrabold text-dark">{{ $tutorName }}</td>
+                            <td class="font-semibold">{{ $siswaName }}</td>
+                            <td class="font-extrabold text-success">{{ $jamMasuk }}</td>
+                            <td class="font-extrabold text-primary">{{ $jamSelesai }}</td>
+                            <td >
                                 <div class="fotoStack">
                                     @if ($item->foto_mulai)
                                         <img src="{{ asset($item->foto_mulai) }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
@@ -142,23 +142,22 @@
                                     @endif
                                 </div>
                             </td>
-                            <td style="text-align: center;">
+                            <td class="text-center">
                                 @if ($lokasi !== '-')
-                                    <button type="button" class="mapBtn" title="Lihat Peta Lokasi"
-                                        onclick="openMapModal('{{ $lokasi }}')">
+                                    <button type="button" class="mapBtn" title="Lihat Peta Lokasi" onclick="openMapModal('{{ $lokasi }}')">
                                         <ion-icon name="map-outline"></ion-icon>
                                     </button>
                                 @else
-                                    <span style="color: var(--muted);">-</span>
+                                    <span class="text-muted">-</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
-                        <tr>
-                            <td colspan="8" style="text-align: center; color: var(--muted); padding: 36px 16px;">
-                                <ion-icon name="calendar-outline" style="font-size: 36px; opacity: 0.4; display: block; margin: 0 auto 8px;"></ion-icon>
-                                <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Presensi</div>
-                                <div style="font-size: 12px;">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
+                        <tr >
+                            <td colspan="8" class="table-empty-cell">
+                                <ion-icon name="calendar-outline" class="icon-2xl d-block mx-auto mb-2 opacity-40"></ion-icon>
+                                <div class="font-bold text-md mb-1">Belum Ada Data Presensi</div>
+                                <div class="text-sm">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -182,11 +181,11 @@
             @endphp
             <div class="data-mobile-card">
                 <div class="dmc-header">
-                    <div>
+                    <div >
                         <h3 class="dmc-title">{{ $tutorName }}</h3>
-                        <div class="dmc-subtitle">{{ $tgl }} &bull; Siswa: <b style="color:var(--text);">{{ $siswaName }}</b></div>
+                        <div class="dmc-subtitle">{{ $tgl }} &bull; Siswa: <b class="text-dark">{{ $siswaName }}</b></div>
                     </div>
-                    <span style="font-size:11px;font-weight:700;color:var(--muted);">
+                    <span class="text-xs font-bold text-muted">
                         #{{ $presensi->firstItem() + $index }}
                     </span>
                 </div>
@@ -194,18 +193,18 @@
                 <div class="dmc-grid">
                     <div class="dmc-field">
                         <div class="dmc-label">Jam Masuk</div>
-                        <div class="dmc-value" style="color:#16a34a;">{{ $jamMasuk }}</div>
+                        <div class="dmc-value text-success">{{ $jamMasuk }}</div>
                     </div>
 
                     <div class="dmc-field">
                         <div class="dmc-label">Jam Selesai</div>
-                        <div class="dmc-value" style="color:var(--blue2);">{{ $jamSelesai }}</div>
+                        <div class="dmc-value text-primary">{{ $jamSelesai }}</div>
                     </div>
                 </div>
 
                 <div class="dmc-footer">
-                    <div style="display:flex;align-items:center;gap:6px;">
-                        <span class="dmc-label" style="margin-bottom:0;">Foto Bukti:</span>
+                    <div class="d-flex items-center gap-1">
+                        <span class="dmc-label mb-0">Foto Bukti:</span>
                         <div class="fotoStack">
                             @if ($item->foto_mulai)
                                 <img src="{{ asset($item->foto_mulai) }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
@@ -219,42 +218,42 @@
                     </div>
 
                     @if ($lokasi !== '-')
-                        <button type="button" class="btnOutline" style="padding:6px 12px;font-size:11.5px;border-radius:8px;display:inline-flex;align-items:center;gap:4px;" onclick="openMapModal('{{ $lokasi }}')">
+                        <button type="button" onclick="openMapModal('{{ $lokasi }}')" class="btnOutline text-sm rounded-md d-inline-flex items-center gap-1 px-3 py-1">
                             <ion-icon name="map-outline"></ion-icon> Peta GPS
                         </button>
                     @endif
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card" style="text-align:center;padding:32px 16px;color:var(--muted);">
-                <div style="font-weight: 700; font-size: 13.5px; margin-bottom: 2px;">Belum Ada Data Presensi</div>
-                <div style="font-size: 12px;">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
+            <div class="data-mobile-card table-empty-cell">
+                <div class="font-bold text-md mb-1">Belum Ada Data Presensi</div>
+                <div class="text-sm">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
             </div>
         @endforelse
     </div>
 
     {{-- ── Optional Presensi Karyawan / Staf ── --}}
     @if (isset($karyawanPresensi) && $karyawanPresensi->isNotEmpty())
-        <div class="sectionRow" style="margin-top: 24px;">
-            <h2>Presensi Staf / Karyawan</h2>
+        <div class="sectionRow mt-4">
+            <h2 >Presensi Staf / Karyawan</h2>
             <span class="badgeCount">{{ $karyawanPresensi->count() }} Orang</span>
         </div>
         <div class="table-responsive-desktop">
-            <div class="tableContainer" style="margin: 0 0 20px; border-radius: 18px; border: 1px solid var(--border);">
+            <div class="tableContainer m-0 mb-4 rounded-xl border-base">
                 <table class="laporanTable">
-                    <thead>
-                        <tr>
-                            <th style="padding: 12px 14px; width: 50px;">NO</th>
-                            <th>TANGGAL</th>
-                            <th>NAMA KARYAWAN</th>
-                            <th>ROLE</th>
-                            <th>JAM MASUK</th>
-                            <th>JAM SELESAI</th>
-                            <th>FOTO</th>
-                            <th style="text-align: center;">GPS</th>
+                    <thead >
+                        <tr >
+                            <th class="table-col-num">NO</th>
+                            <th >TANGGAL</th>
+                            <th >NAMA KARYAWAN</th>
+                            <th >ROLE</th>
+                            <th >JAM MASUK</th>
+                            <th >JAM SELESAI</th>
+                            <th >FOTO</th>
+                            <th class="text-center">GPS</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody >
                         @foreach ($karyawanPresensi as $index => $kp)
                             @php
                                 $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/Y');
@@ -266,23 +265,23 @@
                                 $kpRole = ucfirst($kp->user->role ?? 'Karyawan');
                                 $lokasi = $kp->lokasi_mulai;
                             @endphp
-                            <tr>
-                                <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">{{ $index + 1 }}</td>
-                                <td style="font-weight: 700; white-space: nowrap;">{{ $kpTgl }}</td>
-                                <td style="font-weight: 800; color: var(--text);">{{ $kpName }}</td>
-                                <td>
-                                    <span style="background: rgba(100,116,139,0.12); padding: 4px 8px; border-radius: 6px; font-size: 10.5px; font-weight: 800; color: var(--muted);">
+                            <tr >
+                                <td class="p-3 font-bold text-muted">{{ $index + 1 }}</td>
+                                <td class="font-bold white-space-nowrap">{{ $kpTgl }}</td>
+                                <td class="font-extrabold text-dark">{{ $kpName }}</td>
+                                <td >
+                                    <span  class="rounded-sm text-xs font-extrabold text-muted px-2 py-1 bg-muted-light">
                                         {{ $kpRole }}
                                     </span>
                                 </td>
-                                <td style="font-weight: 800; color: #16a34a;">{{ $kpJamMasuk }}</td>
-                                <td style="font-weight: 800; color: var(--blue2);">{{ $kpJamSelesai }}</td>
-                                <td>
+                                <td class="font-extrabold text-success">{{ $kpJamMasuk }}</td>
+                                <td class="font-extrabold text-primary">{{ $kpJamSelesai }}</td>
+                                <td >
                                     <div class="fotoStack">
                                         @if ($kp->foto_mulai)
                                             <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail" title="Foto Mulai"
                                                 onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')"
-                                                style="cursor:pointer;">
+                                                class="cursor-pointer">
                                         @else
                                             <div class="fotoPlaceholder">M -</div>
                                         @endif
@@ -291,20 +290,19 @@
                                             <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail"
                                                 title="Foto Selesai"
                                                 onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — {{ $kpName }}')"
-                                                style="cursor:pointer;">
+                                                class="cursor-pointer">
                                         @else
                                             <div class="fotoPlaceholder">S -</div>
                                         @endif
                                     </div>
                                 </td>
-                                <td style="text-align: center;">
+                                <td class="text-center">
                                     @if ($lokasi && $lokasi !== '-')
-                                        <button type="button" class="mapBtn" title="Lihat Peta Lokasi"
-                                            onclick="openMapModal('{{ $lokasi }}')">
+                                        <button type="button" class="mapBtn" title="Lihat Peta Lokasi" onclick="openMapModal('{{ $lokasi }}')">
                                             <ion-icon name="map-outline"></ion-icon>
                                         </button>
                                     @else
-                                        <span style="color: var(--muted);">-</span>
+                                        <span class="text-muted">-</span>
                                     @endif
                                 </td>
                             </tr>
@@ -328,11 +326,11 @@
                 @endphp
                 <div class="data-mobile-card">
                     <div class="dmc-header">
-                        <div>
+                        <div >
                             <h3 class="dmc-title">{{ $kpName }}</h3>
-                            <div class="dmc-subtitle">{{ $kpTgl }} &bull; <span style="color:var(--muted);">{{ $kpRole }}</span></div>
+                            <div class="dmc-subtitle">{{ $kpTgl }} &bull; <span class="text-muted">{{ $kpRole }}</span></div>
                         </div>
-                        <span style="font-size:11px;font-weight:700;color:var(--muted);">
+                        <span class="text-xs font-bold text-muted">
                             #{{ $index + 1 }}
                         </span>
                     </div>
@@ -340,35 +338,35 @@
                     <div class="dmc-grid">
                         <div class="dmc-field">
                             <div class="dmc-label">Jam Masuk</div>
-                            <div class="dmc-value" style="color:#16a34a;">{{ $kpJamMasuk }}</div>
+                            <div class="dmc-value text-success">{{ $kpJamMasuk }}</div>
                         </div>
 
                         <div class="dmc-field">
                             <div class="dmc-label">Jam Pulang</div>
-                            <div class="dmc-value" style="color:var(--blue2);">{{ $kpJamSelesai }}</div>
+                            <div class="dmc-value text-primary">{{ $kpJamSelesai }}</div>
                         </div>
                     </div>
 
                     <div class="dmc-footer">
-                        <div style="display:flex;align-items:center;gap:6px;">
-                            <span class="dmc-label" style="margin-bottom:0;">Foto:</span>
+                        <div class="d-flex items-center gap-1">
+                            <span class="dmc-label mb-0">Foto:</span>
                             <div class="fotoStack">
                                 @if ($kp->foto_mulai)
                                     <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail" title="Foto Mulai"
                                         onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')"
-                                        style="cursor:pointer;">
+                                        class="cursor-pointer">
                                 @endif
                                 @if ($kp->foto_selesai)
                                     <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail"
                                         title="Foto Selesai"
                                         onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — {{ $kpName }}')"
-                                        style="cursor:pointer;">
+                                        class="cursor-pointer">
                                 @endif
                             </div>
                         </div>
 
                         @if ($lokasi && $lokasi !== '-')
-                            <button type="button" class="btnOutline" style="padding:6px 12px;font-size:11.5px;border-radius:8px;display:inline-flex;align-items:center;gap:4px;" onclick="openMapModal('{{ $lokasi }}')">
+                            <button type="button" onclick="openMapModal('{{ $lokasi }}')" class="btnOutline text-sm rounded-md d-inline-flex items-center gap-1 px-3 py-1">
                                 <ion-icon name="map-outline"></ion-icon> Peta GPS
                             </button>
                         @endif
@@ -389,7 +387,7 @@
     <div class="modal-overlay" id="photoModal" onclick="if(event.target===this)closeModal('photoModal')">
         <div class="modal-box">
             <div class="modal-header">
-                <span id="photoModalTitle" style="font-weight: 800;">Foto Presensi</span>
+                <span id="photoModalTitle" class="font-extrabold">Foto Presensi</span>
                 <button class="modal-close" onclick="closeModal('photoModal')">&times;</button>
             </div>
             <div class="modal-body">
@@ -402,18 +400,17 @@
     <div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeModal('mapModal')">
         <div class="modal-box">
             <div class="modal-header">
-                <span style="font-weight: 800;">Lokasi Presensi (Geolokasi GPS)</span>
+                <span class="font-extrabold">Lokasi Presensi (Geolokasi GPS)</span>
                 <button class="modal-close" onclick="closeModal('mapModal')">&times;</button>
             </div>
             <div class="modal-body">
-                <iframe id="mapModalFrame" src="" allowfullscreen loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+                <iframe id="mapModalFrame" src="" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
             </div>
         </div>
     </div>
 </div>
 
-<script>
+<script >
     function openPhotoModal(src, title) {
         document.getElementById('photoModalImg').src = src;
         document.getElementById('photoModalTitle').textContent = title;

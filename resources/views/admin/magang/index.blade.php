@@ -4,74 +4,74 @@
 
 @section('content')
 
-<div class="pageHeaderRow header-actions-group" style="justify-content: space-between;">
-    <div>
-        <h2 style="margin:0;">Data Peserta Magang &amp; PKL</h2>
-        <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</p>
+<div class="pageHeaderRow header-actions-group flex-between">
+    <div >
+        <h2 class="mb-0 mt-0">Data Peserta Magang &amp; PKL</h2>
+        <p class="mt-1 text-sm text-muted">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</p>
     </div>
     <div class="header-actions-group">
-        <a href="{{ route('admin.magang.presensi') }}" class="btnOutline" style="padding:8px 12px;font-size:12px;gap:6px;">
+        <a href="{{ route('admin.magang.presensi') }}" class="btnOutline p-2 text-sm gap-1">
             <ion-icon name="calendar-outline"></ion-icon> Monitoring Presensi
         </a>
-        <a href="{{ route('admin.magang.create') }}" class="btnPrimary" style="padding:8px 12px;background:var(--blue-gradient);font-size:12px;gap:6px;">
+        <a href="{{ route('admin.magang.create') }}" class="btnPrimary p-2 text-sm gap-1 bg-primary-gradient">
             <ion-icon name="add-outline"></ion-icon> Tambah Peserta Magang
         </a>
     </div>
 </div>
 
 <!-- Statistik -->
-<div class="statsRow" style="padding: 0 16px;">
+<div class="statsRow px-4">
     <div class="statBox dark">
-        <ion-icon name="school-outline" style="font-size:24px;margin-bottom:4px;"></ion-icon>
-        <h2>{{ $total }}</h2>
-        <div>TOTAL MAGANG</div>
+        <ion-icon name="school-outline" class="icon-xl mb-1"></ion-icon>
+        <h2 >{{ $total }}</h2>
+        <div >TOTAL MAGANG</div>
     </div>
     <div class="statBox active">
-        <ion-icon name="checkmark-circle-outline" style="font-size:24px;margin-bottom:4px;"></ion-icon>
-        <h2>{{ $aktif }}</h2>
-        <div>AKTIF</div>
+        <ion-icon name="checkmark-circle-outline" class="icon-xl mb-1"></ion-icon>
+        <h2 >{{ $aktif }}</h2>
+        <div >AKTIF</div>
     </div>
     <div class="statBox inactive">
-        <ion-icon name="pause-circle-outline" style="font-size:24px;margin-bottom:4px;"></ion-icon>
-        <h2>{{ $nonaktif }}</h2>
-        <div>SELESAI / NONAKTIF</div>
+        <ion-icon name="pause-circle-outline" class="icon-xl mb-1"></ion-icon>
+        <h2 >{{ $nonaktif }}</h2>
+        <div >SELESAI / NONAKTIF</div>
     </div>
 </div>
 
 <!-- Filter Search -->
-<div class="searchRow" style="padding: 0 16px; margin-top: 16px;">
-    <form method="GET" action="{{ route('admin.magang.index') }}" style="display:flex; gap:10px; width:100%; flex-wrap:wrap;">
-        <div style="flex:1; min-width:220px; position:relative;">
-            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama, NIM, instansi, email..." class="profileInput" style="width:100%; padding-left:36px; height: 40px; font-size: 13px;">
-            <ion-icon name="search-outline" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--muted);"></ion-icon>
+<div  class="searchRow mt-4 px-4">
+    <form method="GET" action="{{ route('admin.magang.index') }}" class="d-flex gap-2 w-full flex-wrap">
+        <div  class="flex-1 pos-relative min-w-220">
+            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama, NIM, instansi, email..." class="profileInput w-full text-md pl-8 text-md">
+            <ion-icon name="search-outline" class="pos-absolute icon-md text-muted left-2"></ion-icon>
         </div>
-        <select name="status" class="profileInput" style="width:auto; height: 40px; font-size: 13px;" onchange="this.form.submit()">
+        <select name="status" onchange="this.form.submit()" class="profileInput w-auto text-md text-md">
             <option value="">Semua Status</option>
             <option value="1" {{ ($status === '1') ? 'selected' : '' }}>Aktif</option>
             <option value="0" {{ ($status === '0') ? 'selected' : '' }}>Nonaktif / Selesai</option>
         </select>
-        <button type="submit" class="profileBtnPrimary" style="padding: 0 16px; height: 40px; font-size: 13px; width: auto;">Filter</button>
+        <button type="submit" class="profileBtnPrimary text-md w-auto px-4 text-md">Filter</button>
         @if($search || $status !== null)
-            <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding: 0 12px; height: 40px; font-size: 13px; display: inline-flex; align-items: center;">Reset</a>
+            <a href="{{ route('admin.magang.index') }}" class="btnOutline text-md d-inline-flex items-center px-3 text-md">Reset</a>
         @endif
     </form>
 </div>
 
 <!-- Tabel Magang -->
-<div class="tableCard" style="margin: 16px; border-radius:16px; overflow:hidden; background:var(--card,#fff); border:1px solid var(--border,#e2e8f0);">
-    <div class="tableResponsive" style="overflow-x:auto;">
-        <table class="table" style="width:100%; border-collapse:collapse;">
-            <thead>
-                <tr style="border-bottom:1px solid var(--border,#e2e8f0); background:var(--card-alt,#f8fafc); text-align:left;">
-                    <th style="padding:12px 16px; font-size:12px; font-weight:700;">Peserta Magang</th>
-                    <th style="padding:12px 16px; font-size:12px; font-weight:700;">Asal Instansi & Jurusan</th>
-                    <th style="padding:12px 16px; font-size:12px; font-weight:700;">Periode Magang</th>
-                    <th style="padding:12px 16px; font-size:12px; font-weight:700;">No. WhatsApp</th>
-                    <th style="padding:12px 16px; font-size:12px; font-weight:700;">Status</th>
-                    <th style="padding:12px 16px; font-size:12px; font-weight:700; text-align:right;">Aksi</th>
+<div  class="tableCard overflow-hidden border-base m-4 rounded-xl bg-card">
+    <div class="tableResponsive overflow-x-auto">
+        <table  class="table w-full table-modern">
+            <thead >
+                <tr  class="text-left bg-card-alt table-head-row">
+                    <th class="p-3 text-sm font-bold">Peserta Magang</th>
+                    <th class="p-3 text-sm font-bold">Asal Instansi & Jurusan</th>
+                    <th class="p-3 text-sm font-bold">Periode Magang</th>
+                    <th class="p-3 text-sm font-bold">No. WhatsApp</th>
+                    <th class="p-3 text-sm font-bold">Status</th>
+                    <th class="p-3 text-sm font-bold text-right">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
                 @forelse($magangs as $m)
                     @php
                         $detail = $m->magang;
@@ -79,45 +79,45 @@
                         $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->format('d/m/Y') : '-';
                         $avatarUrl = $m->foto ? (str_starts_with($m->foto, 'uploads/') ? asset($m->foto) : asset('storage/' . $m->foto)) : null;
                     @endphp
-                    <tr style="border-bottom:1px solid var(--border,#f1f5f9);">
-                        <td style="padding:12px 16px;">
-                            <div style="display:flex; align-items:center; gap:12px;">
+                    <tr class="table-body-row">
+                        <td class="p-3">
+                            <div class="d-flex items-center gap-3">
                                 @if($avatarUrl)
-                                    <img src="{{ $avatarUrl }}" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+                                    <img src="{{ $avatarUrl }}" class="rounded-full object-cover avatar-icon-36">
                                 @else
-                                    <div style="width:36px; height:36px; border-radius:50%; background:rgba(11,94,215,0.1); color:#0B5ED7; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px;">
+                                    <div  class="rounded-full d-flex items-center justify-center font-bold text-md avatar-icon-36 bg-primary-light text-primary">
                                         {{ strtoupper(substr($m->nama_lengkap ?? $m->name, 0, 1)) }}
                                     </div>
                                 @endif
-                                <div>
-                                    <div style="font-weight:700; font-size:13px; color:var(--text,#0f172a);">{{ $m->nama_lengkap ?? $m->name }}</div>
-                                    <div style="font-size:11px; color:var(--muted,#64748b);">NIK: {{ $m->nik }} • {{ $m->email }}</div>
+                                <div >
+                                    <div class="font-bold text-md text-dark">{{ $m->nama_lengkap ?? $m->name }}</div>
+                                    <div class="text-xs text-muted">NIK: {{ $m->nik }} • {{ $m->email }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td style="padding:12px 16px;">
-                            <div style="font-weight:600; font-size:13px; color:var(--text,#0f172a);">{{ $detail?->asal_instansi ?: '-' }}</div>
-                            <div style="font-size:11px; color:var(--muted,#64748b);">{{ $detail?->jurusan ?: '-' }} (NIM: {{ $detail?->nim_nisn ?: '-' }})</div>
+                        <td class="p-3">
+                            <div class="font-semibold text-md text-dark">{{ $detail?->asal_instansi ?: '-' }}</div>
+                            <div class="text-xs text-muted">{{ $detail?->jurusan ?: '-' }} (NIM: {{ $detail?->nim_nisn ?: '-' }})</div>
                         </td>
-                        <td style="padding:12px 16px;">
-                            <div style="font-size:12px; font-weight:600; color:var(--text,#0f172a);">{{ $tglMulai }} s/d {{ $tglSelesai }}</div>
+                        <td class="p-3">
+                            <div class="text-sm font-semibold text-dark">{{ $tglMulai }} s/d {{ $tglSelesai }}</div>
                         </td>
-                        <td style="padding:12px 16px; font-size:12px;">
+                        <td class="p-3 text-sm">
                             {{ $m->no_hp ?: '-' }}
                         </td>
-                        <td style="padding:12px 16px;">
+                        <td class="p-3">
                             @if($m->is_active)
                                 <span class="app-badge badge-status-aktif">Aktif</span>
                             @else
                                 <span class="app-badge badge-status-nonaktif">Nonaktif</span>
                             @endif
                         </td>
-                        <td style="padding:12px 16px; text-align:right;">
-                            <div style="display:flex; justify-content:flex-end; gap:6px;">
+                        <td class="p-3 text-right">
+                            <div class="d-flex justify-end gap-1">
                                 <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit" title="Edit">
                                     <ion-icon name="create-outline"></ion-icon> Edit
                                 </a>
-                                <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" style="display:inline; margin:0;">
+                                <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="smallBtn delete cursor-pointer" title="Hapus">
@@ -128,10 +128,10 @@
                         </td>
                     </tr>
                 @empty
-                    <tr>
-                        <td colspan="6" style="padding:32px; text-align:center; color:var(--muted,#64748b);">
-                            <ion-icon name="school-outline" style="font-size:36px; opacity:0.5; margin-bottom:8px;"></ion-icon>
-                            <div>Belum ada data peserta magang/PKL.</div>
+                    <tr >
+                        <td colspan="6" class="text-center text-muted p-4">
+                            <ion-icon name="school-outline" class="icon-2xl mb-2 opacity-50"></ion-icon>
+                            <div >Belum ada data peserta magang/PKL.</div>
                         </td>
                     </tr>
                 @endforelse
@@ -139,7 +139,7 @@
         </table>
     </div>
     @if($magangs->hasPages())
-        <div style="padding:16px; border-top:1px solid var(--border,#e2e8f0);">
+        <div  class="p-4 border-t-base">
             {{ $magangs->links() }}
         </div>
     @endif

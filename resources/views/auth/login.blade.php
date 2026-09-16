@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en">
 
-<head>
+<head >
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#000000">
-    <title>Smart Presensi</title>
+    <title >Smart Presensi</title>
     <meta name="description" content="Mobilekit HTML Mobile UI Kit">
     <meta name="keywords" content="bootstrap 4, mobile template, cordova, phonegap, mobile, html" />
     <link rel="icon" type="image/jpeg" href="{{ asset('assets/img/Logo.jpeg') }}" />
@@ -16,7 +16,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body>
+<body >
 
     <div class="login-wrapper">
         <div class="login-card">
@@ -26,7 +26,7 @@
 
             <div class="login-form-panel">
                 <div class="login-title">
-                    PKBM Pintar Berbakat<br>
+                    PKBM Pintar Berbakat<br >
                     Homeschooling Bandung
                 </div>
 
@@ -53,19 +53,16 @@
 
                     <div class="login-field">
                         <label for="username" class="login-label">Username or NIK</label>
-                        <input type="text" name="username" id="username" class="login-input"
-                            placeholder="Masukkan username atau NIK" value="{{ old('username') }}"
-                            autocomplete="username" inputmode="text" enterkeyhint="next" autofocus>
+                        <input type="text" name="username" id="username" class="login-input" placeholder="Masukkan username atau NIK" value="{{ old('username') }}" autocomplete="username" inputmode="text" enterkeyhint="next" autofocus>
                     </div>
 
                     <div class="login-field">
                         <label for="password" class="login-label">Password</label>
-                        <input type="password" name="password" id="password" class="login-input"
-                            placeholder="Masukkan password" autocomplete="current-password" enterkeyhint="go">
+                        <input type="password" name="password" id="password" class="login-input" placeholder="Masukkan password" autocomplete="current-password" enterkeyhint="go">
                     </div>
 
                     <div class="login-footer">
-                        <span></span>
+                        <span ></span>
                         <a href="https://wa.me/6285156452939" class="forgot-link">Forgot Password?</a>
                     </div>
 
@@ -94,7 +91,7 @@
     <!-- Base Js File -->
     <script src="{{ asset('assets/js/base.js') }}"></script>
 
-    <script>
+    <script >
         (function() {
             // Enter di field username → pindah fokus ke password
             document.getElementById('username').addEventListener('keydown', function(e) {

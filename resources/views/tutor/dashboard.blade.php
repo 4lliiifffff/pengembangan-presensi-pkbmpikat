@@ -20,12 +20,12 @@
     {{-- ── HEADER DASHBOARD TUTOR ── --}}
     <div class="sectionTitleRow">
         <div class="sectionTitleWrap">
-            <h2>Dashboard Tutor</h2>
+            <h2 >Dashboard Tutor</h2>
             <span class="sectionSubtitle">Selamat datang kembali, {{ $displayName }}!</span>
         </div>
         <div class="badgeDate">
             <ion-icon name="calendar-outline"></ion-icon>
-            <span>{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+            <span >{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
         </div>
     </div>
 
@@ -82,16 +82,15 @@
                             @if ($sisaDetikPulang > 0)
                                 Selesai dalam: <strong id="dashCountdown">{{ gmdate('i:s', $sisaDetikPulang) }}</strong>
                             @else
-                                <span style="color:#16a34a; font-weight:700;">✔ Sudah bisa presensi selesai</span>
+                                <span class="text-success font-bold">✔ Sudah bisa presensi selesai</span>
                             @endif
                         </div>
                     @endif
                 </div>
                 @if ($todayStatus !== 'selesai')
-                    <a href="{{ route('tutor.presensi') }}"
-                        class="todayAbsenBtn {{ $todayStatus === 'proses' ? 'btnSelesai' : '' }}">
+                    <a href="{{ route('tutor.presensi') }}" class="todayAbsenBtn {{ $todayStatus === 'proses' ? 'btnSelesai' : '' }}">
                         <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
-                        <span>{{ $todayStatus === 'proses' ? 'Selesai' : 'Mulai' }}</span>
+                        <span >{{ $todayStatus === 'proses' ? 'Selesai' : 'Mulai' }}</span>
                     </a>
                 @endif
             </div>
@@ -102,9 +101,9 @@
             {{-- ── AKSI CEPAT ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2>
-                        <ion-icon name="flash-outline" style="color:var(--blue2);"></ion-icon>
-                        <span>Aksi Cepat</span>
+                    <h2 >
+                        <ion-icon name="flash-outline" class="text-primary"></ion-icon>
+                        <span >Aksi Cepat</span>
                     </h2>
                 </div>
 
@@ -116,12 +115,12 @@
                         <div class="quickLabel">Izin via WA</div>
                     </a>
                     <a href="{{ route('tutor.lupa-lapor') }}" class="quickCard" aria-label="Lupa Lapor">
-                        <div class="quickIcon" style="background: rgba(245,158,11,0.14); color: var(--warn);">
+                        <div  class="quickIcon text-warning bg-warning-light">
                             <ion-icon name="document-text-outline"></ion-icon>
                         </div>
                         <div class="quickLabel">Lupa Lapor</div>
                     </a>
-                    <a href="{{ route('tutor.presensi') }}" class="quickCard" aria-label="Presensi Bimbingan" style="grid-column: span 2;">
+                    <a href="{{ route('tutor.presensi') }}" aria-label="Presensi Bimbingan" class="quickCard grid-span-2">
                         <div class="quickIcon success">
                             <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
                         </div>
@@ -139,9 +138,9 @@
             {{-- ── RIWAYAT TERBARU ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2>
-                        <ion-icon name="time-outline" style="color:var(--blue2);"></ion-icon>
-                        <span>Riwayat Terbaru</span>
+                    <h2 >
+                        <ion-icon name="time-outline" class="text-primary"></ion-icon>
+                        <span >Riwayat Terbaru</span>
                     </h2>
                     @if (Route::has('tutor.riwayat'))
                         <a href="{{ route('tutor.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
@@ -180,7 +179,7 @@
                             <div class="recentLeft">
                                 <div class="recentCheck {{ ($p->foto_mulai && !$p->foto_selesai) ? 'pending' : '' }}">
                                     <ion-icon name="{{ $p->foto_mulai ? 'checkmark' : 'ellipse-outline' }}"
-                                        style="font-size:14px;"></ion-icon>
+                                        class="text-md"></ion-icon>
                                 </div>
                                 <div class="recentMeta">
                                     <div class="recentDay">{{ $hari }}</div>
@@ -190,7 +189,7 @@
                             <div class="{{ $pillClass }}">{{ $st }}</div>
                         </div>
                     @empty
-                        <div class="emptyState" style="margin: 0; padding: 20px;">
+                        <div class="emptyState m-0 p-4">
                             Belum ada aktivitas presensi hari ini.
                         </div>
                     @endforelse
@@ -199,7 +198,7 @@
         </div>
     </div>
 
-    <script>
+    <script >
         (function() {
             // ── Live clock ──
             const el = document.getElementById('clockTime');

@@ -5,9 +5,9 @@
 @section('content')
 
     <div class="pageHeaderRow">
-        <div>
-            <h2 style="margin:0;">Tambah Agenda Baru</h2>
-            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Tambahkan kalender akademik, ujian, atau kegiatan sekolah</p>
+        <div >
+            <h2 class="mb-0 mt-0">Tambah Agenda Baru</h2>
+            <p class="mt-1 text-sm text-muted">Tambahkan kalender akademik, ujian, atau kegiatan sekolah</p>
         </div>
         <a class="btnOutline" href="{{ route('admin.jadwal.index') }}">
             Kembali
@@ -17,9 +17,9 @@
     @if($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul>
+            <ul >
                 @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
+                    <li >{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
@@ -31,45 +31,41 @@
 
             {{-- Judul --}}
             <div class="form-field-wrapper">
-                <label class="form-field-label">Judul Agenda <span style="color:#ef4444;">*</span></label>
-                <input type="text" name="judul" class="profileInput"
-                       value="{{ old('judul') }}" placeholder="Contoh: Rapat Wali Murid" required>
+                <label class="form-field-label">Judul Agenda <span class="text-danger">*</span></label>
+                <input type="text" name="judul" class="profileInput" value="{{ old('judul') }}" placeholder="Contoh: Rapat Wali Murid" required>
                 @error('judul')
-                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
+                    <div class="field-help-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
 
             {{-- Deskripsi --}}
             <div class="form-field-wrapper">
                 <label class="form-field-label">Deskripsi (Opsional)</label>
-                <textarea name="deskripsi" class="profileInput" rows="3" style="height:auto;padding:10px 14px;"
-                          placeholder="Keterangan tambahan tentang agenda ini...">{{ old('deskripsi') }}</textarea>
+                <textarea name="deskripsi" rows="3" placeholder="Keterangan tambahan tentang agenda ini..." class="profileInput h-auto p-2">{{ old('deskripsi') }}</textarea>
                 @error('deskripsi')
-                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
+                    <div class="field-help-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
 
             {{-- Tanggal --}}
             <div class="form-field-wrapper">
-                <label class="form-field-label">Tanggal <span style="color:#ef4444;">*</span></label>
-                <input type="date" name="tanggal" class="profileInput"
-                       value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                <label class="form-field-label">Tanggal <span class="text-danger">*</span></label>
+                <input type="date" name="tanggal" class="profileInput" value="{{ old('tanggal', date('Y-m-d')) }}" required>
                 @error('tanggal')
-                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
+                    <div class="field-help-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
 
             {{-- Lokasi --}}
             <div class="form-field-wrapper">
                 <label class="form-field-label">Lokasi (Opsional)</label>
-                <input type="text" name="lokasi" class="profileInput"
-                       value="{{ old('lokasi') }}" placeholder="Contoh: Ruang Aula, Online, dll.">
+                <input type="text" name="lokasi" class="profileInput" value="{{ old('lokasi') }}" placeholder="Contoh: Ruang Aula, Online, dll.">
                 @error('lokasi')
-                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
+                    <div class="field-help-text text-danger">{{ $message }}</div>
                 @enderror
             </div>
 
-            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
+            <button type="submit" class="profileBtnPrimary mt-3">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan Agenda
             </button>
