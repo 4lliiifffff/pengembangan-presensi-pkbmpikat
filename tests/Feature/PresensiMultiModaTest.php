@@ -107,6 +107,59 @@ class PresensiMultiModaTest extends TestCase
         ]);
     }
 
+    public function test_regular_multi_siswa_fails_when_students_belong_to_different_packages(): void
+    {
+        Storage::fake('public');
+
+        $userTutor = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $userTutor->id,
+            'nik' => $userTutor->nik,
+            'nama_lengkap' => $userTutor->nama_lengkap,
+            'email' => $userTutor->email,
+        ]);
+
+        $kelasA = kelas::create(['nama_kelas' => 'Paket A (Setara SD)']);
+        $kelasB = kelas::create(['nama_kelas' => 'Paket B (Setara SMP)']);
+
+        $siswaA = Siswa::create([
+            'no_absen' => 'TEST_REG_A',
+            'nama_siswa' => 'Siswa Paket A Reguler',
+            'no_hp' => '08123456781',
+            'nama_wali' => 'Wali A',
+            'kelas_id' => $kelasA->id,
+        ]);
+
+        $siswaB = Siswa::create([
+            'no_absen' => 'TEST_REG_B',
+            'nama_siswa' => 'Siswa Paket B Reguler',
+            'no_hp' => '08123456782',
+            'nama_wali' => 'Wali B',
+            'kelas_id' => $kelasB->id,
+        ]);
+
+        $file = UploadedFile::fake()->image('bukti_regular.jpg');
+        // Sesi Reguler (is_gabungan = 0) tetapi memilih siswa Paket A dan Paket B
+        $response = $this->actingAs($userTutor)->from(route('tutor.presensi'))->post('/tutor/presensi', [
+            'siswa_id' => [$siswaA->id, $siswaB->id],
+            'mode' => 'mulai',
+            'moda_pembelajaran' => 'kunjungan_rumah',
+            'is_gabungan' => 0,
+            'foto' => $file,
+        ]);
+
+        $response->assertRedirect(route('tutor.presensi'));
+        $response->assertSessionHas('warning');
+        $this->assertDatabaseMissing('presensis', [
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswaA->id,
+        ]);
+        $this->assertDatabaseMissing('presensis', [
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswaB->id,
+        ]);
+    }
+
     public function test_gabungan_komunitas_succeeds_when_students_belong_to_same_package(): void
     {
         Storage::fake('public');

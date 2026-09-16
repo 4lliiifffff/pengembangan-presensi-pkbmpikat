@@ -246,14 +246,14 @@ pie title Status Fitur & Pengkondisian Sistem
     - Grid tanggal adaptif (`.dateInputRow`) yang otomatis 1 kolom pada layar HP (< 520px) dan 2 kolom pada tablet/desktop.
     - Kartu riwayat pengajuan izin lengkap dengan status badge, tombol pratinjau surat bukti, dan dialog pembatalan interaktif.
 
-#### 6.4 Validasi Pedagogis Sesi Gabungan Komunitas (Rombel Antar-Paket)
-- 🟢 **Validasi Keseragaman Jenjang Paket Rombel**
+#### 6.4 Validasi Pedagogis Multi-Siswa & Keseragaman Jenjang Paket (Universal Guard)
+- 🟢 **Validasi Universal Keseragaman Jenjang Paket Siswa**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Penambahan accessor `$siswa->jenjang_paket` (`paket_a`, `paket_b`, `paket_c`, `umum`) dan `$siswa->jenjang_paket_label` pada model `Siswa` (PKBM Pikat khusus melayani pendidikan kesetaraan Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA).
-    - **Backend Guard**: Validasi ketat pada `PresensiFotoController::store()` saat opsi gabungan aktif (`is_gabungan = true`). Menolak presensi jika siswa yang dipilih berasal dari jenjang paket yang berbeda dengan pesan informatif pedagogis: *"Sesi Gabungan Komunitas (Rombel) hanya dapat menggabungkan rombongan belajar dalam jenjang paket yang sama..."*.
-    - **Frontend Guard**: Peringatan visual realtime `#gabunganPaketMismatchAlert` dan pencegahan submit pada form presensi `tutor/presensi_foto.blade.php`.
-    - Automated feature testing: `tests/Feature/PresensiMultiModaTest.php` (`test_gabungan_komunitas_fails_when_students_belong_to_different_packages` & `test_gabungan_komunitas_succeeds_when_students_belong_to_same_package`).
+    - Penambahan accessor `$siswa->jenjang_paket` (`paket_a`, `paket_b`, `paket_c`, `umum`) dan `$siswa->jenjang_paket_label` pada model `Siswa` (khusus jenjang pendidikan kesetaraan: Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA).
+    - **Universal Backend Guard**: Validasi menyeluruh pada `PresensiFotoController::store()` setiap kali tutor memilih lebih dari 1 siswa (`count(siswa_id) > 1`). Menolak presensi multi-siswa baik pada sesi reguler tatap muka, daring, maupun sesi gabungan rombel jika ditemukan siswa lintas paket dengan pesan informatif: *"Presensi bersamaan hanya dapat dilakukan untuk siswa dalam jenjang paket yang sama (tidak boleh lintas paket). Ditemukan siswa dari jenjang yang berbeda: [Paket A dan Paket C]."*
+    - **Frontend Guard**: Pemindahan alert visual `#gabunganPaketMismatchAlert` ke dalam kartu pemilih siswa (`#wrapperSiswaDropdown`) dengan peringatan realtime dan pemblokiran submit formulir presensi pada `tutor/presensi_foto.blade.php`.
+    - Automated feature testing: `tests/Feature/PresensiMultiModaTest.php` (`test_gabungan_komunitas_fails_when_students_belong_to_different_packages`, `test_regular_multi_siswa_fails_when_students_belong_to_different_packages`, dan `test_gabungan_komunitas_succeeds_when_students_belong_to_same_package`).
 
 ---
 
@@ -265,7 +265,7 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
 #### 7.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **66 Feature & Unit Tests** lulus 100% (**282 assertions**).
+- 🟢 **PHPUnit Test Suite**: Seluruh **67 Feature & Unit Tests** lulus 100% (**287 assertions**).
 - 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---
@@ -281,7 +281,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 5 | **Implementasi Web Push Service & VAPID Tooling** | Push Service | Menambahkan `minishlink/web-push`, command `webpush:vapid`, dan integrasi Service Worker PWA v2. | 🟢 Selesai |
 | 6 | **Master Kategori & Skema Tarif SK Kepala PKBM** | Payroll SK | Migrasi `kategori_tutorials`, seeder 6 skema SK, dynamic snapshot resolver, dan eliminasi form manual. | 🟢 Selesai |
 | 7 | **UI/UX Excellence & Unified Dialog System** | Frontend | Standardisasi layout dashboard, sticky navigation, unified modern dialog/toast, dan form izin responsif. | 🟢 Selesai |
-| 8 | **Validasi Pedagogis Sesi Gabungan Rombel** | Core Presensi | Deteksi jenjang paket siswa & pencegahan penggabungan rombel lintas paket pada presensi komunitas. | 🟢 Selesai |
+| 8 | **Validasi Pedagogis Universal Keseragaman Jenjang Paket** | Core Presensi | Deteksi jenjang paket siswa & pencegahan multi-siswa lintas paket (baik sesi reguler maupun sesi gabungan rombel). | 🟢 Selesai |
 
 ---
 

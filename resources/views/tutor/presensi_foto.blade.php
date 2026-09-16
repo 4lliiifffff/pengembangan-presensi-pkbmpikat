@@ -389,10 +389,6 @@
                         <div style="font-size:11px; color:var(--muted); margin-top:4px; margin-left:24px; line-height:1.35;">
                             Penggabungan beberapa rombel dalam 1 jenjang paket yang sama (sesama Paket A, B, atau C).
                         </div>
-                        <div id="gabunganPaketMismatchAlert" style="display:none; margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#dc2626; font-size:11.5px; font-weight:700;">
-                            <ion-icon name="alert-circle" style="vertical-align:middle; font-size:14px; margin-right:2px;"></ion-icon>
-                            <span id="gabunganPaketMismatchMsg">Peringatan: Siswa yang dipilih berasal dari paket yang berbeda.</span>
-                        </div>
                     </div>
 
                     {{-- 5. Searchable Dropdown Pemilihan Siswa --}}
@@ -435,6 +431,12 @@
                                     <button type="button" onclick="selectAllVisibleSiswa(false)"
                                         style="font-size:10.5px; font-weight:700; color:#ef4444; background:none; border:none; cursor:pointer; padding:0;">Reset</button>
                                 </div>
+                            </div>
+
+                            {{-- Alert Mismatch Paket Siswa Terpilih --}}
+                            <div id="gabunganPaketMismatchAlert" style="display:none; margin-bottom:8px; padding:8px 10px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#dc2626; font-size:11.5px; font-weight:700;">
+                                <ion-icon name="alert-circle" style="vertical-align:middle; font-size:14px; margin-right:2px;"></ion-icon>
+                                <span id="gabunganPaketMismatchMsg">Peringatan: Siswa yang dipilih berasal dari jenjang paket yang berbeda.</span>
                             </div>
 
                             {{-- Scrollable List of Students --}}
@@ -1404,12 +1406,11 @@
                 countLabel.innerText = checked.length;
             }
 
-            // Realtime Validation: Sesi Gabungan Komunitas (Rombel) tidak boleh lintas paket
-            var inputGabungan = document.getElementById('inputIsGabungan');
+            // Realtime Validation: Pemilihan multi-siswa wajib dalam jenjang paket yang sama (Universal)
             var alertBox = document.getElementById('gabunganPaketMismatchAlert');
             var alertMsg = document.getElementById('gabunganPaketMismatchMsg');
 
-            if (inputGabungan && inputGabungan.checked && checked.length > 1) {
+            if (checked.length > 1) {
                 var paketMap = {};
                 checked.forEach(function (cb) {
                     var p = cb.getAttribute('data-paket') || 'umum';
@@ -1421,7 +1422,7 @@
                 if (uniquePakets.length > 1) {
                     var labels = Object.values(paketMap).join(' dan ');
                     if (alertBox && alertMsg) {
-                        alertMsg.innerText = 'Siswa terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Sesi gabungan rombel hanya diperbolehkan untuk jenjang paket yang sama.';
+                        alertMsg.innerText = 'Siswa terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Presensi bersamaan hanya diperbolehkan untuk siswa dalam jenjang paket yang sama.';
                         alertBox.style.display = 'block';
                     }
                 } else {
@@ -1471,10 +1472,9 @@
                     return;
                 }
 
-                // Check Sesi Gabungan Mismatch on Submit
-                var inputGabungan = document.getElementById('inputIsGabungan');
+                // Check Mismatch Paket on Submit (Universal Multi-Siswa)
                 var checked = document.querySelectorAll('.siswa-checkbox:checked');
-                if (inputGabungan && inputGabungan.checked && checked.length > 1) {
+                if (checked.length > 1) {
                     var paketMap = {};
                     checked.forEach(function (cb) {
                         var p = cb.getAttribute('data-paket') || 'umum';
@@ -1483,7 +1483,7 @@
                     });
                     if (Object.keys(paketMap).length > 1) {
                         e.preventDefault();
-                        alert('Sesi Gabungan Komunitas (Rombel) tidak dapat menggabungkan siswa dari paket yang berbeda (' + Object.values(paketMap).join(' dan ') + '). Silakan pilih siswa dalam jenjang paket yang sama.');
+                        alert('Presensi bersamaan tidak dapat menggabungkan siswa dari paket yang berbeda (' + Object.values(paketMap).join(' dan ') + '). Silakan pilih siswa dalam jenjang paket yang sama.');
                         return;
                     }
                 }
