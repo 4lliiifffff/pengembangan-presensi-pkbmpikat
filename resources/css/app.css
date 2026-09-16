@@ -2961,19 +2961,149 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
 .emptyKll ion-icon { font-size: 44px; display: block; margin: 0 auto 10px; opacity: 0.35; }
 .paginatePad { padding: 0 0 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); }
 
-/* Kepsek Laporan Modern & Responsive */
+/* Kepsek & Admin Laporan Modern & Responsive */
 .laporanPageWrapper {
+    width: 100%;
     padding: 0 16px;
     padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+    box-sizing: border-box;
+}
+
+.laporanHeader {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.laporanHeaderCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg, 18px);
+    padding: 18px 20px;
+    margin: 0 0 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.laporanHeader > .laporanHeaderCard {
+    margin-bottom: 0;
+}
+
+.laporanHeaderInfo,
+.laporanTitleBlock {
+    flex: 1 1 280px;
+    min-width: 0;
+}
+
+.laporanHeaderMain {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.laporanHeaderInfo,
+.laporanTitleBlock {
+    flex: 1;
+    min-width: 0;
+}
+
+.laporanHeaderLabel,
+.laporanSubtitle {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    color: var(--blue2);
+    margin-bottom: 4px;
+    display: block;
+}
+
+.laporanHeaderTitle,
+.laporanMainTitle {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text);
+    margin: 0 0 4px 0;
+    line-height: 1.25;
+    letter-spacing: -0.3px;
+    word-break: break-word;
+}
+
+.laporanHeaderSub {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    opacity: 0.85;
+    margin-bottom: 4px;
+    word-break: break-word;
+}
+
+.laporanHeaderDesc,
+.laporanDesc {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.45;
+    word-break: break-word;
+}
+
+.laporanHeaderActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btnPayrollShortcut {
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    color: #ffffff !important;
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.btnPayrollShortcut:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    opacity: 0.96;
+}
+
+.btnPayrollShortcut ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
 }
 
 .laporanFilterCard {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg, 18px);
-    padding: 16px;
+    padding: 18px 20px;
     margin: 0 0 16px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .laporanFilterGrid {
@@ -3025,6 +3155,292 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
     display: flex;
     gap: 8px;
     width: 100%;
+}
+
+.filter-actions-full {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    align-items: center;
+}
+
+/* Laporan Visual Analytics & Charts */
+.chartContainer {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.chartCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg, 18px);
+    padding: 16px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.chartTitle {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 12px;
+}
+
+.chartWrapper {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    min-height: 200px;
+    max-height: 340px;
+}
+
+.tutorList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.tutorCard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md, 16px);
+    padding: 16px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+}
+
+.tutorCardTop {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.tutorAvatarGroup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.tutorAvatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #0099FF 100%));
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.tutorInfo {
+    min-width: 0;
+    flex: 1;
+}
+
+.tutorName {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tutorJabatan {
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tutorJamBox {
+    text-align: right;
+    flex-shrink: 0;
+}
+
+.tutorJamNum {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--blue2);
+}
+
+.tutorJamLabel {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.progressRow {
+    width: 100%;
+}
+
+.progressMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: var(--muted);
+}
+
+.progressVal {
+    font-weight: 900;
+    color: var(--text);
+}
+
+.progressTrack {
+    width: 100%;
+    height: 7px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.progressFill {
+    height: 100%;
+    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #0099FF 100%));
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.progressFill.high {
+    background: var(--success, #16a34a);
+}
+
+.progressFill.mid {
+    background: var(--warning, #f59e0b);
+}
+
+.progressFill.low {
+    background: var(--danger, #dc2626);
+}
+
+.ctaArea {
+    margin-top: 20px;
+    margin-bottom: 24px;
+    width: 100%;
+}
+
+.ctaBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 20px;
+    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #0099FF 100%));
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 900;
+    border-radius: var(--radius-md, 14px);
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    box-sizing: border-box;
+}
+
+.ctaBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(11, 94, 215, 0.35);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 860px) {
+    .laporanHeaderCard {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 16px;
+    }
+    .laporanHeaderInfo,
+    .laporanTitleBlock {
+        width: 100%;
+    }
+    .laporanHeaderActions {
+        width: 100%;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--border);
+    }
+    .laporanHeaderActions .btnPayrollShortcut,
+    .laporanHeaderActions a,
+    .laporanHeaderActions button {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 640px) {
+    .laporanPageWrapper {
+        padding: 0 12px;
+    }
+    .laporanHeaderCard {
+        padding: 14px;
+        border-radius: var(--radius-md, 14px);
+    }
+    .laporanFilterCard {
+        padding: 14px;
+        border-radius: var(--radius-md, 14px);
+    }
+    .chartCard {
+        padding: 14px;
+        border-radius: var(--radius-md, 14px);
+    }
+    .chartWrapper {
+        height: 210px;
+    }
+    .filter-actions-full {
+        flex-direction: column;
+        width: 100%;
+    }
+    .filter-actions-full button,
+    .filter-actions-full a {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+    .laporanFilterGrid {
+        grid-template-columns: 1fr;
+    }
+    .tutorList {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .laporanHeaderTitle,
+    .laporanMainTitle {
+        font-size: 17px;
+    }
+    .laporanHeaderSub {
+        font-size: 12px;
+    }
+    .laporanHeaderDesc,
+    .laporanDesc {
+        font-size: 11.5px;
+    }
 }
 
 .statRow {
@@ -3301,30 +3717,6 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
     font-size: 20px;
 }
 
-/* Admin Laporan */
-.laporanHeader { padding: 16px 16px 20px; }
-.laporanHeaderLabel { font-size: 11px; color: #f1f5f9; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 8px; }
-.laporanHeaderTitle { font-size: 18px; font-weight: 700; color: #fff; }
-.laporanHeaderSub { font-size: 12px; color: #cbd5e1; margin-top: 2px; }
-.summaryRow { display: flex; gap: 10px; padding: 14px 16px 0; }
-.statCardValue { font-size: 24px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
-.statCardLabel { font-size: 10px; font-weight: 600; color: #94a3b8; letter-spacing: 0.5px; text-transform: uppercase; }
-.stat-hadir .statCardValue { color: #16a34a; }
-.stat-izin .statCardValue { color: #f59e0b; }
-.sectionTitle { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; color: var(--muted); padding: 16px 16px 8px; }
-.chartContainer { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 0 16px; }
-.chartCard { background: var(--card); border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); border: 1px solid var(--border); }
-.chartTitle { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
-.tutorCardName { font-size: 14px; font-weight: 600; color: var(--text); }
-.tutorCardCount { font-size: 13px; font-weight: 700; color: var(--blue2); }
-.progressBg { height: 6px; background: #e2e8f0; border-radius: 3px; }
-.recentList { padding: 0 16px; display: flex; flex-direction: column; gap: 8px; padding-bottom: 110px; }
-.pill { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.3px; flex-shrink: 0; }
-.pill.hadir { background: #dcfce7; color: #15803d; }
-.pill.izin { background: #fef9c3; color: #92400e; }
-.pill.alpha { background: #fee2e2; color: #dc2626; }
-.pill.proses { background: #e0e7ff; color: #4f46e5; }
-.emptyState { text-align: center; padding: 30px; color: #94a3b8; font-size: 13px; }
 
 /* Admin Agenda (Jadwal) */
 .weekStrip { background: #1a3a5c; padding: 12px 16px 18px; }
@@ -4910,126 +5302,7 @@ button, a, input, select, textarea {
     }
 }
 
-/* ==========================================
-   LAPORAN HEADER CARD & PAYROLL SHORTCUT
-   ========================================== */
-.laporanHeader {
-    padding: 16px 16px 12px;
-}
 
-.laporanHeaderCard {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 16px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
-}
-
-.laporanHeaderInfo {
-    flex: 1 1 320px;
-    min-width: 0;
-}
-
-.laporanHeaderLabel {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 1px;
-    color: #0284c7;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-}
-
-.laporanHeaderTitle {
-    font-size: 20px;
-    font-weight: 800;
-    color: var(--text);
-    margin: 0 0 4px;
-    letter-spacing: -0.3px;
-}
-
-.laporanHeaderSub {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--blue2);
-}
-
-.laporanHeaderDesc {
-    margin: 6px 0 0;
-    font-size: 12px;
-    color: var(--muted);
-    line-height: 1.45;
-}
-
-.laporanHeaderActions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-
-.btnPayrollShortcut {
-    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-    color: #ffffff !important;
-    text-decoration: none !important;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 10px 18px;
-    font-size: 13px;
-    font-weight: 700;
-    border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.28);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    white-space: nowrap;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.btnPayrollShortcut:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
-    opacity: 0.96;
-}
-
-.btnPayrollShortcut ion-icon {
-    font-size: 18px;
-}
-
-@media (max-width: 640px) {
-    .laporanHeader {
-        padding: 12px 14px 8px;
-    }
-
-    .laporanHeaderCard {
-        padding: 14px 16px;
-        gap: 12px;
-    }
-
-    .laporanHeaderActions {
-        width: 100%;
-        margin-top: 4px;
-    }
-
-    .btnPayrollShortcut {
-        width: 100%;
-        padding: 11px 16px;
-    }
-}
-
-@media (min-width: 768px) {
-    .laporanHeader {
-        padding: 24px 24px 16px;
-    }
-
-    .laporanHeaderCard {
-        padding: 22px 26px;
-    }
-}
 
 /* ==========================================
    RIWAYAT & AGENDA UNIFIED STYLES (CLEAN & NON-DECORATIVE)
