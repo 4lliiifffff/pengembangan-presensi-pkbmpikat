@@ -117,8 +117,28 @@
                             <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
                         </div>
                         <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                        
+                        {{-- Proximity Radar & Live Track Card --}}
+                        <div id="proximityRadarCard" class="proximityRadarCard" style="display:none;">
+                            <div class="radarHeader">
+                                <div class="radarStatusDot" id="radarStatusDot"></div>
+                                <div class="radarInfo">
+                                    <div class="radarTitle" id="radarTitle">Mendeteksi Jarak ke PKBM Pikat...</div>
+                                    <div class="radarSub" id="radarSub">Pembaruan lokasi live GPS aktif</div>
+                                </div>
+                            </div>
+                            <div class="radarActions">
+                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps" style="display:none;">
+                                    <ion-icon name="navigate-circle-outline"></ion-icon> Petunjuk Arah (Maps)
+                                </a>
+                                <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
+                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Live Track: ON</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation()">
+                            <button type="button" onclick="refreshLocation(true)">
                                 <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
                             </button>
                         </div>
@@ -237,8 +257,28 @@
                             <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
                         </div>
                         <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                        
+                        {{-- Proximity Radar & Live Track Card --}}
+                        <div id="proximityRadarCard" class="proximityRadarCard" style="display:none;">
+                            <div class="radarHeader">
+                                <div class="radarStatusDot" id="radarStatusDot"></div>
+                                <div class="radarInfo">
+                                    <div class="radarTitle" id="radarTitle">Mendeteksi Jarak ke PKBM Pikat...</div>
+                                    <div class="radarSub" id="radarSub">Pembaruan lokasi live GPS aktif</div>
+                                </div>
+                            </div>
+                            <div class="radarActions">
+                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps" style="display:none;">
+                                    <ion-icon name="navigate-circle-outline"></ion-icon> Petunjuk Arah (Maps)
+                                </a>
+                                <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
+                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Live Track: ON</span>
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation()">
+                            <button type="button" onclick="refreshLocation(true)">
                                 <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
                             </button>
                         </div>
@@ -411,6 +451,10 @@
         let geofenceCircle = null;
         let sekolahMarker = null;
         let userMarker = null;
+        let trackPolyline = null;
+        let watchPositionId = null;
+        let isLiveTracking = true;
+        let lastWithinZone = null;
 
         function haversineDistance(lat1, lon1, lat2, lon2) {
             const R = 6371000;
@@ -461,6 +505,11 @@
             var ph = document.getElementById('mapPlaceholder');
             var hint = document.getElementById('mapHint');
             var badge = document.getElementById('geofenceBadge');
+            var radarCard = document.getElementById('proximityRadarCard');
+            var radarDot = document.getElementById('radarStatusDot');
+            var radarTitle = document.getElementById('radarTitle');
+            var radarSub = document.getElementById('radarSub');
+            var btnMaps = document.getElementById('btnPetunjukArah');
 
             if (lokasiEl) {
                 lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
@@ -473,6 +522,7 @@
             if (leafletMap) {
                 var dist = haversineDistance(lat, lng, GEOFENCE_LAT, GEOFENCE_LNG);
                 var distFormatted = dist.toFixed(1);
+                var isWithin = dist <= GEOFENCE_RADIUS;
 
                 var blueIcon = L.icon({
                     iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
@@ -490,12 +540,34 @@
                 }
                 userMarker.bindPopup('<b>📍 Lokasi Anda</b><br>Jarak ke ' + GEOFENCE_NAMA + ': ' + distFormatted + ' meter');
 
+                // Track Line Polyline
+                if (trackPolyline) {
+                    trackPolyline.setLatLngs([[lat, lng], [GEOFENCE_LAT, GEOFENCE_LNG]]);
+                } else {
+                    trackPolyline = L.polyline([[lat, lng], [GEOFENCE_LAT, GEOFENCE_LNG]], {
+                        color: isWithin ? '#10b981' : (dist > 200 ? '#ef4444' : '#f59e0b'),
+                        weight: 3.5,
+                        dashArray: isWithin ? null : '8, 8',
+                        opacity: isWithin ? 0.4 : 0.85
+                    }).addTo(leafletMap);
+                }
+
+                if (isWithin) {
+                    trackPolyline.setStyle({ color: '#10b981', dashArray: null, opacity: 0.35 });
+                } else {
+                    trackPolyline.setStyle({
+                        color: dist > 200 ? '#ef4444' : '#f59e0b',
+                        dashArray: '8, 8',
+                        opacity: 0.85
+                    });
+                }
+
                 var bounds = L.latLngBounds([[GEOFENCE_LAT, GEOFENCE_LNG], [lat, lng]]);
                 leafletMap.fitBounds(bounds, { padding: [35, 35] });
 
                 if (badge) {
                     badge.style.display = 'block';
-                    if (dist <= GEOFENCE_RADIUS) {
+                    if (isWithin) {
                         geofenceCircle.setStyle({ color: '#16a34a', fillColor: '#4ade80', fillOpacity: 0.3 });
                         badge.style.background = 'rgba(22, 163, 74, 0.12)';
                         badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
@@ -510,56 +582,144 @@
                     }
                 }
 
+                // Proximity Radar Card
+                if (radarCard && radarDot && radarTitle && radarSub) {
+                    radarCard.style.display = 'flex';
+                    var sisaJarak = Math.max(0, Math.round(dist - GEOFENCE_RADIUS));
+
+                    if (isWithin) {
+                        radarDot.className = 'radarStatusDot pulse-green';
+                        radarTitle.textContent = '✅ Anda Berada di Dalam Area ' + GEOFENCE_NAMA + ' (' + distFormatted + ' m)';
+                        radarSub.textContent = 'Koordinat GPS valid. Silakan ambil foto selfie untuk melakukan presensi.';
+                        if (btnMaps) btnMaps.style.display = 'none';
+
+                        if (lastWithinZone === false && navigator.vibrate) {
+                            navigator.vibrate([100, 50, 100]);
+                        }
+                    } else {
+                        if (dist > 200) {
+                            radarDot.className = 'radarStatusDot pulse-red';
+                            radarTitle.textContent = '📍 Jarak: ' + distFormatted + ' m (Kurang ' + sisaJarak + ' m untuk masuk zona)';
+                            radarSub.textContent = 'Ikuti garis panduan merah pada peta menuju gerbang ' + GEOFENCE_NAMA + '.';
+                        } else {
+                            radarDot.className = 'radarStatusDot pulse-yellow';
+                            radarTitle.textContent = '🚶‍♂️ Mendekati Lokasi (' + distFormatted + ' m — Tinggal ' + sisaJarak + ' m lagi)';
+                            radarSub.textContent = 'Sedikit lagi! Bergeraklah mendekati kantor agar tombol presensi aktif.';
+                        }
+
+                        if (btnMaps) {
+                            btnMaps.style.display = 'inline-flex';
+                            btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + GEOFENCE_LAT + ',' + GEOFENCE_LNG + '&origin=' + lat + ',' + lng;
+                        }
+                    }
+                }
+
+                lastWithinZone = isWithin;
+
                 if (hint) {
                     hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' (Jarak: ' + distFormatted + 'm dari ' + GEOFENCE_NAMA + ')';
                 }
             }
         }
 
-        function refreshLocation() {
+        function handleGpsSuccess(pos) {
+            var isFake = false;
+            var accuracy = pos.coords.accuracy || 0;
+
+            var akurasiEls = document.querySelectorAll('input[name="lokasi_akurasi"]');
+            var mockEls = document.querySelectorAll('input[name="is_mock_location"]');
+
+            akurasiEls.forEach(function(el) { el.value = accuracy; });
+
+            if (pos.coords.mocked === true || accuracy === 0) {
+                isFake = true;
+            } else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
+                isFake = true;
+            }
+
+            mockEls.forEach(function(el) { el.value = isFake ? '1' : '0'; });
+            
             var ph = document.getElementById('mapPlaceholder');
-            if (!ph) return;
-            if (!navigator.geolocation) {
-                ph.textContent = 'Geolocation tidak didukung oleh browser Anda.';
+            if (isFake) {
+                if (ph) {
+                    ph.textContent = 'Terdeteksi penggunaan Fake GPS / Mock Location. Matikan aplikasi Fake GPS!';
+                    ph.style.color = '#ef4444';
+                }
+                alert('Peringatan: Sistem mendeteksi kemungkinan Fake GPS atau Mock Location. Harap matikan aplikasi tersebut.');
                 return;
             }
-            ph.classList.remove('hidden');
-            ph.textContent = 'Mencari lokasi GPS presisi…';
+
+            if (ph) ph.style.color = 'var(--muted)';
+            setMapFromLatLng(pos.coords.latitude, pos.coords.longitude);
+        }
+
+        function handleGpsError() {
+            var ph = document.getElementById('mapPlaceholder');
+            if (ph) ph.textContent = 'Gagal mengambil lokasi. Pastikan izin GPS aktif.';
+        }
+
+        function startLiveTracking() {
+            if (!navigator.geolocation || watchPositionId !== null) return;
+            isLiveTracking = true;
+            updateLiveGpsButton();
+
+            watchPositionId = navigator.geolocation.watchPosition(
+                handleGpsSuccess,
+                handleGpsError,
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
+            );
+        }
+
+        function stopLiveTracking() {
+            if (watchPositionId !== null) {
+                navigator.geolocation.clearWatch(watchPositionId);
+                watchPositionId = null;
+            }
+            isLiveTracking = false;
+            updateLiveGpsButton();
+        }
+
+        function toggleLiveTracking() {
+            if (isLiveTracking) {
+                stopLiveTracking();
+            } else {
+                startLiveTracking();
+            }
+        }
+
+        function updateLiveGpsButton() {
+            var btn = document.getElementById('btnToggleLiveGps');
+            var label = document.getElementById('liveGpsLabel');
+            var dot = document.getElementById('liveGpsDot');
+            if (!btn || !label || !dot) return;
+
+            if (isLiveTracking) {
+                label.textContent = 'Live Track: ON';
+                dot.className = 'liveDot';
+            } else {
+                label.textContent = 'Live Track: PAUSED';
+                dot.className = 'liveDot paused';
+            }
+        }
+
+        function refreshLocation(manualClick) {
+            var ph = document.getElementById('mapPlaceholder');
+            if (!navigator.geolocation) {
+                if (ph) ph.textContent = 'Geolocation tidak didukung oleh browser Anda.';
+                return;
+            }
+            if (ph) {
+                ph.classList.remove('hidden');
+                ph.textContent = 'Mencari lokasi GPS presisi…';
+            }
+
             navigator.geolocation.getCurrentPosition(
                 function(pos) {
-                    var isFake = false;
-                    var accuracy = pos.coords.accuracy || 0;
-
-                    var akurasiEls = document.querySelectorAll('input[name="lokasi_akurasi"]');
-                    var mockEls = document.querySelectorAll('input[name="is_mock_location"]');
-
-                    akurasiEls.forEach(function(el) { el.value = accuracy; });
-
-                    if (pos.coords.mocked === true || accuracy === 0) {
-                        isFake = true;
-                    } else if (pos.coords.altitude === 0 && pos.coords.altitudeAccuracy === 0 && pos.coords.speed === 0 && pos.coords.heading === 0) {
-                        isFake = true;
+                    handleGpsSuccess(pos);
+                    if (manualClick && !isLiveTracking) {
+                        startLiveTracking();
                     }
-
-                    mockEls.forEach(function(el) { el.value = isFake ? '1' : '0'; });
-                    
-                    if (isFake) {
-                        ph.textContent = 'Terdeteksi penggunaan Fake GPS / Mock Location. Matikan aplikasi Fake GPS!';
-                        ph.style.color = '#ef4444';
-                        alert('Peringatan: Sistem mendeteksi kemungkinan Fake GPS atau Mock Location. Harap matikan aplikasi tersebut.');
-                        return;
-                    }
-
-                    ph.style.color = 'var(--muted)';
-                    setMapFromLatLng(pos.coords.latitude, pos.coords.longitude);
                 },
-                function() {
-                    ph.textContent = 'Gagal mengambil lokasi GPS. Pastikan izin lokasi aktif.';
-                }, {
-                    enableHighAccuracy: true,
-                    timeout: 12000,
-                    maximumAge: 0
-                }
             );
         }
 

@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
+
 class GeofencingService
 {
     /**
@@ -166,5 +168,58 @@ class GeofencingService
             'is_valid' => true,
             'message' => null,
         ];
+    }
+
+    /**
+     * Menghasilkan tautan URL navigasi petunjuk arah (Google Maps Directions).
+     */
+    public function getGoogleMapsDirectionsUrl(
+        float $destLat,
+        float $destLng,
+        ?float $originLat = null,
+        ?float $originLng = null
+    ): string {
+        $url = "https://www.google.com/maps/dir/?api=1&destination={$destLat},{$destLng}";
+
+        if ($originLat !== null && $originLng !== null) {
+            $url .= "&origin={$originLat},{$originLng}";
+        }
+
+        return $url;
+    }
+
+    /**
+     * Melakukan reverse geocoding dari koordinat GPS ke alamat teks (OpenStreetMap Nominatim).
+     * Disertai fallback jika offline atau timeout.
+     */
+    public function reverseGeocode(?float $lat, ?float $lng): ?string
+    {
+        if ($lat === null || $lng === null) {
+            return null;
+        }
+
+        try {
+            $response = Http::timeout(3)
+                ->withHeaders([
+                    'User-Agent' => 'PKBM-Pikat-Presensi/2.0 (admin@pkbmpikat.sch.id)',
+                ])
+                ->get('https://nominatim.openstreetmap.org/reverse', [
+                    'lat' => $lat,
+                    'lon' => $lng,
+                    'format' => 'jsonv2',
+                    'zoom' => 18,
+                    'addressdetails' => 1,
+                ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+
+                return $data['display_name'] ?? null;
+            }
+        } catch (\Throwable) {
+            // Fallback gracefully without breaking attendance flow
+        }
+
+        return null;
     }
 }

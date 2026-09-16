@@ -2,6 +2,11 @@
 
 @section('title', 'Laporan Presensi & KBM — Admin')
 
+@push('head')
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+@endpush
+
 @section('content')
 
     {{-- Header --}}
@@ -242,7 +247,7 @@
                             <td>
                                 @if ($lokasi !== '-')
                                     <button type="button" class="mapBtn" title="Lihat Peta"
-                                        onclick="openMapModal('{{ $lokasi }}')">
+                                        onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}')">
                                         <ion-icon name="map-outline"></ion-icon>
                                     </button>
                                 @else
@@ -328,7 +333,7 @@
                                 <td>
                                     @if ($lokasi && $lokasi !== '-')
                                         <button type="button" class="mapBtn" title="Lihat Peta"
-                                            onclick="openMapModal('{{ $lokasi }}')">
+                                            onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}')">
                                             <ion-icon name="map-outline"></ion-icon>
                                         </button>
                                     @else
@@ -411,39 +416,180 @@
         </div>
     </div>
 
-    {{-- ── Modal Maps ── --}}
+    {{-- ── Modal Maps (Leaflet Interactive GIS) ── --}}
     <div class="modal-overlay" id="mapModal" onclick="if(event.target===this)closeModal('mapModal')">
-        <div class="modal-box">
-            <div class="modal-header">
-                <span>Lokasi Presensi</span>
+        <div class="modal-box" style="max-width: 600px; width: 95%;">
+            <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span id="mapModalTitle" style="font-size:15px; font-weight:800; color:var(--text);">Verifikasi Lokasi Presensi</span>
+                    <div id="mapModalSub" style="font-size:11.5px; color:var(--muted); font-weight:600;">Memuat koordinat GPS...</div>
+                </div>
                 <button class="modal-close" onclick="closeModal('mapModal')">&times;</button>
             </div>
-            <div class="modal-body">
-                <iframe id="mapModalFrame" src="" allowfullscreen loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="modal-body" style="padding:14px;">
+                <div id="mapModalBadge" style="padding:8px 12px; border-radius:10px; font-size:12px; font-weight:800; margin-bottom:10px; display:none;"></div>
+                <div id="adminMapContainer" style="width:100%; height:320px; border-radius:12px; z-index:1;"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:8px;">
+                    <span id="mapModalCoords" style="font-size:11px; color:var(--muted); font-family:monospace; font-weight:700;"></span>
+                    <a id="btnAdminGoogleMaps" href="#" target="_blank" class="btnNavMaps" style="font-size:11px; padding:6px 12px;">
+                        <ion-icon name="open-outline"></ion-icon> Buka di Google Maps
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        const SEKOLAH_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
+        const SEKOLAH_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
+        const SEKOLAH_RADIUS = {{ config('lokasi.radius_meter', 100) }};
+        const SEKOLAH_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
+
+        let adminLeafletMap = null;
+        let adminSekolahMarker = null;
+        let adminPresensiMarker = null;
+        let adminGeofenceCircle = null;
+        let adminMeasureLine = null;
+
+        function calcHaversine(lat1, lon1, lat2, lon2) {
+            const R = 6371000;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
         function openPhotoModal(src, title) {
             document.getElementById('photoModalImg').src = src;
             document.getElementById('photoModalTitle').textContent = title;
             document.getElementById('photoModal').classList.add('active');
         }
 
-        function openMapModal(lokasi) {
-            var q = encodeURIComponent(lokasi);
-            document.getElementById('mapModalFrame').src = 'https://www.google.com/maps?q=' + q +
-                '&z=17&hl=id&output=embed';
+        function openMapModal(lokasi, nama, moda) {
+            var parts = (lokasi || '').split(',');
+            if (parts.length < 2) {
+                alert('Format koordinat lokasi tidak valid: ' + lokasi);
+                return;
+            }
+
+            var lat = parseFloat(parts[0].trim());
+            var lng = parseFloat(parts[1].trim());
+
+            if (isNaN(lat) || isNaN(lng)) {
+                alert('Koordinat GPS tidak valid.');
+                return;
+            }
+
+            document.getElementById('mapModalTitle').textContent = '📍 Lokasi: ' + (nama || 'Presensi');
+            document.getElementById('mapModalSub').textContent = 'Moda: ' + (moda || 'Tatap Muka');
+            document.getElementById('mapModalCoords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+            document.getElementById('btnAdminGoogleMaps').href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
+
             document.getElementById('mapModal').classList.add('active');
+
+            setTimeout(function() {
+                initAdminMap(lat, lng, nama, moda);
+            }, 100);
+        }
+
+        function initAdminMap(lat, lng, nama, moda) {
+            var container = document.getElementById('adminMapContainer');
+            if (!container || typeof L === 'undefined') return;
+
+            var dist = calcHaversine(lat, lng, SEKOLAH_LAT, SEKOLAH_LNG);
+            var distFormatted = dist.toFixed(1);
+            var isWithin = dist <= SEKOLAH_RADIUS;
+
+            var badge = document.getElementById('mapModalBadge');
+            if (badge) {
+                badge.style.display = 'block';
+                if (isWithin) {
+                    badge.style.background = 'rgba(22, 163, 74, 0.12)';
+                    badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
+                    badge.style.color = '#15803d';
+                    badge.innerHTML = '🟢 <b>Di Dalam Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
+                } else {
+                    badge.style.background = 'rgba(220, 38, 38, 0.12)';
+                    badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
+                    badge.style.color = '#dc2626';
+                    badge.innerHTML = '🔴 <b>Di Luar Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
+                }
+            }
+
+            if (!adminLeafletMap) {
+                adminLeafletMap = L.map('adminMapContainer').setView([SEKOLAH_LAT, SEKOLAH_LNG], 16);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(adminLeafletMap);
+
+                var redIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41]
+                });
+
+                adminSekolahMarker = L.marker([SEKOLAH_LAT, SEKOLAH_LNG], { icon: redIcon }).addTo(adminLeafletMap);
+                adminSekolahMarker.bindPopup('<b>🏢 ' + SEKOLAH_NAMA + '</b><br>Pusat Geofence (Radius ' + SEKOLAH_RADIUS + 'm)');
+
+                adminGeofenceCircle = L.circle([SEKOLAH_LAT, SEKOLAH_LNG], {
+                    color: '#0284c7',
+                    fillColor: '#38bdf8',
+                    fillOpacity: 0.2,
+                    radius: SEKOLAH_RADIUS
+                }).addTo(adminLeafletMap);
+            }
+
+            adminLeafletMap.invalidateSize();
+
+            var blueIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            });
+
+            if (adminPresensiMarker) {
+                adminPresensiMarker.setLatLng([lat, lng]);
+            } else {
+                adminPresensiMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(adminLeafletMap);
+            }
+            adminPresensiMarker.bindPopup('<b>📍 ' + (nama || 'Presensi') + '</b><br>Jarak ke ' + SEKOLAH_NAMA + ': ' + distFormatted + ' meter<br>Moda: ' + (moda || 'Tatap Muka'));
+
+            if (adminMeasureLine) {
+                adminMeasureLine.setLatLngs([[lat, lng], [SEKOLAH_LAT, SEKOLAH_LNG]]);
+            } else {
+                adminMeasureLine = L.polyline([[lat, lng], [SEKOLAH_LAT, SEKOLAH_LNG]], {
+                    color: isWithin ? '#10b981' : '#ef4444',
+                    weight: 3,
+                    dashArray: '6, 6',
+                    opacity: 0.8
+                }).addTo(adminLeafletMap);
+            }
+
+            adminMeasureLine.setStyle({
+                color: isWithin ? '#10b981' : '#ef4444',
+                dashArray: '6, 6'
+            });
+
+            var bounds = L.latLngBounds([[SEKOLAH_LAT, SEKOLAH_LNG], [lat, lng]]);
+            adminLeafletMap.fitBounds(bounds, { padding: [40, 40] });
         }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
-            if (id === 'mapModal') document.getElementById('mapModalFrame').src = '';
             if (id === 'photoModal') document.getElementById('photoModalImg').src = '';
         }
+
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal('photoModal');

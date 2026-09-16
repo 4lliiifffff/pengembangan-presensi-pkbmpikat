@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\GeofencingService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -174,5 +175,37 @@ class GeofencingTest extends TestCase
             'moda_pembelajaran' => 'online',
             'link_daring' => 'https://meet.google.com/abc-defg-hij',
         ]);
+    }
+
+    public function test_geofencing_service_generates_correct_google_maps_directions_url(): void
+    {
+        $service = app(GeofencingService::class);
+
+        $url = $service->getGoogleMapsDirectionsUrl(-7.8011945, 110.364917, -7.805000, 110.360000);
+        $this->assertStringContainsString('destination=-7.8011945,110.364917', $url);
+        $this->assertStringContainsString('origin=-7.805,110.36', $url);
+
+        $urlNoOrigin = $service->getGoogleMapsDirectionsUrl(-7.8011945, 110.364917);
+        $this->assertStringContainsString('destination=-7.8011945,110.364917', $urlNoOrigin);
+        $this->assertStringNotContainsString('origin=', $urlNoOrigin);
+    }
+
+    public function test_geofencing_service_handles_reverse_geocoding_gracefully(): void
+    {
+        $service = app(GeofencingService::class);
+
+        // Test with null coordinates
+        $result = $service->reverseGeocode(null, null);
+        $this->assertNull($result);
+
+        // Test with mock HTTP
+        Http::fake([
+            'https://nominatim.openstreetmap.org/*' => Http::response([
+                'display_name' => 'PKBM Pikat, Umbulharjo, Yogyakarta',
+            ], 200),
+        ]);
+
+        $address = $service->reverseGeocode(-7.8011945, 110.364917);
+        $this->assertEquals('PKBM Pikat, Umbulharjo, Yogyakarta', $address);
     }
 }

@@ -93,13 +93,16 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Kunjungan Rumah (Home Visit)**: Catat titik lokasi GPS kunjungan + foto di rumah murid.
     - **Pembelajaran Online**: Bebas batas radius lokasi + wajib melampirkan foto layar/link ruang pertemuan (Zoom/GMeet).
     - Menambahkan Eloquent Accessor `$presensi->moda_label` untuk kemudahan pelaporan.
-- 🟢 **Kalkulasi Radius Lokasi Sekolah (Rumus Haversine) & Visualisasi Peta Interaktif**
+- 🟢 **Kalkulasi Radius Lokasi Sekolah (Rumus Haversine), Live Tracking & Interactive Peta Leaflet**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat service class `App\Services\GeofencingService` dengan fungsi `calculateDistance()` menggunakan **Rumus Haversine** untuk menghitung jarak antara dua pasang koordinat GPS (latitude/longitude) dalam satuan meter.
+    - Membuat service class `App\Services\GeofencingService` dengan fungsi `calculateDistance()` menggunakan **Rumus Haversine** untuk menghitung jarak antara dua pasang koordinat GPS (latitude/longitude) dalam satuan meter, serta method helper `getGoogleMapsDirectionsUrl()` dan `reverseGeocode()`.
     - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php` dan file environment `.env`.
     - Mengintegrasikan pemeriksaan batas jarak pada `PresensiFotoController::store()` untuk moda pembelajaran `sekolah`. Jika jarak GPS tutor dengan titik sekolah PKBM Pikat $> 100$ meter, presensi otomatis ditolak dengan pesan peringatan interaktif yang menampilkan jarak sebenarnya.
-    - **Visualisasi Peta Leaflet.js**: Menampilkan lingkaran transparan radius 100 meter sekeliling sekolah PKBM Pikat dengan warna dinamis (Hijau = di dalam radius, Merah = di luar radius), penanda pin marker sekolah & posisi tutor, serta auto-zoom fit bounds.
+    - **Live GPS Tracking & Line Track Polyline (`navigator.geolocation.watchPosition` & `L.polyline`)**: Memantau pergerakan pengguna secara realtime saat berjalan/berkendara mendekati sekolah dan menampilkan garis panduan beranimasi putus-putus ke gerbang PKBM Pikat saat berada di luar radius.
+    - **Proximity Radar & Auto-Unlock**: Widget jarak interaktif (`.proximityRadarCard`) yang menampilkan sisa meter menuju zona absensi, tombol cepat *"Petunjuk Arah (Google Maps)"*, dan auto-unlock status hijau serta getaran haptic begitu masuk radius 100m.
+    - **Interactive Leaflet Map Modal di Rekap Presensi**: Menggantikan iframe statis pada tabel laporan Admin (`admin/laporan/index.blade.php`) dengan peta Leaflet interaktif yang memvisualisasikan titik presensi, titik sekolah, radius geofence, dan garis ukur selisih jarak.
+    - Pengujian otomatis komprehensif pada `tests/Feature/GeofencingTest.php` (uji presensi di dalam radius, di luar radius, pengecualian moda online, kalkulasi matematis Haversine, Google Maps directions URL, dan reverse geocoding).
 - 🟢 **Fitur Kontrol Kamera Lanjutan (Mirror, Switch Camera, Grid 3x3, Flash/Torch)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -262,7 +265,7 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
 #### 7.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **64 Feature & Unit Tests** lulus 100% (**276 assertions**).
+- 🟢 **PHPUnit Test Suite**: Seluruh **66 Feature & Unit Tests** lulus 100% (**282 assertions**).
 - 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---
