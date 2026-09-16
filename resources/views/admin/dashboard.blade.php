@@ -10,15 +10,21 @@
 
             {{-- Ringkasan Hari Ini --}}
             <div class="sectionTitleRow">
-                <h2>Ringkasan Hari ini</h2>
-                <div class="badgeDate">{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</div>
+                <div class="sectionTitleWrap">
+                    <h2>Ringkasan Hari ini</h2>
+                    <span class="sectionSubtitle">Rekapitulasi presensi bimbingan & tutor</span>
+                </div>
+                <div class="badgeDate">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+                </div>
             </div>
 
             <div class="summaryGrid">
                 <div class="summaryCard">
                     <div class="summaryTop">
                         <div class="summaryIcon hadir">
-                            <ion-icon name="checkmark-circle" style="font-size:20px;"></ion-icon>
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
                         </div>
                         <div class="summaryLabel">HADIR</div>
                     </div>
@@ -29,9 +35,9 @@
                 <div class="summaryCard">
                     <div class="summaryTop">
                         <div class="summaryIcon izin">
-                            <ion-icon name="time-outline" style="font-size:20px;"></ion-icon>
+                            <ion-icon name="time-outline"></ion-icon>
                         </div>
-                        <div class="summaryLabel">IZIN</div>
+                        <div class="summaryLabel">IZIN / SAKIT</div>
                     </div>
                     <div class="summaryCount">{{ $counts['izin'] ?? 0 }}</div>
                     <ion-icon class="summaryBigIcon" name="document-text-outline"></ion-icon>
@@ -43,7 +49,11 @@
                     {{-- Statistik Mingguan --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <h2>Statistik Mingguan</h2>
+                            <h2>
+                                <ion-icon name="bar-chart-outline" style="color:var(--blue2);"></ion-icon>
+                                <span>Statistik Mingguan</span>
+                            </h2>
+                            <span class="badgeDate" style="font-size: 10px; padding: 4px 10px;">7 Hari Terakhir</span>
                         </div>
 
                         <div class="barChart">
@@ -52,7 +62,6 @@
                                     $count = (int) ($day['count'] ?? 0);
                                     $maxVal = (int) ($weekly['max'] ?? 1);
 
-                                    // Hitung tinggi dan batasi maksimal 85px (sesuai max-height pada CSS) agar tidak offside
                                     $calculatedHeight = $maxVal > 0 ? (int) round(($count / $maxVal) * 85) : 0;
                                     $height = min(85, max(6, $calculatedHeight));
 
@@ -62,7 +71,7 @@
                                     $isToday = $dayIndex !== false && (int) $dayIndex + 1 === $todayISO;
                                 @endphp
                                 <div class="barCol">
-                                    <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;"></div>
+                                    <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;" title="{{ $count }} Sesi"></div>
                                     <div class="barDay">{{ $day['label'] }}</div>
                                 </div>
                             @endforeach
@@ -72,47 +81,52 @@
 
                 <div class="dashboardCol">
                     {{-- Aktivitas Terbaru --}}
-                    <div class="activityHeaderRow">
-                        <h2>Aktivitas Terbaru</h2>
-                        <a class="mutedLink" href="{{ route('admin.laporan.index') }}">Lihat Semua &rsaquo;</a>
-                    </div>
+                    <div class="cardBox">
+                        <div class="cardHeadRow">
+                            <h2>
+                                <ion-icon name="pulse-outline" style="color:var(--blue2);"></ion-icon>
+                                <span>Aktivitas Presensi Terbaru</span>
+                            </h2>
+                            <a class="mutedLink" href="{{ route('admin.laporan.index') }}">Lihat Semua &rsaquo;</a>
+                        </div>
 
-                    <div class="activityList">
-                        @forelse($latest as $item)
-                            @php
-                                $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
-                                $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
-                                $initial = strtoupper(substr((string) $tutorName, 0, 1));
-                                $pillClass = $item->status_class ?? 'pending';
-                                $statusLabel = $item->status_label ?? strtoupper((string) $item->status);
-                                $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
-                                $jam = (string) ($item->jam_mulai ?? '');
-                            @endphp
-                            <div class="activityRow">
-                                <div class="activityLeft">
-                                    <div class="activityAvatar">
-                                        @if ($item->tutor->foto ?? null)
-                                            <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
-                                                style="width:100%;height:100%;object-fit:cover;" />
-                                        @else
-                                            {{ $initial }}
-                                        @endif
-                                    </div>
-                                    <div style="min-width:0;">
-                                        <div class="activityName">{{ $tutorName }}</div>
-                                        <div class="activityMeta">
-                                            {{ $siswaName }} {{ $jam ? ' · ' . $jam : '' }}
+                        <div class="activityList" style="padding: 0; margin-top: 8px;">
+                            @forelse($latest as $item)
+                                @php
+                                    $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
+                                    $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
+                                    $initial = strtoupper(substr((string) $tutorName, 0, 1));
+                                    $pillClass = $item->status_class ?? 'pending';
+                                    $statusLabel = $item->status_label ?? strtoupper((string) $item->status);
+                                    $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
+                                    $jam = (string) ($item->jam_mulai ?? '');
+                                @endphp
+                                <div class="activityRow" style="margin-bottom: 8px;">
+                                    <div class="activityLeft">
+                                        <div class="activityAvatar">
+                                            @if ($item->tutor->foto ?? null)
+                                                <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
+                                                    style="width:100%;height:100%;object-fit:cover;" />
+                                            @else
+                                                {{ $initial }}
+                                            @endif
+                                        </div>
+                                        <div style="min-width:0;">
+                                            <div class="activityName">{{ $tutorName }}</div>
+                                            <div class="activityMeta">
+                                                {{ $siswaName }} {{ $jam ? ' · ' . $jam : '' }}
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="activityRight">
+                                        <div class="pill {{ $pillClass }}">{{ $statusLabel }}</div>
+                                        <a class="detailBtn" href="{{ route('admin.laporan.index', ['tutor_id' => $item->tutor_id, 'start_date' => $item->tgl_presensi, 'siswa_id' => $item->siswa_id]) }}">DETAIL</a>
+                                    </div>
                                 </div>
-                                <div class="activityRight">
-                                    <div class="pill {{ $pillClass }}">{{ $statusLabel }}</div>
-                                    <a class="detailBtn" href="{{ route('admin.laporan.index', ['tutor_id' => $item->tutor_id, 'start_date' => $item->tgl_presensi, 'siswa_id' => $item->siswa_id]) }}">DETAIL</a>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="emptyState">Belum ada data presensi.</div>
-                        @endforelse
+                            @empty
+                                <div class="emptyState" style="margin: 0; padding: 24px 16px;">Belum ada data presensi terbaru.</div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>

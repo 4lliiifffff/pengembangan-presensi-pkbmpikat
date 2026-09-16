@@ -90,7 +90,7 @@
                             $mMulai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_mulai, 'Asia/Jakarta');
                             $mSelesai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_selesai, 'Asia/Jakarta');
                             $durMin = $mMulai->diffInMinutes($mSelesai);
-                            $durLabel = floor($durMin / 60) . 'j ' . $durMin % 60 . 'm';
+                            $durLabel = floor($durMin / 60) . 'j ' . $durMin % 60 . 's';
                         } catch (\Throwable) {
                             $durLabel = '-';
                         }

@@ -95,7 +95,7 @@
         ['code' => 'RAB', 'sunday' => false],
         ['code' => 'KAM', 'sunday' => false],
         ['code' => 'JUM', 'sunday' => false],
-        ['code' => 'SAB', 'sunday' => false],
+        ['code' => 'SAB', 'sunday' => true],
         ['code' => 'MIN', 'sunday' => true],
     ];
 

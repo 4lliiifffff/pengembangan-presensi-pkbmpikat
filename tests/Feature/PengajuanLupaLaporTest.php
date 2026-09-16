@@ -24,7 +24,7 @@ class PengajuanLupaLaporTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Kelas PAUD A', 'tingkat' => 'PAUD']);
+        $kelas = kelas::create(['nama_kelas' => 'Paket A (Setara SD)', 'tingkat' => 'SD']);
 
         $siswa = Siswa::create([
             'no_absen' => 'TEST901',

@@ -18,7 +18,20 @@
 @endpush
 
 @section('content')
+    {{-- ── HEADER DASHBOARD MAGANG ── --}}
+    <div class="sectionTitleRow">
+        <div class="sectionTitleWrap">
+            <h2>Dashboard Magang / PKL</h2>
+            <span class="sectionSubtitle">Selamat datang kembali, {{ $displayName }}!</span>
+        </div>
+        <div class="badgeDate">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+        </div>
+    </div>
+
     <div class="dashboardGrid">
+        {{-- ── KOLOM KIRI: WAKTU, STATUS HARI INI & INFO INSTANSI ── --}}
         <div class="dashboardCol">
             {{-- ── JAM REALTIME ── --}}
             <div class="clockCard">
@@ -67,6 +80,42 @@
                 </div>
             </div>
 
+            {{-- ── INFORMASI MAGANG / INSTANSI ── --}}
+            @if ($magang)
+                <div class="magangInfoCard">
+                    <div class="magangInfoHead">
+                        <div class="magangInfoIcon">
+                            <ion-icon name="school-outline"></ion-icon>
+                        </div>
+                        <div style="min-width: 0; flex: 1;">
+                            <div class="magangInfoTitle">
+                                {{ $magang->asal_instansi }}
+                            </div>
+                            <div class="magangInfoSub">
+                                {{ $magang->jurusan ?: 'Peserta Magang' }} • {{ $magang->nim_nisn ?: $user->nik }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="magangInfoGrid">
+                        <div class="magangInfoItem">
+                            <span class="magangInfoItemLbl">Mulai Magang</span>
+                            <span class="magangInfoItemVal">
+                                {{ $magang->tgl_mulai ? \Carbon\Carbon::parse($magang->tgl_mulai)->translatedFormat('d M Y') : '—' }}
+                            </span>
+                        </div>
+                        <div class="magangInfoItem">
+                            <span class="magangInfoItemLbl">Selesai Magang</span>
+                            <span class="magangInfoItemVal">
+                                {{ $magang->tgl_selesai ? \Carbon\Carbon::parse($magang->tgl_selesai)->translatedFormat('d M Y') : '—' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            @endif
+        </div>
+
+        {{-- ── KOLOM KANAN: SESI AKTIF/CTA, STATISTIK & RIWAYAT ── --}}
+        <div class="dashboardCol">
             {{-- ── CARD SESI AKTIF ATAU TOMBOL PRESENSI ── --}}
             @if ($activeSesi)
                 @php
@@ -94,108 +143,93 @@
                     </a>
                 </div>
             @elseif ($todayStatus !== 'selesai')
-                <div class="card" style="padding: 18px; border-radius: 16px; margin-bottom: 20px; background: linear-gradient(135deg, rgba(11, 94, 215, 0.08), rgba(11, 94, 215, 0.02)); border: 1px dashed rgba(11, 94, 215, 0.3); text-align: center;">
-                    <div style="font-size: 15px; font-weight: 600; color: var(--text-primary, #0f172a); margin-bottom: 6px;">
+                <div class="magangCtaCard">
+                    <div class="magangCtaTitle">
                         Siap Memulai Aktivitas Magang?
                     </div>
-                    <p style="font-size: 13px; color: var(--text-secondary, #64748b); margin-bottom: 14px;">
-                        Ambil foto selfie dan pastikan Anda berada di area PKBM Pikat.
-                    </p>
-                    <a href="{{ route('magang.presensi.foto') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px; font-weight: 600; border-radius: 12px; text-decoration: none; background: #0B5ED7; color: white;">
-                        <ion-icon name="camera-outline" style="font-size: 20px;"></ion-icon>
+                    <div class="magangCtaDesc">
+                        Ambil foto selfie presensi masuk dan pastikan Anda berada di area PKBM Pikat.
+                    </div>
+                    <a href="{{ route('magang.presensi.foto') }}" class="magangCtaBtn">
+                        <ion-icon name="camera-outline" style="font-size: 18px;"></ion-icon>
                         <span>Absen Masuk Sekarang</span>
                     </a>
                 </div>
             @endif
 
-            {{-- ── INFORMASI MAGANG / INSTANSI ── --}}
-            @if ($magang)
-                <div class="card" style="padding: 16px; border-radius: 16px; margin-bottom: 20px; background: var(--bg-card, #ffffff); border: 1px solid var(--border-color, #e2e8f0);">
-                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
-                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(11, 94, 215, 0.1); color: #0B5ED7; display: flex; align-items: center; justify-content: center; font-size: 22px;">
-                            <ion-icon name="school-outline"></ion-icon>
-                        </div>
-                        <div>
-                            <div style="font-size: 14px; font-weight: 700; color: var(--text-primary, #0f172a);">
-                                {{ $magang->asal_instansi }}
-                            </div>
-                            <div style="font-size: 12px; color: var(--text-secondary, #64748b);">
-                                {{ $magang->jurusan ?: 'Peserta Magang' }} • {{ $magang->nim_nisn ?: $user->nik }}
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; border-top: 1px solid var(--border-color, #f1f5f9); pt-2; padding-top: 10px;">
-                        <div>
-                            <span style="color: var(--text-secondary, #64748b);">Mulai Magang:</span><br>
-                            <strong>{{ $magang->tgl_mulai ? \Carbon\Carbon::parse($magang->tgl_mulai)->translatedFormat('d M Y') : '—' }}</strong>
-                        </div>
-                        <div>
-                            <span style="color: var(--text-secondary, #64748b);">Selesai Magang:</span><br>
-                            <strong>{{ $magang->tgl_selesai ? \Carbon\Carbon::parse($magang->tgl_selesai)->translatedFormat('d M Y') : '—' }}</strong>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
             {{-- ── STATISTIK KEHADIRAN BULAN INI ── --}}
-            <div class="section-title" style="font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text-primary, #0f172a);">
-                Statistik Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})
-            </div>
-            <div class="statsGrid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px;">
-                <div class="statCard" style="background: var(--bg-card, #fff); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color, #e2e8f0);">
-                    <div style="font-size: 20px; color: #10b981; margin-bottom: 4px;"><ion-icon name="checkmark-done-circle-outline"></ion-icon></div>
-                    <div style="font-size: 18px; font-weight: 800; color: var(--text-primary, #0f172a);">{{ $hadirBulanIni }}</div>
-                    <div style="font-size: 11px; color: var(--text-secondary, #64748b);">Hari Hadir</div>
+            <div class="cardBox">
+                <div class="cardHeadRow">
+                    <h2>
+                        <ion-icon name="pie-chart-outline" style="color:var(--blue2);"></ion-icon>
+                        <span>Statistik Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
+                    </h2>
                 </div>
-                <div class="statCard" style="background: var(--bg-card, #fff); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color, #e2e8f0);">
-                    <div style="font-size: 20px; color: #0b5ed7; margin-bottom: 4px;"><ion-icon name="calendar-outline"></ion-icon></div>
-                    <div style="font-size: 18px; font-weight: 800; color: var(--text-primary, #0f172a);">{{ $totalHariKerja }}</div>
-                    <div style="font-size: 11px; color: var(--text-secondary, #64748b);">Hari Kerja</div>
-                </div>
-                <div class="statCard" style="background: var(--bg-card, #fff); padding: 14px; border-radius: 14px; text-align: center; border: 1px solid var(--border-color, #e2e8f0);">
-                    <div style="font-size: 20px; color: #f59e0b; margin-bottom: 4px;"><ion-icon name="pie-chart-outline"></ion-icon></div>
-                    <div style="font-size: 18px; font-weight: 800; color: var(--text-primary, #0f172a);">{{ $persentaseKehadiran }}%</div>
-                    <div style="font-size: 11px; color: var(--text-secondary, #64748b);">Kehadiran</div>
+                <div class="statsGrid">
+                    <div class="statCard">
+                        <div class="statIcon success"><ion-icon name="checkmark-done-circle-outline"></ion-icon></div>
+                        <div class="statValue">{{ $hadirBulanIni }}</div>
+                        <div class="statLabel">Hari Hadir</div>
+                    </div>
+                    <div class="statCard">
+                        <div class="statIcon primary"><ion-icon name="calendar-outline"></ion-icon></div>
+                        <div class="statValue">{{ $totalHariKerja }}</div>
+                        <div class="statLabel">Hari Kerja</div>
+                    </div>
+                    <div class="statCard">
+                        <div class="statIcon warning"><ion-icon name="pie-chart-outline"></ion-icon></div>
+                        <div class="statValue">{{ $persentaseKehadiran }}%</div>
+                        <div class="statLabel">Kehadiran</div>
+                    </div>
                 </div>
             </div>
 
             {{-- ── RIWAYAT TERAKHIR ── --}}
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                <div style="font-size: 14px; font-weight: 700; color: var(--text-primary, #0f172a);">Riwayat Presensi Terbaru</div>
-                <a href="{{ route('magang.riwayat') }}" style="font-size: 12px; font-weight: 600; color: #0B5ED7; text-decoration: none;">Lihat Semua</a>
-            </div>
+            <div class="cardBox">
+                <div class="cardHeadRow">
+                    <h2>
+                        <ion-icon name="time-outline" style="color:var(--blue2);"></ion-icon>
+                        <span>Riwayat Presensi Terbaru</span>
+                    </h2>
+                    @if (Route::has('magang.riwayat'))
+                        <a href="{{ route('magang.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
+                    @endif
+                </div>
 
-            @forelse($recentPresensi as $p)
-                @php
-                    $tgl = \Carbon\Carbon::parse($p->tgl_presensi);
-                    $hari = $tgl->translatedFormat('l, d M Y');
-                    $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
-                    $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
-                @endphp
-                <div class="card" style="padding: 14px; border-radius: 14px; margin-bottom: 10px; background: var(--bg-card, #fff); border: 1px solid var(--border-color, #e2e8f0); display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 38px; height: 38px; border-radius: 10px; background: {{ $p->jam_selesai ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)' }}; color: {{ $p->jam_selesai ? '#10b981' : '#f59e0b' }}; display: flex; align-items: center; justify-content: center; font-size: 20px;">
-                            <ion-icon name="{{ $p->jam_selesai ? 'checkmark-circle-outline' : 'time-outline' }}"></ion-icon>
-                        </div>
-                        <div>
-                            <div style="font-size: 13px; font-weight: 600; color: var(--text-primary, #0f172a);">{{ $hari }}</div>
-                            <div style="font-size: 12px; color: var(--text-secondary, #64748b);">
-                                Masuk: <strong>{{ $masuk }}</strong> • Pulang: <strong>{{ $pulang }}</strong>
+                <div class="recentWrap">
+                    @forelse($recentPresensi as $p)
+                        @php
+                            $tgl = \Carbon\Carbon::parse($p->tgl_presensi);
+                            $hari = $tgl->translatedFormat('l, d M Y');
+                            $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
+                            $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
+                        @endphp
+                        <div class="recentItem">
+                            <div class="recentLeft">
+                                <div class="recentCheck {{ ($p->foto_mulai && !$p->foto_selesai) ? 'pending' : '' }}">
+                                    <ion-icon name="{{ $p->foto_selesai ? 'checkmark' : 'time-outline' }}"
+                                        style="font-size:14px;"></ion-icon>
+                                </div>
+                                <div class="recentMeta">
+                                    <div class="recentDay">{{ $hari }}</div>
+                                    <div class="recentTime">
+                                        Masuk: {{ $masuk }} • Pulang: {{ $pulang }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <span class="pillSmall {{ $p->foto_selesai ? 'pillOk' : 'pillPending' }}">
+                                    {{ $p->foto_selesai ? 'Selesai' : 'Proses' }}
+                                </span>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <span class="badge" style="padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 600; background: {{ $p->jam_selesai ? '#d1fae5' : '#fef3c7' }}; color: {{ $p->jam_selesai ? '#065f46' : '#92400e' }};">
-                            {{ $p->jam_selesai ? 'Selesai' : 'Proses' }}
-                        </span>
-                    </div>
+                    @empty
+                        <div class="emptyState" style="margin: 0; padding: 24px 16px;">
+                            Belum ada riwayat presensi bulan ini.
+                        </div>
+                    @endforelse
                 </div>
-            @empty
-                <div style="text-align: center; padding: 30px 20px; color: var(--text-secondary, #64748b); background: var(--bg-card, #fff); border-radius: 14px; border: 1px solid var(--border-color, #e2e8f0);">
-                    <ion-icon name="calendar-clear-outline" style="font-size: 32px; opacity: 0.5; margin-bottom: 6px;"></ion-icon>
-                    <div style="font-size: 13px;">Belum ada riwayat presensi bulan ini.</div>
-                </div>
-            @endforelse
+            </div>
 
         </div>
     </div>

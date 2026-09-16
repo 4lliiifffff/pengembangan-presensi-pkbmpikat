@@ -104,6 +104,39 @@ class Siswa extends Model
     }
 
     /**
+     * Accessor: Resolusi kelompok Paket / Jenjang Pendidikan Kesetaraan siswa.
+     */
+    public function getJenjangPaketAttribute(): string
+    {
+        $namaKelas = strtolower((string) ($this->relKelas?->nama_kelas ?? ''));
+
+        if (str_contains($namaKelas, 'paket a') || str_contains($namaKelas, 'kelas a') || str_contains($namaKelas, 'setara sd') || str_contains($namaKelas, 'sd')) {
+            return 'paket_a';
+        }
+        if (str_contains($namaKelas, 'paket b') || str_contains($namaKelas, 'kelas b') || str_contains($namaKelas, 'setara smp') || str_contains($namaKelas, 'smp')) {
+            return 'paket_b';
+        }
+        if (str_contains($namaKelas, 'paket c') || str_contains($namaKelas, 'kelas c') || str_contains($namaKelas, 'setara sma') || str_contains($namaKelas, 'sma') || str_contains($namaKelas, 'smk')) {
+            return 'paket_c';
+        }
+
+        return $this->kelas_id ? 'kelas_'.$this->kelas_id : 'umum';
+    }
+
+    /**
+     * Accessor: Label manusiawi untuk Jenjang Paket siswa.
+     */
+    public function getJenjangPaketLabelAttribute(): string
+    {
+        return match ($this->jenjang_paket) {
+            'paket_a' => 'Paket A (Setara SD)',
+            'paket_b' => 'Paket B (Setara SMP)',
+            'paket_c' => 'Paket C (Setara SMA)',
+            default => $this->relKelas?->nama_kelas ?: 'Umum / Reguler',
+        };
+    }
+
+    /**
      * Relasi: Siswa terdaftar di satu Kelas (Many-to-One / BelongsTo).
      * Menggunakan nama relasi 'relKelas' (bukan 'kelas') untuk menghindari
      * konflik nama dengan class lain.

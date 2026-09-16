@@ -1,8 +1,8 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 15 September 2026  
+**Tanggal Pembaruan:** 16 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3 & **Perencanaan Fase 4** (Keamanan, Infrastruktur, Presensi Multi-Moda, Payroll SK, Push Notification, Analisis Honorarium Berbasis SK Kepala PKBM)  
+**Status Proyek:** Fase 1, 2, 3, 4 & 5 (Keamanan, Multi-Moda, Geofencing, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Unified Modal/Dialog, & Validasi Pedagogis Rombel)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,22 +11,22 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 24
+    "Selesai (Completed)" : 37
     "Dalam Proses (In Progress)" : 0
-    "Belum Dimulai (Pending)" : 6
-    "Direncanakan Fase 4 (Planned)" : 13
+    "Belum Dimulai / Backlog (Pending)" : 6
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
 | 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
-| 2. Core Presensi & Validasi | 8 | 7 | 0 | 1 |
-| 3. Payroll & Honorarium | 4 | 4 | 0 | 0 |
-| 4. Integrasi & Notifikasi | 5 | 3 | 0 | 2 |
-| 5. Executive Dashboard | 3 | 2 | 0 | 1 |
-| 6. Codebase, Standardisasi & QA | 6 | 6 | 0 | 0 |
-| **Tambahan (Infrastruktur Teknis)** | **3** | **3** | **0** | **0** |
-| **🆕 Fase 4 — Honorarium Berbasis SK** | **13** | **0** | **0** | **13** |
+| 2. Core Presensi & Validasi Lokasi | 8 | 7 | 0 | 1 |
+| 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
+| 4. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
+| 5. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
+| 6. UI/UX Excellence & Responsive Layout | 5 | 5 | 0 | 0 |
+| 7. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
+| **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
+| **TOTAL** | **43** | **37** | **0** | **6** |
 
 ---
 
@@ -100,7 +100,6 @@ pie title Status Fitur & Pengkondisian Sistem
     - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php` dan file environment `.env`.
     - Mengintegrasikan pemeriksaan batas jarak pada `PresensiFotoController::store()` untuk moda pembelajaran `sekolah`. Jika jarak GPS tutor dengan titik sekolah PKBM Pikat $> 100$ meter, presensi otomatis ditolak dengan pesan peringatan interaktif yang menampilkan jarak sebenarnya.
     - **Visualisasi Peta Leaflet.js**: Menampilkan lingkaran transparan radius 100 meter sekeliling sekolah PKBM Pikat dengan warna dinamis (Hijau = di dalam radius, Merah = di luar radius), penanda pin marker sekolah & posisi tutor, serta auto-zoom fit bounds.
-    - Pengujian otomatis komprehensif pada `tests/Feature/GeofencingTest.php` (uji presensi di dalam radius, di luar radius, pengecualian moda online, dan perhitungan matematis Haversine).
 - 🟢 **Fitur Kontrol Kamera Lanjutan (Mirror, Switch Camera, Grid 3x3, Flash/Torch)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -111,193 +110,160 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Seeder Data Siswa & Kelas (`SiswaSeeder`)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat file seeder `database/seeders/SiswaSeeder.php` yang secara otomatis menyiapkan data sampel kelas (Paket A, Paket B, Paket C, dan PAUD) serta 6 data sampel siswa terikat pada tutor default.
+    - Membuat file seeder `database/seeders/SiswaSeeder.php` yang secara otomatis menyiapkan data sampel kelas (Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA) serta 6 data sampel siswa terikat pada tutor default.
     - Menggunakan metode `updateOrCreate` untuk keamanan re-seeding tanpa duplikasi data.
     - Mendaftarkan seeder pada `database/seeders/DatabaseSeeder.php`.
-
 - 🟢 **Deteksi Manipulasi GPS (Anti Fake GPS) & Validasi Akurasi Sinyal**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Menambahkan kolom `lokasi_akurasi` (satuan meter) dan `is_mocked` (boolean) pada tabel `presensis` melalui migrasi `2026_09_14_000003_add_anti_fake_gps_columns_to_presensis_table.php`.
-    - **Validasi Sinyal & Provider Palsu**: Implementasi method `validateGpsIntegrity()` pada `GeofencingService` untuk menolak presensi jika lokasi berasal dari aplikasi provider buatan (*mock location* / Fake GPS).
-    - **Batas Toleransi Akurasi (`max_accuracy_meter` = 200m)**: Membatasi akurasi sinyal lokasi GPS maksimal 200 meter (dapat dikonfigurasi via `config/lokasi.php`). Jika akurasi sinyal terdeteksi buruk ($> 200$m) atau bernilai $0$m, presensi otomatis ditolak.
-    - **Deteksi Heuristik Frontend**: Menguji `pos.coords.mocked`, korelasi `altitude/speed/heading`, serta pengiriman data akurasi ke server.
-    - Automated feature testing pada `tests/Feature/AntiFakeGpsTest.php` (uji akurasi valid, mock location ditolak, akurasi buruk ditolak, akurasi 0m ditolak).
-
+    - Menambahkan kolom `lokasi_akurasi` (satuan meter) dan `is_mocked` (boolean) pada tabel `presensis`.
+    - **Validasi Sinyal & Provider Palsu**: Implementasi method `validateGpsIntegrity()` pada `GeofencingService` untuk menolak presensi jika lokasi berasal dari aplikasi mock location / Fake GPS.
+    - **Batas Toleransi Akurasi (`max_accuracy_meter` = 200m)**: Membatasi akurasi sinyal lokasi GPS maksimal 200 meter. Jika akurasi buruk ($> 200$m) atau $0$m, presensi otomatis ditolak.
 - 🟢 **PWA (Progressive Web App) & Offline Mode**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** 
-    - **Web App Manifest (`public/manifest.json`)**: Menyiapkan konfigurasi PWA aplikasi (`name`: "Smart Presensi PKBM Pikat", `short_name`: "Presensi Pikat", `display`: "standalone", `theme_color`: "#0B5ED7", icons 192x192 & 512x512).
+    - **Web App Manifest (`public/manifest.json`)**: Konfigurasi PWA mandiri (`standalone`, theme color `#0B5ED7`, ikon 192x192 & 512x512).
     - **Service Worker (`public/sw.js`)**: Caching aset statis & offline fallback dengan strategi Network-First Cache-Fallback (PWA cache v2).
-    - **Penyimpanan Lokal IndexedDB (`resources/js/offline-presensi.js`)**: Membuat database `PikatPresensiOfflineDB` dan object store `offline_presensis`. Jika presensi dikirim dalam kondisi offline, data presensi (beserta lokasi, foto, & payload) disimpan lokal di IndexedDB browser.
-    - **Auto-Synchronization (`online` Event Listener)**: Secara otomatis mendeteksi ketika perangkat kembali terhubung ke internet dan mengirimkan seluruh antrean presensi ke server.
-    - Automated feature testing pada `tests/Feature/PwaOfflineTest.php`.
-
+    - **Penyimpanan Lokal IndexedDB (`resources/js/offline-presensi.js`)**: Database `PikatPresensiOfflineDB` dan antrean offline sync otomatis saat online.
 - 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat migrasi `database/migrations/2026_09_14_000004_create_pengajuan_izin_sakit_table.php` dan Eloquent Model `App\Models\PengajuanIzinSakit`.
-    - **Formulir Mandiri Tutor**: Menambahkan controller `PengajuanIzinController` dan view `resources/views/tutor/pengajuan_izin.blade.php` bagi tutor untuk mengajukan izin/sakit digital lengkap dengan uploader dokumen bukti (PDF, JPG, PNG max 2MB).
-    - **Workflow Verifikasi Kepala Sekolah**: Menambahkan view `resources/views/kepsek/pengajuan_izin.blade.php` dan method `setujuiPengajuanIzin()` / `tolakPengajuanIzin()` pada `KepsekDashboardController`.
-    - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah menyetujui pengajuan izin/sakit, sistem secara otomatis mengisikan/menyinkronkan record pada tabel `presensis` untuk rentang tanggal yang diajukan dengan status `'izin'` atau `'sakit'`.
-    - Automated feature testing pada `tests/Feature/PengajuanIzinSakitTest.php`.
-
+    - Tabel `pengajuan_izin_sakit` dan model `PengajuanIzinSakit`.
+    - Formulir mandiri Tutor dengan uploader bukti (PDF/JPG/PNG max 2MB) dan alur approval Kepala Sekolah yang otomatis menyinkronkan status `'izin'`/`'sakit'` pada tabel `presensis`.
 - 🟢 **Modul Presensi Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat tabel `magangs` (`user_id`, `nim_nisn`, `asal_instansi`, `jurusan`, `pembimbing_lapangan`, `tgl_mulai`, `tgl_selesai`, `status`) dan model `App\Models\Magang`.
-    - Memperbarui kolom `users.role` untuk mendukung peran `'magang'`.
-    - **Alur Presensi Khusus Magang (Clock-In & Clock-Out)**: Mahasiswa magang melakukan absensi masuk (jam mulai & foto selfie) dan pulang (jam selesai & foto selfie) dengan verifikasi radius geofence 100m PKBM Pikat serta validasi durasi minimal magang (1 jam). Presensi dicatat pada tabel `presensi_karyawans`.
-    - **Dashboard & Mobile UI Magang**: Dashboard khusus (`MagangDashboardController`), live time widget, kartu sesi aktif, statistik kehadiran bulanan, riwayat presensi (`resources/views/magang/riwayat.blade.php`), dan profil (`resources/views/magang/profil.blade.php`) lengkap dengan navigasi bawah khusus `navigasi_bawah_magang`.
-    - **Modul Kelola Magang Admin**: CRUD peserta magang (`Admin\MagangController`), monitoring presensi real-time magang, dan ekspor Laporan Rekap Presensi Magang ke PDF (`Barryvdh\DomPDF`).
-    - **Automated Testing**: Penambahan feature test `tests/Feature/MagangRoleAndPresensiTest.php` (7 tests, 29 assertions lolos 100%).
-
+    - Tabel `magangs` dan dukungan role `'magang'`.
+    - Alur presensi khusus Clock-In & Clock-Out berbasis foto selfie dan verifikasi geofence radius 100m PKBM Pikat.
+    - Dashboard khusus magang, monitoring admin, dan ekspor Laporan Rekap Presensi Magang ke PDF.
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
-  - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
+  - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---
 
-### 3. Integrasi Manajemen Penggajian & Honorarium (Payroll System)
+### 3. Integrasi Manajemen Penggajian & Honorarium Berbasis SK (Payroll System)
 
-#### 3.1 Otomatisasi Perhitungan Honor Mengajar Tutor
-- 🟢 **Kalkulasi Honorarium Berbasis Presensi Valid**
+#### 3.1 Master Kategori Tutorial & Tarif SK Kepala PKBM
+- 🟢 **Master Kategori & Skema Tarif SK Kepala PKBM**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat service class `App\Services\PayrollService` dengan method `calculateTutorPayroll()` untuk menghitung akumulasi jam mengajar terverifikasi (status `'hadir'`, `jam_mulai` & `jam_selesai` valid) dikalikan tarif per jam spesifik masing-masing siswa yang diajar.
-    - Menghitung breakdown honorarium per siswa, durasi jam presisi, dan total take-home pay per bulan/tahun.
-    - Automated feature testing pada `tests/Feature/PayrollTest.php`.
+    - Membuat tabel `kategori_tutorials` lengkap dengan model `KategoriTutorial` dan seeder `KategoriTutorialSeeder` untuk 6 kategori master SK:
+      1. Tutorial Komunitas (Durasi 2 Jam) = **Rp 75.000,-** / pertemuan
+      2. Tutorial Komunitas ABK (Durasi 2 Jam) = **Rp 100.000,-** / pertemuan
+      3. Tutorial Komunitas (Durasi 3 Jam) = **Rp 100.000,-** / pertemuan
+      4. Gabungan Komunitas per Rombel = **Rp 50.000,-** / rombel
+      5. Tutorial Distance Learning / DL (Durasi 1,5 Jam) = **Rp 100.000,-** / pertemuan
+      6. Tutorial Distance Learning / DL ABK (Durasi 1,5 Jam) = **Rp 130.000,-** / pertemuan
+    - Menambahkan kolom `is_abk` pada tabel `siswas` agar status Anak Berkebutuhan Khusus dikunci di data master siswa oleh Admin.
+    - Menambahkan kolom `durasi_pilihan`, `kategori_tutorial_id`, dan `nominal_honor_snapshot` pada tabel `presensis`.
 
-- 🟢 **Dukungan Tarif Spesifik Per Siswa & Master Tarif SK (Database-Driven)**
+#### 3.2 Dynamic Resolver & Snapshot Immutability
+- 🟢 **Engine Honor Dinamis & Snapshot Finansial (`PayrollService`)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Menambahkan tabel `kategori_tutorials` untuk mengelola master tarif & kategori tutorial sesuai SK Kepala PKBM (Komunitas 2 Jam [Rp 75.000], Komunitas 2 Jam ABK [Rp 100.000], Komunitas 3 Jam [Rp 100.000], Gabungan Komunitas [Rp 50.000/rombel], Distance Learning 1.5 Jam [Rp 100.000], Distance Learning 1.5 Jam ABK [Rp 130.000]).
-    - Menambahkan kolom `is_abk` pada tabel `siswas` agar status Anak Berkebutuhan Khusus diatur oleh Admin.
-    - Menghilangkan redundansi input manual tarif per jam di menu kelola siswa (`admin/siswa/create.blade.php` & `edit.blade.php`) dan menggantinya dengan integrasi otomatis ke Master Tarif SK sesuai flag ABK.
-    - Memperbarui daftar siswa (`admin/siswa/index.blade.php`) dengan indikator skema tarif SK (`SK: ABK` vs `SK: Reguler`).
-    - Menambahkan kolom `durasi_pilihan`, `kategori_tutorial_id`, dan `nominal_honor_snapshot` pada tabel `presensis` untuk snapshot immutability nominal gaji saat sesi presensi dibuat.
-    - **Penyederhanaan Form Presensi Tutor (`presensi_foto.blade.php`)**: Menghapus beban pilih tarif manual dari tutor. Pilihan durasi sesi secara cerdas terintegrasi otomatis dengan metode/moda pembelajaran (Moda Tatap Muka $\rightarrow$ Pilihan 2 Jam / 3 Jam Komunitas + opsi Rombel Gabungan; Moda Daring Online $\rightarrow$ Otomatis 1,5 Jam Distance Learning + input link room).
-    - Memperbarui `PayrollService` dengan auto-resolution backend, snapshot priority, dan backward compatibility untuk data presensi legacy.
-    - Automated testing: `tests/Feature/DynamicKategoriTutorialPayrollTest.php` (9 tests, 33 assertions lolos 100%).
+    - Method `PayrollService::resolveHonorSesi()` secara cerdas mencocokkan moda, durasi sesi pilihan tutor, status ABK siswa, dan status gabungan rombel $\rightarrow$ mengunci nilai `nominal_honor_snapshot` saat absensi dibuat.
+    - **Snapshot Immutability**: Perubahan tarif di masa depan pada tabel master tidak akan mengubah nominal honor historis yang sudah tersimpan pada presensi yang lalu.
+    - **Backward Compatibility**: Presensi legacy tanpa kategori SK (`kategori_tutorial_id = NULL`) tetap dihitung valid via skema per jam lama (`tarif_per_jam × durasi`).
 
-#### 3.2 Slip Gaji Digital & Generasi Laporan Keuangan
-- 🟢 **Ekspor Slip Gaji PDF**
+#### 3.3 Peniadaan Form Input Tarif Manual Redundan
+- 🟢 **Eliminasi Form Input Tarif Manual**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat controller `App\Http\Controllers\Tutor\TutorPayrollController` dan view `resources/views/tutor/payroll.blade.php` bagi Tutor untuk melihat rincian slip gaji digital bulanan.
-    - Membuat template layout PDF `slip_pdf.blade.php` menggunakan `barryvdh/laravel-dompdf` yang dapat diunduh langsung oleh Tutor maupun Admin/Kepala Sekolah.
+    - Menghilangkan beban input tarif manual dari form tambah/edit siswa di Admin (`admin/siswa/create.blade.php` & `edit.blade.php`) dan halaman Kepala Sekolah.
+    - Form presensi tutor (`tutor/presensi_foto.blade.php`) secara otomatis menyesuaikan durasi sesuai moda (Komunitas: 2 jam / 3 jam / Gabungan rombel; Daring: Otomatis 1,5 jam Distance Learning).
 
-- 🟢 **Modul Rekapitulasi Anggaran & Broadcast Pengumuman**
+#### 3.4 Slip Gaji Digital & Rekapitulasi Anggaran
+- 🟢 **Ekspor Slip Gaji PDF & Rekapitulasi Anggaran**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Membuat controller `App\Http\Controllers\Admin\PayrollController` dan views (`admin/payroll/index.blade.php`, `show.blade.php`).
-    - Menampilkan ringkasan total anggaran honorarium sekolah, total jam mengajar, dan rekapitulasi pembayaran per tutor per periode bulan/tahun.
-    - Membuat template layout PDF `rekap_pdf.blade.php` untuk mengunduh laporan rekapitulasi anggaran penggajian sekolah.
-    - Menambahkan aksi `broadcastNotifikasi()` untuk menyiarkan pengumuman penerbitan slip gaji ke seluruh tutor via Web Push Notification.
+    - Tampilan slip gaji web dan PDF (`slip_pdf.blade.php`) menampilkan rincian nama kategori tutorial SK, durasi sesi, badge status ABK, dan nominal honor per pertemuan.
+    - Laporan rekapitulasi anggaran bulanan admin beserta tombol broadcast pengumuman payroll via Web Push Notification.
 
 ---
 
 ### 4. Integrasi Interoperabilitas Sistem & Notifikasi (Integrations)
 
-#### 4.1 Single Sign-On (SSO) & Integrasi SIM PKBM Pikat
-- ⚪ **Integrasi Akun Terpusat (SSO via Laravel Sanctum / OAuth2)**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Menghubungkan autentikasi dan basis data pengguna antara Sistem Presensi Digital dan SIM PKBM Pikat menggunakan API Tokens (Laravel Sanctum) atau OAuth2.
-
-#### 4.2 Web Push Notification Real-Time (PWA & FCM Push Service)
+#### 4.1 Web Push Notification Real-Time (PWA & FCM Push Service)
 - 🟢 **Infrastruktur Web Push, VAPID & Guzzle Client**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:**
-    - Mengintegrasikan paket `minishlink/web-push` dengan generator kunci VAPID otomatis via artisan command `php artisan webpush:vapid`.
-    - Membuat migrasi tabel `push_subscriptions` (`user_id`, `endpoint`, `public_key`, `auth_token`, `content_encoding`, `device_info`) dan model `PushSubscription`.
-    - Membuat `WebPushService` dengan konfigurasi Guzzle Client khusus yang menangani SSL certificate bypass pada lingkungan Windows/Laragon tanpa error cURL 60.
+  - **Rincian Implementasi:** Paket `minishlink/web-push`, command `webpush:vapid`, migrasi `push_subscriptions`, dan `WebPushService` dengan proteksi SSL bypass Windows/Laragon.
 - 🟢 **Auto-Sync Token Browser & Client Push Manager**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:**
-    - Memasang script `resources/js/push-notification.js` dengan kemampuan auto-sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil.
-    - Memperbarui `public/sw.js` (PWA v2) dengan dukungan `push` dan `notificationclick` URL routing yang otomatis menormalisasi protokol HTTPS.
+  - **Rincian Implementasi:** Script `resources/js/push-notification.js` auto-sinkronisasi token browser, auto-reconnect, dan pengujian push mandiri di menu Profil.
 - 🟢 **Otomatisasi Trigger Push Notifikasi Sistem**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:**
-    - **Presensi Masuk & Pulang**: Notifikasi konfirmasi kehadiran langsung ke HP tutor setelah sukses Clock In / Clock Out.
-    - **Pengajuan Izin & Sakit**: Notifikasi pengajuan baru ke Admin & Kepsek, serta notifikasi persetujuan/penolakan ke HP tutor.
-    - **Pengajuan Lupa Lapor**: Notifikasi permohonan baru ke Kepsek/Admin, serta notifikasi hasil approval ke tutor.
-    - **Pengingat Jadwal Mengajar**: Scheduler cron `presensi:send-reminder` (`SendAbsenReminderCommand`) untuk mengirim notifikasi jadwal hari ini ke seluruh tutor yang bertugas.
-    - **Broadcast Pengumuman Payroll**: Tombol *"Umumkan ke Tutor"* di menu Payroll Admin untuk mem-broadcast pengumuman penerbitan slip gaji ke seluruh tutor aktif.
-    - Automated feature testing pada `tests/Feature/PushNotificationTest.php`.
+  - **Rincian Implementasi:** Notifikasi instan presensi masuk/pulang, pengajuan izin/sakit, permohonan lupa lapor, scheduler cron pengingat jadwal mengajar harian (`presensi:send-reminder`), dan broadcast pengumuman slip gaji.
 
-#### 4.3 Integrasi WhatsApp Gateway (Opsional / Jangka Panjang)
-- ⚪ **Notifikasi WhatsApp Pengingat Absen & Wali Murid**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Pengiriman pesan WhatsApp pengingat jika diperlukan pengiriman ke orang tua/wali murid di masa mendatang.
-
-#### 4.4 Import & Export Massal Data (Bulk Data Management)
-- 🟢 **Import & Export Spreadsheet Excel/CSV (Bulk Data Management)**
+#### 4.2 Import & Export Massal Data (Bulk Data Management)
+- 🟢 **Import & Export Spreadsheet Excel/CSV**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:**
-    - **Pembaruan Laporan Presensi (`PresensiExport.php`):** Menambahkan 14 kolom data presensi komprehensif (Nomor Urut, Tanggal, Nama Tutor, NIK Tutor berformat text `@`, Nama Siswa, Kelas/Rombel, Moda Pembelajaran, Jam Masuk, Jam Keluar, Durasi Mengajar otomatis, Lokasi Masuk, Lokasi Keluar, Status Kehadiran, Keterangan) serta KPI Header Card (Total Hadir, Sedang Berjalan, Total Izin/Sakit, Total Alpha, Total Akumulasi Jam Mengajar).
-    - **Export & Import Payroll (`PayrollRekapExport.php`, `PayrollBulkTarifTemplateExport.php`, `PayrollBulkTarifImport.php`):** Ekspor rekap anggaran honorarium tutor bulanan ke Excel serta template & import massal tarif honorarium per jam siswa.
-    - **Export & Import Siswa (`SiswaTemplateExport.php`, `SiswaExport.php`, `SiswaImport.php`):** Ekspor seluruh siswa dan bulk import data siswa baru/update dengan auto-resolve relasi kelas dan lookup tutor pembimbing berdasarkan NIK.
-    - **Export & Import Tutor / Karyawan (`TutorTemplateExport.php`, `TutorExport.php`, `TutorImport.php`):** Ekspor data karyawan serta bulk import dengan pembuatan akun user otomatis (hash password default NIK) dan sinkronisasi ke tabel `tutors`.
-    - **Export & Import Jadwal / Agenda (`JadwalTemplateExport.php`, `JadwalExport.php`, `JadwalImport.php`):** Ekspor agenda dan bulk import kegiatan/jadwal PKBM Pikat.
-    - **Export & Import Presensi Retroaktif (`PresensiTemplateExport.php`, `PresensiImport.php`):** Template & import massal riwayat log absensi manual/retroaktif dengan validasi NIK tutor dan NIS siswa.
-    - **Integrasi Controller & Route:** Memperbarui `LaporanController`, `PayrollController`, `SiswaController`, `KaryawanController`, dan `JadwalController` beserta rute Excel di `routes/web.php` untuk peran Admin dan Kepala Sekolah.
-    - **UI Action Bars & Modal Dialogs:** Menambahkan tombol Export Excel, Unduh Template, dan Modal Upload File Excel/CSV pada tampilan `admin/payroll/index.blade.php`, `admin/siswa/index.blade.php`, `admin/karyawan/index.blade.php`, `admin/jadwal/index.blade.php`, dan `admin/laporan/index.blade.php`.
-    - **Automated Testing:** Menambahkan 8 feature test kasus lengkap pada `tests/Feature/SpreadsheetImportExportTest.php` dengan 100% assertion sukses (38 assertions).
+  - **Rincian Implementasi:** Ekspor laporan presensi komprehensif 14 kolom + KPI cards (`PresensiExport.php`), ekspor/import massal data Siswa, Tutor/Karyawan, Jadwal/Agenda, dan Presensi Retroaktif via `maatwebsite/excel`.
+
+#### 4.3 Integrasi Eksternal (Jangka Panjang)
+- ⚪ **Integrasi Akun Terpusat (SSO SIM PKBM Pikat via Sanctum / OAuth2)**: [PENDING]
+- ⚪ **Notifikasi WhatsApp Gateway**: [PENDING]
 
 ---
 
 ### 5. Executive Dashboard & Business Intelligence (Analytics)
 
 #### 5.1 Dashboard Analytics Kepala Sekolah
-- 🟢 **Heatmap Kehadiran & Tren Kinerja**
+- 🟢 **Heatmap Kehadiran, Tren Kinerja & Leaderboard KPI Tutor**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Membuat `App\Services\AnalyticsService.php` dan visualisasi grafik interaktif Chart.js pada Dashboard Kepala Sekolah (`resources/views/kepsek/dashboard.blade.php`) yang menyajikan tren kehadiran, total sesi bimbingan, dan volume jam mengajar selama 6 bulan terakhir.
-- 🟢 **Indikator Kinerja Utama (KPI Tutor)**
-  - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Fitur kalkulasi skor KPI composite Tutor berbasis tingkat kedisiplinan persentase kehadiran (%) dan akumulasi jam mengajar (jam). Menampilkan papan pemeringkatan (Leaderboard) dengan badge peringkat (#1 Gold, #2 Silver, #3 Bronze), kategori kinerja (*Sangat Baik*, *Baik*, *Perlu Perhatian*), dan progress bar kedisiplinan. Dilengkapi pengujian otomatis `KepsekAnalyticsKpiTest.php` (27 tests, 124 assertions OK 100%).
+  - **Rincian Implementasi:** Grafik interaktif Chart.js tren kehadiran 6 bulan terakhir (`AnalyticsService.php`), kalkulasi skor composite KPI Tutor, dan leaderboard peringkat kedisiplinan (#1 Gold, #2 Silver, #3 Bronze).
 
 #### 5.2 Laporan Standar Akreditasi Pendidikan
-- ⚪ **Format Laporan Otomatis Akreditasi BAN PAUD & PNF**
-  - **Status:** **PENDING**
-  - **Rincian Implementasi:** Fitur generasi laporan rekapitulasi presensi dan kegiatan mengajar yang sudah disesuaikan dengan format standar lampiran akreditasi BAN PAUD & PNF.
+- ⚪ **Format Laporan Otomatis Akreditasi Pendidikan Kesetaraan (BAN PDM / PNF)**: [PENDING]
 
 ---
 
-### 6. Refactored Codebase, Standardisasi & Testing (Quality Assurance)
+### 6. Standardisasi UI/UX, Layout Responsif & Feedback Terpadu
 
-#### 6.1 Restrukturisasi & Standardisasi System Codebase
-- 🟢 **Standardisasi Penulisan Kode (Laravel Pint)**
-  - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan `vendor/bin/pint` pada seluruh file controller, model, view, seeder, dan migration untuk memastikan kesesuaian gaya penulisan kode (*PSR-12 / Laravel Code Style*).
-- 🟢 **Standardisasi Bahasa Indonesia & Lokalisasi System**
-  - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Melakukan standardisasi seluruh teks UI, nama modul, format tanggal Carbon locale `id`, status presensi, dan pesan validasi/flash message ke dalam Bahasa Indonesia yang baku dan konsisten.
-- 🟢 **Sentralisasi Design System via `resources/css/app.css`**
-  - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menyatukan seluruh styling CSS komponen ke dalam `resources/css/app.css`, menghapus seluruh inline `<style>` dari view Blade, membuang folder CSS statis redundan (`public/css/` & `public/assets/css/`), dan merapikan rujukan layout agar 100% Vite native (`@vite(['resources/css/app.css', 'resources/js/app.js'])`).
-- 🟢 **Restrukturisasi & Standardisasi Folder Views (`resources/views/layouts/`)**
-  - **Status:** **SELESAI**
-  - **Rincian Implementasi:** 
-    - Mengonsolidasikan folder `layout/` (singular) dan `layouts/` (plural) menjadi `resources/views/layouts/`.
-    - Memisahkan komponen partial navigasi berbahasa Indonesia di `resources/views/layouts/components/` (`navigasi_atas`, `navigasi_bawah_admin`, `navigasi_bawah_kepsek`, `navigasi_bawah_tutor`).
-    - Memperbarui seluruh file view Blade ke `@extends('layouts.x')`.
-    - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
-- 🟢 **Perbaikan Alur Autentikasi Role & Navigasi Bawah Dinamis**
+#### 6.1 Standardisasi Navigasi & Spacing Dashboard Antar Role
+- 🟢 **Sticky Top Navigation & Breathing Room Layout**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Mengoreksi pengalihan login `AuthWebController` dan `RoleMiddleware` agar pengguna terisolasi 100% pada rute dan dashboard sesuai perannya (`admin`, `kepala_sekolah`, `tutor`), serta mencegah kebocoran URL `intended`.
-    - Menjadikan navigasi bawah pada `layouts/presensi.blade.php` dinamis sesuai role pengguna (`admin`, `kepsek`, `tutor`).
-    - Menyelaraskan seluruh item navigasi bottom bar untuk seluruh role (`Absen`, `Laporan`, `Payroll`, `Dashboard`).
-    - Memastikan pengujian otomatis `RoleFlowAndNavigationTest.php` (31 tests, 147 assertions OK 100%).
+    - Penyelarasan topbar navigasi sticky yang bersih di semua role (`tutor`, `magang`, `admin`, `kepala_sekolah`).
+    - Penambahan header section `.sectionTitleRow` pada dashboard Tutor dan Magang untuk memberikan jarak pemisah visual yang rapi dari navigasi atas (mengeliminasi bug kartu yang menempel 0px ke topbar).
+    - Penataan grid 2-kolom seimbang (*equal visual weight*) di desktop ($\ge 992$px) dan 1 kolom nyaman di mobile.
 
-#### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
-- 🟢 **Automated Testing Suite (PHPUnit) & Build Validation**
+#### 6.2 Unified Modal, Toast, & Dialog System
+- 🟢 **Sistem Modal Dialog & Toast Modern**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Menjalankan pengujian automated test `vendor/bin/phpunit` (**53 tests, 235 assertions OK 100%**) dan kompilasi build produksi Vite `npm run build`.
-- 🟢 **Penerapan Pattern DRY (Service & Repository Pattern)**
+  - **Rincian Implementasi:**
+    - Menggantikan dialog native browser (`alert()`, `confirm()`) dengan modal pop-up dan toast notification terpadu (`app-dialog-overlay`, `app-toast-container`) yang elegan, beranimasi halus, dan mendukung dark/light mode.
+    - Memperbaiki isu tombol tidak responsif saat dialog izin kamera/lokasi muncul di halaman presensi.
+
+#### 6.3 Desain Halaman Pengajuan Izin & Sakit Tutor
+- 🟢 **Redesain Form & Riwayat Izin Tutor**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Refactoring dan pemisahan logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`, `WebPushService`, `GeofencingService`, `AnalyticsService`) untuk mengeliminasi kode berulang (*DRY - Don't Repeat Yourself*). Dilengkapi dengan pengujian otomatis `DryServicePatternTest.php` dan `PushNotificationTest.php`.
+  - **Rincian Implementasi:**
+    - Struktur layout `.pengajuanPage` yang lega dan responsif, formulir bersih `.izinFormCard`, dan tab switch `.tabBar`.
+    - Grid tanggal adaptif (`.dateInputRow`) yang otomatis 1 kolom pada layar HP (< 520px) dan 2 kolom pada tablet/desktop.
+    - Kartu riwayat pengajuan izin lengkap dengan status badge, tombol pratinjau surat bukti, dan dialog pembatalan interaktif.
+
+#### 6.4 Validasi Pedagogis Sesi Gabungan Komunitas (Rombel Antar-Paket)
+- 🟢 **Validasi Keseragaman Jenjang Paket Rombel**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Penambahan accessor `$siswa->jenjang_paket` (`paket_a`, `paket_b`, `paket_c`, `umum`) dan `$siswa->jenjang_paket_label` pada model `Siswa` (PKBM Pikat khusus melayani pendidikan kesetaraan Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA).
+    - **Backend Guard**: Validasi ketat pada `PresensiFotoController::store()` saat opsi gabungan aktif (`is_gabungan = true`). Menolak presensi jika siswa yang dipilih berasal dari jenjang paket yang berbeda dengan pesan informatif pedagogis: *"Sesi Gabungan Komunitas (Rombel) hanya dapat menggabungkan rombongan belajar dalam jenjang paket yang sama..."*.
+    - **Frontend Guard**: Peringatan visual realtime `#gabunganPaketMismatchAlert` dan pencegahan submit pada form presensi `tutor/presensi_foto.blade.php`.
+    - Automated feature testing: `tests/Feature/PresensiMultiModaTest.php` (`test_gabungan_komunitas_fails_when_students_belong_to_different_packages` & `test_gabungan_komunitas_succeeds_when_students_belong_to_same_package`).
+
+---
+
+### 7. Refactored Codebase, Standardisasi & QA
+
+#### 7.1 Standardisasi System Codebase
+- 🟢 **Laravel Pint Code Formatter**: `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
+- 🟢 **Sentralisasi Design System via `resources/css/app.css`**: Menyatukan seluruh styling CSS komponen, menghapus inline styles, dan merapikan layout Vite native.
+- 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
+
+#### 7.2 Automated Testing Suite
+- 🟢 **PHPUnit Test Suite**: Seluruh **64 Feature & Unit Tests** lulus 100% (**276 assertions**).
+- 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---
 
@@ -305,257 +271,21 @@ pie title Status Fitur & Pengkondisian Sistem
 
 | No | Nama Perubahan / Fitur | Kategori | Deskripsi & Dampak | Status |
 |---|---|---|---|---|
-| 1 | **Inisialisasi Remote Repositori Git** | Git & VCS | Membuat repositori Git baru, mengatur branch utama ke `main`, menambahkan remote `origin` (`https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git`), dan melakukan commit/push awal. | 🟢 Selesai |
-| 2 | **Migrasi Baseline Codebase `presensi-pkbmpikat`** | Core Setup | Memindahkan seluruh kode proyek lama (Controller, Models, Views, Migrations, Seeders, Assets, Config) ke dalam repositori pengembangan baru `pengembangan-presensi-pikat`. | 🟢 Selesai |
-| 3 | **Penyesuaian Kompatibilitas Dependensi PHP 8.5** | Environment | Mengonfigurasi `composer.json` dan menjalankan `composer install --ignore-platform-req=php` agar paket-paket seperti `phpoffice/phpspreadsheet`, `maatwebsite/excel`, dan `barryvdh/laravel-dompdf` berjalan lancar di PHP 8.5. | 🟢 Selesai |
-| 4 | **Pemasangan & Konfigurasi Laravel Boost MCP** | AI & Tooling | Menginstal dependensi dev `laravel/boost` dan mengonfigurasi file `AGENTS.md` serta aturan pendukung untuk integrasi AI coding assistant yang optimal. | 🟢 Selesai |
-| 5 | **Implementasi Web Push Service & VAPID Tooling** | Push Service | Menambahkan `minishlink/web-push`, command `webpush:vapid`, integrasi Service Worker PWA v2, dan seluruh trigger notifikasi real-time. | 🟢 Selesai |
+| 1 | **Inisialisasi Remote Repositori Git** | Git & VCS | Repositori Git baru, branch `main`, remote `origin` (`https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git`), commit/push. | 🟢 Selesai |
+| 2 | **Migrasi Baseline Codebase `presensi-pkbmpikat`** | Core Setup | Memindahkan seluruh kode proyek lama ke dalam repositori pengembangan baru. | 🟢 Selesai |
+| 3 | **Penyesuaian Kompatibilitas Dependensi PHP 8.5** | Environment | Konfigurasi `composer.json` & paket `maatwebsite/excel`, `barryvdh/laravel-dompdf` di PHP 8.5. | 🟢 Selesai |
+| 4 | **Pemasangan & Konfigurasi Laravel Boost MCP** | AI & Tooling | Instalasi dev `laravel/boost` dan konfigurasi file `AGENTS.md`. | 🟢 Selesai |
+| 5 | **Implementasi Web Push Service & VAPID Tooling** | Push Service | Menambahkan `minishlink/web-push`, command `webpush:vapid`, dan integrasi Service Worker PWA v2. | 🟢 Selesai |
+| 6 | **Master Kategori & Skema Tarif SK Kepala PKBM** | Payroll SK | Migrasi `kategori_tutorials`, seeder 6 skema SK, dynamic snapshot resolver, dan eliminasi form manual. | 🟢 Selesai |
+| 7 | **UI/UX Excellence & Unified Dialog System** | Frontend | Standardisasi layout dashboard, sticky navigation, unified modern dialog/toast, dan form izin responsif. | 🟢 Selesai |
+| 8 | **Validasi Pedagogis Sesi Gabungan Rombel** | Core Presensi | Deteksi jenjang paket siswa & pencegahan penggabungan rombel lintas paket pada presensi komunitas. | 🟢 Selesai |
 
 ---
 
 ## 📌 3. REKAPITULASI DOKUMEN & ACTION PLAN SELANJUTNYA
 
-### Item Fokus yang Siap Dikerjakan (Immediate Focus — Master Kategori & Tarif Dinamis):
-1. **[Fase 4A-1] Migrasi Database (Tabel `kategori_tutorials`, Kolom Siswa & Presensi)**:
-   - Buat tabel master `kategori_tutorials` (`nama_kategori`, `jenis_layanan`, `durasi_jam`, `is_abk`, `is_gabungan`, `nominal_honor`, `is_aktif`, `urutan`).
-   - Tambah kolom `is_abk` (boolean default false) pada tabel `siswas` (dikelola oleh Admin).
-   - Tambah kolom `durasi_pilihan` (decimal 4,2), `kategori_tutorial_id` (foreign key nullable), dan `nominal_honor_snapshot` (decimal 12,2 nullable) pada tabel `presensis`.
-2. **[Fase 4A-2] Model `KategoriTutorial`, Model `Siswa`, & Update Model `Presensi`**:
-   - Model `KategoriTutorial`: cast, relasi, scope `active()`, dan accessor label.
-   - Model `Siswa`: tambahkan `is_abk` ke `$fillable` dan `$casts`.
-   - Model `Presensi`: relasi `belongsTo(KategoriTutorial::class)`, `belongsTo(Siswa::class)`, penambahan fillable, dan accessor harga honor per sesi.
-3. **[Fase 4A-3] Seeder Data Master SK Awal (`KategoriTutorialSeeder`)**:
-   - Menyiapkan 6 kategori data master SK Kepala PKBM (Komunitas 2j [75rb], Komunitas 2j ABK [100rb], Komunitas 3j [100rb], Komunitas Gabungan [50rb/rombel], DL 1.5j [100rb], DL 1.5j ABK [130rb]).
-4. **[Fase 4A-4] Refactor `PayrollService` Engine**:
-   - Logika auto-resolve: mencocokkan moda/layanan + durasi sesi pilihan tutor + status `siswa->is_abk` $\rightarrow$ mendapatkan kategori tarif dan mengunci snapshot honor.
-   - Jaminan *backward compatibility*: presensi lama dengan `kategori_tutorial_id = null` tetap dihitung via `tarif_per_jam × durasi`.
-5. **[Fase 4B-1] CRUD Master Kategori Tutorial & Form Siswa (Admin)**:
-   - Menu kelola kategori & tarif tutorial di dashboard Admin (`Admin\KategoriTutorialController` + view blade).
-   - Penambahan switch/checkbox status ABK pada formulir tambah/edit siswa di Admin (`admin/siswa`).
-6. **[Fase 4B-2] Form Presensi Tutor Dinamis (`presensi_foto.blade.php`)**:
-   - Tutor memilih Siswa & Durasi Pertemuan (1,5 jam / 2 jam / 3 jam / Gabungan). Tutor **tidak memilih status ABK** secara manual.
-   - `PresensiFotoController.php`: validasi durasi, deteksi status ABK siswa dari database, tentukan `kategori_tutorial_id`, dan simpan `nominal_honor_snapshot`.
-7. **[Fase 4B-3] Tampilan Slip Gaji & Rekapitulasi Anggaran**:
-   - Menampilkan nama kategori tutorial, durasi sesi, badge status siswa (jika ABK), dan nominal honor per pertemuan pada slip web dan PDF (`slip_pdf.blade.php`).
-8. **[Fase 4A-5] Automated Testing PHPUnit (`DynamicKategoriTutorialPayrollTest.php`)**:
-   - Pengujian CRUD master admin, toggle status ABK siswa, pilihan durasi tutor, auto-resolve tarif honor, snapshot immutability, dan backward compatibility.
-
-### Item Backlog Terencana (Fase Berikutnya):
+### Item Backlog Terencana (Fase Lanjutan):
 - **Master Asesmen & Tugas Penunjang**: Tabel `honor_asesmens` & `honor_penunjangs` (soal STS/SAS, periksa, awas, rapor, rapat, outing).
-- **Secure Storage Foto & SSO SIM PKBM Pikat**: Infrastruktur keamanan foto dan integrasi user terpusat.
-
-
-
----
-
-## 🏛️ 4. ANALISIS & ROADMAP FASE 4 — HONORARIUM BERBASIS SK KEPALA PKBM (FOKUS: TUTORIAL KOMUNITAS & DL)
-
-> **Tanggal Analisis:** 15 September 2026 | **Status Codebase:** 53 tests, 235 assertions lulus 100% | **Fokus Scope Saat Ini:** Terbatas pada Absensi & Payroll Tutorial Komunitas dan Distance Learning (DL).
-
-### 4.1 Gap Kritis Sistem Saat Ini vs. SK
-
-
-| # | Gap | Dampak Operasional |
-|---|---|---|
-| **1** | Engine honor berbasis `tarif_per_jam × durasi` — bukan **tarif flat per tipe sesi** sesuai SK | Honor tutor tidak akurat sesuai ketentuan lembaga |
-| **2** | Tidak ada modul **honorarium asesmen** (buat soal STS/SAS, periksa, awas) | Komponen honor asesmen hilang dari slip gaji |
-| **3** | Tidak ada modul **tugas penunjang** (rapor, rapat, outing, akreditasi) | Komponen honor penunjang hilang dari slip gaji |
-| **4** | Penjadwalan belum berbasis **kesepakatan bilateral tutor-murid** | Jadwal hanya informatif satu arah dari admin |
-
-### 4.2 Tabel Tarif Honorarium Sesuai SK
-
-#### A. Tutorial Komunitas
-
-| Tipe Sesi | Durasi | Tarif SK | Kode Sistem |
-|---|---|---|---|
-| Komunitas Reguler | 2 jam | **Rp 75.000 / sesi** | `komunitas_reguler` |
-| Komunitas ABK | 2 jam | **Rp 100.000 / sesi** | `komunitas_abk` |
-| Komunitas Durasi Panjang | 3 jam | **Rp 100.000 / sesi** | `komunitas_panjang` |
-| Gabungan Komunitas per Rombel | Per rombel | **Rp 50.000 / sesi** | `komunitas_gabungan` |
-
-#### B. Tutorial Distance Learning (DL)
-
-| Tipe Sesi | Durasi | Tarif SK | Kode Sistem |
-|---|---|---|---|
-| DL Reguler | 1,5 jam | **Rp 100.000 / sesi** | `dl_reguler` |
-| DL ABK | 1,5 jam | **Rp 130.000 / sesi** | `dl_abk` |
-
-#### C. Tutorial Lainnya
-
-| Tipe Sesi | Tarif SK | Kode Sistem |
-|---|---|---|
-| Tutorial Matrikulasi (Komunitas & DL) | **Rp 100.000 / sesi** | `matrikulasi` |
-| Tutorial Kasus Khusus | Menyesuaikan (input manual) | `kasus_khusus` |
-
-#### D. Honorarium Asesmen
-
-| Jenis Asesmen | Tarif SK | Unit | Kode Sistem |
-|---|---|---|---|
-| Pembuatan Soal Sumatif Tengah Semester (STS) | **Rp 50.000** | / mapel / kelas | `buat_soal_sts` |
-| Pembuatan Soal Sumatif Akhir Semester (SAS) | **Rp 50.000** | / mapel / kelas | `buat_soal_sas` |
-| Pemeriksaan Soal STS | **Rp 50.000** | / mapel / kelas | `periksa_sts` |
-| Pemeriksaan Soal SAS | **Rp 50.000** | / mapel / kelas | `periksa_sas` |
-| Pengawasan SAS | **Rp 50.000** | / mapel / ruangan | `awas_sas` |
-| Pengawasan Sumatif Akhir Tahun | **Rp 50.000** | / mapel / ruangan | `awas_sat` |
-| Asesmen Matrikulasi | **Rp 0 (nihil)** | — | `matrikulasi_asesmen` |
-
-#### E. Tugas Penunjang
-
-| Jenis Tugas | Tarif SK | Unit Hitung | Kode Sistem |
-|---|---|---|---|
-| Penyusunan Rapor | **Rp 50.000** | / siswa | `rapor` |
-| Rapat | **Rp 50.000** | / pertemuan | `rapat` |
-| Pendampingan Outing | **Rp 100.000** | / kegiatan | `outing` |
-| Akreditasi / Undangan Khusus | Menyesuaikan | Manual | `akreditasi` |
-
-### 4.3 Arsitektur Database Target Fase 4
-
-```
-presensis (ditambah kolom baru)
-├── tipe_sesi              VARCHAR — enum tipe SK
-├── is_abk                 BOOLEAN — flag ABK
-├── jenis_honor            VARCHAR — per_sesi | per_jam | manual | nihil
-└── nominal_honor_override DECIMAL(12,2) nullable — kasus_khusus
-
-honor_asesmens (tabel baru)
-├── tutor_id, jenis_asesmen, mata_pelajaran
-├── kelas_id / ruangan, tanggal, diinput_oleh
-└── nominal (50.000 default; 0 untuk matrikulasi)
-
-honor_penunjangs (tabel baru)
-├── tutor_id, jenis_tugas, tanggal, diinput_oleh
-├── jumlah_unit     — per siswa (rapor) / per rapat / per kegiatan
-└── total_nominal   COMPUTED = nominal × jumlah_unit
-```
-
-### 4.4 Konstanta SK di `PayrollService`
-
-```php
-private const TARIF_SK = [
-    'komunitas_reguler'  => 75_000,
-    'komunitas_abk'      => 100_000,
-    'komunitas_panjang'  => 100_000,
-    'komunitas_gabungan' => 50_000,
-    'dl_reguler'         => 100_000,
-    'dl_abk'             => 130_000,
-    'matrikulasi'        => 100_000,
-    'kasus_khusus'       => null,   // pakai nominal_honor_override
-];
-```
-
-> **Backward Compatibility:** Presensi lama tanpa `tipe_sesi` (`NULL`) akan fallback ke kalkulasi lama (`tarif_per_jam × durasi`) — data historis tetap valid.
-
-### 4.5 Rencana Pengujian Fase 4 (`SkPayrollCalculationTest`)
-
-| # | Skenario | Expected | Prioritas |
-|---|---|---|---|
-| 1 | Sesi komunitas reguler 2 jam | Rp 75.000 | 🔴 Kritis |
-| 2 | Sesi komunitas ABK | Rp 100.000 | 🔴 Kritis |
-| 3 | Sesi komunitas 3 jam | Rp 100.000 | 🔴 Kritis |
-| 4 | Sesi gabungan per rombel (flat) | Rp 50.000 | 🔴 Kritis |
-| 5 | Sesi DL reguler 1,5 jam | Rp 100.000 | 🔴 Kritis |
-| 6 | Sesi DL ABK 1,5 jam | Rp 130.000 | 🔴 Kritis |
-| 7 | Sesi matrikulasi | Rp 100.000 | 🔴 Kritis |
-| 8 | Kasus khusus override Rp 150.000 | Rp 150.000 | 🔴 Kritis |
-| 9 | Asesmen buat soal STS 3 mapel | Rp 150.000 | 🔴 Kritis |
-| 10 | Asesmen matrikulasi | Rp 0 | 🔴 Kritis |
-| 11 | Penunjang rapor 10 siswa | Rp 500.000 | 🟡 Penting |
-| 12 | Penunjang rapat 1 kali | Rp 50.000 | 🟡 Penting |
-| 13 | Penunjang outing | Rp 100.000 | 🟡 Penting |
-| 14 | Grand total multi-komponen | Sum tutorial + asesmen + penunjang | 🔴 Kritis |
-| 15 | Tutor tanpa sesi bulan ini | Rp 0 | 🟡 Penting |
-| 16 | Data lama (fallback per-jam) | Kalkulasi lama tetap valid | 🔴 Kritis |
-
-### 4.6 Mitigasi Risiko Operasional
-
-| Risiko | Mitigasi |
-|---|---|
-| Tutor salah pilih tipe sesi | Preview nominal honor ditampilkan sebelum submit presensi |
-| Data lama tanpa `tipe_sesi` | Default NULL → fallback ke `tarif_per_jam × durasi` (backward compat) |
-| Override kasus khusus disalahgunakan | Hanya Admin yang bisa set `nominal_honor_override`, bukan tutor |
-| Asesmen diinput ganda | Constraint unique `(tutor_id, jenis_asesmen, mata_pelajaran, tanggal)` |
-| Rombel gabungan dihitung per-siswa | Validasi: `komunitas_gabungan` → flat Rp 50.000 meski banyak siswa |
-| Slip gaji bocor sebelum finalisasi | Gate: slip hanya visible setelah Admin klik "Finalisasi Periode" |
-
-### 4.7 Roadmap Sprint Fase 4
-
-```mermaid
-gantt
-    title Roadmap Fase 4 — Implementasi SK Honorarium PKBM Pikat
-    dateFormat  YYYY-MM-DD
-    section Sprint 1 — Model & Engine
-    Migrasi kolom tipe sesi presensis      :a1, 2026-09-16, 3d
-    Tabel honor_asesmens + model           :a2, after a1, 2d
-    Tabel honor_penunjangs + model         :a3, after a2, 2d
-    Refactor PayrollService SK Engine      :a4, after a3, 3d
-    PHPUnit SkPayrollCalculationTest       :a5, after a4, 2d
-    section Sprint 2 — UI & UX
-    Form presensi tipe sesi + ABK          :b1, after a5, 3d
-    CRUD admin asesmen dan penunjang       :b2, after b1, 4d
-    Slip gaji breakdown 3 komponen         :b3, after b2, 3d
-    section Sprint 3 — Akreditasi & Keamanan
-    Laporan format BAN PAUD dan PNF        :c1, after b3, 5d
-    Secure storage foto presensi           :c2, after c1, 3d
-    CI/CD pipeline GitHub Actions          :c3, after c2, 3d
-```
-
-#### Detail Item Sprint Fase 4 (Fokus Utama: Master Kategori & Tarif Dinamis)
-
-- ⚪ **[4A-1] Migrasi Tabel `kategori_tutorials` & Penambahan Kolom Presensi**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `database/migrations/2026_09_16_000001_create_kategori_tutorials_table.php`, `database/migrations/2026_09_16_000002_add_kategori_tutorial_id_to_presensis_table.php`
-  - **Keterangan:** Tabel `kategori_tutorials` dan kolom `kategori_tutorial_id`, `nominal_honor_snapshot` pada tabel `presensis`.
-
-- ⚪ **[4A-2] Model `KategoriTutorial` & Update Model `Presensi`**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `app/Models/KategoriTutorial.php`, `app/Models/Presensi.php`
-  - **Keterangan:** Relasi Eloquent `belongsTo` & `hasMany`, scope `active()`, dan accessor label.
-
-- ⚪ **[4A-3] Seeder Data Master SK Awal (`KategoriTutorialSeeder`)**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `database/seeders/KategoriTutorialSeeder.php`
-  - **Keterangan:** Inisialisasi 6 kategori default SK (Komunitas 2j, 2j ABK, 3j, Gabungan rombel, DL 1.5j, DL 1.5j ABK).
-
-- ⚪ **[4A-4] Refactor `PayrollService` — Engine Honor Dinamis & Snapshot**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `app/Services/PayrollService.php`
-  - **Keterangan:** Menghitung total honor bulanan berbasis `nominal_honor_snapshot` / relasi kategori, dengan fallback presensi lama (`tarif_per_jam × durasi`).
-
-- ⚪ **[4B-1] CRUD Master Kategori Tutorial di Panel Admin**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `app/Http/Controllers/Admin/KategoriTutorialController.php`, `resources/views/admin/kategori_tutorial/index.blade.php`
-  - **Keterangan:** Dashboard kelola kategori, durasi, status ABK/gabungan, dan nominal tarif honorarium.
-
-- ⚪ **[4B-2] Form Presensi Tutor Dinamis & Validasi Controller**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `resources/views/tutor/presensi_foto.blade.php`, `app/Http/Controllers/Tutor/PresensiFotoController.php`
-  - **Keterangan:** Dropdown dinamis kategori aktif + snapshot nominal honor saat absen dibuat.
-
-- ⚪ **[4B-3] Update Tampilan Slip Gaji & Rekap Anggaran (Web + PDF)**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `resources/views/tutor/payroll.blade.php`, `resources/views/pdf/slip_pdf.blade.php`, `resources/views/admin/payroll/index.blade.php`
-  - **Keterangan:** Menampilkan rincian kategori tutorial, durasi, dan nominal honor per pertemuan.
-
-- ⚪ **[4A-5] Automated Testing PHPUnit `DynamicKategoriTutorialPayrollTest`**
-  - **Status:** **PENDING** — Sprint 1 (Fokus Utama)
-  - **File Target:** `tests/Feature/DynamicKategoriTutorialPayrollTest.php`
-  - **Keterangan:** Pengujian CRUD admin, presensi tutor, perhitungan honor dinamis, snapshot immutability, dan backward compatibility.
-
----
-
-#### Item Backlog Terencana (Fase Lanjutan)
-
-- ⚪ **[5A-1] Tabel & Model `HonorAsesmen` + CRUD Admin (Soal STS/SAS, Periksa, Awas)**
-  - **Status:** **BACKLOG** — Fase Lanjutan
-- ⚪ **[5A-2] Tabel & Model `HonorPenunjang` + CRUD Admin (Rapor, Rapat, Outing)**
-  - **Status:** **BACKLOG** — Fase Lanjutan
-- ⚪ **[5B-1] Format Laporan Akreditasi BAN PAUD & PNF**
-  - **Status:** **BACKLOG** — Fase Lanjutan
-- ⚪ **[5B-2] Secure Storage Foto Presensi (Private Disk + Signed URL)**
-  - **Status:** **BACKLOG** — Fase Lanjutan
-- ⚪ **[5B-3] Single Sign-On (SSO) dengan SIM PKBM Pikat**
-  - **Status:** **BACKLOG** — Fase Lanjutan
-- ⚪ **[5C-1] Penjadwalan Berbasis Kesepakatan Tutor-Murid**
-  - **Status:** **BACKLOG** — Fase Lanjutan
-
-
+- **Secure Storage Foto Presensi**: Pemindahan direktori foto sensitif ke `storage/app/private/` dengan *Temporary Signed URL*.
+- **Integrasi SSO SIM PKBM Pikat & WhatsApp Gateway**: Single Sign-On akun terpusat dan pengiriman notifikasi via WA ke wali murid.
+- **Laporan Standar Akreditasi Pendidikan Kesetaraan (BAN PDM / PNF)**: Template laporan otomatis yang disesuaikan dengan instrumen akreditasi pendidikan nonformal.

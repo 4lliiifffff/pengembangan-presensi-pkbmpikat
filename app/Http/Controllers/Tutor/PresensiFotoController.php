@@ -227,6 +227,17 @@ class PresensiFotoController extends Controller
             $durasiPilihan = (float) ($validated['durasi_pilihan'] ?? ($moda === 'online' ? 1.5 : 2.0));
             $isGabungan = ($moda === 'online') ? false : (bool) ($validated['is_gabungan'] ?? false);
 
+            // Validasi Sesi Gabungan Komunitas (Rombel): Siswa harus berasal dari jenjang paket yang sama
+            if ($isGabungan && count($validated['siswa_id']) > 1) {
+                $selectedSiswaList = Siswa::with('relKelas')->whereIn('id', $validated['siswa_id'])->get();
+                $uniqueJenjangs = $selectedSiswaList->map(fn ($s) => $s->jenjang_paket)->unique();
+                if ($uniqueJenjangs->count() > 1) {
+                    $paketLabels = $selectedSiswaList->map(fn ($s) => $s->jenjang_paket_label)->unique()->implode(' dan ');
+
+                    return back()->with('warning', "Sesi Gabungan Komunitas (Rombel) hanya dapat menggabungkan rombongan belajar dalam jenjang paket yang sama (tidak boleh lintas paket). Ditemukan siswa dari paket yang berbeda: {$paketLabels}.");
+                }
+            }
+
             // Buat record presensi baru untuk tiap siswa
             foreach ($validated['siswa_id'] as $sId) {
                 $siswa = Siswa::find($sId);

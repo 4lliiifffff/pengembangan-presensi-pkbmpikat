@@ -18,7 +18,6 @@ class SiswaSeeder extends Seeder
         $kelasA = kelas::firstOrCreate(['nama_kelas' => 'Paket A (Setara SD)']);
         $kelasB = kelas::firstOrCreate(['nama_kelas' => 'Paket B (Setara SMP)']);
         $kelasC = kelas::firstOrCreate(['nama_kelas' => 'Paket C (Setara SMA)']);
-        $kelasPaud = kelas::firstOrCreate(['nama_kelas' => 'PAUD Mutiara Hati']);
 
         // 2. Ambil ID Tutor Pertama (Tutor Default dari UserRoleSeeder)
         $defaultTutor = Tutor::first();
@@ -71,7 +70,7 @@ class SiswaSeeder extends Seeder
                 'nama_siswa' => 'Bintang Permana',
                 'no_hp' => '081234567006',
                 'nama_wali' => 'Retno Lestari',
-                'kelas_id' => $kelasPaud->id,
+                'kelas_id' => $kelasA->id,
                 'tutor_id' => $tutorId,
             ],
         ];

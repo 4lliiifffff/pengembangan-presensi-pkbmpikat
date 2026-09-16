@@ -1,8 +1,8 @@
 # ROADMAP DAN PENJABARAN LENGKAP PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 15 September 2026  
+**Tanggal Pembaruan:** 16 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2 & 3 (Keamanan, Multi-Moda, Geofencing, Payroll, & Web Push Notification Real-Time)  
+**Status Proyek:** Fase 1, 2, 3, 4 & 5 (Keamanan, Multi-Moda, Geofencing, Payroll SK Dinamis, Web Push Notification Real-Time, Standardisasi UI/UX, Unified Modal/Dialog, & Validasi Pedagogis Rombel)  
 
 ---
 
@@ -50,97 +50,60 @@
   - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php` dan file environment `.env`.
   - Mengintegrasikan pemeriksaan batas jarak pada `PresensiFotoController::store()` untuk moda pembelajaran `sekolah`. Jika jarak GPS tutor dengan titik sekolah PKBM Pikat $> 100$ meter, presensi otomatis ditolak dengan pesan peringatan interaktif yang menampilkan jarak sebenarnya.
   - **Visualisasi Peta Leaflet.js**: Menampilkan lingkaran transparan radius 100 meter sekeliling sekolah PKBM Pikat dengan warna dinamis (Hijau = di dalam radius, Merah = di luar radius), penanda pin marker sekolah & posisi tutor, serta auto-zoom fit bounds.
-  - Pengujian otomatis komprehensif pada `tests/Feature/GeofencingTest.php` (uji presensi di dalam radius, di luar radius, pengecualian moda online, dan perhitungan matematis Haversine).
 * 🟢 **Fitur Kontrol Kamera Lanjutan (Mirror, Switch Camera, Grid 3x3, Flash/Torch):** [SELESAI] 
   - **Mirror Mode (`🪞 Mirror`)**: Pratinjau real-time flip horizontal pada video preview dan penangkapan gambar yang di-flip secara konsisten pada 2D canvas HTML5.
   - **Switch Camera (`🔄 Switch`)**: Beralih secara instan antara Kamera Depan (Selfie) dan Kamera Belakang (Kelas/Siswa).
   - **Grid Komposisi (`📐 Grid 3x3`)**: Overlay garis bantu 3x3 *Rule of Thirds* untuk kerapihan foto presensi.
   - **Deteksi Flash/Torch (`⚡ Flash`)**: Integrasi pengontrol senter perangkat jika didukung oleh browser/kamera.
-* 🟢 **Seeder Data Siswa & Kelas (`SiswaSeeder`):** [SELESAI] 
-  - Membuat file seeder `database/seeders/SiswaSeeder.php` yang secara otomatis menyiapkan data sampel kelas (Paket A, Paket B, Paket C, dan PAUD) serta 6 data sampel siswa terikat pada tutor default.
-  - Menggunakan metode `updateOrCreate` untuk keamanan re-seeding tanpa duplikasi data.
-  - Mendaftarkan seeder pada `database/seeders/DatabaseSeeder.php`.
-
+* 🟢 **Seeder Data Siswa & Kelas (`SiswaSeeder`):** [SELESAI] Menyiapkan data sampel kelas (Paket A: Setara SD, Paket B: Setara SMP, dan Paket C: Setara SMA) serta 6 data sampel siswa terikat pada tutor default.
 * 🟢 **Deteksi Manipulasi GPS (Anti Fake GPS) & Validasi Akurasi Sinyal:** [SELESAI] 
-  - Menambahkan kolom `lokasi_akurasi` (satuan meter) dan `is_mocked` (boolean) pada tabel `presensis` melalui migrasi `2026_09_14_000003_add_anti_fake_gps_columns_to_presensis_table.php`.
-  - **Validasi Sinyal & Provider Palsu**: Implementasi method `validateGpsIntegrity()` pada `GeofencingService` untuk menolak presensi jika lokasi berasal dari aplikasi provider buatan (*mock location* / Fake GPS).
-  - **Batas Toleransi Akurasi (`max_accuracy_meter` = 200m)**: Membatasi akurasi sinyal lokasi GPS maksimal 200 meter (dapat dikonfigurasi via `config/lokasi.php`). Jika akurasi sinyal terdeteksi buruk ($> 200$m) atau bernilai $0$m, presensi otomatis ditolak.
-  - **Deteksi Heuristik Frontend**: Menguji `pos.coords.mocked`, korelasi `altitude/speed/heading`, serta pengiriman data akurasi ke server.
-  - Automated feature testing pada `tests/Feature/AntiFakeGpsTest.php` (uji akurasi valid, mock location ditolak, akurasi buruk ditolak, akurasi 0m ditolak).
-
-* 🟢 **PWA (Progressive Web App) & Offline Mode:** [SELESAI] Pemasangan Web App Manifest (`manifest.json`), Service Worker (`sw.js`), dan penyimpanan lokal `IndexedDB` (`PikatPresensiOfflineDB`) agar presensi tetap dapat dicatat saat perangkat offline dan otomatis disinkronkan saat kembali online.
-* 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor:** [SELESAI] Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung (PDF/JPG/PNG max 2MB) serta alur verifikasi (approval/rejection) oleh Kepala Sekolah yang menyinkronkan rekapan presensi.
-* 🟢 **Modul Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL):** [SELESAI] Penambahan role khusus `magang` untuk mahasiswa/siswa PKL dengan alur absensi murni masuk dan pulang (Clock-In & Clock-Out) berbasis foto selfie dan verifikasi geofence radius 100m PKBM Pikat serta deteksi anti-fake GPS (tanpa modul siswa/logbook). Dilengkapi manajemen data magang admin (NIM/NISN, universitas, jurusan, masa periode magang), monitoring presensi, dan ekspor laporan PDF.
-* ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Mengintegrasikan pemrosesan AI (misal: Face-API.js / TensorFlow) untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
+  - Menolak presensi jika lokasi terdeteksi dari aplikasi mock location / Fake GPS.
+  - Membatasi akurasi sinyal lokasi GPS maksimal 200 meter (`config/lokasi.php`). Jika akurasi buruk ($> 200$m) atau $0$m, presensi otomatis ditolak.
+* 🟢 **PWA (Progressive Web App) & Offline Mode:** [SELESAI] Web App Manifest (`manifest.json`), Service Worker (`sw.js`), dan penyimpanan lokal `IndexedDB` (`PikatPresensiOfflineDB`) untuk pencatatan presensi saat offline.
+* 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor:** [SELESAI] Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung serta alur verifikasi Kepala Sekolah.
+* 🟢 **Modul Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL):** [SELESAI] Role khusus `magang` dengan alur absensi Clock-In & Clock-Out berbasis foto selfie dan verifikasi geofence radius 100m PKBM Pikat.
+* ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---
 
 ## 3. INTEGRASI MANAJEMEN PENGGAJIAN & HONORARIUM (PAYROLL SYSTEM)
 
 ### 3.1 Otomatisasi Perhitungan Honor Mengajar Tutor
-* 🟢 **Kalkulasi Honorarium Berbasis Presensi Valid:** [SELESAI] Menghitung akumulasi jam mengajar terverifikasi secara otomatis per periode bulan dikalikan dengan tarif honor per jam spesifik dari masing-masing siswa yang diajar dalam setiap sesi presensi (`PayrollService`).
-* 🟢 **Dukungan Tarif Spesifik Per Siswa (Student-Based Hourly Rate):** [SELESAI] Konfigurasi nominal tarif honorarium individual yang bervariasi untuk setiap siswa (`tarif_per_jam` pada tabel `siswas` & form kelola siswa).
+* 🟢 **Kalkulasi Honorarium Berbasis Presensi Valid:** [SELESAI] Menghitung akumulasi honor mengajar terverifikasi secara otomatis per periode bulan berdasarkan sesi pertemuan SK (`PayrollService`).
+* 🟢 **Dukungan Tarif Spesifik Per Siswa (Student-Based Hourly Rate):** [SELESAI] Backward compatibility untuk data legacy berbasis jam belajar siswa.
 
 ### 3.2 Slip Gaji Digital & Generasi Laporan Keuangan
 * 🟢 **Ekspor Slip Gaji PDF:** [SELESAI] Otomatisasi pembentukan dokumen Slip Gaji individual Tutor dalam format PDF (`barryvdh/laravel-dompdf`) yang dapat diunduh langsung dari dashboard Tutor maupun Admin/Kepsek.
-* 🟢 **Modul Rekapitulasi Anggaran:** [SELESAI] Laporan komprehensif pengeluaran anggaran honorarium tutor bulanan/tahunan bagi manajemen lembaga beserta ekspor Laporan Rekapitulasi Anggaran PDF.
+* 🟢 **Modul Rekapitulasi Anggaran:** [SELESAI] Laporan komprehensif pengeluaran anggaran honorarium tutor bulanan/tahunan beserta ekspor Laporan Rekapitulasi Anggaran PDF.
 
-### 3.3 Reformasi Honorarium Berbasis SK — Master Kategori & Tarif Dinamis (Database-Driven) [FOKUS AKTIF]
-* ⚪ **Desentralisasi Tarif & Kategori Dinamis (Admin & Tutor):** [PENDING — SIAP DIKERJAKAN]
-  - **Tata Kelola Admin (Master Data Tarif & Profil Siswa):** 
-    - Admin / Kepala Sekolah mengelola (CRUD) master kategori tutorial & nominal honor per pertemuan.
-    - Status **Anak Berkebutuhan Khusus (ABK)** dikunci dan ditentukan oleh Admin di data master Siswa (`siswas.is_abk`).
-  - **Penentuan Sesi Lapangan oleh Tutor:** Saat presensi mengajar, tutor **hanya memilih Durasi Pertemuan** (misal: 1,5 jam / 2 jam / 3 jam atau Rombel Gabungan) sesuai kesepakatan belajar dengan siswa. Tutor **tidak memilih status ABK secara manual** untuk mencegah manipulasi/human-error.
-  - **Resolusi Otomatis & Snapshot Finansial:** Sistem otomatis mencocokkan Durasi yang dipilih Tutor + Status ABK dari profil Siswa $\rightarrow$ me-resolve kategori tarif yang tepat $\rightarrow$ mengunci `nominal_honor_snapshot` pada data presensi.
-* ⚪ **Data Master Awal Berdasarkan SK Kepala PKBM (Default Seeder):**
-  - **Tutorial Komunitas:**
+### 3.3 Reformasi Honorarium Berbasis SK — Master Kategori & Tarif Dinamis
+* 🟢 **Master Kategori Tutorial & Tarif SK Kepala PKBM:** [SELESAI]
+  - Struktur tabel `kategori_tutorials` lengkap dengan model `KategoriTutorial` dan seeder master SK:
     - 1. Tutorial Komunitas (Durasi 2 Jam) = **Rp 75.000,-** / pertemuan
     - 2. Tutorial Komunitas ABK (Durasi 2 Jam) = **Rp 100.000,-** / pertemuan
     - 3. Tutorial Komunitas (Durasi 3 Jam) = **Rp 100.000,-** / pertemuan
     - 4. Gabungan Komunitas per Rombel = **Rp 50.000,-** / rombel
-  - **Tutorial Distance Learning (DL):**
-    - 5. Tutorial Distance Learning (Durasi 1,5 Jam) = **Rp 100.000,-** / pertemuan
-    - 6. Tutorial Distance Learning ABK (Durasi 1,5 Jam) = **Rp 130.000,-** / pertemuan
-* ⚪ **Arsitektur & Integrasi Teknis:** [PENDING — SIAP DIKERJAKAN]
-  - **Tabel `siswas`:** Tambah kolom `is_abk` (boolean, default false) yang dikelola di Form Siswa Admin.
-  - **Tabel Baru `kategori_tutorials`:** `id`, `nama_kategori`, `jenis_layanan` (`komunitas`/`dl`/`lainnya`), `durasi_jam`, `is_abk`, `is_gabungan`, `nominal_honor`, `is_aktif`, `urutan`.
-  - **Modifikasi Tabel `presensis`:** Tambah `durasi_jam_rencana` / `durasi_pilihan`, `kategori_tutorial_id` (foreign key nullable), dan `nominal_honor_snapshot` (decimal 12,2 nullable).
-  - **CRUD Master Kategori & Siswa Admin:** Menu pengelolaan master tarif & toggle status ABK pada formulir siswa.
-  - **Form Presensi Tutor (`presensi_foto.blade.php`):** Dropdown dinamis pilihan Durasi Pertemuan (1,5 Jam / 2 Jam / 3 Jam / Gabungan).
-  - **Refactoring `PayrollService`:** Menghitung honor berbasis `nominal_honor_snapshot` / relasi kategori, dengan *backward compatibility* untuk data legacy (`null` -> fallback `tarif_per_jam × durasi`).
-  - **Pembaruan Slip Gaji & Rekap:** Visualisasi nama kategori tutorial, durasi sesi, badge ABK siswa, dan rincian honor per pertemuan.
-  - **Pengujian Otomatis PHPUnit:** `DynamicKategoriTutorialPayrollTest` mencakup pengujian CRUD master, auto-resolve status ABK siswa, pilihan durasi tutor, snapshot immutability, dan backward compatibility.
-
-
-
+    - 5. Tutorial Distance Learning / DL (Durasi 1,5 Jam) = **Rp 100.000,-** / pertemuan
+    - 6. Tutorial Distance Learning / DL ABK (Durasi 1,5 Jam) = **Rp 130.000,-** / pertemuan
+  - Status **Anak Berkebutuhan Khusus (ABK)** dikunci di data master Siswa (`siswas.is_abk`).
+  - **Dynamic Resolver & Snapshot Finansial:** `PayrollService::resolveHonorSesi()` otomatis mencocokkan moda, durasi, status ABK, dan status gabungan $\rightarrow$ mengunci nilai `nominal_honor_snapshot` pada `presensis` agar data historis payroll tidak terpengaruh perubahan tarif di masa depan.
+  - **Peniadaan Form Update Tarif Manual:** Menghilangkan input tarif manual redundan di halaman Admin dan Kepala Sekolah karena seluruh tarif telah terstandardisasi otomatis via Master SK.
 
 ---
 
 ## 4. INTEGRASI INTEROPERABILITAS SISTEM & NOTIFIKASI (INTEGRATIONS)
 
-### 4.1 Single Sign-On (SSO) & Integrasi SIM PKBM Pikat
-* ⚪ **Integrasi Akun Terpusat (SSO via Laravel Sanctum / OAuth2):** [PENDING] Menghubungkan autentikasi dan basis data pengguna antara Sistem Presensi Digital dan SIM PKBM Pikat menggunakan API Tokens (Laravel Sanctum) atau OAuth2.
+### 4.1 Web Push Notification Real-Time (PWA & FCM Push Service)
+* 🟢 **Infrastruktur Web Push & VAPID Key Management:** [SELESAI] Integrasi paket `minishlink/web-push` dengan generator kunci VAPID otomatis via `php artisan webpush:vapid`.
+* 🟢 **Auto-Sync & Client Push Manager:** [SELESAI] Sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil.
+* 🟢 **Otomatisasi Trigger Push Notifikasi Sistem:** [SELESAI] Konfirmasi presensi masuk/pulang, notifikasi pengajuan izin/lupa lapor, notifikasi persetujuan Kepsek, pengingat jadwal mengajar harian, dan broadcast pengumuman payroll.
 
-### 4.2 Web Push Notification Real-Time (PWA & FCM Push Service)
-* 🟢 **Infrastruktur Web Push & VAPID Key Management:** [SELESAI] 
-  - Mengintegrasikan paket `minishlink/web-push` dengan generator kunci VAPID otomatis via artisan command `php artisan webpush:vapid`.
-  - Membuat migrasi tabel `push_subscriptions` dan model `PushSubscription` untuk menyimpan endpoint, public key, auth token, dan device info perangkat pengguna.
-  - Membuat `WebPushService` dengan integrasi Guzzle Client khusus yang menangani SSL certificate bypass pada lingkungan Windows/Laragon tanpa error cURL 60.
-* 🟢 **Auto-Sync & Client Push Manager:** [SELESAI]
-  - Memasang script `resources/js/push-notification.js` dengan kemampuan auto-sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil.
-  - Memperbarui `public/sw.js` (PWA v2) dengan dukungan `push` dan `notificationclick` URL routing yang otomatis menormalisasi HTTPS.
-* 🟢 **Otomatisasi Trigger Push Notifikasi Sistem:** [SELESAI]
-  - **Presensi Masuk & Pulang**: Notifikasi konfirmasi kehadiran langsung ke HP tutor setelah sukses Clock In / Clock Out.
-  - **Pengajuan Izin & Sakit**: Notifikasi pengajuan baru ke Admin & Kepsek, serta notifikasi persetujuan/penolakan ke HP tutor.
-  - **Pengajuan Lupa Lapor**: Notifikasi permohonan baru ke Kepsek/Admin, serta notifikasi hasil approval ke tutor.
-  - **Pengingat Jadwal Mengajar**: Scheduler cron `presensi:send-reminder` untuk mengirim notifikasi jadwal hari ini ke seluruh tutor yang bertugas.
-  - **Broadcast Pengumuman Payroll**: Tombol *"Umumkan ke Tutor"* di menu Payroll Admin untuk mem-broadcast pengumuman penerbitan slip gaji ke seluruh tutor aktif.
+### 4.2 Import & Export Massal Data (Bulk Data Management)
+* 🟢 **Import & Export Spreadsheet Excel/CSV:** [SELESAI] Fitur pengunggahan massal (*bulk import*) data Tutor, Siswa, Jadwal/Agenda, dan Rekap Presensi Retroaktif, serta ekspor laporan presensi berstandar akreditasi menggunakan `maatwebsite/excel`.
 
-### 4.3 Integrasi WhatsApp Gateway (Opsional / Jangka Panjang)
-* ⚪ **Notifikasi WhatsApp Pengingat Absen & Wali Murid:** [PENDING] Integrasi WhatsApp Gateway pihak ketiga jika diperlukan pengiriman pesan langsung ke WhatsApp wali murid.
-
-### 4.4 Import & Export Massal Data (Bulk Data Management)
-* 🟢 **Import & Export Spreadsheet Excel/CSV:** [SELESAI] Fitur pengunggahan massal (*bulk import*) data Tutor (karyawan), Siswa, Jadwal/Agenda kegiatan, Tarif Honor Payroll, dan Rekap Presensi Retroaktif, serta ekspor laporan presensi berstandar akreditasi (14 kolom data lengkap, NIK, Moda Pembelajaran, Durasi Mengajar, Lokasi, KPI Ringkasan) menggunakan paket `maatwebsite/excel`. Dilengkapi template download dan UI modal import di seluruh modul terkait (`PresensiExport`, `PayrollRekapExport`, `SiswaImport`, `TutorImport`, `JadwalImport`, `PresensiImport`, dsb).
+### 4.3 WhatsApp Gateway & Single Sign-On (Jangka Panjang)
+* ⚪ **Notifikasi WhatsApp Gateway:** [PENDING] Integrasi WhatsApp Gateway pihak ketiga untuk pengiriman notifikasi langsung ke nomor wali murid.
+* ⚪ **Single Sign-On (SSO via Laravel Sanctum / OAuth2):** [PENDING] Integrasi autentikasi terpusat dengan SIM PKBM Pikat.
 
 ---
 
@@ -151,35 +114,53 @@
 * 🟢 **Indikator Kinerja Utama (KPI Tutor):** [SELESAI] Pemeringkatan kedisiplinan (%), jam mengajar (jam), dan skor composite KPI Tutor (Leaderboard #1 Gold, #2 Silver, #3 Bronze) sebagai acuan evaluasi kinerja tahunan oleh Kepala Sekolah.
 
 ### 5.2 Laporan Standar Akreditasi Pendidikan
-* ⚪ **Format Laporan Otomatis Akreditasi BAN PAUD & PNF:** [PENDING] Fitur generasi laporan rekapitulasi presensi dan kegiatan mengajar yang sudah disesuaikan dengan format standar lampiran akreditasi BAN PAUD & PNF.
+* ⚪ **Format Laporan Otomatis Akreditasi Pendidikan Kesetaraan (BAN PDM / PNF):** [PENDING] Fitur generasi laporan rekapitulasi presensi dan kegiatan mengajar yang sudah disesuaikan dengan format standar lampiran akreditasi BAN PDM (Pendidikan Nonformal / Kesetaraan).
 
 ---
 
-## 6. REFACTORED CODEBASE, STANDARDISASI & TESTING (QUALITY ASSURANCE)
+## 6. STANDARDISASI UI/UX, LAYOUT RESPONSIF & FEEDBACK TERPADU
 
-### 6.1 Restrukturisasi & Standardisasi System Codebase
-* 🟢 **Standardisasi Penulisan Kode (Laravel Pint):** [SELESAI] Menjalankan `vendor/bin/pint` pada seluruh file controller, model, view, seeder, dan migration.
-* 🟢 **Standardisasi Bahasa Indonesia & Lokalisasi System:** [SELESAI] Melakukan standardisasi seluruh teks UI, nama modul, format tanggal Carbon locale `id`, status presensi, dan pesan validasi/flash message.
-* 🟢 **Sentralisasi Design System via `resources/css/app.css`:** [SELESAI] Menyatukan seluruh styling CSS komponen ke `resources/css/app.css`, menghapus inline `<style>` dari view, membuang folder CSS statis redundan (`public/css/` & `public/assets/css/`), dan merapikan rujukan layout agar 100% Vite native (`@vite(['resources/css/app.css', 'resources/js/app.js'])`).
-* 🟢 **Restrukturisasi & Standardisasi Folder Views (`resources/views/layouts/`):** [SELESAI] 
-  - Mengonsolidasikan folder `layout/` (singular) dan `layouts/` (plural) menjadi `resources/views/layouts/`.
-  - Memisahkan komponen partial navigasi berbahasa Indonesia di `resources/views/layouts/components/` (`navigasi_atas`, `navigasi_bawah_admin`, `navigasi_bawah_kepsek`, `navigasi_bawah_tutor`).
-  - Memperbarui seluruh file view Blade ke `@extends('layouts.x')`.
-  - Membersihkan file *dead-code* (`welcome.blade.php`, `buttomNav.blade.php`, `navbar.blade.php`, `script.blade.php`).
+### 6.1 Standardisasi Navigasi & Spacing Dashboard Antar Role
+* 🟢 **Sticky & Clean Top Navigation:** [SELESAI] Navigasi atas yang sticky, bersih, dan konsisten di semua role (`tutor`, `magang`, `admin`, `kepala_sekolah`).
+* 🟢 **Penyelarasan Spacing & Layout Dashboard:** [SELESAI]
+  - Penambahan header section `sectionTitleRow` pada dashboard Tutor dan Magang untuk memberikan *breathing room* yang serasi dari navigasi atas (mengatasi masalah jam/kartu yang menempel 0px ke topbar).
+  - Pembungkusan elemen aksi cepat, statistik, dan riwayat presensi ke dalam sistem `.cardBox` dan `.cardHeadRow`.
+  - Sistem grid 2-kolom seimbang (*equal visual weight*) di layar desktop ($\ge 992$px) dan 1 kolom rapi di mobile.
 
-### 6.2 Pengujian Otomatis (Automated Testing Suite) & Verification
-* 🟢 **Automated Testing Suite (PHPUnit) & Build Validation:** [SELESAI] Pembuatan dan eksekusi pengujian otomatis `vendor/bin/phpunit` (**46 tests, 206 assertions OK 100%**) serta kompilasi produksi Vite `npm run build`.
-* 🟢 **Penerapan Pattern DRY (Service & Repository Pattern):** [SELESAI] Mengelompokkan dan mengekstrak logika bisnis dari Controller ke Service Classes (`LaporanPresensiService`, `TutorService`, `PresensiService`, `PayrollService`, `WebPushService`, `GeofencingService`, `AnalyticsService`) untuk mengeliminasi duplikasi kode (*Don't Repeat Yourself*).
+### 6.2 Unified Modal, Toast, & Dialog System
+* 🟢 **Sistem Modal Dialog & Toast Modern:** [SELESAI]
+  - Menggantikan dialog native browser (`alert()`, `confirm()`) dengan modal pop-up dan toast notification terpadu yang modern, beranimasi halus, dan mendukung tema gelap/terang.
+  - Memperbaiki masalah tombol tidak berfungsi pada menu absen saat notifikasi izin kamera/lokasi muncul.
+
+### 6.3 Desain Halaman Pengajuan Izin & Sakit Tutor
+* 🟢 **Redesain Form & Riwayat Izin Tutor:** [SELESAI]
+  - Struktur halaman lega (`.pengajuanPage`), formulir bervisual bersih (`.izinFormCard`), dan navigasi tab modern (`.tabBar`).
+  - Input tanggal responsif (`.dateInputRow`) yang otomatis menyesuaikan 1 kolom di HP kecil (< 520px) dan 2 kolom di tablet/desktop.
+  - Kartu riwayat pengajuan izin lengkap dengan status badge warna-warni, kotak alasan, tombol pratinjau surat bukti, dan dialog pembatalan interaktif.
+
+### 6.4 Validasi Pedagogis Sesi Gabungan Komunitas (Rombel Antar-Paket)
+* 🟢 **Validasi Keseragaman Jenjang Paket Rombel:** [SELESAI]
+  - Penambahan accessor `$siswa->jenjang_paket` dan `$siswa->jenjang_paket_label` pada model `Siswa` untuk mengenali tingkatan Paket A (SD), Paket B (SMP), dan Paket C (SMA).
+  - Validasi backend di `PresensiFotoController::store()` yang memastikan seluruh siswa dalam sesi gabungan berada dalam satu jenjang paket yang sama (mencegah tutor menggabungkan siswa lintas paket seperti Paket A dan Paket C dalam 1 sesi).
+  - Peringatan realtime dan form guard interaktif di frontend `tutor/presensi_foto.blade.php`.
 
 ---
 
-## 7. MATRIKS PRIORITAS DAN TAHAPAN IMPLEMENTASI (ROADMAP MATRIX)
+## 7. QUALITY ASSURANCE & TESTING (TEST SUITE)
+
+* 🟢 **Standardisasi Penulisan Kode (Laravel Pint):** [SELESAI] `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
+* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **64 Feature & Unit Tests** lulus 100% (**276 assertions**).
+* 🟢 **Vite Production Assets:** [SELESAI] Kompilasi CSS & JS (`npm run build`) berjalan bersih tanpa error.
+
+---
+
+## 8. MATRIKS PRIORITAS DAN TAHAPAN IMPLEMENTASI (ROADMAP MATRIX)
 
 | Tahap | Fokus Utama | Target Hasil | Estimasi Dampak | Status |
 |---|---|---|---|---|
-| **Fase 1 (Segera)** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟢 Selesai |
-| **Fase 2 (Jangka Pendek)** | Presensi Multi-Moda, Geofencing GPS, Anti Fake GPS, PWA, & Modul Honor/Payroll | Data presensi terverifikasi valid secara lokasi, offline PWA, & honor terhitung otomatis | 🟡 Tinggi (Integritas Data) | 🟢 Selesai |
-| **Fase 3 (Jangka Menengah)** | Web Push Notification Real-Time, Bulk Import/Export Excel, & Analytics KPI | Notifikasi push instan di HP, manajemen data massal, & dashboard analitik eksekutif | 🟢 Sedang (Efisiensi Operasional) | 🟢 Selesai |
-| **Fase 4 (Fokus Aktif)** | **Honorarium SK: Tutorial Komunitas & Distance Learning (DL)** | 6 tipe tarif flat sesi SK (Komunitas 2j/3j/ABK/Gabungan & DL 1.5j/ABK), refactor `PayrollService`, & form presensi | 🔴 Kritis (Akurasi Finansial & Regulasi) | ⚪ Siap Dikerjakan |
-| **Fase 5 (Jangka Panjang)** | Single Sign-On (SIM), Asesmen & Penunjang Tambahan, Secure Storage Foto, & AI Recognition | Ekosistem aplikasi terintegrasi utuh dengan SIM lembaga dan proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |
-
+| **Fase 1** | Keamanan, Upgrade Laravel 13, Standardisasi Views, Storage & Workflow Lupa Lapor | Sistem stabil di Laravel 13, persetujuan lupa lapor interaktif, storage terabstraksi | 🔴 Kritis (Keamanan & Stabilitas) | 🟢 Selesai |
+| **Fase 2** | Presensi Multi-Moda, Geofencing GPS, Anti Fake GPS, PWA, & Modul Honor/Payroll | Data presensi terverifikasi valid secara lokasi, offline PWA, & honor terhitung otomatis | 🟡 Tinggi (Integritas Data) | 🟢 Selesai |
+| **Fase 3** | Web Push Notification Real-Time, Bulk Import/Export Excel, & Analytics KPI | Notifikasi push instan di HP, manajemen data massal, & dashboard analitik eksekutif | 🟢 Sedang (Efisiensi Operasional) | 🟢 Selesai |
+| **Fase 4** | **Honorarium SK: Master Kategori & Tarif Otomatis Sesi SK** | 6 tipe tarif flat sesi SK (Komunitas 2j/3j/ABK/Gabungan & DL 1.5j/ABK), dynamic resolver, snapshot immutability, & penghapusan tarif manual | 🔴 Kritis (Akurasi Finansial & Regulasi) | 🟢 Selesai |
+| **Fase 5** | **UI/UX Excellence, Unified Modal/Dialog, & Validasi Rombel Paket** | Sticky topbar, spacing dashboard rapi, pop-up dialog modern, form izin lega, & validasi paket gabungan rombel | 🟡 Tinggi (User Experience & Integritas) | 🟢 Selesai |
+| **Fase 6 (Mendatang)** | Single Sign-On (SIM), WhatsApp Gateway, Secure Private Storage, & AI Recognition | Ekosistem terintegrasi utuh dengan SIM lembaga, WA gateway wali murid, & proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |

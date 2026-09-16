@@ -10,15 +10,21 @@
 
             {{-- Ringkasan Hari Ini --}}
             <div class="sectionTitleRow">
-                <h2>Ringkasan Hari ini</h2>
-                <div class="badgeDate">{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</div>
+                <div class="sectionTitleWrap">
+                    <h2>Ringkasan Hari ini</h2>
+                    <span class="sectionSubtitle">Monitoring presensi bimbingan & kinerja tutor</span>
+                </div>
+                <div class="badgeDate">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+                </div>
             </div>
 
             <div class="summaryGrid">
                 <div class="summaryCard">
                     <div class="summaryTop">
                         <div class="summaryIcon hadir">
-                            <ion-icon name="checkmark-circle" style="font-size:20px;"></ion-icon>
+                            <ion-icon name="checkmark-circle-outline"></ion-icon>
                         </div>
                         <div class="summaryLabel">HADIR</div>
                     </div>
@@ -29,7 +35,7 @@
                 <div class="summaryCard">
                     <div class="summaryTop">
                         <div class="summaryIcon izin">
-                            <ion-icon name="time-outline" style="font-size:20px;"></ion-icon>
+                            <ion-icon name="time-outline"></ion-icon>
                         </div>
                         <div class="summaryLabel">IZIN / SAKIT</div>
                     </div>
@@ -46,11 +52,11 @@
                             <div>
                                 <h2>
                                     <ion-icon name="bar-chart-outline" style="color:var(--blue2);"></ion-icon>
-                                    Analytics Tren Kehadiran &amp; Jam Mengajar
+                                    <span>Analytics Tren Kehadiran &amp; Jam Mengajar</span>
                                 </h2>
-                                <span style="font-size: 11px; color: var(--muted);">Histori kinerja 6 bulan terakhir</span>
+                                <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Histori kinerja 6 bulan terakhir</span>
                             </div>
-                            <span class="badgeDate" style="background: rgba(11, 94, 215, 0.1); color: var(--blue2); font-size: 11px; padding: 4px 8px;">Chart.js Live</span>
+                            <span class="badgeDate" style="font-size: 10px; padding: 4px 10px;">Chart.js Live</span>
                         </div>
 
                         <div style="position: relative; height: 240px; width: 100%;">
@@ -61,7 +67,11 @@
                     {{-- Statistik Mingguan --}}
                     <div class="cardBox">
                         <div class="cardHeadRow">
-                            <h2>Statistik Mingguan</h2>
+                            <h2>
+                                <ion-icon name="calendar-number-outline" style="color:var(--blue2);"></ion-icon>
+                                <span>Statistik Mingguan</span>
+                            </h2>
+                            <span class="badgeDate" style="font-size: 10px; padding: 4px 10px;">7 Hari Terakhir</span>
                         </div>
 
                         <div class="barChart">
@@ -70,7 +80,6 @@
                                     $count = (int) ($day['count'] ?? 0);
                                     $maxVal = (int) ($weekly['max'] ?? 1);
 
-                                    // Hitung tinggi dan batasi maksimal agar tidak offside
                                     $calculatedHeight = $maxVal > 0 ? (int) round(($count / $maxVal) * 85) : 0;
                                     $height = min(85, max(6, $calculatedHeight));
 
@@ -80,7 +89,7 @@
                                     $isToday = $dayIndex !== false && (int) $dayIndex + 1 === $todayISO;
                                 @endphp
                                 <div class="barCol">
-                                    <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;"></div>
+                                    <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;" title="{{ $count }} Sesi"></div>
                                     <div class="barDay">{{ $day['label'] }}</div>
                                 </div>
                             @endforeach
@@ -93,8 +102,11 @@
                     <div class="cardBox">
                         <div class="cardHeadRow">
                             <div>
-                                <h2><ion-icon name="trophy-outline" style="color:#d97706;"></ion-icon> Pemeringkatan KPI Tutor</h2>
-                                <span style="font-size: 11px; color: var(--muted);">Evaluasi kedisiplinan & akumulasi jam mengajar</span>
+                                <h2>
+                                    <ion-icon name="trophy-outline" style="color:#d97706;"></ion-icon>
+                                    <span>Pemeringkatan KPI Tutor</span>
+                                </h2>
+                                <span style="font-size: 11px; color: var(--muted); font-weight: 600;">Evaluasi kedisiplinan & akumulasi jam mengajar</span>
                             </div>
                             <a href="{{ route('kepsek.laporan') }}" class="mutedLink">Rekap &rsaquo;</a>
                         </div>
@@ -160,53 +172,58 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="emptyState" style="text-align: center; color: var(--muted); padding: 20px;">Belum ada data evaluasi KPI Tutor.</div>
+                                <div class="emptyState" style="margin: 0; padding: 20px;">Belum ada data evaluasi KPI Tutor.</div>
                             @endforelse
                         </div>
                     </div>
 
                     {{-- Aktivitas Terbaru --}}
-                    <div class="activityHeaderRow">
-                        <h2>Aktivitas Presensi Terbaru</h2>
-                        <a class="mutedLink" href="{{ route('kepsek.presensi-tutor') }}">Lihat Semua &rsaquo;</a>
-                    </div>
+                    <div class="cardBox">
+                        <div class="cardHeadRow">
+                            <h2>
+                                <ion-icon name="pulse-outline" style="color:var(--blue2);"></ion-icon>
+                                <span>Aktivitas Presensi Terbaru</span>
+                            </h2>
+                            <a class="mutedLink" href="{{ route('kepsek.presensi-tutor') }}">Lihat Semua &rsaquo;</a>
+                        </div>
 
-                    <div class="activityList">
-                        @forelse($latest as $item)
-                            @php
-                                $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
-                                $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
-                                $initial = strtoupper(substr((string) $tutorName, 0, 1));
-                                $pillClass = $item->status_class ?? 'pending';
-                                $statusLabel = $item->status_label ?? strtoupper((string) $item->status);
-                                $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
-                                $jam = (string) ($item->jam_mulai ?? '');
-                            @endphp
-                            <div class="activityRow">
-                                <div class="activityLeft">
-                                    <div class="activityAvatar">
-                                        @if ($item->tutor->foto ?? null)
-                                            <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
-                                                style="width:100%;height:100%;object-fit:cover;" />
-                                        @else
-                                            {{ $initial }}
-                                        @endif
-                                    </div>
-                                    <div style="min-width:0;">
-                                        <div class="activityName">{{ $tutorName }}</div>
-                                        <div class="activityMeta">
-                                            {{ $siswaName }}{{ $jam ? ' · ' . $jam : '' }}
+                        <div class="activityList" style="padding: 0; margin-top: 8px;">
+                            @forelse($latest as $item)
+                                @php
+                                    $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
+                                    $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
+                                    $initial = strtoupper(substr((string) $tutorName, 0, 1));
+                                    $pillClass = $item->status_class ?? 'pending';
+                                    $statusLabel = $item->status_label ?? strtoupper((string) $item->status);
+                                    $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->translatedFormat('d M Y');
+                                    $jam = (string) ($item->jam_mulai ?? '');
+                                @endphp
+                                <div class="activityRow" style="margin-bottom: 8px;">
+                                    <div class="activityLeft">
+                                        <div class="activityAvatar">
+                                            @if ($item->tutor->foto ?? null)
+                                                <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
+                                                    style="width:100%;height:100%;object-fit:cover;" />
+                                            @else
+                                                {{ $initial }}
+                                            @endif
+                                        </div>
+                                        <div style="min-width:0;">
+                                            <div class="activityName">{{ $tutorName }}</div>
+                                            <div class="activityMeta">
+                                                {{ $siswaName }}{{ $jam ? ' · ' . $jam : '' }}
+                                            </div>
                                         </div>
                                     </div>
+                                    <div class="activityRight">
+                                        <div class="pill {{ $pillClass }}">{{ $statusLabel }}</div>
+                                        <a class="detailBtn" href="{{ route('kepsek.presensi-tutor', ['tutor_id' => $item->tutor_id, 'siswa_id' => $item->siswa_id, 'tgl_presensi' => $item->tgl_presensi]) }}">DETAIL</a>
+                                    </div>
                                 </div>
-                                <div class="activityRight">
-                                    <div class="pill {{ $pillClass }}">{{ $statusLabel }}</div>
-                                    <a class="detailBtn" href="{{ route('kepsek.presensi-tutor', ['tutor_id' => $item->tutor_id, 'siswa_id' => $item->siswa_id, 'tgl_presensi' => $item->tgl_presensi]) }}">DETAIL</a>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="emptyState">Belum ada data presensi.</div>
-                        @endforelse
+                            @empty
+                                <div class="emptyState" style="margin: 0; padding: 24px 16px;">Belum ada data presensi.</div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
@@ -220,6 +237,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             const ctx = document.getElementById('monthlyTrendChart');
             if (!ctx) return;
+
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9';
+            const textColor = isDark ? '#94a3b8' : '#64748b';
 
             const labels = {!! json_encode($monthlyTrend['months'] ?? []) !!};
             const totalSesi = {!! json_encode($monthlyTrend['total_sesi'] ?? []) !!};
@@ -236,7 +257,7 @@
                             data: totalJam,
                             type: 'line',
                             borderColor: '#0B5ED7',
-                            backgroundColor: 'rgba(11, 94, 215, 0.1)',
+                            backgroundColor: 'rgba(11, 94, 215, 0.12)',
                             borderWidth: 3,
                             pointBackgroundColor: '#0B5ED7',
                             pointRadius: 4,
@@ -254,7 +275,7 @@
                         {
                             label: 'Total Sesi Bimbingan',
                             data: totalSesi,
-                            backgroundColor: 'rgba(203, 213, 225, 0.5)',
+                            backgroundColor: isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(203, 213, 225, 0.55)',
                             borderRadius: 6,
                             yAxisID: 'y'
                         }
@@ -272,33 +293,37 @@
                             position: 'bottom',
                             labels: {
                                 boxWidth: 12,
-                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 11 }
+                                color: textColor,
+                                font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: '600' }
                             }
                         },
                         tooltip: {
                             padding: 10,
-                            borderRadius: 8,
+                            borderRadius: 10,
                             usePointStyle: true
                         }
                     },
                     scales: {
                         x: {
-                            grid: { display: false }
+                            grid: { display: false },
+                            ticks: { color: textColor, font: { size: 11, weight: '600' } }
                         },
                         y: {
                             type: 'linear',
                             display: true,
                             position: 'left',
-                            title: { display: true, text: 'Sesi', font: { size: 10 } },
-                            grid: { color: '#f1f5f9' },
+                            title: { display: true, text: 'Sesi', color: textColor, font: { size: 10, weight: '700' } },
+                            grid: { color: gridColor },
+                            ticks: { color: textColor, font: { size: 10 } },
                             beginAtZero: true
                         },
                         y1: {
                             type: 'linear',
                             display: true,
                             position: 'right',
-                            title: { display: true, text: 'Jam', font: { size: 10 } },
+                            title: { display: true, text: 'Jam', color: textColor, font: { size: 10, weight: '700' } },
                             grid: { drawOnChartArea: false },
+                            ticks: { color: textColor, font: { size: 10 } },
                             beginAtZero: true
                         }
                     }

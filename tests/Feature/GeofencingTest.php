@@ -54,7 +54,7 @@ class GeofencingTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'PAUD']);
+        $kelas = kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'SD']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Geofence',
             'tutor_id' => $tutor->id,

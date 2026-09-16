@@ -17,8 +17,22 @@
 @endpush
 
 @section('content')
+    {{-- ── HEADER DASHBOARD TUTOR ── --}}
+    <div class="sectionTitleRow">
+        <div class="sectionTitleWrap">
+            <h2>Dashboard Tutor</h2>
+            <span class="sectionSubtitle">Selamat datang kembali, {{ $displayName }}!</span>
+        </div>
+        <div class="badgeDate">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+        </div>
+    </div>
+
     <div class="dashboardGrid">
+        {{-- ── KOLOM KIRI: WAKTU & STATUS PRESENSI HARI INI ── --}}
         <div class="dashboardCol">
+            {{-- ── JAM REALTIME ── --}}
             <div class="clockCard">
                 <div class="clockLabel">WAKTU SAAT INI</div>
                 <div class="clockTime" id="clockTime">--:--:--</div>
@@ -40,7 +54,7 @@
                 $statusText = match ($todayStatus) {
                     'proses' => 'Sedang Berlangsung',
                     'selesai' => 'Selesai Hari Ini',
-                    default => 'Belum Mulai',
+                    default => 'Belum Mulai Sesi',
                 };
                 $jamMasukToday = $todayPresensi?->jam_mulai ? substr((string) $todayPresensi->jam_mulai, 0, 5) : '—';
                 $jamPulangToday = $todayPresensi?->jam_selesai ? substr((string) $todayPresensi->jam_selesai, 0, 5) : '—';
@@ -68,7 +82,7 @@
                             @if ($sisaDetikPulang > 0)
                                 Selesai dalam: <strong id="dashCountdown">{{ gmdate('i:s', $sisaDetikPulang) }}</strong>
                             @else
-                                <span style="color:#16a34a;">✔ Sudah bisa absen pulang sekarang</span>
+                                <span style="color:#16a34a; font-weight:700;">✔ Sudah bisa presensi selesai</span>
                             @endif
                         </div>
                     @endif
@@ -77,101 +91,110 @@
                     <a href="{{ route('tutor.presensi') }}"
                         class="todayAbsenBtn {{ $todayStatus === 'proses' ? 'btnSelesai' : '' }}">
                         <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
-                        {{ $todayStatus === 'proses' ? 'Selesai' : 'Mulai' }}
+                        <span>{{ $todayStatus === 'proses' ? 'Selesai' : 'Mulai' }}</span>
                     </a>
                 @endif
             </div>
         </div>
 
+        {{-- ── KOLOM KANAN: AKSI CEPAT & RIWAYAT TERBARU ── --}}
         <div class="dashboardCol">
-            <div class="sectionCaps">
-                <div class="sectionCapTitle">AKSI CEPAT</div>
-            </div>
+            {{-- ── AKSI CEPAT ── --}}
+            <div class="cardBox">
+                <div class="cardHeadRow">
+                    <h2>
+                        <ion-icon name="flash-outline" style="color:var(--blue2);"></ion-icon>
+                        <span>Aksi Cepat</span>
+                    </h2>
+                </div>
 
-            <div class="quickGrid">
-                <a href="https://wa.me/6285156452939" class="quickCard" aria-label="Izin">
-                    <div class="quickIcon warn">
-                        <ion-icon name="alert-circle-outline" style="font-size:26px;"></ion-icon>
-                    </div>
-                    <div class="quickLabel">Izin</div>
-                </a>
-                <a href="{{ route('tutor.lupa-lapor') }}" class="quickCard" aria-label="Lupa Lapor">
-                    <div class="quickIcon" style="background: rgba(245,158,11,0.15); color: var(--warn);">
-                        <ion-icon name="document-text-outline" style="font-size:26px;"></ion-icon>
-                    </div>
-                    <div class="quickLabel">Lupa Lapor</div>
-                </a>
-                <a href="{{ route('tutor.presensi') }}" class="quickCard" aria-label="Absen" style="grid-column: span 2;">
-                    <div class="quickIcon">
-                        <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"
-                            style="font-size:26px;"></ion-icon>
-                    </div>
-                    <div class="quickLabel">
-                        @if ($todayStatus === 'proses')
-                            Selesai
-                        @else
-                            Mulai
-                        @endif
-                    </div>
-                </a>
-            </div>
-
-            <div class="rowHeader">
-                <div class="rowHeaderTitle">RIWAYAT TERBARU</div>
-                @if (Route::has('tutor.riwayat'))
-                    <a href="{{ route('tutor.riwayat') }}" class="rowHeaderLink">Lihat Semua</a>
-                @endif
-            </div>
-
-            <div class="recentWrap">
-                @forelse($recentPresensi as $p)
-                    @php
-                        $siswaLabel = $p->siswa->nama_siswa ?? 'Siswa #' . $p->siswa_id;
-                        $hari = \Carbon\Carbon::parse($p->tgl_presensi)->locale('id')->translatedFormat('l, d F Y');
-                        $jamMulai = $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '—';
-                        $jamSelesai = $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '—';
-                        if ($p->foto_mulai && $p->foto_selesai) {
-                            $timeLine = $jamMulai . ' – ' . $jamSelesai . ' • ' . $siswaLabel;
-                        } elseif ($p->foto_mulai) {
-                            $timeLine = 'Masuk • ' . $jamMulai . ' • ' . $siswaLabel;
-                        } else {
-                            $timeLine = $siswaLabel;
-                        }
-                        // Hadir hanya jika foto_selesai sudah terisi
-                        $st = strtoupper((string) ($p->status ?? 'pending'));
-                        $pillClass = 'pillSmall';
-                        if ($p->foto_mulai && $p->foto_selesai) {
-                            // Sesi selesai lengkap
-                            $pillClass .= ' pillOk';
-                            $st = 'HADIR';
-                        } elseif ($p->foto_mulai && !$p->foto_selesai) {
-                            // Sudah masuk tapi belum pulang → Proses
-                            $pillClass .= ' pillPending';
-                            $st = 'PROSES';
-                        } elseif ($st === 'ALPHA') {
-                            $pillClass .= ' pillAlpha';
-                        } else {
-                            $pillClass .= ' pillMuted';
-                        }
-                    @endphp
-                    <div class="recentItem">
-                        <div class="recentLeft">
-                            <div class="recentCheck">
-                                <ion-icon name="{{ $p->foto_mulai ? 'checkmark' : 'ellipse-outline' }}"
-                                    style="font-size:14px;"></ion-icon>
-                            </div>
-                            <div class="recentMeta">
-                                <div class="recentDay">{{ $hari }}</div>
-                                <div class="recentTime">{{ $timeLine }}</div>
-                            </div>
+                <div class="quickGrid">
+                    <a href="https://wa.me/6285156452939" target="_blank" rel="noopener noreferrer" class="quickCard" aria-label="Pengajuan Izin">
+                        <div class="quickIcon warn">
+                            <ion-icon name="alert-circle-outline"></ion-icon>
                         </div>
-                        <div class="{{ $pillClass }}">{{ $st }}</div>
-                    </div>
-                @empty
-                    <div class="recentItem" style="justify-content:center;color:#64748b;font-weight:800;font-size:12px;">
-                        Belum ada absensi hari ini.
-                    </div>
-                @endforelse
+                        <div class="quickLabel">Izin via WA</div>
+                    </a>
+                    <a href="{{ route('tutor.lupa-lapor') }}" class="quickCard" aria-label="Lupa Lapor">
+                        <div class="quickIcon" style="background: rgba(245,158,11,0.14); color: var(--warn);">
+                            <ion-icon name="document-text-outline"></ion-icon>
+                        </div>
+                        <div class="quickLabel">Lupa Lapor</div>
+                    </a>
+                    <a href="{{ route('tutor.presensi') }}" class="quickCard" aria-label="Presensi Bimbingan" style="grid-column: span 2;">
+                        <div class="quickIcon success">
+                            <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
+                        </div>
+                        <div class="quickLabel">
+                            @if ($todayStatus === 'proses')
+                                Presensi Selesai Bimbingan
+                            @else
+                                Presensi Mulai Bimbingan
+                            @endif
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            {{-- ── RIWAYAT TERBARU ── --}}
+            <div class="cardBox">
+                <div class="cardHeadRow">
+                    <h2>
+                        <ion-icon name="time-outline" style="color:var(--blue2);"></ion-icon>
+                        <span>Riwayat Terbaru</span>
+                    </h2>
+                    @if (Route::has('tutor.riwayat'))
+                        <a href="{{ route('tutor.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
+                    @endif
+                </div>
+
+                <div class="recentWrap">
+                    @forelse($recentPresensi as $p)
+                        @php
+                            $siswaLabel = $p->siswa->nama_siswa ?? 'Siswa #' . $p->siswa_id;
+                            $hari = \Carbon\Carbon::parse($p->tgl_presensi)->locale('id')->translatedFormat('l, d F Y');
+                            $jamMulai = $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '—';
+                            $jamSelesai = $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '—';
+                            if ($p->foto_mulai && $p->foto_selesai) {
+                                $timeLine = $jamMulai . ' – ' . $jamSelesai . ' • ' . $siswaLabel;
+                            } elseif ($p->foto_mulai) {
+                                $timeLine = 'Masuk • ' . $jamMulai . ' • ' . $siswaLabel;
+                            } else {
+                                $timeLine = $siswaLabel;
+                            }
+                            $st = strtoupper((string) ($p->status ?? 'pending'));
+                            $pillClass = 'pillSmall';
+                            if ($p->foto_mulai && $p->foto_selesai) {
+                                $pillClass .= ' pillOk';
+                                $st = 'HADIR';
+                            } elseif ($p->foto_mulai && !$p->foto_selesai) {
+                                $pillClass .= ' pillPending';
+                                $st = 'PROSES';
+                            } elseif ($st === 'ALPHA') {
+                                $pillClass .= ' pillAlpha';
+                            } else {
+                                $pillClass .= ' pillMuted';
+                            }
+                        @endphp
+                        <div class="recentItem">
+                            <div class="recentLeft">
+                                <div class="recentCheck {{ ($p->foto_mulai && !$p->foto_selesai) ? 'pending' : '' }}">
+                                    <ion-icon name="{{ $p->foto_mulai ? 'checkmark' : 'ellipse-outline' }}"
+                                        style="font-size:14px;"></ion-icon>
+                                </div>
+                                <div class="recentMeta">
+                                    <div class="recentDay">{{ $hari }}</div>
+                                    <div class="recentTime">{{ $timeLine }}</div>
+                                </div>
+                            </div>
+                            <div class="{{ $pillClass }}">{{ $st }}</div>
+                        </div>
+                    @empty
+                        <div class="emptyState" style="margin: 0; padding: 20px;">
+                            Belum ada aktivitas presensi hari ini.
+                        </div>
+                    @endforelse
+                </div>
             </div>
         </div>
     </div>

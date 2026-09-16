@@ -91,14 +91,15 @@
                             $mMulai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_mulai, 'Asia/Jakarta');
                             $mSelesai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_selesai, 'Asia/Jakarta');
                             $durMin = $mMulai->diffInMinutes($mSelesai);
-                            $durLabel = floor($durMin / 60) . 'j ' . $durMin % 60 . 'm';
+                            $durLabel = floor($durMin / 60) . 'j ' . $durMin % 60 . 's';
                         } catch (\Throwable) {
                             $durLabel = '-';
                         }
                     @endphp
                     <div style="padding:8px 0; border-bottom:1px solid #f1f5f9;">
                         <div style="font-size:12px; font-weight:900; color:#0f172a;">
-                            {{ $sesi->siswa->nama_siswa ?? 'Siswa' }}</div>
+                            {{ $sesi->siswa->nama_siswa ?? 'Siswa' }}
+                        </div>
                         <div style="font-size:11px; color:#64748b;">{{ $jm }} - {{ $js }}
                             ({{ $durLabel }})
                         </div>
@@ -120,7 +121,8 @@
                 <div>
                     <div class="statusTitle">Sesi Sedang Berjalan</div>
                     <div class="statusSub">Masuk pukul {{ $jamMasuk }} —
-                        {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</div>
+                        {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}
+                    </div>
                 </div>
             </div>
             {{-- Countdown atau siap pulang --}}
@@ -152,7 +154,8 @@
 
             {{-- Warning: sudah lebih dari 2 jam --}}
             @if ($sudahLewat2Jam)
-                <div class="statusBanner" style="background:rgba(220,38,38,0.10);border:1px solid rgba(220,38,38,0.25);margin-bottom:14px;">
+                <div class="statusBanner"
+                    style="background:rgba(220,38,38,0.10);border:1px solid rgba(220,38,38,0.25);margin-bottom:14px;">
                     <div class="statusIcon" style="background:rgba(220,38,38,0.15);color:#dc2626;">
                         <ion-icon name="warning-outline"></ion-icon>
                     </div>
@@ -165,104 +168,121 @@
 
             {{-- Form absen PULANG: hanya tampil jika sudah bisa pulang --}}
             @if ($bisaPulang)
-            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
-                @csrf
-                <input type="hidden" name="mode" value="selesai">
-                @foreach($activeSessions as $sesi)
-                <input type="hidden" name="siswa_id[]" value="{{ $sesi->siswa_id }}">
-                @endforeach
-                <input type="hidden" name="lokasi" id="lokasi" value="">
-                <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
-                <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
+                <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
+                    @csrf
+                    <input type="hidden" name="mode" value="selesai">
+                    @foreach($activeSessions as $sesi)
+                        <input type="hidden" name="siswa_id[]" value="{{ $sesi->siswa_id }}">
+                    @endforeach
+                    <input type="hidden" name="lokasi" id="lokasi" value="">
+                    <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
+                    <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-                <div class="card" style="margin-bottom:14px;">
-                    <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius GPS
-                    </div>
-                    <div class="mapBox" id="mapBox" style="position:relative;">
-                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                        <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
-                    </div>
-                    <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
-                    <div class="mapToolbar">
-                        <button type="button" onclick="refreshLocation()">
-                            <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="cardTitle">
-                        <ion-icon name="camera-outline"></ion-icon>Foto Selfie Presensi Pulang
-                    </div>
-                    <div class="photoFrame" style="position:relative; overflow:hidden;">
-                        <video id="videoPreview" playsinline muted></video>
-                        <img id="previewImg" alt="Preview foto" />
-
-                        {{-- Grid Overlay --}}
-                        <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
-                            <div class="gridBox">
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                    <div class="card" style="margin-bottom:14px;">
+                        <div class="cardTitle">
+                            <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Pulang & Radius GPS
+                        </div>
+                        <div class="mapBox" id="mapBox" style="position:relative;">
+                            <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
+                            <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;">
                             </div>
                         </div>
-
-                        {{-- Floating Camera Toolbar Overlay --}}
-                        <div id="camControlBar" class="camControlBar" style="display:none;">
-                            <div class="camControlGroup">
-                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
-                                    <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
-                                </button>
-                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
-                                    <ion-icon name="camera-reverse-outline"></ion-icon> Switch
-                                </button>
-                            </div>
-                            <div class="camControlGroup">
-                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
-                                    <ion-icon name="grid-outline"></ion-icon> Grid
-                                </button>
-                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
-                                    <ion-icon name="flash-outline"></ion-icon> Flash
-                                </button>
-                            </div>
+                        <div id="geofenceBadge"
+                            style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;">
                         </div>
-
-                        <div class="photoPlaceholder" id="placeholder">
-                            Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
-                        </div>
-                    </div>
-
-                    <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
-                    <div class="camActions" id="camActions">
-                        <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                            <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
-                        </button>
-                        <div class="camRow" id="camRowStreaming" style="display:none;">
-                            <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
+                        <div class="mapToolbar">
+                            <button type="button" onclick="refreshLocation()">
+                                <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
                             </button>
-                            <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                         </div>
-                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
-                            <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
-                        </button>
                     </div>
 
-                    {{-- Tombol SELESAI --}}
-                    <button type="submit" class="captureBtn primary-red" id="btnSubmit" @if (!$bisaPulang) disabled @endif style="margin-top:14px;">
-                        <ion-icon name="log-out-outline" style="font-size:20px;"></ion-icon>
-                        Selesai Sesi (Absen Pulang)
-                    </button>
-                </div>
-            </form>
+                    <div class="card">
+                        <div class="cardTitle">
+                            <ion-icon name="camera-outline"></ion-icon>Foto Selfie Presensi Pulang
+                        </div>
+                        <div class="photoFrame" style="position:relative; overflow:hidden;">
+                            <video id="videoPreview" playsinline muted></video>
+                            <img id="previewImg" alt="Preview foto" />
+
+                            {{-- Grid Overlay --}}
+                            <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
+                                <div class="gridBox">
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                    <div class="gridCell"></div>
+                                </div>
+                            </div>
+
+                            {{-- Floating Camera Toolbar Overlay --}}
+                            <div id="camControlBar" class="camControlBar" style="display:none;">
+                                <div class="camControlGroup">
+                                    <button type="button" class="camToolBtn active" id="btnToggleMirror"
+                                        onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                        <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
+                                    </button>
+                                    <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()"
+                                        title="Tukar Depan/Belakang">
+                                        <ion-icon name="camera-reverse-outline"></ion-icon> Switch
+                                    </button>
+                                </div>
+                                <div class="camControlGroup">
+                                    <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()"
+                                        title="Garis Bantu Komposisi">
+                                        <ion-icon name="grid-outline"></ion-icon> Grid
+                                    </button>
+                                    <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()"
+                                        title="Senter / Flash" style="display:none;">
+                                        <ion-icon name="flash-outline"></ion-icon> Flash
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="photoPlaceholder" id="placeholder">
+                                Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
+                            </div>
+                        </div>
+
+                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" style="display:none;" />
+                        <div class="camActions" id="camActions">
+                            <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
+                                <ion-icon name="camera" style="font-size:20px;"></ion-icon> Buka Kamera
+                            </button>
+                            <div class="camRow" id="camRowStreaming" style="display:none;">
+                                <button type="button" class="captureBtn" onclick="snapPhoto()">
+                                    <ion-icon name="radio-button-on" style="font-size:20px;"></ion-icon> Ambil Foto
+                                </button>
+                                <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
+                            </div>
+                            <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;"
+                                onclick="retakePhoto()">
+                                <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
+                            </button>
+                        </div>
+
+                        {{-- Tombol SELESAI --}}
+                        <button type="submit" class="captureBtn primary-red" id="btnSubmit" @if (!$bisaPulang) disabled @endif
+                            style="margin-top:14px;">
+                            <ion-icon name="log-out-outline" style="font-size:20px;"></ion-icon>
+                            Selesai Sesi (Absen Pulang)
+                        </button>
+                    </div>
+                </form>
 
             @else
                 {{-- Belum 1 jam: tampilkan info saja, tanpa form --}}
                 <div class="card" style="text-align:center; padding:24px 16px; border-radius:18px;">
-                    <div style="font-size:32px; margin-bottom:8px; color:var(--warn);"><ion-icon name="time-outline"></ion-icon></div>
+                    <div style="font-size:32px; margin-bottom:8px; color:var(--warn);"><ion-icon name="time-outline"></ion-icon>
+                    </div>
                     <div style="font-size:13.5px; font-weight:800; color:var(--text);">Form Absen Pulang Terbuka Otomatis</div>
-                    <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi mengajar)</div>
+                    <div style="font-size:11.5px; color:var(--muted); margin-top:4px;">Tersisa
+                        {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi mengajar)</div>
                 </div>
             @endif
 
@@ -294,22 +314,31 @@
 
                     {{-- 1. Moda Pembelajaran --}}
                     <div style="margin-bottom:12px;">
-                        <label style="display:block; font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">
+                        <label
+                            style="display:block; font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted); margin-bottom:6px;">
                             Moda Pembelajaran <span style="color:#ef4444;">*</span>
                         </label>
-                        <select name="moda_pembelajaran" id="selectModa" class="input" style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; background:var(--card-alt); color:var(--text); border:1px solid var(--border);" onchange="handleModaChange(this.value)">
-                            <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Sekolah (Tatap Muka di PKBM)</option>
-                            <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>Kunjungan Rumah (Home Visit)</option>
-                            <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Pembelajaran Daring (Online)</option>
+                        <select name="moda_pembelajaran" id="selectModa" class="input"
+                            style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; background:var(--card-alt); color:var(--text); border:1px solid var(--border);"
+                            onchange="handleModaChange(this.value)">
+                            <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Sekolah (Tatap
+                                Muka di PKBM)</option>
+                            <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>
+                                Kunjungan Rumah (Home Visit)</option>
+                            <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Pembelajaran
+                                Daring (Online)</option>
                         </select>
                     </div>
 
                     {{-- 2. Link Daring (Jika Moda = Online) --}}
                     <div style="margin-bottom:12px; display:none;" id="boxLinkDaring">
-                        <label style="display:block; font-size:11.5px; font-weight:800; text-transform:uppercase; color:#0284c7; margin-bottom:6px;">
+                        <label
+                            style="display:block; font-size:11.5px; font-weight:800; text-transform:uppercase; color:#0284c7; margin-bottom:6px;">
                             Link Pertemuan Daring (Opsional)
                         </label>
-                        <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/... atau Zoom" value="{{ old('link_daring') }}" style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; background:var(--card-alt); color:var(--text); border:1px solid #0284c7;">
+                        <input type="url" name="link_daring" class="input" placeholder="https://meet.google.com/... atau Zoom"
+                            value="{{ old('link_daring') }}"
+                            style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; background:var(--card-alt); color:var(--text); border:1px solid #0284c7;">
                     </div>
 
                     {{-- 3. Durasi Sesi Pertemuan --}}
@@ -318,48 +347,73 @@
                             <label style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted);">
                                 Durasi Sesi <span style="color:#ef4444;">*</span>
                             </label>
-                            <span id="labelKategoriLayanan" style="font-size:10px; font-weight:800; background:rgba(11,94,215,0.12); color:var(--blue2); padding:2px 8px; border-radius:6px;">Tutorial Komunitas</span>
+                            <span id="labelKategoriLayanan"
+                                style="font-size:10px; font-weight:800; background:rgba(11,94,215,0.12); color:var(--blue2); padding:2px 8px; border-radius:6px;">Tutorial
+                                Komunitas</span>
                         </div>
-                        <select name="durasi_pilihan" id="selectDurasi" class="input" style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; background:var(--card-alt); color:var(--text); border:1px solid var(--border);">
+                        <select name="durasi_pilihan" id="selectDurasi" class="input"
+                            style="width:100%; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; background:var(--card-alt); color:var(--text); border:1px solid var(--border);">
                             <option value="2.0">2 Jam Sesi (Standar)</option>
                             <option value="3.0">3 Jam Sesi (Panjang)</option>
                         </select>
                     </div>
 
                     {{-- 4. Checkbox Gabungan Komunitas --}}
-                    <div style="margin-bottom:12px; background:var(--card-alt); border:1px solid var(--border); border-radius:12px; padding:10px 12px;" id="boxGabungan">
-                        <label style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text); margin:0;">
-                            <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} style="width:16px; height:16px; accent-color:#1f3b8a;">
+                    <div style="margin-bottom:12px; background:var(--card-alt); border:1px solid var(--border); border-radius:12px; padding:10px 12px;"
+                        id="boxGabungan">
+                        <label
+                            style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:700; cursor:pointer; color:var(--text); margin:0;">
+                            <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} onchange="updateSelectedSiswaCount()" style="width:16px; height:16px; accent-color:#1f3b8a;">
                             <span>Sesi Gabungan Komunitas (Rombel)</span>
                         </label>
+                        <div style="font-size:11px; color:var(--muted); margin-top:4px; margin-left:24px; line-height:1.35;">
+                            Penggabungan beberapa rombel dalam 1 jenjang paket yang sama (sesama Paket A, B, atau C).
+                        </div>
+                        <div id="gabunganPaketMismatchAlert" style="display:none; margin-top:8px; padding:8px 10px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#dc2626; font-size:11.5px; font-weight:700;">
+                            <ion-icon name="alert-circle" style="vertical-align:middle; font-size:14px; margin-right:2px;"></ion-icon>
+                            <span id="gabunganPaketMismatchMsg">Peringatan: Siswa yang dipilih berasal dari paket yang berbeda.</span>
+                        </div>
                     </div>
 
                     {{-- 5. Searchable Dropdown Pemilihan Siswa --}}
                     <div style="position:relative;" id="wrapperSiswaDropdown">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                            <label style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px;">
+                            <label
+                                style="font-size:11.5px; font-weight:800; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; gap:5px;">
                                 Siswa yang Diajar <span style="color:#ef4444;">*</span>
                             </label>
-                            <span style="font-size:10px; font-weight:700; color:#15803d; background:rgba(22,163,74,0.12); padding:2px 8px; border-radius:6px;">Penugasan Admin</span>
+                            <span
+                                style="font-size:10px; font-weight:700; color:#15803d; background:rgba(22,163,74,0.12); padding:2px 8px; border-radius:6px;">Penugasan
+                                Admin</span>
                         </div>
 
-                        <div style="background:var(--card-alt); border:1px solid var(--border); border-radius:14px; padding:10px;">
+                        <div
+                            style="background:var(--card-alt); border:1px solid var(--border); border-radius:14px; padding:10px;">
                             {{-- Search Input Bar --}}
                             <div style="position:relative; display:flex; align-items:center; margin-bottom:8px;">
-                                <ion-icon name="search-outline" style="position:absolute; left:10px; color:var(--muted); font-size:16px; pointer-events:none;"></ion-icon>
-                                <input type="text" id="inputSearchSiswa" placeholder="Cari nama siswa / NIS / ABK..." oninput="filterSiswaList(this.value)" style="width:100%; padding:8px 30px 8px 32px; border-radius:8px; border:1px solid var(--border); font-size:12px; font-weight:600; outline:none; background:var(--card); color:var(--text);" autocomplete="off">
-                                <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch" style="display:none; position:absolute; right:8px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px;">✕</button>
+                                <ion-icon name="search-outline"
+                                    style="position:absolute; left:10px; color:var(--muted); font-size:16px; pointer-events:none;"></ion-icon>
+                                <input type="text" id="inputSearchSiswa" placeholder="Cari nama siswa / NIS / ABK..."
+                                    oninput="filterSiswaList(this.value)"
+                                    style="width:100%; padding:8px 30px 8px 32px; border-radius:8px; border:1px solid var(--border); font-size:12px; font-weight:600; outline:none; background:var(--card); color:var(--text);"
+                                    autocomplete="off">
+                                <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch"
+                                    style="display:none; position:absolute; right:8px; background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px;">✕</button>
                             </div>
 
                             {{-- Selected Counter & Quick Toggle --}}
-                            <div style="display:flex; justify-content:space-between; align-items:center; padding:0 2px 8px; border-bottom:1px solid var(--border); margin-bottom:6px;">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; padding:0 2px 8px; border-bottom:1px solid var(--border); margin-bottom:6px;">
                                 <div id="selectedSiswaBadge" style="font-size:11px; font-weight:800; color:var(--blue2);">
                                     <span id="selectedSiswaCount">0</span> Siswa Terpilih
                                 </div>
                                 <div style="display:flex; gap:8px;">
-                                    <button type="button" onclick="selectAllVisibleSiswa(true)" style="font-size:10.5px; font-weight:700; color:var(--blue2); background:none; border:none; cursor:pointer; padding:0;">Pilih Semua</button>
+                                    <button type="button" onclick="selectAllVisibleSiswa(true)"
+                                        style="font-size:10.5px; font-weight:700; color:var(--blue2); background:none; border:none; cursor:pointer; padding:0;">Pilih
+                                        Semua</button>
                                     <span style="color:var(--border);">|</span>
-                                    <button type="button" onclick="selectAllVisibleSiswa(false)" style="font-size:10.5px; font-weight:700; color:#ef4444; background:none; border:none; cursor:pointer; padding:0;">Reset</button>
+                                    <button type="button" onclick="selectAllVisibleSiswa(false)"
+                                        style="font-size:10.5px; font-weight:700; color:#ef4444; background:none; border:none; cursor:pointer; padding:0;">Reset</button>
                                 </div>
                             </div>
 
@@ -375,32 +429,47 @@
                                         $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
                                         $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
                                     @endphp
-                                    <label class="siswa-item-row" data-search="{{ $searchKeyword }}" style="display:flex; align-items:center; justify-content:space-between; padding:8px 8px; border-radius:8px; margin-bottom:3px; cursor:pointer; transition:background .15s; border:1px solid transparent;">
+                                    <label class="siswa-item-row" data-search="{{ $searchKeyword }}"
+                                        data-paket="{{ $siswa->jenjang_paket }}"
+                                        data-paket-label="{{ $siswa->jenjang_paket_label }}"
+                                        style="display:flex; align-items:center; justify-content:space-between; padding:8px 8px; border-radius:8px; margin-bottom:3px; cursor:pointer; transition:background .15s; border:1px solid transparent;">
                                         <div style="display:flex; align-items:center; gap:10px; min-width:0;">
-                                            <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}" {{ $isChecked }} onchange="updateSelectedSiswaCount()" style="width:16px; height:16px; accent-color:var(--blue2); cursor:pointer; flex-shrink:0;">
+                                            <input type="checkbox" name="siswa_id[]" class="siswa-checkbox" value="{{ $siswa->id }}"
+                                                data-paket="{{ $siswa->jenjang_paket }}"
+                                                data-paket-label="{{ $siswa->jenjang_paket_label }}"
+                                                {{ $isChecked }} onchange="updateSelectedSiswaCount()"
+                                                style="width:16px; height:16px; accent-color:var(--blue2); cursor:pointer; flex-shrink:0;">
                                             <div style="min-width:0;">
                                                 <div style="font-size:12.5px; font-weight:800; color:var(--text); line-height:1.2;">
                                                     {{ $siswa->nama_siswa }} {!! $badge !!}
                                                 </div>
                                                 <div style="font-size:10px; color:var(--muted); margin-top:2px;">
-                                                    No Absen: {{ $siswa->no_absen }} • Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }}
+                                                    No Absen: {{ $siswa->no_absen }} • Kelas:
+                                                    {{ $siswa->relKelas->nama_kelas ?? '-' }}
                                                 </div>
                                             </div>
                                         </div>
-                                        @if($siswa->is_abk)
-                                            <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; background:rgba(245,158,11,0.15); color:#b45309; flex-shrink:0;">ABK</span>
-                                        @else
-                                            <span style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:700; background:rgba(22,163,74,0.12); color:#15803d; flex-shrink:0;">Reguler</span>
-                                        @endif
+                                        <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                                            @if($siswa->is_abk)
+                                                <span
+                                                    style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:800; background:rgba(245,158,11,0.15); color:#b45309;">ABK</span>
+                                            @else
+                                                <span
+                                                    style="display:inline-block; padding:2px 6px; border-radius:6px; font-size:10px; font-weight:700; background:rgba(22,163,74,0.12); color:#15803d;">Reguler</span>
+                                            @endif
+                                        </div>
                                     </label>
                                 @empty
                                     <div style="padding:16px; text-align:center; font-size:12px; color:var(--muted);">
-                                        <ion-icon name="person-outline" style="font-size:24px; display:block; margin:0 auto 4px;"></ion-icon>
+                                        <ion-icon name="person-outline"
+                                            style="font-size:24px; display:block; margin:0 auto 4px;"></ion-icon>
                                         Belum ada siswa yang ditugaskan ke akun Anda.
                                     </div>
                                 @endforelse
-                                <div id="noMatchSiswa" style="display:none; padding:16px; text-align:center; font-size:11px; color:var(--muted); font-weight:600;">
-                                    <ion-icon name="search-outline" style="font-size:20px; display:block; margin:0 auto 4px;"></ion-icon>
+                                <div id="noMatchSiswa"
+                                    style="display:none; padding:16px; text-align:center; font-size:11px; color:var(--muted); font-weight:600;">
+                                    <ion-icon name="search-outline"
+                                        style="font-size:20px; display:block; margin:0 auto 4px;"></ion-icon>
                                     Tidak ditemukan siswa yang sesuai
                                 </div>
                             </div>
@@ -415,9 +484,12 @@
                     </div>
                     <div class="mapBox" id="mapBox" style="position:relative;">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
-                        <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;"></div>
+                        <div id="leafletMap" style="width:100%; height:220px; border-radius:14px; display:none; z-index:1;">
+                        </div>
                     </div>
-                    <div id="geofenceBadge" style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;"></div>
+                    <div id="geofenceBadge"
+                        style="display:none; margin:10px 0 4px; padding:10px 14px; border-radius:12px; font-size:12px; font-weight:800;">
+                    </div>
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation()">
                             <ion-icon name="refresh-outline"></ion-icon> Perbarui Lokasi
@@ -437,27 +509,37 @@
                         {{-- Grid Overlay --}}
                         <div id="cameraGrid" class="cameraGridOverlay" style="display:none;">
                             <div class="gridBox">
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
                             </div>
                         </div>
 
                         {{-- Floating Camera Toolbar Overlay --}}
                         <div id="camControlBar" class="camControlBar" style="display:none;">
                             <div class="camControlGroup">
-                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror"
+                                    onclick="toggleCameraMirror()" title="Mirror Kamera">
                                     <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
                                 </button>
-                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()"
+                                    title="Tukar Depan/Belakang">
                                     <ion-icon name="camera-reverse-outline"></ion-icon> Switch
                                 </button>
                             </div>
                             <div class="camControlGroup">
-                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()"
+                                    title="Garis Bantu Komposisi">
                                     <ion-icon name="grid-outline"></ion-icon> Grid
                                 </button>
-                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" style="display:none;">
+                                <button type="button" class="camToolBtn" id="btnToggleTorch" onclick="toggleCameraTorch()"
+                                    title="Senter / Flash" style="display:none;">
                                     <ion-icon name="flash-outline"></ion-icon> Flash
                                 </button>
                             </div>
@@ -479,7 +561,8 @@
                             </button>
                             <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
                         </div>
-                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;" onclick="retakePhoto()">
+                        <button type="button" class="captureBtn secondary" id="btnUlangi" style="display:none;"
+                            onclick="retakePhoto()">
                             <ion-icon name="refresh-outline" style="font-size:18px;"></ion-icon> Ulangi Foto
                         </button>
                     </div>
@@ -491,8 +574,8 @@
                     </button>
 
                     <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' ingin izin untuk hari ini...') }}"
-                       target="_blank"
-                       style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(37,211,102,0.10);border:1px solid rgba(37,211,102,0.25);text-decoration:none;color:#15803d;font-size:13px;font-weight:800;margin-top:8px;">
+                        target="_blank"
+                        style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border-radius:14px;background:rgba(37,211,102,0.10);border:1px solid rgba(37,211,102,0.25);text-decoration:none;color:#15803d;font-size:13px;font-weight:800;margin-top:8px;">
                         <ion-icon name="logo-whatsapp" style="font-size:18px;color:#25d366;"></ion-icon>
                         Izin / Kendala (Hubungi Admin)
                     </a>
@@ -509,7 +592,7 @@
             if (permW) permW.style.display = 'flex';
             const permD = document.getElementById('permWarnDesc');
             if (permD) permD.innerHTML = msg;
-            
+
             var btnSubmit = document.getElementById('btnSubmit');
             if (btnSubmit) btnSubmit.disabled = true;
 
@@ -540,7 +623,7 @@
                 }) :
                 Promise.reject(new Error('no_media_devices'));
 
-            var locP = new Promise(function(resolve, reject) {
+            var locP = new Promise(function (resolve, reject) {
                 if (!navigator.geolocation) return reject(new Error('no_geolocation'));
                 navigator.geolocation.getCurrentPosition(resolve, reject, {
                     enableHighAccuracy: true,
@@ -549,13 +632,13 @@
                 });
             });
 
-            Promise.all([camP, locP]).then(function(results) {
+            Promise.all([camP, locP]).then(function (results) {
                 var stream = results[0];
-                if (stream) stream.getTracks().forEach(function(t) {
+                if (stream) stream.getTracks().forEach(function (t) {
                     t.stop();
                 });
                 showMainContent();
-            }).catch(function(err) {
+            }).catch(function (err) {
                 var name = err && err.name ? err.name : '';
                 if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
                     var camTest = navigator.mediaDevices ?
@@ -563,21 +646,21 @@
                             video: true,
                             audio: false
                         })
-                        .then(function(s) {
-                            s.getTracks().forEach(function(t) {
-                                t.stop();
-                            });
-                            return true;
-                        })
-                        .catch(function() {
-                            return false;
-                        }) :
+                            .then(function (s) {
+                                s.getTracks().forEach(function (t) {
+                                    t.stop();
+                                });
+                                return true;
+                            })
+                            .catch(function () {
+                                return false;
+                            }) :
                         Promise.resolve(false);
-                    var locTest = new Promise(function(resolve) {
+                    var locTest = new Promise(function (resolve) {
                         if (!navigator.geolocation) return resolve(false);
-                        navigator.geolocation.getCurrentPosition(function() {
+                        navigator.geolocation.getCurrentPosition(function () {
                             resolve(true);
-                        }, function() {
+                        }, function () {
                             resolve(false);
                         }, {
                             enableHighAccuracy: true,
@@ -585,7 +668,7 @@
                             maximumAge: 0
                         });
                     });
-                    Promise.all([camTest, locTest]).then(function(r) {
+                    Promise.all([camTest, locTest]).then(function (r) {
                         if (!r[0] && !r[1]) showGateError(
                             'Izin <strong>kamera</strong> dan <strong>lokasi</strong> ditolak.<br>Keduanya wajib diaktifkan.'
                         );
@@ -605,7 +688,7 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             checkPermissions();
 
             // ── Countdown timer untuk sesi berjalan yang belum bisa pulang ──
@@ -614,7 +697,7 @@
                 var sisaDetik = {{ $sisaDetik }};
                 if (cdEl && sisaDetik > 0) {
                     var totalSec = sisaDetik;
-                    var cdInterval = setInterval(function() {
+                    var cdInterval = setInterval(function () {
                         totalSec--;
                         if (totalSec <= 0) {
                             clearInterval(cdInterval);
@@ -627,7 +710,7 @@
                     }, 1000);
                 }
             @endif
-        });
+            });
 
         /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */
         const GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
@@ -645,8 +728,8 @@
             const dLat = (lat2 - lat1) * Math.PI / 180;
             const dLon = (lon2 - lon1) * Math.PI / 180;
             const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
@@ -768,7 +851,7 @@
             ph.classList.remove('hidden');
             ph.textContent = 'Mencari lokasi GPS…';
             navigator.geolocation.getCurrentPosition(
-                function(pos) {
+                function (pos) {
                     var isFake = false;
                     var accuracy = pos.coords.accuracy || 0;
 
@@ -776,7 +859,7 @@
                     var akurasiEls = document.querySelectorAll('input[name="lokasi_akurasi"]');
                     var mockEls = document.querySelectorAll('input[name="is_mock_location"]');
 
-                    akurasiEls.forEach(function(el) { el.value = accuracy; });
+                    akurasiEls.forEach(function (el) { el.value = accuracy; });
 
                     // Deteksi heuristik Fake GPS
                     if (pos.coords.mocked === true) {
@@ -787,8 +870,8 @@
                         isFake = true;
                     }
 
-                    mockEls.forEach(function(el) { el.value = isFake ? '1' : '0'; });
-                    
+                    mockEls.forEach(function (el) { el.value = isFake ? '1' : '0'; });
+
                     if (isFake) {
                         ph.textContent = 'Terdeteksi penggunaan Fake GPS / Mock Location. Matikan aplikasi Fake GPS Anda!';
                         ph.style.color = '#ef4444';
@@ -799,13 +882,13 @@
                     ph.style.color = 'var(--muted)';
                     setMapFromLatLng(pos.coords.latitude, pos.coords.longitude);
                 },
-                function() {
+                function () {
                     ph.textContent = 'Gagal mengambil lokasi. Pastikan izin GPS aktif.';
                 }, {
-                    enableHighAccuracy: true,
-                    timeout: 12000,
-                    maximumAge: 0
-                }
+                enableHighAccuracy: true,
+                timeout: 12000,
+                maximumAge: 0
+            }
             );
         }
 
@@ -864,7 +947,7 @@
             isTorchOn = !isTorchOn;
             videoTrack.applyConstraints({
                 advanced: [{ torch: isTorchOn }]
-            }).then(function() {
+            }).then(function () {
                 if (btnTorch) {
                     if (isTorchOn) {
                         btnTorch.classList.add('active');
@@ -872,7 +955,7 @@
                         btnTorch.classList.remove('active');
                     }
                 }
-            }).catch(function(err) {
+            }).catch(function (err) {
                 console.log('Flash/Torch error or not supported:', err);
                 isTorchOn = false;
                 if (btnTorch) btnTorch.classList.remove('active');
@@ -899,7 +982,7 @@
 
         function switchCameraFacing() {
             currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
-            
+
             // Kamera belakang secara alami tidak di-mirror
             isMirrored = (currentFacingMode === 'user');
 
@@ -936,7 +1019,7 @@
             }
 
             var video = document.getElementById('videoPreview');
-            var tryCamera = function() {
+            var tryCamera = function () {
                 return navigator.mediaDevices.getUserMedia({
                     video: {
                         facingMode: { ideal: currentFacingMode },
@@ -944,7 +1027,7 @@
                         height: { ideal: 720 }
                     },
                     audio: false
-                }).catch(function() {
+                }).catch(function () {
                     return navigator.mediaDevices.getUserMedia({
                         video: true,
                         audio: false
@@ -952,16 +1035,16 @@
                 });
             };
 
-            tryCamera().then(function(stream) {
+            tryCamera().then(function (stream) {
                 mediaStream = stream;
                 video.srcObject = stream;
                 video.classList.add('active');
-                
+
                 updateCameraTransform();
                 checkTorchSupport();
 
                 document.getElementById('placeholder').classList.add('hidden');
-                
+
                 var bar = document.getElementById('camControlBar');
                 if (bar) bar.style.display = 'flex';
 
@@ -974,14 +1057,14 @@
                 document.getElementById('btnUlangi').style.display = 'none';
 
                 return video.play();
-            }).catch(function(err) {
+            }).catch(function (err) {
                 alert('Tidak bisa membuka kamera: ' + (err && err.message ? err.message : 'izin ditolak.'));
             });
         }
 
         function stopCameraStream() {
             if (mediaStream) {
-                mediaStream.getTracks().forEach(function(t) {
+                mediaStream.getTracks().forEach(function (t) {
                     t.stop();
                 });
                 mediaStream = null;
@@ -1023,7 +1106,7 @@
 
             ctx.drawImage(video, 0, 0);
 
-            canvas.toBlob(function(blob) {
+            canvas.toBlob(function (blob) {
                 if (!blob) {
                     alert('Gagal membuat gambar.');
                     return;
@@ -1099,7 +1182,7 @@
                 if (selectDurasi) {
                     var cur = selectDurasi.value;
                     selectDurasi.innerHTML = '<option value="2.0"' + (cur === '3.0' ? '' : ' selected') + '>Durasi 2 Jam (Standar Tutorial Komunitas)</option>' +
-                                             '<option value="3.0"' + (cur === '3.0' ? ' selected' : '') + '>Durasi 3 Jam (Tutorial Komunitas Panjang)</option>';
+                        '<option value="3.0"' + (cur === '3.0' ? ' selected' : '') + '>Durasi 3 Jam (Tutorial Komunitas Panjang)</option>';
                 }
             }
         }
@@ -1116,7 +1199,7 @@
                 clearBtn.style.display = q ? 'block' : 'none';
             }
 
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 var searchData = item.getAttribute('data-search') || '';
                 if (!q || searchData.indexOf(q) !== -1) {
                     item.style.display = 'flex';
@@ -1146,11 +1229,38 @@
             if (countLabel) {
                 countLabel.innerText = checked.length;
             }
+
+            // Realtime Validation: Sesi Gabungan Komunitas (Rombel) tidak boleh lintas paket
+            var inputGabungan = document.getElementById('inputIsGabungan');
+            var alertBox = document.getElementById('gabunganPaketMismatchAlert');
+            var alertMsg = document.getElementById('gabunganPaketMismatchMsg');
+
+            if (inputGabungan && inputGabungan.checked && checked.length > 1) {
+                var paketMap = {};
+                checked.forEach(function (cb) {
+                    var p = cb.getAttribute('data-paket') || 'umum';
+                    var pLbl = cb.getAttribute('data-paket-label') || p;
+                    paketMap[p] = pLbl;
+                });
+
+                var uniquePakets = Object.keys(paketMap);
+                if (uniquePakets.length > 1) {
+                    var labels = Object.values(paketMap).join(' dan ');
+                    if (alertBox && alertMsg) {
+                        alertMsg.innerText = 'Siswa terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Sesi gabungan rombel hanya diperbolehkan untuk jenjang paket yang sama.';
+                        alertBox.style.display = 'block';
+                    }
+                } else {
+                    if (alertBox) alertBox.style.display = 'none';
+                }
+            } else {
+                if (alertBox) alertBox.style.display = 'none';
+            }
         }
 
         function selectAllVisibleSiswa(status) {
             var items = document.querySelectorAll('.siswa-item-row');
-            items.forEach(function(item) {
+            items.forEach(function (item) {
                 if (item.style.display !== 'none') {
                     var cb = item.querySelector('.siswa-checkbox');
                     if (cb) cb.checked = status;
@@ -1159,7 +1269,7 @@
             updateSelectedSiswaCount();
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var selectModa = document.getElementById('selectModa');
             if (selectModa) {
                 handleModaChange(selectModa.value);
@@ -1179,11 +1289,29 @@
 
         var presensiForm = document.getElementById('presensiForm');
         if (presensiForm) {
-            presensiForm.addEventListener('submit', function(e) {
+            presensiForm.addEventListener('submit', function (e) {
                 var input = document.getElementById('fotoInput');
                 if (!input || !input.files || !input.files.length) {
                     e.preventDefault();
                     alert('Ambil foto dengan kamera terlebih dahulu (Buka kamera → Absen).');
+                    return;
+                }
+
+                // Check Sesi Gabungan Mismatch on Submit
+                var inputGabungan = document.getElementById('inputIsGabungan');
+                var checked = document.querySelectorAll('.siswa-checkbox:checked');
+                if (inputGabungan && inputGabungan.checked && checked.length > 1) {
+                    var paketMap = {};
+                    checked.forEach(function (cb) {
+                        var p = cb.getAttribute('data-paket') || 'umum';
+                        var pLbl = cb.getAttribute('data-paket-label') || p;
+                        paketMap[p] = pLbl;
+                    });
+                    if (Object.keys(paketMap).length > 1) {
+                        e.preventDefault();
+                        alert('Sesi Gabungan Komunitas (Rombel) tidak dapat menggabungkan siswa dari paket yang berbeda (' + Object.values(paketMap).join(' dan ') + '). Silakan pilih siswa dalam jenjang paket yang sama.');
+                        return;
+                    }
                 }
             });
         }
