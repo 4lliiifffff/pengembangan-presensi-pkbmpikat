@@ -6,7 +6,7 @@
 
 <div class="laporanPageWrapper">
     {{-- ── Header ── --}}
-    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+    <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
                 <div class="laporanHeaderLabel">LOG AKTIVITAS KBM</div>
@@ -15,7 +15,7 @@
                 <p class="laporanHeaderDesc">Pantau jam masuk, jam selesai, status moda pembelajaran, dan verifikasi geolokasi.</p>
             </div>
             <div class="laporanHeaderActions">
-                <a href="{{ route('kepsek.laporan') }}" class="btnPayrollShortcut" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);">
+                <a href="{{ route('kepsek.laporan') }}" class="btnPayrollShortcut btn-action-info">
                     <ion-icon name="document-text-outline"></ion-icon>
                     <span>Buka Rekapitulasi Laporan</span>
                 </a>
@@ -29,12 +29,12 @@
             <div class="laporanFilterGrid">
                 <div class="filterField">
                     <label class="filterFieldLabel">Dari Tanggal</label>
-                    <input type="date" name="start_date" class="profileInput" value="{{ $startDateStr }}" style="height: 42px; font-size: 13px;">
+                    <input type="date" name="start_date" class="profileInput" value="{{ $startDateStr }}">
                 </div>
 
                 <div class="filterField">
                     <label class="filterFieldLabel">Sampai Tanggal</label>
-                    <input type="date" name="end_date" class="profileInput" value="{{ $endDateStr }}" style="height: 42px; font-size: 13px;">
+                    <input type="date" name="end_date" class="profileInput" value="{{ $endDateStr }}">
                 </div>
 
                 <div class="filterField">
@@ -71,11 +71,11 @@
                     </select>
                 </div>
 
-                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
                         <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
-                    <a href="{{ route('kepsek.presensi-tutor') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none;">
+                    <a href="{{ route('kepsek.presensi-tutor') }}" class="btn-filter-reset">
                         Reset
                     </a>
                 </div>

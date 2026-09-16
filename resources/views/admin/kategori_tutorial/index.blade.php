@@ -2,12 +2,12 @@
 
 @section('content')
 
-    <div class="pageHeaderRow" style="flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:18px;">
+    <div class="pageHeaderRow header-actions-group" style="justify-content: space-between; margin-bottom: 18px;">
         <div>
             <h2 style="margin:0;font-size:20px;font-weight:800;color:var(--text);">Master Kategori &amp; Tarif SK</h2>
             <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola kategori pembelajaran, durasi acuan, status ABK, dan besaran tarif honor per pertemuan sesuai SK Kepala PKBM</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="header-actions-group">
             <button type="button" onclick="bukaModalTambah()" class="btnPrimary" style="padding:8px 14px;background:var(--blue-gradient);font-size:12px;display:inline-flex;align-items:center;gap:6px;">
                 <ion-icon name="add-circle-outline" style="font-size:16px;"></ion-icon> Tambah Kategori SK
             </button>
@@ -31,7 +31,7 @@
                 </thead>
                 <tbody>
                     @forelse($kategoriList as $k)
-                        <tr style="border-bottom:1px solid var(--border,#e2e8f0);transition:background 0.2s;" onmouseover="this.style.background='var(--card-alt,#f8fafc)'" onmouseout="this.style.background='transparent'">
+                        <tr style="border-bottom:1px solid var(--border,#e2e8f0);">
                             <td style="padding:14px 16px;text-align:center;font-weight:700;color:var(--muted);">{{ $k->urutan ?: $loop->iteration }}</td>
                             <td style="padding:14px 16px;">
                                 <div style="font-weight:700;color:var(--text);">{{ $k->nama_kategori }}</div>
@@ -39,7 +39,7 @@
                             </td>
                             <td style="padding:14px 16px;">
                                 <div style="display:flex;align-items:center;gap:6px;">
-                                    <span style="display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;background:{{ $k->jenis_layanan === 'dl' ? '#e0f2fe;color:#0369a1' : '#f0fdf4;color:#15803d' }};">
+                                    <span class="app-badge {{ $k->jenis_layanan === 'dl' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }}">
                                         {{ $k->jenis_layanan === 'dl' ? 'Distance Learning (DL)' : 'Tutorial Komunitas' }}
                                     </span>
                                     <span style="font-weight:700;color:var(--text);font-size:12px;">{{ $k->durasi_jam }} Jam</span>
@@ -48,13 +48,13 @@
                             <td style="padding:14px 16px;text-align:center;">
                                 <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
                                     @if($k->is_abk)
-                                        <span style="display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;background:#fef3c7;color:#b45309;">ABK</span>
+                                        <span class="app-badge badge-abk">ABK</span>
                                     @else
-                                        <span style="display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;background:#f1f5f9;color:#475569;">Reguler</span>
+                                        <span class="app-badge badge-reguler">Reguler</span>
                                     @endif
 
                                     @if($k->is_gabungan)
-                                        <span style="display:inline-block;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;background:#fdf2f8;color:#9d174d;">Rombel Gabungan</span>
+                                        <span class="app-badge badge-layanan-gabungan">Rombel Gabungan</span>
                                     @endif
                                 </div>
                             </td>
@@ -68,13 +68,9 @@
                                     @method('PATCH')
                                     <button type="submit" title="Klik untuk ubah status" style="border:none;background:none;cursor:pointer;padding:0;">
                                         @if($k->is_aktif)
-                                            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#dcfce7;color:#15803d;">
-                                                <span style="width:6px;height:6px;border-radius:50%;background:#16a34a;"></span> Aktif
-                                            </span>
+                                            <span class="app-badge badge-status-aktif">Aktif</span>
                                         @else
-                                            <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f1f5f9;color:#64748b;">
-                                                <span style="width:6px;height:6px;border-radius:50%;background:#94a3b8;"></span> Non-Aktif
-                                            </span>
+                                            <span class="app-badge badge-status-nonaktif">Nonaktif</span>
                                         @endif
                                     </button>
                                 </form>
@@ -109,73 +105,73 @@
     </div>
 
     {{-- ── Modal Tambah / Edit Kategori ── --}}
-    <div id="modalKategori" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-        <div style="background:var(--card,#fff);border-radius:18px;max-width:520px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.2);border:1px solid var(--border,#e2e8f0);max-height:90vh;overflow-y:auto;">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h3 id="modalKategoriTitle" style="margin:0;font-size:17px;font-weight:800;color:var(--text);">Tambah Kategori SK</h3>
-                <button type="button" onclick="tutupModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);">&times;</button>
+    <div id="modalKategori" class="app-modal-backdrop">
+        <div class="app-modal-card">
+            <div class="app-modal-header">
+                <h3 id="modalKategoriTitle" class="app-modal-title">Tambah Kategori SK</h3>
+                <button type="button" onclick="tutupModal()" class="app-modal-close">&times;</button>
             </div>
 
             <form id="formKategori" method="POST" action="{{ route('admin.kategori-tutorial.store') }}">
                 @csrf
                 <div id="methodContainer"></div>
 
-                <div style="margin-bottom:14px;">
-                    <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Nama Kategori Pembelajaran:</label>
-                    <input type="text" name="nama_kategori" id="inputNamaKategori" required placeholder="Contoh: Tutorial Komunitas 2 Jam" style="width:100%;padding:10px 12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);color:var(--text);">
+                <div class="form-field-wrapper">
+                    <label class="form-field-label">Nama Kategori Pembelajaran: <span style="color:#ef4444;">*</span></label>
+                    <input type="text" name="nama_kategori" id="inputNamaKategori" required placeholder="Contoh: Tutorial Komunitas 2 Jam" class="profileInput">
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+                <div class="form-grid-responsive" style="margin-bottom:14px;">
                     <div>
-                        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Jenis Layanan:</label>
-                        <select name="jenis_layanan" id="inputJenisLayanan" required style="width:100%;padding:10px 12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);color:var(--text);">
+                        <label class="form-field-label">Jenis Layanan: <span style="color:#ef4444;">*</span></label>
+                        <select name="jenis_layanan" id="inputJenisLayanan" required class="profileInput">
                             <option value="komunitas">Tutorial Komunitas</option>
                             <option value="dl">Distance Learning (DL)</option>
                             <option value="lainnya">Lainnya</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Durasi Sesi (Jam):</label>
-                        <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam" id="inputDurasiJam" required placeholder="2.0" style="width:100%;padding:10px 12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);color:var(--text);">
+                        <label class="form-field-label">Durasi Sesi (Jam): <span style="color:#ef4444;">*</span></label>
+                        <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam" id="inputDurasiJam" required placeholder="2.0" class="profileInput">
                     </div>
                 </div>
 
-                <div style="margin-bottom:14px;">
-                    <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Nominal Honor per Pertemuan (Rp):</label>
-                    <input type="number" step="1000" min="0" name="nominal_honor" id="inputNominalHonor" required placeholder="75000" style="width:100%;padding:10px 12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);color:var(--text);">
+                <div class="form-field-wrapper">
+                    <label class="form-field-label">Nominal Honor per Pertemuan (Rp): <span style="color:#ef4444;">*</span></label>
+                    <input type="number" step="1000" min="0" name="nominal_honor" id="inputNominalHonor" required placeholder="75000" class="profileInput">
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
-                    <div style="background:var(--card-alt,#f8fafc);padding:10px 12px;border-radius:10px;border:1px solid var(--border,#e2e8f0);">
-                        <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);">
+                <div class="form-grid-responsive" style="margin-bottom:16px;">
+                    <div class="checkbox-toggle-card">
+                        <label class="checkbox-label">
                             <input type="checkbox" name="is_abk" id="inputIsAbk" value="1" style="width:16px;height:16px;">
                             Khusus Siswa ABK
                         </label>
                     </div>
-                    <div style="background:var(--card-alt,#f8fafc);padding:10px 12px;border-radius:10px;border:1px solid var(--border,#e2e8f0);">
-                        <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);">
+                    <div class="checkbox-toggle-card">
+                        <label class="checkbox-label">
                             <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" style="width:16px;height:16px;">
                             Rombel Gabungan
                         </label>
                     </div>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+                <div class="form-grid-responsive" style="margin-bottom:20px;">
                     <div>
-                        <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;color:var(--text);">Urutan Tampilan:</label>
-                        <input type="number" name="urutan" id="inputUrutan" min="0" value="0" style="width:100%;padding:10px 12px;border:1px solid var(--border,#cbd5e1);border-radius:10px;font-size:13px;background:var(--card-alt,#f8fafc);color:var(--text);">
+                        <label class="form-field-label">Urutan Tampilan:</label>
+                        <input type="number" name="urutan" id="inputUrutan" min="0" value="0" class="profileInput">
                     </div>
-                    <div style="display:flex;align-items:flex-end;">
-                        <label style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;cursor:pointer;color:var(--text);padding-bottom:10px;">
+                    <div class="checkbox-toggle-card" style="align-self: end;">
+                        <label class="checkbox-label">
                             <input type="checkbox" name="is_aktif" id="inputIsAktif" value="1" checked style="width:16px;height:16px;">
                             Status Aktif
                         </label>
                     </div>
                 </div>
 
-                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <div class="app-modal-footer">
                     <button type="button" onclick="tutupModal()" class="btnOutline" style="padding:9px 16px;">Batal</button>
-                    <button type="submit" id="btnSubmitModal" class="btnPrimary" style="padding:9px 20px;background:var(--blue-gradient);">Simpan Kategori</button>
+                    <button type="submit" id="btnSubmitModal" class="profileBtnPrimary" style="padding:9px 20px; width:auto;">Simpan Kategori</button>
                 </div>
             </form>
         </div>

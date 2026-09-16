@@ -120,8 +120,8 @@
             </div>
 
         @empty
-            <div style="text-align: center; padding: 40px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; color: var(--muted);">
-                <div style="font-size: 14px; font-weight: 700;">Tidak ada catatan presensi pada filter ini.</div>
+            <div class="empty-state-standard">
+                <div class="empty-title">Tidak ada catatan presensi pada filter ini.</div>
             </div>
         @endforelse
     </div>
@@ -135,11 +135,11 @@
 </div>
 
 {{-- Modal Preview Foto --}}
-<div id="riwayatPhotoModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
-    <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; max-width: 460px; width: 100%; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3);">
-        <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-            <h4 id="riwayatModalTitle" style="margin: 0; font-size: 14px; font-weight: 800; color: var(--text);">Foto Presensi</h4>
-            <button type="button" onclick="closeRiwayatModal()" style="background: transparent; border: none; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center;">
+<div id="riwayatPhotoModal" class="app-modal-backdrop">
+    <div class="app-modal-card" style="max-width: 460px; padding: 0; overflow: hidden;">
+        <div class="app-modal-header" style="padding: 14px 18px; margin-bottom: 0; border-bottom: 1px solid var(--border);">
+            <h4 id="riwayatModalTitle" class="app-modal-title" style="font-size: 14px;">Foto Presensi</h4>
+            <button type="button" onclick="closeRiwayatModal()" class="app-modal-close">
                 <ion-icon name="close-circle-outline"></ion-icon>
             </button>
         </div>

@@ -6,7 +6,7 @@
 
 <div class="laporanPageWrapper">
     {{-- ── Header ── --}}
-    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+    <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
                 <div class="laporanHeaderLabel">PERIZINAN &amp; KETIDAKHADIRAN</div>
@@ -59,15 +59,15 @@
 
                 <div class="filterField" style="grid-column: span 2;">
                     <label class="filterFieldLabel">Cari Tutor</label>
-                    <input type="text" name="cari" class="profileInput" style="height: 42px; font-size: 13px;" value="{{ request('cari') }}" placeholder="Ketik nama tutor...">
+                    <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}" placeholder="Ketik nama tutor...">
                 </div>
 
-                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
                         <ion-icon name="search-outline"></ion-icon> Cari Data
                     </button>
                     @if(request('cari') || request('status') || request('jenis'))
-                        <a href="{{ route('kepsek.pengajuan-izin') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none;">
+                        <a href="{{ route('kepsek.pengajuan-izin') }}" class="btn-filter-reset">
                             Reset Filter
                         </a>
                     @endif
@@ -120,7 +120,7 @@
                                 <ion-icon name="checkmark-circle-outline"></ion-icon> DISETUJUI
                             </span>
                         @else
-                            <span class="badgeStatus ditolak">
+                            <span class="badgeStatus pending">
                                 <ion-icon name="close-circle-outline"></ion-icon> DITOLAK
                             </span>
                         @endif
@@ -170,10 +170,10 @@
                 </div>
             </div>
         @empty
-            <div class="emptyLaporan">
-                <ion-icon name="document-text-outline"></ion-icon>
-                <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px; color: var(--text);">Tidak Ada Data Izin/Sakit</div>
-                <div>{{ request('cari') || request('status') || request('jenis') ? 'Tidak ada pengajuan yang cocok dengan filter pencarian.' : 'Belum ada pengajuan izin atau surat sakit dari tutor saat ini.' }}</div>
+            <div class="empty-state-standard">
+                <ion-icon name="document-text-outline" class="empty-icon"></ion-icon>
+                <div class="empty-title">Tidak Ada Data Izin/Sakit</div>
+                <div class="empty-desc">{{ request('cari') || request('status') || request('jenis') ? 'Tidak ada pengajuan yang cocok dengan filter pencarian.' : 'Belum ada pengajuan izin atau surat sakit dari tutor saat ini.' }}</div>
             </div>
         @endforelse
     </div>

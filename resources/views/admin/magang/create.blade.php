@@ -14,9 +14,9 @@
 </div>
 
 @if ($errors->any())
-    <div class="errorList" style="background:#fef2f2; border:1px solid #fecaca; padding:12px 16px; border-radius:12px; color:#991b1b; margin:16px;">
-        <div style="font-weight:700;margin-bottom:6px;">Periksa input berikut:</div>
-        <ul style="padding-left:18px;margin:0;">
+    <div class="error-list-container">
+        <div class="error-title">Periksa input berikut:</div>
+        <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach
@@ -24,42 +24,42 @@
     </div>
 @endif
 
-<div class="formCard" style="margin:16px; background:var(--card,#fff); border-radius:16px; padding:24px; border:1px solid var(--border,#e2e8f0);">
+<div class="form-card-container">
     <form method="POST" action="{{ route('admin.magang.store') }}" enctype="multipart/form-data">
         @csrf
         
-        <h3 style="font-size:15px; font-weight:700; color:var(--primary); margin-top:0; margin-bottom:16px; border-bottom:1px solid var(--border,#e2e8f0); padding-bottom:8px;">
+        <h3 style="font-size:15px; font-weight:800; color:var(--text); margin-top:0; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:8px;">
             1. Informasi Akun &amp; Pribadi
         </h3>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:20px;">
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Nama Lengkap <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required placeholder="cth: Ahmad Fauzi" style="width:100%;" />
+        <div class="form-grid-responsive" style="margin-bottom:20px;">
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Nama Lengkap <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required placeholder="cth: Ahmad Fauzi" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">NIK / No. Identitas Sistem <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="text" name="nik" value="{{ old('nik') }}" required placeholder="cth: MG202601" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">NIK / No. Identitas Sistem <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="text" name="nik" value="{{ old('nik') }}" required placeholder="cth: MG202601" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Email Login <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="email" name="email" value="{{ old('email') }}" required placeholder="cth: ahmad@kampus.ac.id" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Email Login <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="email" name="email" value="{{ old('email') }}" required placeholder="cth: ahmad@kampus.ac.id" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Password Login <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="password" name="password" required placeholder="Minimal 6 karakter" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Password Login <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="password" name="password" required placeholder="Minimal 6 karakter" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">No. WhatsApp / HP</label>
-                <input class="input" type="text" name="no_hp" value="{{ old('no_hp') }}" placeholder="cth: 08123456789" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">No. WhatsApp / HP</label>
+                <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp') }}" placeholder="cth: 08123456789" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Foto Profil (Opsional)</label>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Foto Profil (Opsional)</label>
                 <div class="fileUploadBox" style="padding:14px;">
                     <input type="file" name="foto" id="fotoMagangInput" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelected(this, 'magangFotoFeedback')">
                     <div class="fileUploadIcon" style="width:36px;height:36px;font-size:18px;">
@@ -75,45 +75,45 @@
             </div>
         </div>
 
-        <h3 style="font-size:15px; font-weight:700; color:var(--primary); margin-top:24px; margin-bottom:16px; border-bottom:1px solid var(--border,#e2e8f0); padding-bottom:8px;">
+        <h3 style="font-size:15px; font-weight:800; color:var(--text); margin-top:24px; margin-bottom:16px; border-bottom:1px solid var(--border); padding-bottom:8px;">
             2. Informasi Instansi &amp; Periode Magang
         </h3>
 
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; margin-bottom:24px;">
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Asal Universitas / Sekolah <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="text" name="asal_instansi" value="{{ old('asal_instansi') }}" required placeholder="cth: Universitas Negeri Yogyakarta" style="width:100%;" />
+        <div class="form-grid-responsive" style="margin-bottom:24px;">
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Asal Universitas / Sekolah <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="text" name="asal_instansi" value="{{ old('asal_instansi') }}" required placeholder="cth: Universitas Negeri Yogyakarta" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">NIM / NISN</label>
-                <input class="input" type="text" name="nim_nisn" value="{{ old('nim_nisn') }}" placeholder="cth: 210101002" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">NIM / NISN</label>
+                <input class="profileInput" type="text" name="nim_nisn" value="{{ old('nim_nisn') }}" placeholder="cth: 210101002" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Program Studi / Jurusan</label>
-                <input class="input" type="text" name="jurusan" value="{{ old('jurusan') }}" placeholder="cth: Pendidikan Luar Sekolah / Teknik Informatika" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Program Studi / Jurusan</label>
+                <input class="profileInput" type="text" name="jurusan" value="{{ old('jurusan') }}" placeholder="cth: Pendidikan Luar Sekolah / Teknik Informatika" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Dosen / Guru Pembimbing</label>
-                <input class="input" type="text" name="pembimbing_lapangan" value="{{ old('pembimbing_lapangan') }}" placeholder="cth: Dr. Hendra, M.Pd" style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Dosen / Guru Pembimbing</label>
+                <input class="profileInput" type="text" name="pembimbing_lapangan" value="{{ old('pembimbing_lapangan') }}" placeholder="cth: Dr. Hendra, M.Pd" />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Tanggal Mulai Magang <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="date" name="tgl_mulai" value="{{ old('tgl_mulai', date('Y-m-d')) }}" required style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Tanggal Mulai Magang <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="date" name="tgl_mulai" value="{{ old('tgl_mulai', date('Y-m-d')) }}" required />
             </div>
 
-            <div class="formRow">
-                <label class="fieldLabel" style="font-size:12px; font-weight:700; display:block; margin-bottom:6px;">Tanggal Selesai Magang <span style="color:#dc2626;">*</span></label>
-                <input class="input" type="date" name="tgl_selesai" value="{{ old('tgl_selesai', date('Y-m-d', strtotime('+3 months'))) }}" required style="width:100%;" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Tanggal Selesai Magang <span style="color:#dc2626;">*</span></label>
+                <input class="profileInput" type="date" name="tgl_selesai" value="{{ old('tgl_selesai', date('Y-m-d', strtotime('+3 months'))) }}" required />
             </div>
         </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
-            <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding:10px 20px;">Batal</a>
-            <button type="submit" class="btnPrimary" style="padding:10px 24px; background:var(--blue-gradient);">Simpan Data Magang</button>
+        <div class="form-action-footer">
+            <a href="{{ route('admin.magang.index') }}" class="btnOutline">Batal</a>
+            <button type="submit" class="profileBtnPrimary" style="width: auto; padding: 0 24px;">Simpan Data Magang</button>
         </div>
     </form>
 </div>

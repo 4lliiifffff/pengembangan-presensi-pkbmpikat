@@ -4,16 +4,16 @@
 
 @section('content')
 
-<div class="pageHeaderRow" style="flex-wrap:wrap;gap:10px;align-items:center;">
+<div class="pageHeaderRow header-actions-group" style="justify-content: space-between;">
     <div>
         <h2 style="margin:0;">Data Peserta Magang &amp; PKL</h2>
         <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</p>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <a href="{{ route('admin.magang.presensi') }}" class="btnOutline" style="padding:8px 12px;font-size:12px;border-color:var(--primary);color:var(--primary);">
+    <div class="header-actions-group">
+        <a href="{{ route('admin.magang.presensi') }}" class="btnOutline" style="padding:8px 12px;font-size:12px;gap:6px;">
             <ion-icon name="calendar-outline"></ion-icon> Monitoring Presensi
         </a>
-        <a href="{{ route('admin.magang.create') }}" class="btnPrimary" style="padding:8px 12px;background:var(--blue-gradient);font-size:12px;">
+        <a href="{{ route('admin.magang.create') }}" class="btnPrimary" style="padding:8px 12px;background:var(--blue-gradient);font-size:12px;gap:6px;">
             <ion-icon name="add-outline"></ion-icon> Tambah Peserta Magang
         </a>
     </div>
@@ -42,17 +42,17 @@
 <div class="searchRow" style="padding: 0 16px; margin-top: 16px;">
     <form method="GET" action="{{ route('admin.magang.index') }}" style="display:flex; gap:10px; width:100%; flex-wrap:wrap;">
         <div style="flex:1; min-width:220px; position:relative;">
-            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama, NIM, instansi, email..." class="input" style="width:100%; padding-left:36px;">
+            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama, NIM, instansi, email..." class="profileInput" style="width:100%; padding-left:36px; height: 40px; font-size: 13px;">
             <ion-icon name="search-outline" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:18px; color:var(--muted);"></ion-icon>
         </div>
-        <select name="status" class="input" style="width:auto;" onchange="this.form.submit()">
+        <select name="status" class="profileInput" style="width:auto; height: 40px; font-size: 13px;" onchange="this.form.submit()">
             <option value="">Semua Status</option>
             <option value="1" {{ ($status === '1') ? 'selected' : '' }}>Aktif</option>
             <option value="0" {{ ($status === '0') ? 'selected' : '' }}>Nonaktif / Selesai</option>
         </select>
-        <button type="submit" class="btnPrimary" style="padding:9px 16px;">Filter</button>
+        <button type="submit" class="profileBtnPrimary" style="padding: 0 16px; height: 40px; font-size: 13px; width: auto;">Filter</button>
         @if($search || $status !== null)
-            <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding:9px 12px;">Reset</a>
+            <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding: 0 12px; height: 40px; font-size: 13px; display: inline-flex; align-items: center;">Reset</a>
         @endif
     </form>
 </div>
@@ -107,21 +107,21 @@
                         </td>
                         <td style="padding:12px 16px;">
                             @if($m->is_active)
-                                <span class="badge" style="background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">Aktif</span>
+                                <span class="app-badge badge-status-aktif">Aktif</span>
                             @else
-                                <span class="badge" style="background:#f1f5f9; color:#64748b; padding:4px 8px; border-radius:6px; font-size:11px; font-weight:700;">Nonaktif</span>
+                                <span class="app-badge badge-status-nonaktif">Nonaktif</span>
                             @endif
                         </td>
                         <td style="padding:12px 16px; text-align:right;">
                             <div style="display:flex; justify-content:flex-end; gap:6px;">
-                                <a href="{{ route('admin.magang.edit', $m->id) }}" class="btnOutline" style="padding:6px 10px; font-size:12px;" title="Edit">
-                                    <ion-icon name="create-outline"></ion-icon>
+                                <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit" title="Edit">
+                                    <ion-icon name="create-outline"></ion-icon> Edit
                                 </a>
-                                <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
+                                <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" style="display:inline; margin:0;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btnOutline" style="padding:6px 10px; font-size:12px; color:#dc2626; border-color:#fca5a5;" title="Hapus">
-                                        <ion-icon name="trash-outline"></ion-icon>
+                                    <button type="submit" class="smallBtn delete cursor-pointer" title="Hapus">
+                                        <ion-icon name="trash-outline"></ion-icon> Hapus
                                     </button>
                                 </form>
                             </div>

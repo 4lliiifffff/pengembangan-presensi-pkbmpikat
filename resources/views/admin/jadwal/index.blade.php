@@ -11,40 +11,40 @@
 @endphp
 
 <!-- HEADER -->
-<div class="pageHeaderRow" style="padding: 16px 16px 8px; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+<div class="pageHeaderRow header-actions-group" style="padding: 16px 16px 8px; justify-content: space-between;">
     <div>
         <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text);">Agenda &amp; Jadwal Sekolah</h2>
         <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">{{ $selectedDate->translatedFormat('l, d F Y') }}</p>
     </div>
-    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-        <a href="{{ route('admin.jadwal.exportExcel') }}" class="profileBtnOutline" style="padding: 0 12px; height: 38px; font-size: 12px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+    <div class="header-actions-group">
+        <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
             <ion-icon name="download-outline" style="font-size: 15px;"></ion-icon> Export
         </a>
-        <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary" style="padding: 0 12px; height: 38px; font-size: 12px; border-radius: 10px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+        <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; width: auto; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
             <ion-icon name="cloud-upload-outline" style="font-size: 15px;"></ion-icon> Import
         </button>
     </div>
 </div>
 
 {{-- ── Modal Impor Jadwal / Agenda ── --}}
-<div id="importJadwalModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-    <div style="background:var(--card,#fff);border-radius:20px;max-width:480px;width:100%;padding:20px;box-shadow:0 20px 40px rgba(0,0,0,0.25);border:1px solid var(--border,#e2e8f0);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">
-            <h3 style="margin:0;font-size:16px;font-weight:800;color:var(--text);">Impor Kalender Jadwal Massal</h3>
-            <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);display:flex;align-items:center;">&times;</button>
+<div id="importJadwalModal" class="app-modal-backdrop">
+    <div class="app-modal-card">
+        <div class="app-modal-header">
+            <h3 class="app-modal-title">Impor Kalender Jadwal Massal</h3>
+            <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" class="app-modal-close">&times;</button>
         </div>
-        <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.5;">
+        <p class="app-modal-desc">
             Unggah berkas spreadsheet Excel/CSV untuk menambahkan agenda kegiatan belajar dan kalender akademik secara massal.
         </p>
         <div style="margin-bottom:16px;">
-            <a href="{{ route('admin.jadwal.downloadTemplate') }}" class="profileBtnOutline" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-size:12px;font-weight:700;text-decoration:none;border-radius:10px;">
+            <a href="{{ route('admin.jadwal.downloadTemplate') }}" class="btnOutline">
                 <ion-icon name="download-outline"></ion-icon> Download Template (.xlsx)
             </a>
         </div>
         <form method="POST" action="{{ route('admin.jadwal.importExcel') }}" enctype="multipart/form-data">
             @csrf
-            <div style="margin-bottom:16px;">
-                <label style="display:block;font-size:11.5px;font-weight:800;text-transform:uppercase;margin-bottom:6px;color:var(--muted);">Pilih Berkas Jadwal:</label>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Pilih Berkas Jadwal:</label>
                 <div class="fileUploadBox">
                     <input type="file" name="file_excel" id="jadwalFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'jadwalFileFeedback')">
                     <div class="fileUploadIcon">
@@ -58,7 +58,7 @@
                 </div>
                 <div id="jadwalFileFeedback" class="fileUploadFeedback"></div>
             </div>
-            <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <div class="app-modal-footer">
                 <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
                 <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;">Unggah &amp; Impor</button>
             </div>

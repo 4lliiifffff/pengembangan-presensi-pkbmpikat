@@ -12,9 +12,9 @@
     </div>
 
     @if ($errors->any())
-        <div class="errorList">
-            <div style="font-weight:1000;margin-bottom:6px;">Periksa input berikut:</div>
-            <ul style="padding-left:18px;margin:0;">
+        <div class="error-list-container">
+            <div class="error-title">Periksa input berikut:</div>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -22,34 +22,34 @@
         </div>
     @endif
 
-    <div class="formCard">
+    <div class="form-card-container">
         <form method="POST" action="{{ route('admin.kelas.store') }}" id="formKelas">
             @csrf
 
             {{-- Banner Edukasi Arsitektur Rombel & Paket --}}
-            <div class="formRow" style="background:rgba(31,59,138,0.04);border:1px solid rgba(31,59,138,0.15);border-radius:12px;padding:12px 14px;margin-bottom:18px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#1f3b8a;">
+            <div class="info-callout-box" style="margin-top: 0; margin-bottom: 20px;">
+                <div class="info-callout-title">
+                    <div style="display:flex;align-items:center;gap:6px;">
                         <ion-icon name="layers-outline" style="font-size:16px;"></ion-icon>
                         Struktur Rombel &amp; Validasi Presensi Otomatis
                     </div>
-                    <a href="{{ route('admin.jenjang-paket.index') }}" target="_blank" style="font-size:11px;font-weight:700;color:#1f3b8a;text-decoration:underline;">
+                    <a href="{{ route('admin.jenjang-paket.index') }}" target="_blank" class="info-callout-link">
                         Kelola Master Jenjang &rarr;
                     </a>
                 </div>
-                <div style="font-size:11.5px;color:var(--muted);line-height:1.4;">
+                <div class="info-callout-desc">
                     Pemilihan <b>Jenjang Paket</b> digunakan oleh sistem untuk <b>Universal Package Guard</b> (mencegah absen campur paket) serta <b>Deteksi Otomatis Sesi Gabungan Komunitas</b> ketika tutor mengajar murid dari beberapa kelas dalam jenjang yang sama.
                 </div>
             </div>
 
-            <div class="formRow">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <div class="fieldLabel" style="margin:0;">Jenjang / Kategori Paket <span style="color:#ef4444;">*</span></div>
+            <div class="form-field-wrapper">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <label class="form-field-label" style="margin:0;">Jenjang / Kategori Paket <span style="color:#ef4444;">*</span></label>
                     <a href="{{ route('admin.jenjang-paket.index') }}" target="_blank" style="font-size:11px;font-weight:700;color:#2563eb;text-decoration:none;display:inline-flex;align-items:center;gap:2px;">
                         <ion-icon name="add-circle-outline"></ion-icon> Tambah Jenjang Baru
                     </a>
                 </div>
-                <select class="input" name="jenjang_paket_id" id="jenjang_paket_id" required onchange="handleJenjangChange(this.value)">
+                <select class="profileInput" name="jenjang_paket_id" id="jenjang_paket_id" required onchange="handleJenjangChange(this.value)">
                     <option value="">-- Pilih Jenjang / Program Paket --</option>
                     @foreach ($jenjangPakets as $jp)
                         <option value="{{ $jp->id }}" data-kode="{{ $jp->kode }}" data-label="{{ $jp->nama_jenjang }}" data-tingkat="{{ $jp->tingkat_label }}" {{ (string) old('jenjang_paket_id') === (string) $jp->id ? 'selected' : '' }}>
@@ -59,28 +59,28 @@
                 </select>
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Tingkat / Nomor Kelas</div>
-                <input class="input" type="text" name="tingkat" id="tingkat" value="{{ old('tingkat') }}" placeholder="Contoh: 1-6 (SD), 7-9 (SMP), 10-12 (SMA), atau Dasar/Terampil" oninput="autoSuggestNamaKelas()" />
-                <div id="tingkatHelper" style="font-size:11px;color:var(--muted);margin-top:4px;">Nomor tingkatan kelas atau level pembelajaran.</div>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Tingkat / Nomor Kelas</label>
+                <input class="profileInput" type="text" name="tingkat" id="tingkat" value="{{ old('tingkat') }}" placeholder="Contoh: 1-6 (SD), 7-9 (SMP), 10-12 (SMA), atau Dasar/Terampil" oninput="autoSuggestNamaKelas()" />
+                <div id="tingkatHelper" class="field-help-text">Nomor tingkatan kelas atau level pembelajaran.</div>
             </div>
 
-            <div class="formRow">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-                    <div class="fieldLabel" style="margin:0;">Nama Kelas <span style="color:#ef4444;">*</span></div>
+            <div class="form-field-wrapper">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <label class="form-field-label" style="margin:0;">Nama Kelas <span style="color:#ef4444;">*</span></label>
                     <button type="button" onclick="generateAutoNama()" style="background:none;border:none;color:#2563eb;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;">
                         <ion-icon name="flash-outline"></ion-icon> Format Otomatis
                     </button>
                 </div>
-                <input class="input" type="text" name="nama_kelas" id="nama_kelas" value="{{ old('nama_kelas') }}" placeholder="Contoh: Paket B - Kelas 7" required />
+                <input class="profileInput" type="text" name="nama_kelas" id="nama_kelas" value="{{ old('nama_kelas') }}" placeholder="Contoh: Paket B - Kelas 7" required />
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Keterangan / Catatan Rombel</div>
-                <textarea class="input" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Catatan tambahan rombongan belajar (opsional)">{{ old('keterangan') }}</textarea>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Keterangan / Catatan Rombel</label>
+                <textarea class="profileInput" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Catatan tambahan rombongan belajar (opsional)">{{ old('keterangan') }}</textarea>
             </div>
 
-            <button type="submit" class="btnPrimary" style="width:100%;justify-content:center;margin-top:8px;">
+            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan Kelas
             </button>

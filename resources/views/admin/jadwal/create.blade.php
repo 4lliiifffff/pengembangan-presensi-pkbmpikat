@@ -2,74 +2,77 @@
 
 @section('title', 'Tambah Agenda — Admin')
 
-
-
 @section('content')
 
-    <div class="formPageHeader">
-        <a href="{{ route('admin.jadwal.index') }}" class="backBtn">
-            <ion-icon name="arrow-back-outline"></ion-icon>
+    <div class="pageHeaderRow">
+        <div>
+            <h2 style="margin:0;">Tambah Agenda Baru</h2>
+            <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Tambahkan kalender akademik, ujian, atau kegiatan sekolah</p>
+        </div>
+        <a class="btnOutline" href="{{ route('admin.jadwal.index') }}">
+            Kembali
         </a>
-        <div class="formPageTitle">Tambah Agenda</div>
     </div>
 
-    <div class="formPage">
+    @if($errors->any())
+        <div class="error-list-container">
+            <div class="error-title">Periksa input berikut:</div>
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-        @if($errors->any())
-            <div class="errorList">
-                <strong>Terdapat kesalahan:</strong>
-                <ul>
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
+    <div class="form-card-container">
         <form method="POST" action="{{ route('admin.jadwal.store') }}">
             @csrf
 
             {{-- Judul --}}
-            <div class="formGroup">
-                <label class="formLabel">Judul Agenda</label>
-                <input type="text" name="judul" class="formControl"
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Judul Agenda <span style="color:#ef4444;">*</span></label>
+                <input type="text" name="judul" class="profileInput"
                        value="{{ old('judul') }}" placeholder="Contoh: Rapat Wali Murid" required>
                 @error('judul')
-                    <span class="errorMsg">{{ $message }}</span>
+                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
                 @enderror
             </div>
 
             {{-- Deskripsi --}}
-            <div class="formGroup">
-                <label class="formLabel">Deskripsi <span style="font-weight:400;text-transform:none;">(opsional)</span></label>
-                <textarea name="deskripsi" class="formControl"
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Deskripsi (Opsional)</label>
+                <textarea name="deskripsi" class="profileInput" rows="3" style="height:auto;padding:10px 14px;"
                           placeholder="Keterangan tambahan tentang agenda ini...">{{ old('deskripsi') }}</textarea>
                 @error('deskripsi')
-                    <span class="errorMsg">{{ $message }}</span>
+                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
                 @enderror
             </div>
 
             {{-- Tanggal --}}
-            <div class="formGroup">
-                <label class="formLabel">Tanggal</label>
-                <input type="date" name="tanggal" class="formControl"
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Tanggal <span style="color:#ef4444;">*</span></label>
+                <input type="date" name="tanggal" class="profileInput"
                        value="{{ old('tanggal', date('Y-m-d')) }}" required>
                 @error('tanggal')
-                    <span class="errorMsg">{{ $message }}</span>
+                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
                 @enderror
             </div>
 
             {{-- Lokasi --}}
-            <div class="formGroup">
-                <label class="formLabel">Lokasi <span style="font-weight:400;text-transform:none;">(opsional)</span></label>
-                <input type="text" name="lokasi" class="formControl"
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Lokasi (Opsional)</label>
+                <input type="text" name="lokasi" class="profileInput"
                        value="{{ old('lokasi') }}" placeholder="Contoh: Ruang Aula, Online, dll.">
                 @error('lokasi')
-                    <span class="errorMsg">{{ $message }}</span>
+                    <div class="field-help-text" style="color:#dc2626;">{{ $message }}</div>
                 @enderror
             </div>
 
-            <button type="submit" class="submitBtn">Simpan Agenda</button>
+            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
+                <ion-icon name="save-outline"></ion-icon>
+                Simpan Agenda
+            </button>
         </form>
     </div>
 

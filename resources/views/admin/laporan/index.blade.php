@@ -82,13 +82,13 @@
     </form>
 
     {{-- ── Modal Impor Presensi Retroaktif / Log Manual ── --}}
-    <div id="importPresensiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-        <div style="background:var(--card,#fff);border-radius:18px;max-width:480px;width:100%;padding:24px;box-shadow:0 20px 40px rgba(0,0,0,0.2);border:1px solid var(--border,#e2e8f0);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text);">Impor Rekapan Presensi Manual</h3>
-                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);">&times;</button>
+    <div id="importPresensiModal" class="app-modal-backdrop">
+        <div class="app-modal-card" style="max-width: 480px;">
+            <div class="app-modal-header">
+                <h3 class="app-modal-title" style="font-size:17px;">Impor Rekapan Presensi Manual</h3>
+                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="app-modal-close">&times;</button>
             </div>
-            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.4;">
+            <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk menyinkronkan rekapan data presensi fisik atau kegiatan offline luar jaringan secara massal.
             </p>
             <div style="margin-bottom:18px;">
@@ -113,7 +113,7 @@
                     </div>
                     <div id="laporanFileFeedback" class="fileUploadFeedback"></div>
                 </div>
-                <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <div class="app-modal-footer">
                     <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="profileBtnDanger" style="height:38px;padding:0 14px;font-size:12px;border-radius:10px;width:auto;">Batal</button>
                     <button type="submit" class="profileBtnPrimary" style="height:38px;padding:0 16px;font-size:12px;border-radius:10px;width:auto;">Unggah &amp; Impor Presensi</button>
                 </div>

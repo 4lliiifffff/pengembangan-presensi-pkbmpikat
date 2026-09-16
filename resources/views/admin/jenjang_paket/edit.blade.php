@@ -12,9 +12,9 @@
     </div>
 
     @if ($errors->any())
-        <div class="errorList">
-            <div style="font-weight:1000;margin-bottom:6px;">Periksa input berikut:</div>
-            <ul style="padding-left:18px;margin:0;">
+        <div class="error-list-container">
+            <div class="error-title">Periksa input berikut:</div>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -22,15 +22,15 @@
         </div>
     @endif
 
-    <div class="formCard">
+    <div class="form-card-container">
         <form method="POST" action="{{ route('admin.jenjang-paket.update', $jenjangPaket) }}">
             @csrf
             @method('PUT')
 
             {{-- Info Rombel / Kelas Terkait --}}
-            <div class="formRow" style="background:rgba(31,59,138,0.04);border:1px solid rgba(31,59,138,0.15);border-radius:12px;padding:12px 14px;margin-bottom:18px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:800;color:#1f3b8a;">
+            <div class="info-callout-box" style="margin-top: 0; margin-bottom: 20px;">
+                <div class="info-callout-title">
+                    <div style="display:flex;align-items:center;gap:6px;">
                         <ion-icon name="layers-outline" style="font-size:16px;"></ion-icon>
                         Total Rombel / Kelas Menggunakan Jenjang Ini: {{ $jenjangPaket->kelas_count }} Kelas
                     </div>
@@ -40,43 +40,45 @@
                 </div>
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Nama Jenjang / Program <span style="color:#ef4444;">*</span></div>
-                <input class="input" type="text" name="nama_jenjang" value="{{ old('nama_jenjang', $jenjangPaket->nama_jenjang) }}" placeholder="Contoh: Paket A (Setara SD)" required />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Nama Jenjang / Program <span style="color:#ef4444;">*</span></label>
+                <input class="profileInput" type="text" name="nama_jenjang" value="{{ old('nama_jenjang', $jenjangPaket->nama_jenjang) }}" placeholder="Contoh: Paket A (Setara SD)" required />
             </div>
 
-            <div class="formRow">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div class="fieldLabel" style="margin:0;">Kode Sistem (Unique ID) <span style="color:#ef4444;">*</span></div>
+            <div class="form-field-wrapper">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <label class="form-field-label" style="margin:0;">Kode Sistem (Unique ID) <span style="color:#ef4444;">*</span></label>
                     <span style="font-size:10.5px;color:var(--muted);">Harap berhati-hati jika mengubah kode yang sudah dipakai oleh data kelas</span>
                 </div>
-                <input class="input" type="text" name="kode" value="{{ old('kode', $jenjangPaket->kode) }}" required />
+                <input class="profileInput" type="text" name="kode" value="{{ old('kode', $jenjangPaket->kode) }}" required />
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Format / Rentang Tingkat</div>
-                <input class="input" type="text" name="tingkat_label" value="{{ old('tingkat_label', $jenjangPaket->tingkat_label) }}" placeholder="Contoh: Kelas 1 - 6, Tingkat 7 - 9, atau Dasar / Terampil" />
-                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Panduan tingkatan nomor kelas bagi admin saat membuat rombel.</div>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Format / Rentang Tingkat</label>
+                <input class="profileInput" type="text" name="tingkat_label" value="{{ old('tingkat_label', $jenjangPaket->tingkat_label) }}" placeholder="Contoh: Kelas 1 - 6, Tingkat 7 - 9, atau Dasar / Terampil" />
+                <div class="field-help-text">Panduan tingkatan nomor kelas bagi admin saat membuat rombel.</div>
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Urutan Tampilan</div>
-                <input class="input" type="number" name="urutan" value="{{ old('urutan', $jenjangPaket->urutan) }}" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Urutan Tampilan</label>
+                <input class="profileInput" type="number" name="urutan" value="{{ old('urutan', $jenjangPaket->urutan) }}" />
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Keterangan / Deskripsi Program</div>
-                <textarea class="input" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi">{{ old('keterangan', $jenjangPaket->keterangan) }}</textarea>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Keterangan / Deskripsi Program</label>
+                <textarea class="profileInput" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi">{{ old('keterangan', $jenjangPaket->keterangan) }}</textarea>
             </div>
 
-            <div class="formRow">
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);">
-                    <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', $jenjangPaket->is_aktif) ? 'checked' : '' }} style="width:16px;height:16px;" />
-                    Status Aktif (dapat dipilih di form kelas)
-                </label>
+            <div class="form-field-wrapper">
+                <div class="checkbox-toggle-card">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', $jenjangPaket->is_aktif) ? 'checked' : '' }} style="width:16px;height:16px;" />
+                        Status Aktif (dapat dipilih di form kelas)
+                    </label>
+                </div>
             </div>
 
-            <button type="submit" class="btnPrimary" style="width:100%;justify-content:center;margin-top:8px;">
+            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan Perubahan
             </button>

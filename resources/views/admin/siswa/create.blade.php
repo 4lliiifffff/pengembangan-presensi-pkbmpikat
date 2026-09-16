@@ -18,9 +18,9 @@
     </div>
 
     @if ($errors->any())
-        <div class="errorList" style="max-width:900px;margin:0 auto 18px;">
-            <div style="font-weight:800;margin-bottom:8px;">Periksa input berikut:</div>
-            <ul style="padding-left:20px;margin:0;line-height:1.5;">
+        <div class="error-list-container">
+            <div class="error-title">Periksa input berikut:</div>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -28,23 +28,23 @@
         </div>
     @endif
 
-    <div class="laporanFilterCard" style="max-width:900px;margin:0 auto 32px;padding:24px 28px;">
+    <div class="form-card-container">
         <form method="POST" action="{{ route('admin.siswa.store') }}">
             @csrf
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:18px;">
-                <div>
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">NOMOR ABSEN / NIS <span style="color:#ef4444;">*</span></label>
+            <div class="form-grid-responsive">
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">NOMOR ABSEN / NIS <span style="color:#ef4444;">*</span></label>
                     <input class="profileInput" type="text" name="no_absen" value="{{ old('no_absen') }}" placeholder="Contoh: 101" required />
                 </div>
 
-                <div>
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">NAMA LENGKAP SISWA <span style="color:#ef4444;">*</span></label>
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">NAMA LENGKAP SISWA <span style="color:#ef4444;">*</span></label>
                     <input class="profileInput" type="text" name="nama_siswa" value="{{ old('nama_siswa') }}" placeholder="Contoh: Ahmad Dahlan" required />
                 </div>
 
-                <div>
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">STATUS SIKLUS MURID <span style="color:#ef4444;">*</span></label>
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">STATUS SIKLUS MURID <span style="color:#ef4444;">*</span></label>
                     <select class="filterSelect" name="status_siswa" required>
                         <option value="aktif" {{ old('status_siswa', 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif Belajar</option>
                         <option value="alumni" {{ old('status_siswa') === 'alumni' ? 'selected' : '' }}>Lulus / Alumni</option>
@@ -53,18 +53,18 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">NO HP / WHATSAPP SISWA <span style="color:#ef4444;">*</span></label>
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">NO HP / WHATSAPP SISWA <span style="color:#ef4444;">*</span></label>
                     <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp') }}" placeholder="Contoh: 081234567890" required />
                 </div>
 
-                <div style="grid-column:1/-1;">
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">NAMA ORANG TUA / WALI <span style="color:#ef4444;">*</span></label>
+                <div class="form-field-wrapper form-grid-full">
+                    <label class="filterFieldLabel">NAMA ORANG TUA / WALI <span style="color:#ef4444;">*</span></label>
                     <input class="profileInput" type="text" name="nama_wali" value="{{ old('nama_wali') }}" placeholder="Contoh: Bapak / Ibu Santoso" required />
                 </div>
 
-                <div>
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">KELAS / ROMBONGAN BELAJAR <span style="color:#ef4444;">*</span></label>
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">KELAS / ROMBONGAN BELAJAR <span style="color:#ef4444;">*</span></label>
                     @if ($kelas->isEmpty())
                         <div class="profileInput" style="font-size:12px;color:var(--muted);background:#f8fafc;">
                             Belum ada data kelas.
@@ -89,8 +89,8 @@
                     </select>
                 </div>
 
-                <div>
-                    <label class="filterFieldLabel" style="margin-bottom:6px;display:block;">TUTOR PEMBIMBING (OPSIONAL)</label>
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">TUTOR PEMBIMBING (OPSIONAL)</label>
                     <select class="filterSelect" name="tutor_id">
                         <option value="">-- Tidak Ada / Belum Ditentukan --</option>
                         @if (isset($tutors))
@@ -105,28 +105,26 @@
             </div>
 
             <div style="margin-top:20px;">
-                <label style="display:flex;align-items:center;gap:12px;cursor:pointer;font-size:13.5px;font-weight:700;color:var(--text);padding:12px 16px;background:var(--card-alt,#f8fafc);border-radius:10px;border:1px solid var(--border,#e2e8f0);">
-                    <input type="checkbox" name="is_abk" value="1" {{ old('is_abk') ? 'checked' : '' }} style="width:18px;height:18px;">
+                <label class="checkbox-toggle-card">
+                    <input type="checkbox" name="is_abk" value="1" {{ old('is_abk') ? 'checked' : '' }}>
                     <span>Siswa Berkebutuhan Khusus (ABK)</span>
                 </label>
-                <div style="font-size:11.5px;color:var(--muted);margin-top:6px;line-height:1.4;">Centang jika siswa ini merupakan Anak Berkebutuhan Khusus (tarif honor tutor otomatis disesuaikan SK ABK).</div>
+                <div class="field-help-text">Centang jika siswa ini merupakan Anak Berkebutuhan Khusus (tarif honor tutor otomatis disesuaikan SK ABK).</div>
             </div>
 
-            <div style="background:rgba(31,59,138,0.04);border:1px solid rgba(31,59,138,0.15);border-radius:10px;padding:14px 16px;margin-top:18px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:8px;">
-                    <div style="font-size:12.5px;font-weight:800;color:#1f3b8a;">
-                        Skema Tarif Honor Tutor
-                    </div>
-                    <a href="{{ route('admin.kategori-tutorial.index') }}" target="_blank" style="font-size:12px;font-weight:700;color:#1f3b8a;text-decoration:underline;">
+            <div class="info-callout-box">
+                <div class="info-callout-title">
+                    <span>Skema Tarif Honor Tutor</span>
+                    <a href="{{ route('admin.kategori-tutorial.index') }}" target="_blank" class="info-callout-link">
                         Kelola Master SK &rarr;
                     </a>
                 </div>
-                <div style="font-size:12px;color:var(--muted);line-height:1.5;">
+                <div class="info-callout-desc">
                     Tarif honor sesi mengajar tutor dihitung secara otomatis dari Master Tarif SK berdasarkan status ABK / Reguler dan durasi tutorial.
                 </div>
             </div>
 
-            <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div class="form-action-footer">
                 <a href="{{ route('admin.siswa.index') }}" class="btnOutline">
                     Batal
                 </a>

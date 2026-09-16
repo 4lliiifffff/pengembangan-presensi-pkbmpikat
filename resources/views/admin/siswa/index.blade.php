@@ -4,7 +4,7 @@
 
 <div class="laporanPageWrapper">
     {{-- ── Header Card ── --}}
-    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+    <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
                 <div class="laporanHeaderLabel">MANAJEMEN PESERTA DIDIK</div>
@@ -12,14 +12,14 @@
                 <div class="laporanHeaderSub">Kelola data peserta didik, wali murid, status siklus, dan rombongan belajar</div>
                 <p class="laporanHeaderDesc">Daftar siswa, pemetaan paket kesetaraan, data ABK, dan histori rombel.</p>
             </div>
-            <div class="laporanHeaderActions" style="display:flex;gap:8px;flex-wrap:wrap;">
-                <a href="{{ route('admin.siswa.exportExcel') }}" class="profileBtnPrimary" style="padding:9px 14px;background:#16a34a;font-size:12.5px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;">
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route('admin.siswa.exportExcel') }}" class="profileBtnPrimary btn-action-success">
                     Export Excel
                 </a>
-                <button type="button" onclick="document.getElementById('importSiswaModal').style.display='flex'" class="profileBtnPrimary" style="padding:9px 14px;background:#0284c7;font-size:12.5px;border-radius:12px;border:none;cursor:pointer;">
+                <button type="button" onclick="document.getElementById('importSiswaModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
                     Import Siswa
                 </button>
-                <a href="{{ route('admin.siswa.create') }}" class="profileBtnPrimary" style="padding:9px 16px;font-size:12.5px;border-radius:12px;text-decoration:none;display:inline-flex;align-items:center;">
+                <a href="{{ route('admin.siswa.create') }}" class="profileBtnPrimary">
                     Tambah Siswa
                 </a>
             </div>
@@ -27,27 +27,27 @@
     </div>
 
     {{-- ── Modal Impor Siswa ── --}}
-    <div id="importSiswaModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-        <div style="background:var(--card,#fff);border-radius:20px;max-width:500px;width:100%;padding:28px;box-shadow:0 24px 48px rgba(0,0,0,0.25);border:1px solid var(--border,#e2e8f0);">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-                <h3 style="margin:0;font-size:18px;font-weight:800;color:var(--text);">Impor Data Siswa Massal</h3>
-                <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" style="background:none;border:none;font-size:24px;cursor:pointer;color:var(--muted);">&times;</button>
+    <div id="importSiswaModal" class="app-modal-backdrop">
+        <div class="app-modal-card">
+            <div class="app-modal-header">
+                <h3 class="app-modal-title">Impor Data Siswa Massal</h3>
+                <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="app-modal-close">&times;</button>
             </div>
-            <p style="font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5;">
+            <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan siswa baru secara massal atau memperbarui data siswa berdasarkan nomor absen (NIS).
             </p>
-            <div style="margin-bottom:20px;">
-                <a href="{{ route('admin.siswa.downloadTemplate') }}" class="btnOutline" style="display:inline-flex;align-items:center;gap:8px;padding:9px 16px;font-size:12.5px;font-weight:700;">
+            <div style="margin-bottom: 20px;">
+                <a href="{{ route('admin.siswa.downloadTemplate') }}" class="btnOutline">
                     Download Template Siswa (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.siswa.importExcel') }}" enctype="multipart/form-data">
                 @csrf
-                <div style="margin-bottom:20px;">
-                    <label style="display:block;font-size:12px;font-weight:800;text-transform:uppercase;margin-bottom:8px;color:var(--muted);">Pilih Berkas Data Siswa:</label>
+                <div class="form-field-wrapper">
+                    <label class="form-field-label">Pilih Berkas Data Siswa:</label>
                     <div class="fileUploadBox">
                         <input type="file" name="file_excel" id="siswaFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'siswaFileFeedback')">
-                        <div class="fileUploadText" style="margin-top:0;font-size:13px;font-weight:700;">Pilih atau seret berkas ke sini</div>
+                        <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
                         <div class="fileUploadSubtext">
                             <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
                             <span class="fileUploadInfoPill">Maks: 5 MB</span>
@@ -55,9 +55,9 @@
                     </div>
                     <div id="siswaFileFeedback" class="fileUploadFeedback"></div>
                 </div>
-                <div style="display:flex;gap:10px;justify-content:flex-end;">
-                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="profileBtnDanger" style="height:40px;padding:0 18px;font-size:12.5px;border-radius:12px;width:auto;">Batal</button>
-                    <button type="submit" class="profileBtnPrimary" style="height:40px;padding:0 20px;font-size:12.5px;border-radius:12px;width:auto;">Unggah &amp; Impor</button>
+                <div class="app-modal-footer">
+                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="profileBtnDanger" style="width:auto; height:40px; padding:0 18px;">Batal</button>
+                    <button type="submit" class="profileBtnPrimary" style="width:auto; height:40px; padding:0 20px;">Unggah &amp; Impor</button>
                 </div>
             </form>
         </div>
@@ -135,14 +135,6 @@
                 </thead>
                 <tbody>
                     @forelse($siswas as $index => $siswa)
-                        @php
-                            $statusBadgeStyle = match($siswa->status_siswa) {
-                                'alumni' => 'background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;',
-                                'cuti' => 'background:#fef3c7;color:#b45309;border:1px solid #fde68a;',
-                                'nonaktif' => 'background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;',
-                                default => 'background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;',
-                            };
-                        @endphp
                         <tr>
                             <td style="padding: 12px 14px; font-weight: 700; color: var(--muted);">
                                 {{ $siswas->firstItem() + $index }}
@@ -161,11 +153,11 @@
                             </td>
                             <td>
                                 <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
-                                    <span style="display:inline-block;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:800;{{ $statusBadgeStyle }}">
+                                    <span class="app-badge badge-status-{{ $siswa->status_siswa }}">
                                         {{ $siswa->status_label }}
                                     </span>
                                     @if($siswa->is_abk)
-                                        <span style="display:inline-block;padding:3px 7px;border-radius:8px;font-size:10.5px;font-weight:800;background:#fef3c7;color:#b45309;border:1px solid #fde68a;">
+                                        <span class="app-badge badge-abk">
                                             ABK
                                         </span>
                                     @endif
@@ -179,7 +171,7 @@
                             </td>
                             <td style="text-align: center;">
                                 <div style="display: flex; gap: 6px; justify-content: center; align-items: center; flex-wrap: wrap;">
-                                    <a class="smallBtn" style="padding: 6px 10px; min-height: 32px; font-size: 11.5px; border:1px solid var(--border);color:var(--text);background:var(--card-alt,#f8fafc);" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
+                                    <a class="smallBtn btn-status-toggle" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
                                         Detail
                                     </a>
 
@@ -213,14 +205,6 @@
     {{-- ── Mobile Cards List (Layar HP / Tablet) ── --}}
     <div class="mobile-card-list">
         @forelse($siswas as $index => $siswa)
-            @php
-                $statusBadgeStyle = match($siswa->status_siswa) {
-                    'alumni' => 'background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;',
-                    'cuti' => 'background:#fef3c7;color:#b45309;border:1px solid #fde68a;',
-                    'nonaktif' => 'background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;',
-                    default => 'background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;',
-                };
-            @endphp
             <div class="data-mobile-card">
                 <div class="dmc-header">
                     <div>
@@ -228,11 +212,11 @@
                         <div class="dmc-subtitle">Absen / NIS: {{ $siswa->no_absen ?? '-' }}</div>
                     </div>
                     <div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end;">
-                        <span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:800;{{ $statusBadgeStyle }}">
+                        <span class="app-badge badge-status-{{ $siswa->status_siswa }}">
                             {{ $siswa->status_label }}
                         </span>
                         @if($siswa->is_abk)
-                            <span style="display:inline-block;padding:2px 7px;border-radius:6px;font-size:10.5px;font-weight:800;background:#fef3c7;color:#b45309;border:1px solid #fde68a;">
+                            <span class="app-badge badge-abk">
                                 ABK
                             </span>
                         @endif
@@ -266,7 +250,7 @@
                         No. {{ $siswas->firstItem() + $index }}
                     </div>
                     <div class="dmc-actions">
-                        <a class="smallBtn" style="padding: 7px 12px; font-size: 12px; border:1px solid var(--border);color:var(--text);background:var(--card-alt,#f8fafc);" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
+                        <a class="smallBtn btn-status-toggle" href="{{ route('admin.siswa.show', $siswa) }}" title="Lihat Detail Siswa">
                             Detail
                         </a>
 

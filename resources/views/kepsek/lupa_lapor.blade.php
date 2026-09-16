@@ -6,7 +6,7 @@
 
 <div class="laporanPageWrapper">
     {{-- ── Header ── --}}
-    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+    <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
                 <div class="laporanHeaderLabel">VERIFIKASI &amp; PERSETUJUAN</div>
@@ -50,20 +50,20 @@
 
                 <div class="filterField">
                     <label class="filterFieldLabel">Tanggal</label>
-                    <input type="date" name="tanggal" class="profileInput" style="height: 42px; font-size: 13px;" value="{{ request('tanggal') }}">
+                    <input type="date" name="tanggal" class="profileInput" value="{{ request('tanggal') }}">
                 </div>
 
                 <div class="filterField" style="grid-column: span 2;">
                     <label class="filterFieldLabel">Cari Tutor / Siswa</label>
-                    <input type="text" name="cari" class="profileInput" style="height: 42px; font-size: 13px;" value="{{ request('cari') }}" placeholder="Nama tutor atau siswa...">
+                    <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}" placeholder="Nama tutor atau siswa...">
                 </div>
 
-                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
                         <ion-icon name="search-outline"></ion-icon> Cari Data
                     </button>
                     @if(request('tanggal') || request('cari') || request('status'))
-                        <a href="{{ route('kepsek.lupa-lapor') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none;">
+                        <a href="{{ route('kepsek.lupa-lapor') }}" class="btn-filter-reset">
                             Reset Filter
                         </a>
                     @endif
@@ -170,10 +170,10 @@
                 </div>
             </div>
         @empty
-            <div class="emptyLaporan">
-                <ion-icon name="document-text-outline"></ion-icon>
-                <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px; color: var(--text);">Tidak Ada Data Pengajuan</div>
-                <div>{{ request('tanggal') || request('cari') || request('status') ? 'Tidak ada pengajuan yang cocok dengan filter pencarian.' : 'Belum ada pengajuan lupa lapor dari tutor saat ini.' }}</div>
+            <div class="empty-state-standard">
+                <ion-icon name="document-text-outline" class="empty-icon"></ion-icon>
+                <div class="empty-title">Tidak Ada Data Pengajuan</div>
+                <div class="empty-desc">{{ request('tanggal') || request('cari') || request('status') ? 'Tidak ada pengajuan yang cocok dengan filter pencarian.' : 'Belum ada pengajuan lupa lapor dari tutor saat ini.' }}</div>
             </div>
         @endforelse
     </div>

@@ -12,9 +12,9 @@
     </div>
 
     @if ($errors->any())
-        <div class="errorList">
-            <div style="font-weight:1000;margin-bottom:6px;">Periksa input berikut:</div>
-            <ul style="padding-left:18px;margin:0;">
+        <div class="error-list-container">
+            <div class="error-title">Periksa input berikut:</div>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -22,47 +22,49 @@
         </div>
     @endif
 
-    <div class="formCard">
+    <div class="form-card-container">
         <form method="POST" action="{{ route('admin.jenjang-paket.store') }}">
             @csrf
 
-            <div class="formRow">
-                <div class="fieldLabel">Nama Jenjang / Program <span style="color:#ef4444;">*</span></div>
-                <input class="input" type="text" name="nama_jenjang" id="nama_jenjang" value="{{ old('nama_jenjang') }}" placeholder="Contoh: Paket A (Setara SD) atau Vokasi Tata Boga" required oninput="autoGenerateKode()" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Nama Jenjang / Program <span style="color:#ef4444;">*</span></label>
+                <input class="profileInput" type="text" name="nama_jenjang" id="nama_jenjang" value="{{ old('nama_jenjang') }}" placeholder="Contoh: Paket A (Setara SD) atau Vokasi Tata Boga" required oninput="autoGenerateKode()" />
             </div>
 
-            <div class="formRow">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div class="fieldLabel" style="margin:0;">Kode Sistem (Unique ID) <span style="color:#ef4444;">*</span></div>
+            <div class="form-field-wrapper">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <label class="form-field-label" style="margin:0;">Kode Sistem (Unique ID) <span style="color:#ef4444;">*</span></label>
                     <span style="font-size:10.5px;color:var(--muted);">Format: huruf_kecil_dan_underscore</span>
                 </div>
-                <input class="input" type="text" name="kode" id="kode" value="{{ old('kode') }}" placeholder="Contoh: paket_a atau vokasi_tata_boga" required />
+                <input class="profileInput" type="text" name="kode" id="kode" value="{{ old('kode') }}" placeholder="Contoh: paket_a atau vokasi_tata_boga" required />
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Format / Rentang Tingkat</div>
-                <input class="input" type="text" name="tingkat_label" value="{{ old('tingkat_label') }}" placeholder="Contoh: Kelas 1 - 6, Tingkat 7 - 9, atau Dasar / Terampil" />
-                <div style="font-size:11px;color:var(--muted);margin-top:4px;">Panduan tingkatan nomor kelas bagi admin saat membuat rombel.</div>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Format / Rentang Tingkat</label>
+                <input class="profileInput" type="text" name="tingkat_label" value="{{ old('tingkat_label') }}" placeholder="Contoh: Kelas 1 - 6, Tingkat 7 - 9, atau Dasar / Terampil" />
+                <div class="field-help-text">Panduan tingkatan nomor kelas bagi admin saat membuat rombel.</div>
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Urutan Tampilan</div>
-                <input class="input" type="number" name="urutan" value="{{ old('urutan', $nextUrutan ?? 1) }}" />
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Urutan Tampilan</label>
+                <input class="profileInput" type="number" name="urutan" value="{{ old('urutan', $nextUrutan ?? 1) }}" />
             </div>
 
-            <div class="formRow">
-                <div class="fieldLabel">Keterangan / Deskripsi Program</div>
-                <textarea class="input" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi">{{ old('keterangan') }}</textarea>
+            <div class="form-field-wrapper">
+                <label class="form-field-label">Keterangan / Deskripsi Program</label>
+                <textarea class="profileInput" name="keterangan" rows="2" style="height:auto;padding:8px 12px;" placeholder="Deskripsi singkat tentang kurikulum atau sasaran program kesetaraan/vokasi">{{ old('keterangan') }}</textarea>
             </div>
 
-            <div class="formRow">
-                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:700;color:var(--text);">
-                    <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', true) ? 'checked' : '' }} style="width:16px;height:16px;" />
-                    Status Aktif (dapat dipilih di form kelas)
-                </label>
+            <div class="form-field-wrapper">
+                <div class="checkbox-toggle-card">
+                    <label class="checkbox-label">
+                        <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', true) ? 'checked' : '' }} style="width:16px;height:16px;" />
+                        Status Aktif (dapat dipilih di form kelas)
+                    </label>
+                </div>
             </div>
 
-            <button type="submit" class="btnPrimary" style="width:100%;justify-content:center;margin-top:8px;">
+            <button type="submit" class="profileBtnPrimary" style="margin-top:12px;">
                 <ion-icon name="save-outline"></ion-icon>
                 Simpan Master Jenjang
             </button>

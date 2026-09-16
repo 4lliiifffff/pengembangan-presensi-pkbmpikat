@@ -1,12 +1,12 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="pageHeaderRow" style="flex-wrap:wrap;gap:12px;align-items:center;">
+    <div class="pageHeaderRow header-actions-group" style="justify-content: space-between;">
         <div>
             <h2 style="margin:0;">Data Kelas &amp; Rombel</h2>
             <p style="margin:2px 0 0;font-size:12px;color:var(--muted);">Kelola master rombongan belajar, jenjang paket kesetaraan, dan program vokasi</p>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div class="header-actions-group">
             <a href="{{ route('admin.jenjang-paket.index') }}" class="btnOutline" style="padding:8px 12px;font-size:12px;gap:6px;">
                 <ion-icon name="layers-outline" style="font-size:16px;"></ion-icon> Kelola Master Jenjang &rarr;
             </a>
@@ -43,13 +43,13 @@
     <div class="siswaGrid">
         @forelse($kelas as $k)
             @php
-                $badgeStyle = match($k->jenjang_paket) {
-                    'paket_a' => 'background:#e0f2fe;color:#0369a1;border:1px solid #bae6fd;',
-                    'paket_b' => 'background:#ede9fe;color:#6d28d9;border:1px solid #ddd6fe;',
-                    'paket_c' => 'background:#e0e7ff;color:#3730a3;border:1px solid #c7d2fe;',
-                    'vokasi' => 'background:#fef3c7;color:#b45309;border:1px solid #fde68a;',
-                    'kursus' => 'background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;',
-                    default => 'background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;',
+                $jenjangClass = match($k->jenjang_paket) {
+                    'paket_a' => 'badge-jenjang-paket_a',
+                    'paket_b' => 'badge-jenjang-paket_b',
+                    'paket_c' => 'badge-jenjang-paket_c',
+                    'vokasi'  => 'badge-jenjang-vokasi',
+                    'kursus'  => 'badge-jenjang-kursus',
+                    default   => 'badge-jenjang-default',
                 };
             @endphp
             <div class="siswaCard">
@@ -61,7 +61,7 @@
                         <div style="flex:1;min-width:0;">
                             <div class="siswaName" style="margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                                 <span>{{ $k->nama_kelas }}</span>
-                                <span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:10.5px;font-weight:800;{{ $badgeStyle }}">
+                                <span class="app-badge {{ $jenjangClass }}">
                                     {{ $k->jenjang_paket_label }}
                                 </span>
                             </div>

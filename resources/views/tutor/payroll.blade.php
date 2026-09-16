@@ -85,7 +85,7 @@
                     <div class="sir-name" style="display:flex;align-items:center;gap:6px;">
                         <span>{{ $s['nama_siswa'] }}</span>
                         @if($s['is_abk'] ?? false)
-                            <span style="display:inline-block;padding:2px 6px;border-radius:6px;font-size:10px;font-weight:800;background:#fef3c7;color:#b45309;">ABK</span>
+                            <span class="app-badge badge-abk">ABK</span>
                         @endif
                     </div>
                     <div class="sir-sub">
@@ -97,9 +97,9 @@
                 </div>
             </div>
         @empty
-            <div style="text-align:center;color:var(--muted,#94a3b8);padding:24px 0;">
-                <ion-icon name="information-circle-outline" style="font-size:28px;opacity:0.6;display:block;margin:0 auto 4px;"></ion-icon>
-                Belum ada rincian jam mengajar tervalidasi bulan ini.
+            <div class="empty-state-standard">
+                <ion-icon name="information-circle-outline" class="empty-icon"></ion-icon>
+                <div class="empty-desc">Belum ada rincian jam mengajar tervalidasi bulan ini.</div>
             </div>
         @endforelse
     </div>
@@ -118,7 +118,7 @@
                     <div style="display:flex;align-items:center;gap:6px;">
                         <strong style="color:var(--text,#0f172a);">{{ $row['nama_siswa'] }}</strong>
                         @if($row['is_abk'] ?? false)
-                            <span style="display:inline-block;padding:1px 5px;border-radius:4px;font-size:9px;font-weight:800;background:#fef3c7;color:#b45309;">ABK</span>
+                            <span class="app-badge badge-abk">ABK</span>
                         @endif
                     </div>
                     <span style="font-size:11px;color:var(--muted,#64748b);display:block;margin-top:2px;">
@@ -130,7 +130,7 @@
                 </div>
                 <div style="text-align:right;">
                     <div style="font-weight:800;color:#059669;font-size:13px;">{{ $row['formatted_subtotal'] }}</div>
-                    <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:var(--card-alt,#f1f5f9);color:var(--muted,#475569);font-weight:700;">
+                    <span class="app-badge badge-reguler">
                         {{ $row['moda_label'] }}
                     </span>
                 </div>

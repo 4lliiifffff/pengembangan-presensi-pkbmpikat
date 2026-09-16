@@ -14,7 +14,7 @@
 
 <div class="laporanPageWrapper">
     {{-- ── Header ── --}}
-    <div class="laporanHeader" style="padding-left: 0; padding-right: 0; margin-bottom: 16px;">
+    <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
                 <div class="laporanHeaderLabel">LAPORAN OPERASIONAL AKADEMIK</div>
@@ -73,17 +73,17 @@
                     </select>
                 </div>
 
-                <div class="filterActionGroup" style="grid-column: 1 / -1; margin-top: 4px; display: flex; flex-wrap: wrap; gap: 8px;">
-                    <button type="submit" class="profileBtnPrimary" style="height: 42px; padding: 0 18px; font-size: 13px; border-radius: 12px; flex: 1; min-width: 140px;">
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
                         <ion-icon name="search-outline"></ion-icon> Filter Data
                     </button>
                     @if($rekapTutor->count() > 0)
                         <a href="{{ route('kepsek.laporan.pdf', ['bulan' => $bulan, 'tahun' => $tahun, 'tutor_id' => $tutorId, 'siswa_id' => $siswaId]) }}"
-                           class="profileBtnDanger" style="height: 42px; padding: 0 16px; font-size: 13px; border-radius: 12px; background: #dc2626; color: #fff; text-decoration: none; flex: 1; min-width: 140px;" target="_blank">
+                           class="btn-filter-danger" target="_blank">
                             <ion-icon name="download-outline"></ion-icon> Ekspor PDF
                         </a>
                     @endif
-                    <a href="{{ route('kepsek.laporan') }}" class="profileBtnDanger" style="height: 42px; padding: 0 14px; font-size: 13px; border-radius: 12px; width: auto; text-decoration: none;">
+                    <a href="{{ route('kepsek.laporan') }}" class="btn-filter-reset">
                         Reset
                     </a>
                 </div>
@@ -147,10 +147,10 @@
                 </div>
             </div>
         @empty
-            <div class="emptyLaporan">
-                <ion-icon name="document-text-outline"></ion-icon>
-                <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px; color: var(--text);">Belum Ada Rekapitulasi</div>
-                <div>Tidak ada data presensi atau sesi KBM untuk filter periode yang dipilih.</div>
+            <div class="empty-state-standard">
+                <ion-icon name="document-text-outline" class="empty-icon"></ion-icon>
+                <div class="empty-title">Belum Ada Rekapitulasi</div>
+                <div class="empty-desc">Tidak ada data presensi atau sesi KBM untuk filter periode yang dipilih.</div>
             </div>
         @endforelse
     </div>

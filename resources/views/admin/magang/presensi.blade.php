@@ -4,16 +4,16 @@
 
 @section('content')
 
-    <div class="pageHeaderRow" style="padding: 16px 16px 6px; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+    <div class="pageHeaderRow header-actions-group" style="padding: 16px 16px 6px; justify-content: space-between;">
         <div>
             <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text);">Monitoring Presensi Magang &amp; PKL</h2>
             <p style="margin: 2px 0 0; font-size: 12px; color: var(--muted);">Rekapitulasi log absensi masuk dan pulang mahasiswa/siswa magang</p>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnPrimary" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; background: #dc2626; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+        <div class="header-actions-group">
+            <a href="{{ route('admin.magang.exportPdf', request()->all()) }}" class="profileBtnDanger" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; width: auto; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                 <ion-icon name="document-text-outline" style="font-size: 15px;"></ion-icon> Export PDF
             </a>
-            <a href="{{ route('admin.magang.index') }}" class="profileBtnOutline" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            <a href="{{ route('admin.magang.index') }}" class="btnOutline" style="padding: 0 14px; height: 38px; font-size: 12px; border-radius: 10px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
                 <ion-icon name="people-outline" style="font-size: 15px;"></ion-icon> Data Magang
             </a>
         </div>
@@ -39,18 +39,18 @@
     </div>
 
     <!-- Filter Box -->
-    <div style="margin: 0 16px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 14px;">
+    <div class="laporanFilterCard" style="margin: 0 16px 16px; padding: 14px;">
         <form method="GET" action="{{ route('admin.magang.presensi') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; align-items: end;">
             <div>
-                <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Dari Tanggal</label>
+                <label class="form-field-label">Dari Tanggal</label>
                 <input type="date" name="start_date" value="{{ $startDateStr }}" class="profileInput" style="height: 40px; font-size: 12.5px;">
             </div>
             <div>
-                <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Sampai Tanggal</label>
+                <label class="form-field-label">Sampai Tanggal</label>
                 <input type="date" name="end_date" value="{{ $endDateStr }}" class="profileInput" style="height: 40px; font-size: 12.5px;">
             </div>
             <div>
-                <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Peserta Magang</label>
+                <label class="form-field-label">Peserta Magang</label>
                 <select name="user_id" class="profileInput" style="height: 40px; font-size: 12.5px;">
                     <option value="">Semua Peserta</option>
                     @foreach($allMagangUsers as $u)
@@ -61,7 +61,7 @@
                 </select>
             </div>
             <div>
-                <label style="display: block; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--muted); margin-bottom: 4px;">Status Kehadiran</label>
+                <label class="form-field-label">Status Kehadiran</label>
                 <select name="status" class="profileInput" style="height: 40px; font-size: 12.5px;">
                     <option value="">Semua Status</option>
                     <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir Lengkap</option>
@@ -72,7 +72,7 @@
                 <button type="submit" class="profileBtnPrimary" style="height: 40px; padding: 0 16px; font-size: 12.5px; border-radius: 12px; flex: 1;">
                     <ion-icon name="filter-outline"></ion-icon> Filter
                 </button>
-                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnDanger" style="height: 40px; padding: 0 12px; font-size: 12.5px; border-radius: 12px; width: auto; text-decoration: none;">
+                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnDanger" style="height: 40px; padding: 0 12px; font-size: 12.5px; border-radius: 12px; width: auto; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                     Reset
                 </a>
             </div>
@@ -141,11 +141,11 @@
                         </td>
                         <td>
                             @if($p->jam_selesai)
-                                <span style="background: #dcfce7; color: #15803d; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                <span class="app-badge badge-status-aktif">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Hadir Lengkap
                                 </span>
                             @else
-                                <span style="background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px;">
+                                <span class="app-badge badge-status-cuti">
                                     <ion-icon name="time-outline"></ion-icon> Berlangsung
                                 </span>
                             @endif
@@ -170,13 +170,11 @@
     @endif
 
     {{-- Photo Preview Modal --}}
-    <div id="photoPreviewModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 16px;">
-        <div style="background: var(--card); border: 1px solid var(--border); border-radius: 20px; max-width: 480px; width: 100%; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.3); animation: zoomIn 0.2s ease;">
-            <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                <h4 id="previewModalTitle" style="margin: 0; font-size: 14px; font-weight: 800; color: var(--text);">Foto Presensi</h4>
-                <button type="button" onclick="closePreviewModal()" style="background: transparent; border: none; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center;">
-                    <ion-icon name="close-circle-outline"></ion-icon>
-                </button>
+    <div id="photoPreviewModal" class="app-modal-backdrop">
+        <div class="app-modal-card" style="max-width: 480px; padding: 0; overflow: hidden;">
+            <div class="app-modal-header" style="padding: 14px 18px; margin-bottom: 0; border-bottom: 1px solid var(--border);">
+                <h4 id="previewModalTitle" class="app-modal-title" style="font-size: 14px;">Foto Presensi</h4>
+                <button type="button" onclick="closePreviewModal()" class="app-modal-close">&times;</button>
             </div>
             <div style="padding: 16px; text-align: center; background: #0f172a;">
                 <img id="previewModalImg" src="" alt="Foto Presensi" style="max-width: 100%; max-height: 65vh; border-radius: 12px; object-fit: contain; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">

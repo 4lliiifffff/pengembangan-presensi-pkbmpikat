@@ -47,12 +47,12 @@
 
 {{-- ── ALERT ERROR DISPLAY ── --}}
 @if ($errors->any())
-    <div style="margin: 0 16px 14px; padding: 12px 14px; border-radius: 14px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22); color: #dc2626; font-size: 12.5px; font-weight: 700;">
-        <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; font-weight: 800;">
-            <ion-icon name="alert-circle-outline" style="font-size: 16px;"></ion-icon>
+    <div class="error-list-container">
+        <div class="error-title">
+            <ion-icon name="alert-circle-outline" style="vertical-align:middle; font-size:16px;"></ion-icon>
             Terdapat beberapa kesalahan:
         </div>
-        <ul style="margin: 0; padding-left: 18px;">
+        <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
             @endforeach

@@ -154,11 +154,9 @@
                 </div>
             </div>
         @else
-            <div
-                style="text-align: center; padding: 36px 16px; background: var(--card); border: 1px solid var(--border); border-radius: 18px; color: var(--muted); margin-bottom: 16px;">
-                <div style="font-size: 14px; font-weight: 700; color: var(--text);">Tidak ada agenda kegiatan</div>
-                <div style="font-size: 12px; margin-top: 4px;">Pada tanggal {{ $selectedDate->translatedFormat('l, d F Y') }}
-                </div>
+            <div class="empty-state-standard">
+                <div class="empty-title">Tidak ada agenda kegiatan</div>
+                <div class="empty-desc">Pada tanggal {{ $selectedDate->translatedFormat('l, d F Y') }}</div>
             </div>
         @endif
 
