@@ -176,10 +176,10 @@
 * 🟢 **Normalisasi Identifier & Fleksibilitas Login Siswa:** [SELESAI] `AuthWebController` mendukung login menggunakan variasi format: Nomor Absen (`001`, `01`, `1`), format prefix (`sw001`, `SW001`, `SW0001`), NIK resmi (`SW202601`), maupun Email (`siswa@pkbmpikat.com`, `siswa001@pkbmpikat.com`).
 * 🟢 **Desain Kotak Notifikasi Login (`login-alert`):** [SELESAI] Komponen visual `.login-alert`, `.login-alert-danger`, `.login-alert-warning`, dan `.login-alert-success` dengan animasi `fadeInSlide` di `app.css` untuk memastikan setiap pesan kesalahan/peringatan terlihat jelas.
 
-### 9.2 Presensi Mandiri Harian Siswa
+### 9.2 Presensi Mandiri Harian Siswa (Single Check-In / Kedatangan)
 * 🟢 **Tabel `presensi_mandiri_siswas` & Model:** [SELESAI] Struktur tabel pencatatan kehadiran mandiri siswa lengkap dengan koordinat GPS, foto masuk/pulang, akurasi sinyal, anti-mocking, dan status kehadiran.
-* 🟢 **Kamera Presensi & Geofencing Siswa:** [SELESAI] Form absensi masuk & pulang dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), dan jeda minimal 15 menit belajar (`SiswaPresensiController.php`).
-* 🟢 **Dashboard, Riwayat & Profil Siswa:** [SELESAI] Dashboard ringkasan kehadiran mandiri dan sesi kelas, filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification (`SiswaDashboardController.php`).
+* 🟢 **Kamera Presensi & Geofencing Siswa (Single Check-In):** [SELESAI] Form absensi masuk tunggal per hari dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), proteksi anti-duplikasi, auto-link ke status kehadiran di `jadwal_sesis`, serta eliminasi form pulang & jeda countdown 15 menit (`SiswaPresensiController.php`).
+* 🟢 **Dashboard, Riwayat & Profil Siswa:** [SELESAI] Dashboard ringkasan kehadiran mandiri dan sesi kelas dengan 2 status bersih (Belum Absen / Sudah Hadir), filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification (`SiswaDashboardController.php`).
 
 ### 9.3 Pusat Pengelolaan Akun Pengguna Terintegrasi (Unified User & Account Center)
 * 🟢 **Pusat Kelola Seluruh Akun (`admin.karyawan.index`):** [SELESAI] Satu pintu terintegrasi untuk mengelola seluruh akun pengguna sistem (Tutor, Siswa, Magang, Admin, Kepala Sekolah).
@@ -198,7 +198,7 @@
 ## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)
 
 * 🟢 **Standardisasi Penulisan Kode (Laravel Pint):** [SELESAI] `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
-* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **118 Feature & Unit Tests** lulus 100% (**497 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, dan siswa mandiri.
+* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **119 Feature & Unit Tests** lulus 100% (**499 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, dan siswa mandiri single check-in.
 * 🟢 **Vite Production Assets:** [SELESAI] Kompilasi CSS & JS (`npm run build`) berjalan bersih tanpa error.
 
 ---

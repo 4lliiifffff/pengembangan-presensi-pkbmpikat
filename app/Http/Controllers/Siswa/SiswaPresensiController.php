@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\JadwalSesi;
 use App\Models\LokasiPresensi;
 use App\Models\PresensiMandiriSiswa;
 use App\Services\GeofencingService;
@@ -38,13 +39,8 @@ class SiswaPresensiController extends Controller
 
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        $activeSesi = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
-            ->whereDate('tgl_presensi', $today)
-            ->whereNotNull('foto_masuk')
-            ->whereNull('foto_pulang')
-            ->first();
-
-        $todayPresensi = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+        $todayPresensi = PresensiMandiriSiswa::with('lokasiPresensi')
+            ->where('siswa_id', $siswa->id)
             ->whereDate('tgl_presensi', $today)
             ->first();
 
@@ -57,9 +53,8 @@ class SiswaPresensiController extends Controller
             'user' => $user,
             'siswa' => $siswa,
             'today' => $today,
-            'activeSesi' => $activeSesi,
-            'globalActiveSesi' => $activeSesi,
             'todayPresensi' => $todayPresensi,
+            'alreadyCheckedIn' => (bool) $todayPresensi,
             'lokasiPresensis' => $lokasiPresensis,
             'kantorLat' => $kantorLat,
             'kantorLng' => $kantorLng,
@@ -68,7 +63,7 @@ class SiswaPresensiController extends Controller
     }
 
     /**
-     * Simpan Presensi Masuk (Clock-In) atau Pulang (Clock-Out) Siswa.
+     * Simpan Presensi Masuk Siswa (Single Check-in / Sekali Absen Masuk Per Hari).
      */
     public function store(Request $request, GeofencingService $geofencingService): RedirectResponse
     {
@@ -79,8 +74,25 @@ class SiswaPresensiController extends Controller
             return redirect()->route('logout')->with('warning', 'Profil data siswa belum terhubung.');
         }
 
+        $now = Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+        $waktuServer = $now->format('H:i:s');
+
+        // Cek apakah siswa sudah melakukan presensi masuk hari ini (Anti-Duplikasi)
+        $existingPresensi = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+            ->whereDate('tgl_presensi', $today)
+            ->first();
+
+        if ($existingPresensi) {
+            $jamTercatat = substr((string) $existingPresensi->jam_masuk, 0, 5);
+
+            return redirect()
+                ->route('siswa.dashboard')
+                ->with('warning', "Anda sudah melakukan presensi masuk hari ini pada pukul {$jamTercatat} WIB.");
+        }
+
         $validated = $request->validate([
-            'mode' => ['required', Rule::in(['mulai', 'selesai'])],
+            'mode' => ['nullable', Rule::in(['mulai', 'masuk'])],
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'foto' => ['required', 'image', 'max:5120'],
             'lokasi' => ['nullable', 'string', 'max:255'],
@@ -101,106 +113,48 @@ class SiswaPresensiController extends Controller
             return back()->with('warning', $antiMockCheck['message']);
         }
 
-        $now = Carbon::now('Asia/Jakarta');
-        $today = $now->toDateString();
-        $waktuServer = $now->format('H:i:s');
+        // Validasi Geofencing berdasarkan titik lokasi yang dipilih
+        $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+        $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
+        if (! $geofenceCheck['is_valid']) {
+            return back()->with('warning', $geofenceCheck['message']);
+        }
+
         $dir = 'uploads/presensi_siswa/'.$siswa->id.'/'.$today;
-
-        $existingSesi = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
-            ->whereDate('tgl_presensi', $today)
-            ->orderByDesc('id')
-            ->first();
-
-        // ─────────────────────────────────────────────
-        //  MODE: MULAI (Absen Masuk Siswa)
-        // ─────────────────────────────────────────────
-        if ($validated['mode'] === 'mulai') {
-            if ($existingSesi && ! $existingSesi->foto_pulang) {
-                return back()->with('warning', 'Presensi masuk hari ini masih berjalan. Silahkan lakukan presensi pulang.');
-            }
-
-            if ($existingSesi && $existingSesi->foto_pulang) {
-                return back()->with('warning', 'Anda sudah menyelesaikan presensi masuk dan pulang hari ini.');
-            }
-
-            // Validasi Geofencing berdasarkan titik lokasi yang dipilih
-            $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
-            $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
-            if (! $geofenceCheck['is_valid']) {
-                return back()->with('warning', $geofenceCheck['message']);
-            }
-
-            $file = $request->file('foto');
-            $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
-            $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
-
-            PresensiMandiriSiswa::create([
-                'siswa_id' => $siswa->id,
-                'lokasi_presensi_id' => $lokasiPresensiId,
-                'tgl_presensi' => $today,
-                'jam_masuk' => $waktuServer,
-                'foto_masuk' => $path,
-                'lokasi_masuk' => $validated['lokasi'] ?? null,
-                'lokasi_akurasi' => $accuracy,
-                'is_mocked' => $isMocked,
-                'status' => 'hadir',
-            ]);
-
-            // Web Push Notification Konfirmasi ke HP Siswa jika ada subscription
-            $this->webPushService->sendToUser($user, [
-                'title' => '📸 Presensi Masuk Berhasil',
-                'body' => 'Presensi masuk siswa berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar!',
-                'url' => route('siswa.presensi'),
-            ]);
-
-            return redirect()
-                ->route('siswa.dashboard')
-                ->with('success', 'Presensi masuk berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar!');
-        }
-
-        // ─────────────────────────────────────────────
-        //  MODE: SELESAI (Absen Pulang Siswa)
-        // ─────────────────────────────────────────────
-        if (! $existingSesi || ! $existingSesi->foto_masuk) {
-            return back()->with('warning', 'Presensi pulang harus setelah melakukan presensi masuk.');
-        }
-
-        if ($existingSesi->foto_pulang) {
-            return back()->with('warning', 'Presensi pulang hari ini sudah tercatat.');
-        }
-
-        // Validasi jeda minimal 15 menit antara masuk dan pulang untuk siswa
-        $jamMasuk = Carbon::parse($today.' '.$existingSesi->jam_masuk, 'Asia/Jakarta');
-        if ($jamMasuk->greaterThan($now)) {
-            $jamMasuk->subDay();
-        }
-        $detikJalan = (int) $jamMasuk->diffInSeconds($now, false);
-
-        if ($detikJalan < 900) { // 15 menit untuk siswa PKBM
-            $sisaDetik = max(0, 900 - $detikJalan);
-            $sisaMenit = ceil($sisaDetik / 60);
-
-            return back()->with('warning', "Tunggu {$sisaMenit} menit lagi sebelum melakukan presensi pulang.");
-        }
-
         $file = $request->file('foto');
-        $filename = 'pulang_'.time().'_'.$file->getClientOriginalName();
+        $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
         $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
-        $existingSesi->update([
-            'jam_pulang' => $waktuServer,
-            'foto_pulang' => $path,
-            'lokasi_pulang' => $validated['lokasi'] ?? null,
+        $presensi = PresensiMandiriSiswa::create([
+            'siswa_id' => $siswa->id,
+            'lokasi_presensi_id' => $lokasiPresensiId,
+            'tgl_presensi' => $today,
+            'jam_masuk' => $waktuServer,
+            'foto_masuk' => $path,
+            'lokasi_masuk' => $validated['lokasi'] ?? null,
+            'lokasi_akurasi' => $accuracy,
+            'is_mocked' => $isMocked,
+            'status' => 'hadir',
         ]);
 
+        // Auto-link ke Jadwal Sesi hari ini jika ada
+        JadwalSesi::where('siswa_id', $siswa->id)
+            ->whereDate('tanggal_rencana', $today)
+            ->where('status', 'terjadwal')
+            ->update([
+                'status_kehadiran_siswa' => 'hadir',
+                'presensi_siswa_id' => $presensi->id,
+            ]);
+
+        // Web Push Notification Konfirmasi ke HP Siswa jika ada subscription
         $this->webPushService->sendToUser($user, [
-            'title' => '📸 Presensi Pulang Berhasil',
-            'body' => 'Presensi pulang berhasil dicatat pada pukul '.$waktuServer.'. Terima kasih dan hati-hati di jalan!',
-            'url' => route('siswa.riwayat'),
+            'title' => '📸 Presensi Masuk Berhasil',
+            'body' => 'Kehadiran siswa berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar di PKBM Pikat!',
+            'url' => route('siswa.presensi'),
         ]);
 
         return redirect()
             ->route('siswa.dashboard')
-            ->with('success', 'Presensi pulang berhasil dicatat pada pukul '.$waktuServer.'.');
+            ->with('success', 'Presensi masuk berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar!');
     }
 }

@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\JadwalSesi;
 use App\Models\JenjangPaket;
 use App\Models\kelas;
 use App\Models\PresensiMandiriSiswa;
 use App\Models\Siswa;
+use App\Models\Tutor;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -227,7 +229,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
     }
 
-    public function test_siswa_clock_out_requires_minimum_15_minutes(): void
+    public function test_siswa_cannot_check_in_twice_on_same_day(): void
     {
         $siswaUser = User::factory()->create([
             'role' => 'siswa',
@@ -250,11 +252,11 @@ class SiswaRoleAndPresensiTest extends TestCase
 
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        // Presensi masuk baru 5 menit lalu
-        $presensi = PresensiMandiriSiswa::create([
+        // Presensi masuk sudah tercatat hari ini
+        PresensiMandiriSiswa::create([
             'siswa_id' => $siswa->id,
             'tgl_presensi' => $today,
-            'jam_masuk' => Carbon::now('Asia/Jakarta')->subMinutes(5)->toTimeString(),
+            'jam_masuk' => '08:00:00',
             'foto_masuk' => 'uploads/test.jpg',
             'lokasi_masuk' => '-7.8011945,110.364917',
             'status' => 'hadir',
@@ -262,32 +264,82 @@ class SiswaRoleAndPresensiTest extends TestCase
 
         $this->actingAs($siswaUser);
 
-        $foto = UploadedFile::fake()->image('selfie_pulang_siswa.jpg', 640, 480);
+        $foto = UploadedFile::fake()->image('selfie_masuk_kedua.jpg', 640, 480);
 
-        // Coba absen pulang (kurang dari 15 menit)
+        // Coba absen lagi di hari yang sama
         $response = $this->post(route('siswa.presensi.store'), [
-            'mode' => 'selesai',
+            'mode' => 'mulai',
             'lokasi' => '-7.8011945,110.364917',
             'foto' => $foto,
         ]);
 
+        $response->assertRedirect(route('siswa.dashboard'));
         $response->assertSessionHas('warning');
-        $this->assertNull($presensi->fresh()->jam_pulang);
 
-        // Sekarang kita set jam masuk sudah 30 menit lalu
-        $presensi->update([
-            'jam_masuk' => Carbon::now('Asia/Jakarta')->subMinutes(30)->toTimeString(),
+        // Pastikan jumlah presensi hari ini tetap 1
+        $this->assertEquals(1, PresensiMandiriSiswa::where('siswa_id', $siswa->id)->whereDate('tgl_presensi', $today)->count());
+    }
+
+    public function test_siswa_check_in_links_to_scheduled_jadwal_sesi(): void
+    {
+        $siswaUser = User::factory()->create([
+            'role' => 'siswa',
+            'nik' => 'SWTEST06B',
         ]);
 
-        $responseSuccess = $this->post(route('siswa.presensi.store'), [
-            'mode' => 'selesai',
+        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+
+        $siswa = Siswa::create([
+            'user_id' => $siswaUser->id,
+            'no_absen' => 'SW06B',
+            'nama_siswa' => 'Rian Siswa Test',
+            'nama_wali' => 'Wali',
+            'no_hp' => '081234567890',
+            'kelas_id' => $kls->id,
+            'status_siswa' => 'aktif',
+            'is_abk' => false,
+        ]);
+
+        $tutorUser = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $tutorUser->id,
+            'nik' => 'TTTEST06B',
+            'email' => 'tutor06b@pkbmpikat.com',
+            'nama_lengkap' => 'Tutor Pengajar',
+            'no_hp' => '081234567890',
+            'is_active' => true,
+        ]);
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        $jadwalSesi = JadwalSesi::create([
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswa->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '10:00:00',
+            'durasi_jam' => 2.0,
+            'jenis_sesi' => 'reguler',
+            'status' => 'terjadwal',
+            'status_kehadiran_siswa' => 'alpa',
+        ]);
+
+        $this->actingAs($siswaUser);
+
+        $foto = UploadedFile::fake()->image('selfie_masuk_siswa.jpg', 640, 480);
+
+        $response = $this->post(route('siswa.presensi.store'), [
+            'mode' => 'mulai',
             'lokasi' => '-7.8011945,110.364917',
             'foto' => $foto,
         ]);
 
-        $responseSuccess->assertRedirect(route('siswa.dashboard'));
-        $responseSuccess->assertSessionHas('success');
-        $this->assertNotNull($presensi->fresh()->jam_pulang);
+        $response->assertRedirect(route('siswa.dashboard'));
+        $jadwalSesi->refresh();
+
+        $this->assertEquals('hadir', $jadwalSesi->status_kehadiran_siswa);
+        $this->assertNotNull($jadwalSesi->presensi_siswa_id);
     }
 
     public function test_siswa_can_view_riwayat_and_profil(): void

@@ -14,22 +14,6 @@
         $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
         $initial = strtoupper(substr($displayName, 0, 1));
 
-        $activeSesi = $globalActiveSesi;
-
-        // Hitung sisa waktu jika sesi berjalan (minimal 15 menit)
-        $sisaDetik = 0;
-        $bisaPulang = false;
-        if ($activeSesi) {
-            try {
-                $jamMasukDt = \Carbon\Carbon::parse($today . ' ' . $activeSesi->jam_masuk, 'Asia/Jakarta');
-                $nowDt = \Carbon\Carbon::now('Asia/Jakarta');
-                $diffDetik = $jamMasukDt->diffInSeconds($nowDt, false);
-                $sisaDetik = max(0, 900 - $diffDetik);
-                $bisaPulang = $diffDetik >= 900;
-            } catch (\Throwable) {
-            }
-        }
-
         $dashRoute = route('siswa.dashboard');
         $storeRoute = route('siswa.presensi.store');
     @endphp
@@ -55,313 +39,208 @@
     {{-- ══════════════════ MAIN CONTENT ══════════════════ --}}
     <div class="pagePad" id="mainContent">
 
-        {{-- ── SESI SEDANG BERJALAN (sudah absen masuk, belum absen pulang) ── --}}
-        @if ($activeSesi)
+        {{-- ── SUDAH PRESENSI MASUK HARI INI ── --}}
+        @if ($alreadyCheckedIn && $todayPresensi)
             @php
-                $jamMasuk = substr((string) $activeSesi->jam_masuk, 0, 5);
+                $jamMasuk = substr((string) $todayPresensi->jam_masuk, 0, 5);
+                $lokasiNama = $todayPresensi->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat';
             @endphp
 
-            <div class="statusBanner running">
+            <div class="statusBanner ready mb-4 bg-success-light">
                 <div>
-                    <div class="statusTitle">Presensi Sedang Berjalan</div>
-                    <div class="statusSub">Masuk tercatat pukul {{ $jamMasuk }} WIB</div>
+                    <div class="statusTitle text-success">Presensi Hari Ini Sudah Tercatat</div>
+                    <div class="statusSub">Kehadiran Anda berhasil dicatat pada pukul {{ $jamMasuk }} WIB</div>
                 </div>
             </div>
 
-            {{-- Countdown atau siap pulang --}}
-            @if (!$bisaPulang)
-                @php
-                    $menit = floor($sisaDetik / 60);
-                    $detik = $sisaDetik % 60;
-                    $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
-                @endphp
-                <div class="countdownCard">
-                    <div class="countdownLabel">Bisa presensi pulang dalam</div>
-                    <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
-                    <div class="countdownSub">menit lagi (minimal 15 menit belajar di PKBM)</div>
+            <div class="card mb-4 text-center p-4">
+                <div class="d-flex justify-content-center mb-3">
+                    @if ($todayPresensi->foto_masuk_url)
+                        <img src="{{ $todayPresensi->foto_masuk_url }}" alt="Foto Presensi Masuk" class="rounded-2xl border shadow-sm" style="width: 140px; height: 140px; object-fit: cover;">
+                    @else
+                        <div class="avatar-lg bg-success-light text-success font-extrabold rounded-2xl d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; font-size: 2rem;">
+                            ✓
+                        </div>
+                    @endif
                 </div>
-            @else
-                <div class="statusBanner ready mb-4">
-                    <div>
-                        <div class="statusTitle">Siap Presensi Pulang</div>
-                        <div class="statusSub">Durasi pembelajaran sudah memenuhi syarat minimal (≥ 15 menit)</div>
+                <h3 class="font-extrabold text-lg text-dark mb-1">{{ $displayName }}</h3>
+                <div class="text-sm font-semibold text-success mb-3">
+                    <ion-icon name="checkmark-circle" style="vertical-align: -2px; font-size: 1.1rem;"></ion-icon> Status: Hadir
+                </div>
+
+                <div class="bg-light p-3 rounded-xl mb-4 text-left d-inline-block w-full" style="max-width: 380px;">
+                    <div class="d-flex justify-content-between text-sm py-1 border-b">
+                        <span class="text-muted">Tanggal:</span>
+                        <span class="font-bold text-dark">{{ \Carbon\Carbon::parse($today)->translatedFormat('d F Y') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-sm py-1 border-b">
+                        <span class="text-muted">Jam Masuk:</span>
+                        <span class="font-bold text-dark">{{ $jamMasuk }} WIB</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-sm py-1">
+                        <span class="text-muted">Lokasi Belajar:</span>
+                        <span class="font-bold text-dark">{{ $lokasiNama }}</span>
                     </div>
                 </div>
-            @endif
 
-            {{-- Form absen PULANG --}}
-            @if ($bisaPulang)
-                <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
-                    @csrf
-                    <input type="hidden" name="mode" value="selesai">
-                    <input type="hidden" name="lokasi" id="lokasi" value="">
-                    <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
-                    <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
-
-                    <div class="card mb-4">
-                        <div class="cardTitle">
-                            Lokasi Presensi Pulang
-                        </div>
-                        <div id="mapBox" class="mapBox pos-relative">
-                            <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
-                            <div id="leafletMap" class="map-camera-box d-none"></div>
-                        </div>
-                        <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
-                        
-                        {{-- Proximity Radar & Live Track Card --}}
-                        <div id="proximityRadarCard" class="proximityRadarCard d-none">
-                            <div class="radarHeader">
-                                <div class="radarStatusDot" id="radarStatusDot"></div>
-                                <div class="radarInfo">
-                                    <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
-                                    <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
-                                </div>
-                            </div>
-                            <div class="radarActions">
-                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
-                                    Petunjuk Arah (Peta)
-                                </a>
-                                <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation(true)">
-                                Perbarui Lokasi
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="cardTitle">
-                            Foto Presensi Pulang
-                        </div>
-                        <div class="photoFrame pos-relative overflow-hidden">
-                            <video id="videoPreview" playsinline muted></video>
-                            <img id="previewImg" alt="Preview foto" />
-
-                            {{-- Grid Overlay --}}
-                            <div id="cameraGrid" class="cameraGridOverlay d-none">
-                                <div class="gridBox">
-                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                </div>
-                            </div>
-
-                            {{-- Floating Camera Toolbar Overlay --}}
-                            <div id="camControlBar" class="camControlBar d-none">
-                                <div class="camControlGroup">
-                                    <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
-                                        Cermin
-                                    </button>
-                                    <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Kamera">
-                                        Tukar Kamera
-                                    </button>
-                                </div>
-                                <div class="camControlGroup">
-                                    <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
-                                        Garis Bantu
-                                    </button>
-                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash" class="camToolBtn d-none">
-                                        Lampu
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="photoPlaceholder" id="placeholder">
-                                Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi pulang.
-                            </div>
-                        </div>
-
-                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
-                        <div class="camActions" id="camActions">
-                            <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                                Buka Kamera
-                            </button>
-                            <div id="camRowStreaming" class="camRow d-none">
-                                <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                    Ambil Foto
-                                </button>
-                                <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
-                            </div>
-                            <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
-                                Ulangi Foto
-                            </button>
-                        </div>
-
-                        {{-- Tombol SELESAI --}}
-                        <button type="submit" id="btnSubmit" class="captureBtn primary-red mt-4">
-                            Kirim Presensi Pulang
-                        </button>
-                    </div>
-                </form>
-            @else
-                <div class="card text-center p-4 rounded-xl">
-                    <div class="text-md font-extrabold text-dark">Tombol Presensi Pulang Terbuka Otomatis</div>
-                    <div class="text-sm text-muted mt-1">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 15 menit belajar di PKBM)</div>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <a href="{{ route('siswa.dashboard') }}" class="btn btn-primary px-4 py-2 font-bold rounded-xl">
+                        Kembali ke Dashboard
+                    </a>
+                    <a href="{{ route('siswa.riwayat') }}" class="btn btn-light px-4 py-2 font-bold rounded-xl">
+                        Riwayat Presensi
+                    </a>
                 </div>
-            @endif
+            </div>
 
-        {{-- ── BELUM ABSEN MASUK ATAU SUDAH SELESAI HARI INI ── --}}
+        {{-- ── BELUM ABSEN MASUK HARI INI ── --}}
         @else
-            @if ($todayPresensi && $todayPresensi->jam_pulang)
-                <div class="statusBanner ready mb-3 bg-success-light">
-                    <div>
-                        <div class="statusTitle text-success">Presensi Hari Ini Selesai</div>
-                        <div class="statusSub">Anda sudah presensi masuk ({{ substr((string)$todayPresensi->jam_masuk,0,5) }}) dan pulang ({{ substr((string)$todayPresensi->jam_pulang,0,5) }}).</div>
-                    </div>
+            <div class="statusBanner ready mb-4">
+                <div>
+                    <div class="statusTitle">Belum Melakukan Absensi Hari Ini</div>
+                    <div class="statusSub">Silakan lakukan absensi kehadiran saat tiba di area PKBM Pikat</div>
                 </div>
-            @else
-                <div class="statusBanner ready mb-4">
-                    <div>
-                        <div class="statusTitle">Belum Melakukan Absensi Hari Ini</div>
-                        <div class="statusSub">Silakan lakukan absensi mandiri saat berada di area PKBM Pikat</div>
+            </div>
+
+            {{-- Form absen MASUK --}}
+            <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
+                @csrf
+                <input type="hidden" name="mode" value="mulai">
+                <input type="hidden" name="lokasi" id="lokasi" value="">
+                <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
+                <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
+
+                <div class="card mb-4">
+                    <div class="cardTitle">
+                        Lokasi Presensi Masuk
                     </div>
-                </div>
 
-                {{-- Form absen MASUK --}}
-                <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
-                    @csrf
-                    <input type="hidden" name="mode" value="mulai">
-                    <input type="hidden" name="lokasi" id="lokasi" value="">
-                    <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
-                    <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
+                    {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
+                    <div class="mb-3" id="boxPilihLokasi">
+                        <label class="d-block text-sm font-semibold text-muted mb-2">
+                            Pilih Lokasi PKBM / Mitra <span class="text-danger">*</span>
+                        </label>
+                        <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="select w-full">
+                            @forelse($lokasiPresensis as $lok)
+                                <option value="{{ $lok->id }}"
+                                    data-lat="{{ $lok->latitude }}"
+                                    data-lng="{{ $lok->longitude }}"
+                                    data-radius="{{ $lok->radius_meter }}"
+                                    data-nama="{{ $lok->nama_lokasi }}"
+                                    data-alamat="{{ $lok->alamat ?? '' }}"
+                                    {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
+                                    {{ $lok->nama_lokasi }}
+                                </option>
+                            @empty
+                                <option value=""
+                                    data-lat="{{ (float) ($kantorLat ?? config('lokasi.sekolah_lat', -7.8011945)) }}"
+                                    data-lng="{{ (float) ($kantorLng ?? config('lokasi.sekolah_lng', 110.364917)) }}"
+                                    data-radius="{{ (int) ($radius ?? config('lokasi.radius_meter', 100)) }}"
+                                    data-nama="{{ config('lokasi.sekolah_nama', 'PKBM Pikat') }}"
+                                    data-alamat="Gedung Utama PKBM Pikat">
+                                    Gedung Pusat PKBM Pikat
+                                </option>
+                            @endforelse
+                        </select>
+                        <div id="lokasiPresensiAlamat" class="text-xs text-muted mt-2 font-medium"></div>
+                    </div>
 
-                    <div class="card mb-4">
-                        <div class="cardTitle">
-                            Lokasi Presensi Masuk
-                        </div>
-
-                        {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
-                        <div class="mb-3" id="boxPilihLokasi">
-                            <label class="d-block text-sm font-semibold text-muted mb-2">
-                                Pilih Lokasi PKBM / Mitra <span class="text-danger">*</span>
-                            </label>
-                            <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="select w-full">
-                                @forelse($lokasiPresensis as $lok)
-                                    <option value="{{ $lok->id }}"
-                                        data-lat="{{ $lok->latitude }}"
-                                        data-lng="{{ $lok->longitude }}"
-                                        data-radius="{{ $lok->radius_meter }}"
-                                        data-nama="{{ $lok->nama_lokasi }}"
-                                        data-alamat="{{ $lok->alamat ?? '' }}"
-                                        {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
-                                        {{ $lok->nama_lokasi }}
-                                    </option>
-                                @empty
-                                    <option value=""
-                                        data-lat="{{ (float) ($kantorLat ?? config('lokasi.sekolah_lat', -7.8011945)) }}"
-                                        data-lng="{{ (float) ($kantorLng ?? config('lokasi.sekolah_lng', 110.364917)) }}"
-                                        data-radius="{{ (int) ($radius ?? config('lokasi.radius_meter', 100)) }}"
-                                        data-nama="{{ config('lokasi.sekolah_nama', 'PKBM Pikat') }}"
-                                        data-alamat="Gedung Utama PKBM Pikat">
-                                        Gedung Pusat PKBM Pikat
-                                    </option>
-                                @endforelse
-                            </select>
-                            <div id="lokasiPresensiAlamat" class="text-xs text-muted mt-2 font-medium"></div>
-                        </div>
-
-                        <div id="mapBox" class="mapBox pos-relative">
-                            <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
-                            <div id="leafletMap" class="map-camera-box d-none"></div>
-                        </div>
-                        <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
-                        
-                        {{-- Proximity Radar & Live Track Card --}}
-                        <div id="proximityRadarCard" class="proximityRadarCard d-none">
-                            <div class="radarHeader">
-                                <div class="radarStatusDot" id="radarStatusDot"></div>
-                                <div class="radarInfo">
-                                    <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
-                                    <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
-                                </div>
-                            </div>
-                            <div class="radarActions">
-                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
-                                    Petunjuk Arah (Peta)
-                                </a>
-                                <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
-                                </button>
+                    <div id="mapBox" class="mapBox pos-relative">
+                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
+                        <div id="leafletMap" class="map-camera-box d-none"></div>
+                    </div>
+                    <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
+                    
+                    {{-- Proximity Radar & Live Track Card --}}
+                    <div id="proximityRadarCard" class="proximityRadarCard d-none">
+                        <div class="radarHeader">
+                            <div class="radarStatusDot" id="radarStatusDot"></div>
+                            <div class="radarInfo">
+                                <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
+                                <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
                             </div>
                         </div>
-
-                        <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation(true)">
-                                Perbarui Lokasi
+                        <div class="radarActions">
+                            <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
+                                Petunjuk Arah (Peta)
+                            </a>
+                            <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
+                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
                             </button>
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="cardTitle">
-                            Foto Presensi Masuk
-                        </div>
-                        <div class="photoFrame pos-relative overflow-hidden">
-                            <video id="videoPreview" playsinline muted></video>
-                            <img id="previewImg" alt="Preview foto" />
-
-                            {{-- Grid Overlay --}}
-                            <div id="cameraGrid" class="cameraGridOverlay d-none">
-                                <div class="gridBox">
-                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                </div>
-                            </div>
-
-                            {{-- Floating Camera Toolbar Overlay --}}
-                            <div id="camControlBar" class="camControlBar d-none">
-                                <div class="camControlGroup">
-                                    <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
-                                        Cermin
-                                    </button>
-                                    <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Kamera">
-                                        Tukar Kamera
-                                    </button>
-                                </div>
-                                <div class="camControlGroup">
-                                    <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
-                                        Garis Bantu
-                                    </button>
-                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash" class="camToolBtn d-none">
-                                        Lampu
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="photoPlaceholder" id="placeholder">
-                                Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi masuk.
-                            </div>
-                        </div>
-
-                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
-                        <div class="camActions" id="camActions">
-                            <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                                Buka Kamera
-                            </button>
-                            <div id="camRowStreaming" class="camRow d-none">
-                                <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                    Ambil Foto
-                                </button>
-                                <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
-                            </div>
-                            <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
-                                Ulangi Foto
-                            </button>
-                        </div>
-
-                        {{-- Tombol MULAI --}}
-                        <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
-                            Kirim Presensi Masuk
+                    <div class="mapToolbar">
+                        <button type="button" onclick="refreshLocation(true)">
+                            Perbarui Lokasi
                         </button>
                     </div>
-                </form>
-            @endif
+                </div>
+
+                <div class="card">
+                    <div class="cardTitle">
+                        Foto Presensi Masuk
+                    </div>
+                    <div class="photoFrame pos-relative overflow-hidden">
+                        <video id="videoPreview" playsinline muted></video>
+                        <img id="previewImg" alt="Preview foto" />
+
+                        {{-- Grid Overlay --}}
+                        <div id="cameraGrid" class="cameraGridOverlay d-none">
+                            <div class="gridBox">
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                            </div>
+                        </div>
+
+                        {{-- Floating Camera Toolbar Overlay --}}
+                        <div id="camControlBar" class="camControlBar d-none">
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
+                                    Cermin
+                                </button>
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Kamera">
+                                    Tukar Kamera
+                                </button>
+                            </div>
+                            <div class="camControlGroup">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
+                                    Garis Bantu
+                                </button>
+                                <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash" class="camToolBtn d-none">
+                                    Lampu
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="photoPlaceholder" id="placeholder">
+                            Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi masuk.
+                        </div>
+                    </div>
+
+                    <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
+                    <div class="camActions" id="camActions">
+                        <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
+                            Buka Kamera
+                        </button>
+                        <div id="camRowStreaming" class="camRow d-none">
+                            <button type="button" class="captureBtn" onclick="snapPhoto()">
+                                Ambil Foto
+                            </button>
+                            <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
+                        </div>
+                        <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
+                            Ulangi Foto
+                        </button>
+                    </div>
+
+                    {{-- Tombol MULAI --}}
+                    <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
+                        Kirim Presensi Masuk
+                    </button>
+                </div>
+            </form>
         @endif
 
     </div>{{-- #mainContent --}}
@@ -433,26 +312,6 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             checkPermissions();
-
-            var cdEl = document.getElementById('countdown');
-            @if ($activeSesi && !$bisaPulang)
-                var sisaDetik = {{ $sisaDetik }};
-                if (cdEl && sisaDetik > 0) {
-                    var totalSec = sisaDetik;
-                    var cdInterval = setInterval(function() {
-                        totalSec--;
-                        if (totalSec <= 0) {
-                            clearInterval(cdInterval);
-                            cdEl.textContent = '00:00';
-                            window.location.reload();
-                            return;
-                        }
-                        var m = Math.floor(totalSec / 60);
-                        var s = totalSec % 60;
-                        cdEl.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-                    }, 1000);
-                }
-            @endif
         });
 
         /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */

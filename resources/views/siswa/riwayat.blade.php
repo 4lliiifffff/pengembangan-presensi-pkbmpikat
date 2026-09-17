@@ -58,8 +58,9 @@
             <div>
                 <select name="status" onchange="this.form.submit()" class="profileInput text-sm">
                     <option value="">Semua Status</option>
-                    <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir Lengkap</option>
-                    <option value="proses" {{ $statusFilter === 'proses' ? 'selected' : '' }}>Sedang Berjalan</option>
+                    <option value="hadir" {{ $statusFilter === 'hadir' ? 'selected' : '' }}>Hadir</option>
+                    <option value="izin" {{ $statusFilter === 'izin' ? 'selected' : '' }}>Izin</option>
+                    <option value="sakit" {{ $statusFilter === 'sakit' ? 'selected' : '' }}>Sakit</option>
                 </select>
             </div>
         </form>
@@ -72,36 +73,24 @@
                 $tgl = Carbon::parse($p->tgl_presensi);
                 $hari = $tgl->translatedFormat('l, d F Y');
                 $masuk = $p->jam_masuk ? substr((string)$p->jam_masuk, 0, 5) : '—';
-                $pulang = $p->jam_pulang ? substr((string)$p->jam_pulang, 0, 5) : '—';
-                
-                $statusText = $p->jam_pulang ? 'Hadir Selesai' : 'Sedang Hadir';
-                $statusClass = $p->jam_pulang ? 'hadir' : 'proses';
-                
-                $durasi = '—';
-                if ($p->jam_masuk && $p->jam_pulang) {
-                    try {
-                        $dtMulai = Carbon::parse($p->tgl_presensi . ' ' . $p->jam_masuk);
-                        $dtSelesai = Carbon::parse($p->tgl_presensi . ' ' . $p->jam_pulang);
-                        $diffMin = $dtMulai->diffInMinutes($dtSelesai);
-                        $durasi = floor($diffMin / 60) . 'j ' . ($diffMin % 60) . 'm';
-                    } catch (\Throwable) {}
-                }
+                $lokasiNama = $p->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat';
+                $statusLabel = $p->status_label ?? ucfirst($p->status ?? 'Hadir');
             @endphp
 
             <div class="riwayatCard">
                 <div class="riwayatCardHeader">
                     <div>
                         <div class="riwayatDateTitle">{{ $hari }}</div>
-                        <div class="riwayatDateSub">Lokasi: <strong>{{ $p->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat' }}</strong> • Durasi: <strong>{{ $durasi }}</strong></div>
+                        <div class="riwayatDateSub">Lokasi Belajar: <strong>{{ $lokasiNama }}</strong></div>
                     </div>
-                    <span class="riwayatStatusBadge {{ $statusClass }}">
-                        {{ $statusText }}
+                    <span class="riwayatStatusBadge hadir">
+                        {{ $statusLabel }}
                     </span>
                 </div>
 
                 <div class="riwayatTimeGrid">
                     <div class="riwayatTimeBox">
-                        <div class="riwayatTimeLabel">Absen Masuk</div>
+                        <div class="riwayatTimeLabel">Jam Kedatangan (Masuk)</div>
                         <div class="flex-items-center gap-2">
                             <span class="riwayatTimeVal text-primary">{{ $masuk }} WIB</span>
                             @if($p->foto_masuk_url)
@@ -110,15 +99,17 @@
                         </div>
                     </div>
 
-                    <div class="riwayatTimeBox">
-                        <div class="riwayatTimeLabel">Absen Pulang</div>
-                        <div class="flex-items-center gap-2">
-                            <span class="riwayatTimeVal {{ $p->jam_pulang ? 'text-success' : 'text-muted' }}">{{ $pulang }} {{ $p->jam_pulang ? 'WIB' : '' }}</span>
-                            @if($p->foto_pulang_url)
-                                <img src="{{ $p->foto_pulang_url }}" onclick="openRiwayatModal('{{ $p->foto_pulang_url }}', 'Foto Pulang: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Pulang" title="Klik untuk perbesar">
-                            @endif
+                    @if($p->foto_pulang || $p->jam_pulang)
+                        <div class="riwayatTimeBox">
+                            <div class="riwayatTimeLabel">Absen Pulang (Arsip)</div>
+                            <div class="flex-items-center gap-2">
+                                <span class="riwayatTimeVal text-muted">{{ substr((string)$p->jam_pulang, 0, 5) }} WIB</span>
+                                @if($p->foto_pulang_url)
+                                    <img src="{{ $p->foto_pulang_url }}" onclick="openRiwayatModal('{{ $p->foto_pulang_url }}', 'Foto Pulang: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Pulang" title="Klik untuk perbesar">
+                                @endif
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
 

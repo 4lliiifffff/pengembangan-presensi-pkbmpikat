@@ -303,13 +303,13 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Desain Notifikasi Alert Login (`login.blade.php` & `app.css`)**:
       - Komponen visual alert `.login-alert` dengan warna kontras, border lembut, icon, dan animasi `fadeInSlide` agar pesan peringatan atau kesalahan selalu terlihat jelas oleh pengguna.
 
-#### 9.2 Presensi Mandiri Harian Siswa
+#### 9.2 Presensi Mandiri Harian Siswa (Single Check-In / Kedatangan)
 - 🟢 **Tabel `presensi_mandiri_siswas` & Engine Absensi Siswa**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - Migrasi `create_presensi_mandiri_siswas_table` dan Model `PresensiMandiriSiswa.php`.
-    - `SiswaPresensiController.php`: Form absensi masuk & pulang dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), anti fake-GPS, dan jeda minimal 15 menit belajar.
-    - `SiswaDashboardController.php`: Dashboard ringkasan kehadiran mandiri dan sesi kelas, filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification.
+    - `SiswaPresensiController.php`: Form absensi masuk tunggal per hari dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), anti fake-GPS, proteksi anti-duplikasi, auto-link ke status kehadiran di `jadwal_sesis`, serta eliminasi form pulang & jeda countdown 15 menit.
+    - `SiswaDashboardController.php`: Dashboard ringkasan kehadiran mandiri dan sesi kelas dengan 2 status bersih (Belum Absen / Sudah Hadir), filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification.
     - Template antarmuka blade responsif: `siswa/dashboard.blade.php`, `siswa/presensi_foto.blade.php`, `siswa/riwayat.blade.php`, `siswa/profil.blade.php`, dan `navigasi_bawah_siswa.blade.php`.
 
 #### 9.3 Pusat Pengelolaan Akun Pengguna Terintegrasi (Unified User & Account Center)
@@ -340,7 +340,7 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
 #### 10.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **118 Feature & Unit Tests** lulus 100% (**497 assertions**).
+- 🟢 **PHPUnit Test Suite**: Seluruh **119 Feature & Unit Tests** lulus 100% (**499 assertions**).
 - 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---

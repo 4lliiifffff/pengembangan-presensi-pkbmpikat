@@ -48,23 +48,11 @@
 
             {{-- ── STATUS PRESENSI HARI INI ── --}}
             @php
-                $statusClass = match ($todayStatus) {
-                    'proses' => 'proses',
-                    'selesai' => 'selesai',
-                    default => 'belum',
-                };
-                $statusIcon = match ($todayStatus) {
-                    'proses' => 'time-outline',
-                    'selesai' => 'checkmark-circle-outline',
-                    default => 'radio-button-off-outline',
-                };
-                $statusText = match ($todayStatus) {
-                    'proses' => 'Sedang Hadir di PKBM (Sudah Masuk)',
-                    'selesai' => 'Selesai Hadir Hari Ini (Sudah Pulang)',
-                    default => 'Belum Melakukan Absensi Hari Ini',
-                };
+                $statusClass = ($todayStatus === 'selesai') ? 'selesai' : 'belum';
+                $statusIcon = ($todayStatus === 'selesai') ? 'checkmark-circle-outline' : 'radio-button-off-outline';
+                $statusText = ($todayStatus === 'selesai') ? 'Sudah Hadir di PKBM Hari Ini' : 'Belum Melakukan Absensi Hari Ini';
                 $jamMasukToday = $todayPresensi?->jam_masuk ? substr((string) $todayPresensi->jam_masuk, 0, 5) : '—';
-                $jamPulangToday = $todayPresensi?->jam_pulang ? substr((string) $todayPresensi->jam_pulang, 0, 5) : '—';
+                $lokasiMasukToday = $todayPresensi?->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat';
             @endphp
 
             <div class="todayCard {{ $statusClass }}">
@@ -79,8 +67,8 @@
                             <span class="todayTimeLbl">Jam Masuk</span>
                         </div>
                         <div class="todayTimeChip">
-                            <span class="todayTimeVal">{{ $jamPulangToday }}</span>
-                            <span class="todayTimeLbl">Jam Pulang</span>
+                            <span class="todayTimeVal">{{ $todayPresensi ? $lokasiMasukToday : '—' }}</span>
+                            <span class="todayTimeLbl">Lokasi Belajar</span>
                         </div>
                     </div>
                 </div>
@@ -122,35 +110,20 @@
             @endif
         </div>
 
-        {{-- ── KOLOM KANAN: SESI AKTIF/CTA, STATISTIK & RIWAYAT ── --}}
+        {{-- ── KOLOM KANAN: STATUS KEHADIRAN, STATISTIK & RIWAYAT ── --}}
         <div class="dashboardCol">
-            {{-- ── CARD SESI AKTIF ATAU TOMBOL PRESENSI ── --}}
-            @if ($activeSesi)
-                @php
-                    $jamMasukDt = \Carbon\Carbon::parse($today . ' ' . $activeSesi->jam_masuk, 'Asia/Jakarta');
-                    $nowDt = \Carbon\Carbon::now('Asia/Jakarta');
-                    $diffDetik = $jamMasukDt->diffInSeconds($nowDt, false);
-                    $bisaPulang = $diffDetik >= 900; // 15 menit minimal
-                    $sisaDetik = max(0, 900 - $diffDetik);
-                @endphp
-                <div class="activeCard">
-                    <div class="activePulse"></div>
-                    <div class="activeBody">
-                        <div class="activeTitle">Sesi Hadir Sedang Berlangsung</div>
-                        <div class="activeSub">
-                            Masuk pukul <strong>{{ substr((string) $activeSesi->jam_masuk, 0, 5) }} WIB</strong>
-                        </div>
-                        <div class="activeLoc">
-                            <ion-icon name="location-outline"></ion-icon>
-                            <span>Lokasi Masuk Terverifikasi</span>
+            {{-- ── CARD STATUS / TOMBOL PRESENSI ── --}}
+            @if ($todayStatus === 'selesai' && $todayPresensi)
+                <div class="statusBanner ready mb-4 bg-success-light">
+                    <div class="d-flex align-items-center gap-2">
+                        <ion-icon name="checkmark-done-circle" style="font-size: 1.6rem; color: #10b981;"></ion-icon>
+                        <div>
+                            <div class="statusTitle" style="color: #065f46; font-weight: 600;">Presensi Hari Ini Selesai</div>
+                            <div class="statusSub" style="color: #047857; font-size: 0.85rem;">Kehadiran Anda telah dicatat pada pukul {{ substr((string)$todayPresensi->jam_masuk, 0, 5) }} WIB. Selamat belajar!</div>
                         </div>
                     </div>
-                    <a href="{{ route('siswa.presensi.foto') }}" class="activeActionBtn">
-                        <ion-icon name="camera-outline"></ion-icon>
-                        <span>{{ $bisaPulang ? 'Absen Pulang Sekarang' : 'Absen Pulang' }}</span>
-                    </a>
                 </div>
-            @elseif ($todayStatus !== 'selesai')
+            @else
                 <div class="magangCtaCard">
                     <div class="magangCtaTitle">
                         Sudah Tiba di Lokasi Belajar?
@@ -162,16 +135,6 @@
                         <ion-icon name="camera-outline" class="icon-md"></ion-icon>
                         <span>Absen Masuk Sekarang</span>
                     </a>
-                </div>
-            @else
-                <div class="statusBanner ready mb-3">
-                    <div class="d-flex align-items-center gap-2">
-                        <ion-icon name="checkmark-done-circle" style="font-size: 1.5rem; color: #10b981;"></ion-icon>
-                        <div>
-                            <div class="statusTitle" style="color: #065f46; font-weight: 600;">Presensi Hari Ini Selesai</div>
-                            <div class="statusSub" style="color: #047857; font-size: 0.85rem;">Terima kasih, Anda telah menyelesaikan absensi masuk dan pulang hari ini.</div>
-                        </div>
-                    </div>
                 </div>
             @endif
 
@@ -218,24 +181,23 @@
                             $tgl = \Carbon\Carbon::parse($p->tgl_presensi);
                             $hari = $tgl->translatedFormat('l, d M Y');
                             $masuk = $p->jam_masuk ? substr((string)$p->jam_masuk, 0, 5) : '—';
-                            $pulang = $p->jam_pulang ? substr((string)$p->jam_pulang, 0, 5) : '—';
+                            $lokasi = $p->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat';
                         @endphp
                         <div class="recentItem">
                             <div class="recentLeft">
-                                <div class="recentCheck {{ ($p->foto_masuk && !$p->foto_pulang) ? 'pending' : '' }}">
-                                    <ion-icon name="{{ $p->foto_pulang ? 'checkmark' : 'time-outline' }}"
-                                        class="text-md"></ion-icon>
+                                <div class="recentCheck">
+                                    <ion-icon name="checkmark" class="text-md"></ion-icon>
                                 </div>
                                 <div class="recentMeta">
                                     <div class="recentDay">{{ $hari }}</div>
                                     <div class="recentTime">
-                                        Masuk: {{ $masuk }} • Pulang: {{ $pulang }}
+                                        Masuk: {{ $masuk }} WIB • {{ $lokasi }}
                                     </div>
                                 </div>
                             </div>
                             <div>
-                                <span class="pillSmall {{ $p->foto_pulang ? 'pillOk' : 'pillPending' }}">
-                                    {{ $p->foto_pulang ? 'Selesai' : 'Hadir (Belum Pulang)' }}
+                                <span class="pillSmall pillOk">
+                                    Hadir
                                 </span>
                             </div>
                         </div>

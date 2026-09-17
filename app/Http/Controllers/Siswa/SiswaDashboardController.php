@@ -27,21 +27,14 @@ class SiswaDashboardController extends Controller
 
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        // Status presensi mandiri hari ini
-        $todayPresensi = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+        // Status presensi mandiri hari ini (Single Check-in)
+        $todayPresensi = PresensiMandiriSiswa::with('lokasiPresensi')
+            ->where('siswa_id', $siswa->id)
             ->whereDate('tgl_presensi', $today)
             ->first();
 
-        $todayStatus = 'belum';
-        if ($todayPresensi) {
-            if ($todayPresensi->foto_masuk && $todayPresensi->foto_pulang) {
-                $todayStatus = 'selesai';
-            } elseif ($todayPresensi->foto_masuk) {
-                $todayStatus = 'proses';
-            }
-        }
-
-        $activeSesi = ($todayStatus === 'proses') ? $todayPresensi : null;
+        $todayStatus = $todayPresensi ? 'selesai' : 'belum';
+        $activeSesi = null;
 
         // Hitung statistik presensi mandiri bulan berjalan
         $currentMonth = Carbon::now('Asia/Jakarta')->month;
@@ -108,10 +101,8 @@ class SiswaDashboardController extends Controller
             ->whereMonth('tgl_presensi', $bulan)
             ->whereYear('tgl_presensi', $tahun);
 
-        if ($statusFilter === 'hadir') {
-            $query->where('status', 'hadir');
-        } elseif ($statusFilter === 'proses') {
-            $query->whereNotNull('foto_masuk')->whereNull('foto_pulang');
+        if ($statusFilter && in_array($statusFilter, ['hadir', 'izin', 'sakit', 'alpha'])) {
+            $query->where('status', $statusFilter);
         }
 
         $items = $query->orderByDesc('tgl_presensi')->orderByDesc('id')->paginate(15)->withQueryString();
