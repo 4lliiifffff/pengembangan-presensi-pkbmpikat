@@ -174,6 +174,7 @@ Route::middleware(['auth', 'role:magang'])->prefix('magang')->name('magang.')->g
 
 Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
     Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/jadwal', [SiswaDashboardController::class, 'jadwal'])->name('jadwal');
     Route::get('/riwayat', [SiswaDashboardController::class, 'riwayat'])->name('riwayat');
     Route::get('/profil', [SiswaDashboardController::class, 'profil'])->name('profil');
     Route::post('/profil/password', [SiswaDashboardController::class, 'updatePassword'])->name('profil.password');

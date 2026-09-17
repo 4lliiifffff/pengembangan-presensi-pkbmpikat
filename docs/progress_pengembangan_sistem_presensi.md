@@ -204,12 +204,25 @@ pie title Status Fitur & Pengkondisian Sistem
     - Item ke-4 Bottom Nav Tutor (`navigasi_bawah_tutor.blade.php`) diarahkan langsung ke `route('tutor.jadwal-sesi.index')` dengan indikator aktif cerdas untuk seluruh sub-rute `tutor.jadwal*`.
     - Drawer menu "Lainnya" dilengkapi kartu cepat Agenda PKBM, Slip Payroll, Pengajuan Izin, Lupa Lapor, dan Profil Saya.
 
-#### 4.5 Future-Ready Architecture untuk Role Siswa (Self-Attendance)
-- 🟢 **Pondasi Kolom Kehadiran Siswa Mandiri**
+#### 4.5 Arsitektur Penuh Role Siswa, Single Check-In & Modul Jadwal Belajar
+- 🟢 **Sistem Presensi Mandiri Siswa (Single Check-In)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
-    - Tabel `jadwal_sesis` telah dilengkapi kolom `presensi_siswa_id` dan `status_kehadiran_siswa` (`hadir`, `izin`, `sakit`, `alpa`).
-    - Memungkinkan aktivasi login & absensi mandiri siswa di masa depan tanpa memerlukan perubahan struktur database (*Zero Schema Rework*).
+    - Alur presensi siswa disederhanakan menjadi 1x check-in masuk harian (selfie kamera + validasi radius geofencing sekolah PKBM tanpa countdown 15 menit pulang).
+    - Status harian siswa di controller `SiswaDashboardController.php` berbasis 2-state (`belum` vs `selesai`).
+    - Otomatis menghubungkan status kehadiran siswa di tabel `jadwal_sesis` (`status_kehadiran_siswa = 'hadir'`) saat presensi mandiri disimpan.
+- 🟢 **Modul Jadwal & Agenda Kalender Siswa (`siswa.jadwal`)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Method `SiswaDashboardController::jadwal(Request $request)` dan view `resources/views/siswa/jadwal.blade.php`.
+    - Kalender bulanan interaktif (`.agendaHeaderCard`, `.agendaMonthGrid`) dengan penanda dot event gabungan (sesi belajar KBM murid bersama tutor + agenda pengumuman resmi PKBM).
+    - Daftar card detail sesi tutorial belajar (jam sesi, nama tutor pengajar, mapel/kategori tutorial, shift, dan status kehadiran siswa).
+- 🟢 **Penyelarasan Bottom Navigation Bar Siswa & Drawer Cepat**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Slot ke-4 Bottom Nav Siswa (`navigasi_bawah_siswa.blade.php`) diarahkan langsung ke `route('siswa.jadwal')` dengan ikon kalender.
+    - Drawer menu "Lainnya" diperbarui dengan 4 kartu menu cepat: Profil Siswa, Jadwal & Agenda, Rekap Kehadiran, dan Presensi Mandiri.
+    - Penambahan tautan pintas "Lihat Kalender" dan "Lihat Semua" pada dashboard siswa.
 
 ---
 
@@ -309,7 +322,7 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Rincian Implementasi:**
     - Migrasi `create_presensi_mandiri_siswas_table` dan Model `PresensiMandiriSiswa.php`.
     - `SiswaPresensiController.php`: Form absensi masuk tunggal per hari dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), anti fake-GPS, proteksi anti-duplikasi, auto-link ke status kehadiran di `jadwal_sesis`, serta eliminasi form pulang & jeda countdown 15 menit.
-    - `SiswaDashboardController.php`: Dashboard ringkasan kehadiran mandiri dan sesi kelas dengan 2 status bersih (Belum Absen / Sudah Hadir), filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification.
+    - `SiswaDashboardController.php`: Dashboard ringkasan kehadiran mandiri dan sesi kelas dengan 2 status bersih (Belum Absen / Sudah Hadir), integrasi langsung kartu jadwal sesi KBM tutorial hari ini bersama tutor, agenda & jadwal kegiatan umum PKBM mendatang, filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification.
     - Template antarmuka blade responsif: `siswa/dashboard.blade.php`, `siswa/presensi_foto.blade.php`, `siswa/riwayat.blade.php`, `siswa/profil.blade.php`, dan `navigasi_bawah_siswa.blade.php`.
 
 #### 9.3 Pusat Pengelolaan Akun Pengguna Terintegrasi (Unified User & Account Center)

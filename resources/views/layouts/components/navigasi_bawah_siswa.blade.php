@@ -23,17 +23,17 @@
         <span class="navCenterLabel">Dashboard</span>
     </a>
 
-    {{-- 4. Profil Siswa --}}
-    <a href="{{ route('siswa.profil') }}" class="navItem {{ request()->routeIs('siswa.profil*') ? 'active' : '' }}" aria-label="Profil Siswa">
+    {{-- 4. Jadwal & Agenda Siswa --}}
+    <a href="{{ route('siswa.jadwal') }}" class="navItem {{ request()->routeIs('siswa.jadwal*') ? 'active' : '' }}" aria-label="Jadwal Siswa">
         <div class="navIconWrap">
-            <ion-icon name="{{ request()->routeIs('siswa.profil*') ? 'person' : 'person-outline' }}"></ion-icon>
+            <ion-icon name="{{ request()->routeIs('siswa.jadwal*') ? 'calendar' : 'calendar-outline' }}"></ion-icon>
         </div>
-        <span>Profil</span>
+        <span>Jadwal</span>
     </a>
 
     {{-- 5. Menu Lainnya (Buka Bottom Drawer) --}}
     @php
-        $isSiswaDrawerActive = request()->routeIs('siswa.profil*') && request()->has('tab');
+        $isSiswaDrawerActive = request()->routeIs('siswa.profil*');
     @endphp
     <button type="button" class="navItem {{ $isSiswaDrawerActive ? 'active' : '' }}" onclick="toggleNavDrawer('navDrawerSiswa')" aria-label="Menu Lainnya">
         <div class="navIconWrap">
@@ -65,7 +65,7 @@
             <div class="navDrawerSection">
                 <div class="navDrawerSectionTitle">
                     <ion-icon name="school-outline"></ion-icon>
-                    <span>Informasi & Kehadiran</span>
+                    <span>Informasi & Pembelajaran</span>
                 </div>
                 <div class="navDrawerGrid">
                     <a href="{{ route('siswa.profil') }}" class="navDrawerCard {{ request()->routeIs('siswa.profil*') ? 'active' : '' }}">
@@ -78,13 +78,33 @@
                         </div>
                     </a>
 
+                    <a href="{{ route('siswa.jadwal') }}" class="navDrawerCard {{ request()->routeIs('siswa.jadwal*') ? 'active' : '' }}">
+                        <div class="navCardIcon indigo">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                        </div>
+                        <div class="navCardMeta">
+                            <div class="navCardTitle">Jadwal & Agenda</div>
+                            <div class="navCardDesc">Sesi Belajar & Kegiatan</div>
+                        </div>
+                    </a>
+
                     <a href="{{ route('siswa.riwayat') }}" class="navDrawerCard {{ request()->routeIs('siswa.riwayat*') ? 'active' : '' }}">
                         <div class="navCardIcon emerald">
-                            <ion-icon name="calendar-outline"></ion-icon>
+                            <ion-icon name="time-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
                             <div class="navCardTitle">Rekap Kehadiran</div>
                             <div class="navCardDesc">Riwayat Absensi Mandiri</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('siswa.presensi') }}" class="navDrawerCard {{ request()->routeIs('siswa.presensi*') ? 'active' : '' }}">
+                        <div class="navCardIcon purple">
+                            <ion-icon name="camera-outline"></ion-icon>
+                        </div>
+                        <div class="navCardMeta">
+                            <div class="navCardTitle">Presensi Mandiri</div>
+                            <div class="navCardDesc">Check-In Selfie Masuk</div>
                         </div>
                     </a>
                 </div>

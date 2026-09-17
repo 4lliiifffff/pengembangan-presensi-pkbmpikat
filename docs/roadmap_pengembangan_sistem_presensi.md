@@ -107,10 +107,17 @@
 * 🟢 **Penyelarasan Bottom Navigation Bar & Drawer:** [SELESAI]
   - Item ke-4 Bottom Nav Tutor langsung mengarah ke `route('tutor.jadwal-sesi.index')`, dengan drawer "Lainnya" yang menyediakan pintasan lengkap ke Agenda PKBM, Slip Honor, Pengajuan Izin, Lupa Lapor, dan Profil.
 
-### 4.2 Future-Ready Architecture untuk Role Siswa (Self-Attendance)
+### 4.2 Arsitektur Penuh Role Siswa & Modul Jadwal Belajar (Self-Attendance & Learning Schedule)
 * 🟢 **Pondasi Kolom Kehadiran & Akun Siswa:** [SELESAI]
   - Tabel `jadwal_sesis` telah dilengkapi kolom `presensi_siswa_id` dan `status_kehadiran_siswa` (`hadir`, `izin`, `sakit`, `alpa`).
-  - Ketika modul login & absensi mandiri siswa diimplementasikan di masa depan, arsitektur database sudah 100% siap tanpa perlu migrasi ulang (*Zero Breaking Changes*).
+  - Otomatisasi sinkronisasi kehadiran saat siswa melakukan check-in mandiri.
+* 🟢 **Sistem Presensi Mandiri Single Check-In Siswa:** [SELESAI]
+  - Alur presensi siswa dirancang khusus 1x check-in masuk harian (selfie kamera + validasi radius geofencing sekolah PKBM tanpa countdown pulang).
+  - Tampilan dashboard adaptif 2-state (`belum` vs `selesai`) dengan statistik kehadiran bulanan dan riwayat mandiri.
+* 🟢 **Modul Jadwal & Kalender Belajar Siswa (`siswa.jadwal`):** [SELESAI]
+  - Kalender bulanan interaktif (`.agendaHeaderCard`, `.agendaMonthGrid`) terstandarisasi dengan penanda event dot gabungan antara agenda kegiatan sekolah dan sesi belajar murid bersama tutor.
+  - Kartu rincian sesi tutorial (jam sesi, nama tutor, mapel/kategori, jenis sesi reguler/pengganti, dan status kehadiran siswa).
+  - Sinkronisasi Bottom Navigation Bar 5 slot (Absen, Riwayat, Dashboard, Jadwal, Lainnya) serta drawer menu komprehensif.
 
 ---
 
@@ -179,7 +186,7 @@
 ### 9.2 Presensi Mandiri Harian Siswa (Single Check-In / Kedatangan)
 * 🟢 **Tabel `presensi_mandiri_siswas` & Model:** [SELESAI] Struktur tabel pencatatan kehadiran mandiri siswa lengkap dengan koordinat GPS, foto masuk/pulang, akurasi sinyal, anti-mocking, dan status kehadiran.
 * 🟢 **Kamera Presensi & Geofencing Siswa (Single Check-In):** [SELESAI] Form absensi masuk tunggal per hari dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), proteksi anti-duplikasi, auto-link ke status kehadiran di `jadwal_sesis`, serta eliminasi form pulang & jeda countdown 15 menit (`SiswaPresensiController.php`).
-* 🟢 **Dashboard, Riwayat & Profil Siswa:** [SELESAI] Dashboard ringkasan kehadiran mandiri dan sesi kelas dengan 2 status bersih (Belum Absen / Sudah Hadir), filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification (`SiswaDashboardController.php`).
+* 🟢 **Dashboard, Riwayat & Profil Siswa:** [SELESAI] Dashboard komprehensif dengan 2 status bersih (Belum Absen / Sudah Hadir), integrasi langsung kartu jadwal sesi KBM tutorial hari ini, agenda & jadwal kegiatan umum PKBM mendatang, filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification (`SiswaDashboardController.php` & `dashboard.blade.php`).
 
 ### 9.3 Pusat Pengelolaan Akun Pengguna Terintegrasi (Unified User & Account Center)
 * 🟢 **Pusat Kelola Seluruh Akun (`admin.karyawan.index`):** [SELESAI] Satu pintu terintegrasi untuk mengelola seluruh akun pengguna sistem (Tutor, Siswa, Magang, Admin, Kepala Sekolah).

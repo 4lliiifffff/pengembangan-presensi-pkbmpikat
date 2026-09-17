@@ -6,7 +6,7 @@
     $user = auth()->user();
     $siswa = $user->siswa;
     $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
-    $subTitle = 'Siswa PKBM Pikat';
+    $subTitle = 'Portal Peserta Didik • PKBM Pikat';
     $initial = strtoupper(substr($displayName, 0, 1));
 @endphp
 
@@ -25,7 +25,7 @@
                 <div class="laporanHeaderLabel">PORTAL PEMBELAJARAN &amp; PRESENSI SISWA</div>
                 <h1 class="laporanHeaderTitle">Dashboard Siswa</h1>
                 <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
-                <p class="laporanHeaderDesc">Lakukan absensi mandiri saat berada di PKBM Pikat dan pantau catatan kehadiran Anda.</p>
+                <p class="laporanHeaderDesc">Catat kehadiran mandiri Anda saat tiba di PKBM Pikat dan pantau jadwal pembelajaran serta agenda kegiatan.</p>
             </div>
             <div class="laporanHeaderActions">
                 <div class="badgeDate">
@@ -37,7 +37,7 @@
     </div>
 
     <div class="dashboardGrid">
-        {{-- ── KOLOM KIRI: WAKTU, STATUS HARI INI & INFO KELAS ── --}}
+        {{-- ── KOLOM KIRI: WAKTU, STATUS PRESENSI HARI INI & INFORMASI SISWA ── --}}
         <div class="dashboardCol">
             {{-- ── JAM REALTIME ── --}}
             <div class="clockCard">
@@ -46,13 +46,14 @@
                 <div class="clockTz">Waktu Indonesia Barat (WIB)</div>
             </div>
 
-            {{-- ── STATUS PRESENSI HARI INI ── --}}
+            {{-- ── STATUS PRESENSI HARI INI (SINGLE CHECK-IN) ── --}}
             @php
-                $statusClass = ($todayStatus === 'selesai') ? 'selesai' : 'belum';
-                $statusIcon = ($todayStatus === 'selesai') ? 'checkmark-circle-outline' : 'radio-button-off-outline';
-                $statusText = ($todayStatus === 'selesai') ? 'Sudah Hadir di PKBM Hari Ini' : 'Belum Melakukan Absensi Hari Ini';
-                $jamMasukToday = $todayPresensi?->jam_masuk ? substr((string) $todayPresensi->jam_masuk, 0, 5) : '—';
-                $lokasiMasukToday = $todayPresensi?->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat';
+                $isHadir = ($todayStatus === 'selesai' && $todayPresensi);
+                $statusClass = $isHadir ? 'selesai' : 'belum';
+                $statusIcon = $isHadir ? 'checkmark-circle-outline' : 'radio-button-off-outline';
+                $statusText = $isHadir ? 'Sudah Hadir di PKBM Hari Ini' : 'Belum Melakukan Absensi Hari Ini';
+                $jamMasukToday = $todayPresensi?->jam_masuk ? substr((string) $todayPresensi->jam_masuk, 0, 5) . ' WIB' : 'Belum Absen';
+                $lokasiMasukToday = $todayPresensi?->lokasiPresensi?->nama_lokasi ?? ($isHadir ? 'Gedung Utama PKBM Pikat' : '—');
             @endphp
 
             <div class="todayCard {{ $statusClass }}">
@@ -64,10 +65,10 @@
                     <div class="todayTimeRow">
                         <div class="todayTimeChip">
                             <span class="todayTimeVal">{{ $jamMasukToday }}</span>
-                            <span class="todayTimeLbl">Jam Masuk</span>
+                            <span class="todayTimeLbl">Jam Kedatangan</span>
                         </div>
                         <div class="todayTimeChip">
-                            <span class="todayTimeVal">{{ $todayPresensi ? $lokasiMasukToday : '—' }}</span>
+                            <span class="todayTimeVal" title="{{ $lokasiMasukToday }}">{{ \Illuminate\Support\Str::limit($lokasiMasukToday, 20) }}</span>
                             <span class="todayTimeLbl">Lokasi Belajar</span>
                         </div>
                     </div>
@@ -86,7 +87,7 @@
                                 {{ $siswa->kelas?->nama_kelas ?? 'Kelas Siswa' }}
                             </div>
                             <div class="magangInfoSub">
-                                {{ $siswa->masterJenjang?->nama_jenjang ?? $siswa->jenjang_paket_label }} • NISN: {{ $siswa->nisn ?? ($siswa->no_absen ?? $user->nik) }}
+                                {{ $siswa->masterJenjang?->nama_jenjang ?? $siswa->jenjang_paket_label }} • No. Absen: {{ $siswa->no_absen ?? '—' }}
                             </div>
                         </div>
                     </div>
@@ -100,36 +101,104 @@
                             </span>
                         </div>
                         <div class="magangInfoItem">
-                            <span class="magangInfoItemLbl">Jenis Kelamin</span>
+                            <span class="magangInfoItemLbl">NISN / NIK</span>
                             <span class="magangInfoItemVal">
-                                {{ $siswa->jenis_kelamin === 'L' ? 'Laki-laki' : ($siswa->jenis_kelamin === 'P' ? 'Perempuan' : '—') }}
+                                {{ $siswa->nisn ?? ($user->nik ?? '—') }}
+                            </span>
+                        </div>
+                        <div class="magangInfoItem">
+                            <span class="magangInfoItemLbl">Nama Wali</span>
+                            <span class="magangInfoItemVal">
+                                {{ $siswa->nama_wali ?? '—' }}
+                            </span>
+                        </div>
+                        <div class="magangInfoItem">
+                            <span class="magangInfoItemLbl">Kebutuhan Khusus</span>
+                            <span class="magangInfoItemVal">
+                                <span class="badge {{ $siswa->is_abk ? 'bg-warning' : 'bg-light text-dark' }}" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px;">
+                                    {{ $siswa->is_abk ? 'ABK (Inklusi)' : 'Reguler' }}
+                                </span>
                             </span>
                         </div>
                     </div>
                 </div>
             @endif
+
+            {{-- ── AGENDA KEGIATAN PKBM MENDATANG ── --}}
+            @if(isset($agendaMendatang) && $agendaMendatang->isNotEmpty())
+                <div class="cardBox mt-4">
+                    <div class="cardHeadRow">
+                        <h2>
+                            <ion-icon name="calendar-clear-outline" class="text-primary"></ion-icon>
+                            <span>Agenda &amp; Jadwal PKBM</span>
+                        </h2>
+                        <a href="{{ route('siswa.jadwal') }}" class="text-xs font-bold text-primary text-decoration-none">
+                            Lihat Kalender &rsaquo;
+                        </a>
+                    </div>
+                    <div class="recentWrap">
+                        @foreach($agendaMendatang as $agenda)
+                            @php
+                                $tglAgenda = \Carbon\Carbon::parse($agenda->tanggal);
+                                $isHariIni = $tglAgenda->isToday();
+                            @endphp
+                            <div class="recentItem">
+                                <div class="recentLeft">
+                                    <div class="recentCheck {{ $isHariIni ? '' : 'pending' }}">
+                                        <ion-icon name="{{ $isHariIni ? 'flag' : 'calendar-outline' }}" class="text-md"></ion-icon>
+                                    </div>
+                                    <div class="recentMeta">
+                                        <div class="recentDay font-bold text-dark">{{ $agenda->judul }}</div>
+                                        <div class="recentTime text-xs">
+                                            {{ $tglAgenda->translatedFormat('d M Y') }} • {{ $agenda->lokasi ?: 'PKBM Pikat' }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="pillSmall {{ $isHariIni ? 'pillOk' : 'pillPending' }}">
+                                        {{ $isHariIni ? 'Hari Ini' : $tglAgenda->diffForHumans() }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
 
-        {{-- ── KOLOM KANAN: STATUS KEHADIRAN, STATISTIK & RIWAYAT ── --}}
+        {{-- ── KOLOM KANAN: CALL TO ACTION PRESENSI, JADWAL SESI & STATISTIK ── --}}
         <div class="dashboardCol">
-            {{-- ── CARD STATUS / TOMBOL PRESENSI ── --}}
-            @if ($todayStatus === 'selesai' && $todayPresensi)
-                <div class="statusBanner ready mb-4 bg-success-light">
-                    <div class="d-flex align-items-center gap-2">
-                        <ion-icon name="checkmark-done-circle" style="font-size: 1.6rem; color: #10b981;"></ion-icon>
-                        <div>
-                            <div class="statusTitle" style="color: #065f46; font-weight: 600;">Presensi Hari Ini Selesai</div>
-                            <div class="statusSub" style="color: #047857; font-size: 0.85rem;">Kehadiran Anda telah dicatat pada pukul {{ substr((string)$todayPresensi->jam_masuk, 0, 5) }} WIB. Selamat belajar!</div>
+            {{-- ── HERO CARD STATUS PRESENSI HARI INI ── --}}
+            @if ($isHadir)
+                <div class="statusBanner ready mb-4 bg-success-light" style="padding: 18px 20px; border-radius: 16px; border: 1px solid #10b98133;">
+                    <div class="d-flex align-items-center justify-content-between w-full flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            @if ($todayPresensi->foto_masuk_url)
+                                <img src="{{ $todayPresensi->foto_masuk_url }}" alt="Selfie Masuk" class="rounded-xl border shadow-sm" style="width: 52px; height: 52px; object-fit: cover;">
+                            @else
+                                <div class="avatar-md bg-success text-white rounded-xl d-flex align-items-center justify-content-center" style="width: 52px; height: 52px; font-size: 1.4rem;">
+                                    <ion-icon name="checkmark-done"></ion-icon>
+                                </div>
+                            @endif
+                            <div>
+                                <div class="statusTitle font-bold text-dark" style="font-size: 1.05rem; color: #065f46;">Kehadiran Hari Ini Selesai</div>
+                                <div class="statusSub text-xs text-muted mt-1">
+                                    Tercatat pukul <strong>{{ substr((string)$todayPresensi->jam_masuk, 0, 5) }} WIB</strong> di {{ $lokasiMasukToday }}
+                                </div>
+                            </div>
                         </div>
+                        <a href="{{ route('siswa.presensi.foto') }}" class="btn btn-sm btn-light px-3 py-2 rounded-lg font-bold text-xs">
+                            Lihat Kartu Presensi &rsaquo;
+                        </a>
                     </div>
                 </div>
             @else
-                <div class="magangCtaCard">
+                <div class="magangCtaCard mb-4">
                     <div class="magangCtaTitle">
                         Sudah Tiba di Lokasi Belajar?
                     </div>
                     <div class="magangCtaDesc">
-                        Ambil foto selfie presensi masuk dan pastikan Anda berada di area PKBM Pikat.
+                        Ambil foto selfie kehadiran mandiri untuk mencatat kehadiran Anda hari ini di PKBM Pikat.
                     </div>
                     <a href="{{ route('siswa.presensi.foto') }}" class="magangCtaBtn">
                         <ion-icon name="camera-outline" class="icon-md"></ion-icon>
@@ -138,12 +207,56 @@
                 </div>
             @endif
 
+            {{-- ── JADWAL SESI BELAJAR BERSAMA TUTOR HARI INI ── --}}
+            @if(isset($jadwalSesiHariIni) && $jadwalSesiHariIni->isNotEmpty())
+                <div class="cardBox mb-4">
+                    <div class="cardHeadRow">
+                        <h2>
+                            <ion-icon name="book-outline" class="text-primary"></ion-icon>
+                            <span>Jadwal Sesi Belajar Hari Ini</span>
+                        </h2>
+                        <a href="{{ route('siswa.jadwal') }}" class="text-xs font-bold text-primary text-decoration-none">
+                            Lihat Semua &rsaquo;
+                        </a>
+                    </div>
+                    <div class="recentWrap">
+                        @foreach($jadwalSesiHariIni as $sesi)
+                            @php
+                                $jamMulai = substr((string)$sesi->jam_masuk_rencana, 0, 5);
+                                $jamSelesai = substr((string)$sesi->jam_pulang_rencana, 0, 5);
+                                $tutorNama = $sesi->tutor?->nama_lengkap ?? 'Tutor Pengajar';
+                                $katNama = $sesi->kategoriTutorial?->nama_kategori ?? 'Tutorial KBM';
+                                $isHadirSesi = ($sesi->status_kehadiran_siswa === 'hadir');
+                            @endphp
+                            <div class="recentItem">
+                                <div class="recentLeft">
+                                    <div class="recentCheck {{ $isHadirSesi ? '' : 'pending' }}">
+                                        <ion-icon name="{{ $isHadirSesi ? 'checkmark-circle' : 'time-outline' }}" class="text-md"></ion-icon>
+                                    </div>
+                                    <div class="recentMeta">
+                                        <div class="recentDay font-bold text-dark">{{ $katNama }} • {{ $jamMulai }} - {{ $jamSelesai }} WIB</div>
+                                        <div class="recentTime text-xs">
+                                            Pengajar: <strong>{{ $tutorNama }}</strong> • Sesi {{ ucfirst($sesi->jenis_sesi) }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="pillSmall {{ $isHadirSesi ? 'pillOk' : 'pillPending' }}">
+                                        {{ $isHadirSesi ? 'Hadir' : 'Terjadwal' }}
+                                    </span>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- ── STATISTIK KEHADIRAN BULAN INI ── --}}
-            <div class="cardBox">
+            <div class="cardBox mb-4">
                 <div class="cardHeadRow">
                     <h2>
                         <ion-icon name="pie-chart-outline" class="text-primary"></ion-icon>
-                        <span>Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
+                        <span>Kehadiran Bulan Ini ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
                     </h2>
                 </div>
                 <div class="statsGrid">
@@ -170,7 +283,7 @@
                 <div class="cardHeadRow">
                     <h2>
                         <ion-icon name="time-outline" class="text-primary"></ion-icon>
-                        <span>Riwayat Absen Mandiri Terbaru</span>
+                        <span>Riwayat Kehadiran Terbaru</span>
                     </h2>
                     <a href="{{ route('siswa.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
                 </div>
@@ -189,9 +302,9 @@
                                     <ion-icon name="checkmark" class="text-md"></ion-icon>
                                 </div>
                                 <div class="recentMeta">
-                                    <div class="recentDay">{{ $hari }}</div>
-                                    <div class="recentTime">
-                                        Masuk: {{ $masuk }} WIB • {{ $lokasi }}
+                                    <div class="recentDay font-semibold text-dark">{{ $hari }}</div>
+                                    <div class="recentTime text-xs text-muted">
+                                        Masuk: <strong>{{ $masuk }} WIB</strong> • {{ $lokasi }}
                                     </div>
                                 </div>
                             </div>
@@ -202,7 +315,7 @@
                             </div>
                         </div>
                     @empty
-                        <div class="emptyState m-0 p-4">
+                        <div class="emptyState m-0 p-4 text-center text-muted text-sm">
                             Belum ada riwayat absensi mandiri bulan ini.
                         </div>
                     @endforelse

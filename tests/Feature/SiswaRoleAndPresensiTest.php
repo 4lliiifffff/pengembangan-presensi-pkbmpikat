@@ -10,7 +10,7 @@ use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Storage;
@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 class SiswaRoleAndPresensiTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected function setUp(): void
     {
@@ -463,5 +463,56 @@ class SiswaRoleAndPresensiTest extends TestCase
             'password' => 'password123',
         ]);
         $loginRes->assertRedirect(route('siswa.dashboard'));
+    }
+
+    public function test_siswa_can_view_jadwal_page_with_calendar_and_sessions(): void
+    {
+        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 12', 'jenjang_paket_id' => $jp->id, 'tingkat' => '12']);
+
+        $siswa = Siswa::create([
+            'no_absen' => 'SW999',
+            'nama_siswa' => 'Budi Santoso',
+            'nama_wali' => 'Wali Budi',
+            'no_hp' => '089911223344',
+            'kelas_id' => $kls->id,
+            'status_siswa' => 'aktif',
+            'is_abk' => false,
+        ]);
+
+        $tutorUser = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $tutorUser->id,
+            'nama_lengkap' => 'Tutor Matematika Hebat',
+            'email' => 'tutor_mtk@pkbmpikat.com',
+            'nik' => 'NIKTUTOR99',
+            'no_hp' => '081299887766',
+            'status' => 'aktif',
+        ]);
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        // Buat Sesi KBM
+        JadwalSesi::create([
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswa->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '09:00:00',
+            'jam_pulang_rencana' => '11:00:00',
+            'durasi_jam' => 2.0,
+            'jenis_sesi' => 'reguler',
+            'status' => 'terjadwal',
+            'status_kehadiran_siswa' => 'belum',
+        ]);
+
+        $siswa->refresh();
+        $this->actingAs($siswa->user);
+
+        $response = $this->get(route('siswa.jadwal'));
+        $response->assertStatus(200);
+        $response->assertSee('Jadwal Siswa PKBM');
+        $response->assertSee('Tutor Matematika Hebat');
+        $response->assertSee('09:00');
+        $response->assertSee('11:00');
     }
 }

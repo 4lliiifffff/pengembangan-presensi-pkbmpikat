@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\Jadwal;
+use App\Models\JadwalSesi;
 use App\Models\Presensi;
 use App\Models\PresensiMandiriSiswa;
 use Carbon\Carbon;
@@ -35,6 +37,19 @@ class SiswaDashboardController extends Controller
 
         $todayStatus = $todayPresensi ? 'selesai' : 'belum';
         $activeSesi = null;
+
+        // Jadwal Sesi Belajar / Tutorial bersama Tutor Hari Ini
+        $jadwalSesiHariIni = JadwalSesi::with(['tutor', 'kategoriTutorial'])
+            ->where('siswa_id', $siswa->id)
+            ->whereDate('tanggal_rencana', $today)
+            ->orderBy('jam_masuk_rencana')
+            ->get();
+
+        // Agenda / Jadwal Kegiatan Umum PKBM Mendatang
+        $agendaMendatang = Jadwal::whereDate('tanggal', '>=', $today)
+            ->orderBy('tanggal')
+            ->limit(3)
+            ->get();
 
         // Hitung statistik presensi mandiri bulan berjalan
         $currentMonth = Carbon::now('Asia/Jakarta')->month;
@@ -70,6 +85,8 @@ class SiswaDashboardController extends Controller
             'todayPresensi',
             'todayStatus',
             'activeSesi',
+            'jadwalSesiHariIni',
+            'agendaMendatang',
             'hadirBulanIni',
             'hadirSesiKelas',
             'totalHadirBulanIni',
@@ -120,6 +137,83 @@ class SiswaDashboardController extends Controller
             'statusFilter',
             'hadir',
             'items'
+        ));
+    }
+
+    /**
+     * Halaman Jadwal Sesi Belajar & Agenda Kegiatan Siswa.
+     */
+    public function jadwal(Request $request)
+    {
+        $user = Auth::user();
+        $siswa = $user->siswa?->load(['kelas', 'masterJenjang']);
+
+        if (! $siswa) {
+            return redirect()->route('logout')->with('warning', 'Profil data siswa belum terhubung.');
+        }
+
+        $tz = 'Asia/Jakarta';
+        $today = Carbon::now($tz)->toDateString();
+        $selectedDate = Carbon::parse($request->get('tanggal', $today))->startOfDay();
+
+        $startOfMonth = $selectedDate->copy()->startOfMonth();
+        $endOfMonth = $selectedDate->copy()->endOfMonth();
+
+        $monthDays = collect();
+        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
+            $monthDays->push($date->copy());
+        }
+
+        // 1. Jadwal Sesi Belajar / Tutorial Siswa pada tanggal terpilih
+        $jadwalSesis = JadwalSesi::with(['tutor', 'kategoriTutorial', 'jadwalKerja'])
+            ->where('siswa_id', $siswa->id)
+            ->whereDate('tanggal_rencana', $selectedDate)
+            ->orderBy('jam_masuk_rencana')
+            ->get();
+
+        // 2. Agenda Kegiatan Umum PKBM pada tanggal terpilih
+        $agendas = Jadwal::whereDate('tanggal', $selectedDate)
+            ->orderBy('tanggal')
+            ->orderBy('created_at')
+            ->get();
+
+        // 3. Hitung indikator event kalender per tanggal di bulan aktif (gabungan Sesi + Agenda PKBM)
+        $sesiPerHari = JadwalSesi::where('siswa_id', $siswa->id)
+            ->whereBetween('tanggal_rencana', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->get()
+            ->groupBy(fn ($item) => is_object($item->tanggal_rencana) ? $item->tanggal_rencana->format('Y-m-d') : substr((string) $item->tanggal_rencana, 0, 10))
+            ->map->count();
+
+        $agendaPerHari = Jadwal::whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
+            ->get()
+            ->groupBy(fn ($item) => is_object($item->tanggal) ? $item->tanggal->format('Y-m-d') : substr((string) $item->tanggal, 0, 10))
+            ->map->count();
+
+        // Gabungkan keduanya
+        $monthCounts = collect();
+        foreach ($monthDays as $d) {
+            $dStr = $d->format('Y-m-d');
+            $count = ($sesiPerHari[$dStr] ?? 0) + ($agendaPerHari[$dStr] ?? 0);
+            if ($count > 0) {
+                $monthCounts[$dStr] = $count;
+            }
+        }
+
+        // Status presensi mandiri hari ini (jika user melihat tanggal hari ini)
+        $todayPresensi = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+            ->whereDate('tgl_presensi', $today)
+            ->first();
+
+        return view('siswa.jadwal', compact(
+            'user',
+            'siswa',
+            'today',
+            'selectedDate',
+            'monthDays',
+            'monthCounts',
+            'jadwalSesis',
+            'agendas',
+            'todayPresensi'
         ));
     }
 
