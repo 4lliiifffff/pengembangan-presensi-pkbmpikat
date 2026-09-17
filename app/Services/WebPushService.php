@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\Magang;
 use App\Models\PushSubscription;
+use App\Models\Siswa;
+use App\Models\Tutor;
 use App\Models\User;
 use GuzzleHttp\Client;
 use Illuminate\Support\Collection;
@@ -60,25 +63,34 @@ class WebPushService
     /**
      * Kirim notifikasi Web Push ke User tertentu.
      *
+     * @param  User|Tutor|Siswa|Magang|int  $user
      * @param  array{title: string, body: string, icon?: string, badge?: string, url?: string, data?: array}  $payload
      * @return int Jumlah perangkat yang berhasil menerima notifikasi
      */
-    public function sendToUser(User|Tutor|int $user, array $payload): int
+    public function sendToUser(mixed $user, array $payload): int
     {
         $userId = null;
 
         if ($user instanceof User) {
             $userId = $user->id;
-        } elseif ($user instanceof \App\Models\Tutor) {
+        } elseif ($user instanceof Tutor) {
+            $userId = $user->user_id;
+        } elseif ($user instanceof Siswa) {
+            $userId = $user->user_id;
+        } elseif ($user instanceof Magang) {
             $userId = $user->user_id;
         } elseif (is_int($user)) {
-            // Cek apakah ID adalah user_id langsung atau tutor_id
+            // Cek apakah ID adalah user_id langsung
             $hasSub = PushSubscription::where('user_id', $user)->exists();
             if ($hasSub) {
                 $userId = $user;
             } else {
-                $tutor = \App\Models\Tutor::find($user);
-                $userId = $tutor?->user_id ?? $user;
+                $tutor = Tutor::find($user);
+                $userId = $tutor?->user_id;
+                if (! $userId) {
+                    $siswa = Siswa::find($user);
+                    $userId = $siswa?->user_id ?? $user;
+                }
             }
         }
 
@@ -96,9 +108,57 @@ class WebPushService
     }
 
     /**
+     * Kirim notifikasi Web Push ke Siswa tertentu.
+     */
+    public function sendToSiswa(Siswa|int $siswa, array $payload): int
+    {
+        return $this->sendToUser($siswa, $payload);
+    }
+
+    /**
+     * Kirim notifikasi Web Push ke semua Siswa yang aktif.
+     */
+    public function sendToAllStudents(array $payload): int
+    {
+        $subscriptions = PushSubscription::whereHas('user', function ($q) {
+            $q->where('role', 'siswa')->where('is_active', 1);
+        })->get();
+
+        if ($subscriptions->isEmpty()) {
+            return 0;
+        }
+
+        return $this->sendToSubscriptions($subscriptions, $payload);
+    }
+
+    /**
+     * Kirim notifikasi Web Push ke Magang tertentu.
+     */
+    public function sendToMagang(Magang|int $magang, array $payload): int
+    {
+        return $this->sendToUser($magang, $payload);
+    }
+
+    /**
+     * Kirim notifikasi Web Push ke semua Magang yang aktif.
+     */
+    public function sendToAllMagang(array $payload): int
+    {
+        $subscriptions = PushSubscription::whereHas('user', function ($q) {
+            $q->where('role', 'magang')->where('is_active', 1);
+        })->get();
+
+        if ($subscriptions->isEmpty()) {
+            return 0;
+        }
+
+        return $this->sendToSubscriptions($subscriptions, $payload);
+    }
+
+    /**
      * Kirim notifikasi Web Push ke Tutor tertentu.
      */
-    public function sendToTutor(\App\Models\Tutor|int $tutor, array $payload): int
+    public function sendToTutor(Tutor|int $tutor, array $payload): int
     {
         return $this->sendToUser($tutor, $payload);
     }

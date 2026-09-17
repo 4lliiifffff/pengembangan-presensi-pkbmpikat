@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -152,6 +153,29 @@ class SiswaPresensiController extends Controller
             'body' => 'Kehadiran siswa berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar di PKBM Pikat!',
             'url' => route('siswa.presensi'),
         ]);
+
+        // Web Push Notification ke Tutor yang memiliki sesi belajar dengan siswa hari ini
+        try {
+            $todaySesiTutors = JadwalSesi::with('tutor.user')
+                ->where('siswa_id', $siswa->id)
+                ->whereDate('tanggal_rencana', $today)
+                ->get()
+                ->pluck('tutor')
+                ->filter()
+                ->unique('id');
+
+            foreach ($todaySesiTutors as $tutor) {
+                if ($tutor->user) {
+                    $this->webPushService->sendToUser($tutor->user, [
+                        'title' => '🎓 Siswa Bimbingan Hadir',
+                        'body' => "Siswa bimbingan Anda, {$siswa->nama_siswa}, telah tiba dan melakukan presensi masuk di sekolah pada pukul {$waktuServer} WIB.",
+                        'url' => route('tutor.dashboard'),
+                    ]);
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal kirim webpush kehadiran siswa ke tutor: '.$e->getMessage());
+        }
 
         return redirect()
             ->route('siswa.dashboard')

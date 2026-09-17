@@ -12,6 +12,7 @@ use App\Services\WebPushService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
 class JadwalSesiController extends Controller
@@ -139,7 +140,25 @@ class JadwalSesiController extends Controller
         $validated['status'] = 'terjadwal';
         $validated['status_kehadiran_siswa'] = 'belum_presensi';
 
-        JadwalSesi::create($validated);
+        $sesi = JadwalSesi::create($validated);
+
+        // Web Push Notifikasi ke Siswa jika terhubung akun
+        try {
+            $siswa = Siswa::with('user')->find($validated['siswa_id']);
+            if ($siswa?->user) {
+                $katNama = isset($kat) && $kat ? $kat->nama_kategori : 'Tutorial KBM';
+                $tglFormatted = Carbon::parse($validated['tanggal_rencana'])->translatedFormat('d F Y');
+                $jamMulai = substr((string) $validated['jam_masuk_rencana'], 0, 5);
+
+                $this->webPushService->sendToUser($siswa->user, [
+                    'title' => '📅 Jadwal Belajar Baru Terdaftar',
+                    'body' => "Tutor {$tutor->nama_lengkap} telah menjadwalkan sesi belajar {$katNama} untuk Anda pada {$tglFormatted} pukul {$jamMulai} WIB.",
+                    'url' => route('siswa.jadwal', ['tanggal' => $validated['tanggal_rencana']]),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal kirim webpush jadwal baru ke siswa: '.$e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'Jadwal sesi mengajar berhasil disimpan.');
     }
@@ -179,6 +198,24 @@ class JadwalSesiController extends Controller
         }
 
         $jadwalSesi->update($validated);
+
+        // Web Push Notifikasi ke Siswa jika ada perubahan
+        try {
+            $siswa = Siswa::with('user')->find($validated['siswa_id']);
+            if ($siswa?->user) {
+                $katNama = isset($kat) && $kat ? $kat->nama_kategori : 'Tutorial KBM';
+                $tglFormatted = Carbon::parse($validated['tanggal_rencana'])->translatedFormat('d F Y');
+                $jamMulai = substr((string) $validated['jam_masuk_rencana'], 0, 5);
+
+                $this->webPushService->sendToUser($siswa->user, [
+                    'title' => '📅 Pembaruan Jadwal Belajar',
+                    'body' => "Sesi belajar {$katNama} bersama Tutor {$tutor->nama_lengkap} telah diperbarui ke tanggal {$tglFormatted} pukul {$jamMulai} WIB.",
+                    'url' => route('siswa.jadwal', ['tanggal' => $validated['tanggal_rencana']]),
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('Gagal kirim webpush update jadwal ke siswa: '.$e->getMessage());
+        }
 
         return redirect()->back()->with('success', 'Jadwal sesi berhasil diperbarui.');
     }

@@ -247,16 +247,22 @@ pie title Status Fitur & Pengkondisian Sistem
 
 ### 6. Integrasi Interoperabilitas Sistem & Notifikasi (Integrations)
 
-#### 6.1 Web Push Notification Real-Time
+#### 6.1 Web Push Notification Real-Time & Unified Scheduler Engine (Multi-Role)
 - 🟢 **Infrastruktur Web Push, VAPID & Guzzle Client**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Paket `minishlink/web-push`, command `webpush:vapid`, migrasi `push_subscriptions`, dan `WebPushService` dengan proteksi SSL bypass Windows/Laragon.
+  - **Rincian Implementasi:** Paket `minishlink/web-push`, command `webpush:vapid`, migrasi `push_subscriptions`, dan `WebPushService` dengan proteksi SSL bypass Windows/Laragon serta helper pengiriman multi-role (`sendToUser`, `sendToSiswa`, `sendToTutor`, `sendToMagang`, `sendToAdmins`, `sendToKepsek`).
 - 🟢 **Auto-Sync Token Browser & Client Push Manager**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Script `resources/js/push-notification.js` auto-sinkronisasi token browser, auto-reconnect, dan pengujian push mandiri di menu Profil.
-- 🟢 **Otomatisasi Trigger Push Notifikasi Sistem**
+  - **Rincian Implementasi:** Script `resources/js/push-notification.js` auto-sinkronisasi token browser, auto-reconnect, dan pengujian push mandiri di menu Profil seluruh role (Tutor, Siswa, Magang, Admin, Kepsek).
+- 🟢 **Otomatisasi Trigger Push Notifikasi Sistem Real-Time & Scheduled Cron**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Notifikasi instan presensi masuk/pulang, pengajuan izin/sakit, permohonan lupa lapor, scheduler cron pengingat jadwal mengajar harian (`presensi:send-reminder`), dan broadcast pengumuman slip gaji.
+  - **Rincian Implementasi:**
+    - Notifikasi instan presensi masuk/pulang Tutor, Siswa, dan Magang.
+    - Notifikasi otomatis ke Siswa saat Tutor menjadwalkan atau mereschedule sesi belajar KBM.
+    - Alert instan ke Tutor saat Siswa bimbingan telah tiba dan melakukan check-in di sekolah.
+    - Notifikasi pengajuan izin & lupa lapor ke Kepala Sekolah beserta persetujuannya.
+    - Command `presensi:send-reminder` terpadu dengan opsi `--type` (`morning`, `clockout`, `pending-approvals`) dan otomatisasi cron di `routes/console.php`.
+    - Broadcast pengumuman slip gaji / honorarium kepada tutor.
 
 #### 6.2 Import & Export Massal Data (Bulk Data Management)
 - 🟢 **Import & Export Spreadsheet Excel/CSV**

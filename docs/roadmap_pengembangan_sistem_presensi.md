@@ -137,10 +137,14 @@
 
 ## 6. INTEGRASI INTEROPERABILITAS SISTEM & NOTIFIKASI (INTEGRATIONS)
 
-### 6.1 Web Push Notification Real-Time (PWA & FCM Push Service)
+### 6.1 Web Push Notification Real-Time & Unified Scheduler Engine (Multi-Role)
 * 🟢 **Infrastruktur Web Push & VAPID Key Management:** [SELESAI] Integrasi paket `minishlink/web-push` dengan generator kunci VAPID otomatis via `php artisan webpush:vapid`.
-* 🟢 **Auto-Sync & Client Push Manager:** [SELESAI] Sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil.
-* 🟢 **Otomatisasi Trigger Push Notifikasi Sistem:** [SELESAI] Konfirmasi presensi masuk/pulang, notifikasi pengajuan izin/lupa lapor, notifikasi persetujuan Kepsek, pengingat jadwal mengajar harian, dan broadcast pengumuman payroll.
+* 🟢 **Auto-Sync & Client Push Manager:** [SELESAI] Sinkronisasi token browser ke database pengguna login, auto-reconnect, dan pengujian push mandiri di menu Profil seluruh role (Tutor, Siswa, Magang, Admin, Kepsek).
+* 🟢 **Otomatisasi Trigger Push Notifikasi Sistem Real-Time:** [SELESAI] Konfirmasi presensi masuk/pulang, notifikasi pembuatan/perubahan jadwal sesi KBM ke siswa, alert siswa hadir ke tutor bimbingan, notifikasi pengajuan izin/lupa lapor ke Kepsek, dan broadcast pengumuman payroll.
+* 🟢 **Unified Notification Scheduler & Automated Cron Reminders (`presensi:send-reminder`):** [SELESAI]
+  - Pengingat pagi hari (06:30 WIB) untuk jadwal sesi belajar siswa, sesi mengajar tutor, dan shift masuk magang.
+  - Pengingat presensi pulang (setiap 30 menit) bagi tutor yang telah mengajar $\ge 1$ jam dan magang yang telah menyelesaikan jam kerja harian.
+  - Ringkasan harian (16:00 WIB) permohonan izin & lupa lapor yang menunggu persetujuan Kepala Sekolah.
 
 ### 6.2 Import & Export Massal Data (Bulk Data Management)
 * 🟢 **Import & Export Spreadsheet Excel/CSV:** [SELESAI] Fitur pengunggahan massal (*bulk import*) data Tutor, Siswa, Jadwal/Agenda, dan Rekap Presensi Retroaktif, serta ekspor laporan presensi berstandar akreditasi menggunakan `maatwebsite/excel`.
