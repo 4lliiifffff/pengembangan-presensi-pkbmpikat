@@ -18,6 +18,11 @@ class PresensiKaryawan extends Model
         return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
     }
 
+    public function jadwalKerja()
+    {
+        return $this->belongsTo(JadwalKerja::class, 'jadwal_kerja_id');
+    }
+
     /**
      * Accessor: Mengembalikan URL foto masuk dengan backward compatibility.
      */

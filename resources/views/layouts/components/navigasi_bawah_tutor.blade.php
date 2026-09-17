@@ -36,7 +36,7 @@
         $isTutorDrawerActive = request()->routeIs('tutor.payroll*') ||
                                request()->routeIs('tutor.pengajuan-izin*') ||
                                request()->routeIs('tutor.lupa-lapor*') ||
-                               request()->routeIs('tutor.profil*');
+                               request()->routeIs('profil.*');
     @endphp
     <button type="button" class="navItem {{ $isTutorDrawerActive ? 'active' : '' }}" onclick="toggleNavDrawer('navDrawerTutor')" aria-label="Menu Lainnya">
         <div class="navIconWrap">
@@ -101,7 +101,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('tutor.profil') }}" class="navDrawerCard {{ request()->routeIs('tutor.profil*') ? 'active' : '' }}">
+                    <a href="{{ route('profil.index') }}" class="navDrawerCard {{ request()->routeIs('profil.*') ? 'active' : '' }}">
                         <div class="navCardIcon purple">
                             <ion-icon name="person-outline"></ion-icon>
                         </div>

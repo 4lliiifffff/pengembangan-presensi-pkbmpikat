@@ -91,12 +91,12 @@
                             $mMulai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_mulai, 'Asia/Jakarta');
                             $mSelesai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_selesai, 'Asia/Jakarta');
                             $durMin = $mMulai->diffInMinutes($mSelesai);
-                            $durLabel = floor($durMin / 60) . 'j ' . $durMin % 60 . 's';
+                            $durLabel = floor($durMin / 60) . 'j ' . $durMin % 60 . 'm';
                         } catch (\Throwable) {
                             $durLabel = '-';
                         }
                     @endphp
-                    <div  class="border-b-base py-2">
+                    <div class="border-b-base py-2">
                         <div class="text-sm font-black text-dark">
                             {{ $sesi->siswa->nama_siswa ?? 'Siswa' }}
                         </div>
@@ -118,7 +118,7 @@
                 <div class="statusIcon warn">
                     <ion-icon name="time-outline"></ion-icon>
                 </div>
-                <div >
+                <div>
                     <div class="statusTitle">Sesi Sedang Berjalan</div>
                     <div class="statusSub">Masuk pukul {{ $jamMasuk }} —
                         {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}
@@ -145,7 +145,7 @@
                     <div class="statusIcon blue">
                         <ion-icon name="checkmark-circle-outline"></ion-icon>
                     </div>
-                    <div >
+                    <div>
                         <div class="statusTitle">Siap Absen Pulang</div>
                         <div class="statusSub">Sudah lebih dari 1 jam sejak masuk</div>
                     </div>
@@ -154,11 +154,11 @@
 
             {{-- Warning: sudah lebih dari 2 jam --}}
             @if ($sudahLewat2Jam)
-                <div  class="statusBanner mb-3 alert-danger-box">
-                    <div  class="statusIcon text-danger bg-danger-light">
+                <div class="statusBanner mb-3 alert-danger-box">
+                    <div class="statusIcon text-danger bg-danger-light">
                         <ion-icon name="warning-outline"></ion-icon>
                     </div>
-                    <div >
+                    <div>
                         <div class="statusTitle text-danger">Sudah Lewat 2 Jam!</div>
                         <div class="statusSub">Segera lakukan absen pulang sekarang.</div>
                     </div>
@@ -241,25 +241,29 @@
                             {{-- Floating Camera Toolbar Overlay --}}
                             <div id="camControlBar" class="camControlBar d-none">
                                 <div class="camControlGroup">
-                                    <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                    <button type="button" class="camToolBtn active" id="btnToggleMirror"
+                                        onclick="toggleCameraMirror()" title="Mirror Kamera">
                                         <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
                                     </button>
-                                    <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                    <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()"
+                                        title="Tukar Depan/Belakang">
                                         <ion-icon name="camera-reverse-outline"></ion-icon> Switch
                                     </button>
                                 </div>
                                 <div class="camControlGroup">
-                                    <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                    <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()"
+                                        title="Garis Bantu Komposisi">
                                         <ion-icon name="grid-outline"></ion-icon> Grid
                                     </button>
-                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" class="camToolBtn d-none">
+                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash"
+                                        class="camToolBtn d-none">
                                         <ion-icon name="flash-outline"></ion-icon> Flash
                                     </button>
                                 </div>
                             </div>
 
                             <div class="photoPlaceholder" id="placeholder">
-                                Ketuk <b >Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
+                                Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi pulang.
                             </div>
                         </div>
 
@@ -294,17 +298,43 @@
                     </div>
                     <div class="text-md font-extrabold text-dark">Form Absen Pulang Terbuka Otomatis</div>
                     <div class="text-sm text-muted mt-1">Tersisa
-                        {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi mengajar)</div>
+                        {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi mengajar)
+                    </div>
                 </div>
             @endif
 
             {{-- ── BELUM ABSEN (belum masuk, atau sesi sudah selesai → tombol Mulai) ── --}}
         @else
+            @if(isset($shiftEval))
+                <div class="card mb-3 p-3 border-base bg-card-alt rounded-xl">
+                    <div class="d-flex items-center justify-between flex-wrap gap-2">
+                        <div class="d-flex items-center gap-2">
+                            <div class="text-primary text-xl d-flex items-center">
+                                <ion-icon name="calendar-outline"></ion-icon>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal Shift: {{ $shiftEval['shift_nama'] }}</div>
+                                <div class="text-xs text-muted">Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b> &bull; Toleransi s.d. <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                            </div>
+                        </div>
+                        <div>
+                            @if($shiftEval['status_kehadiran'] === 'tepat_waktu')
+                                <span class="badge bg-success-light text-success font-bold text-xs py-1 px-2 rounded-full">Tepat Waktu</span>
+                            @elseif($shiftEval['status_kehadiran'] === 'lebih_awal')
+                                <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-2 rounded-full">Lebih Awal</span>
+                            @else
+                                <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-2 rounded-full">Terlambat (+{{ $shiftEval['menit_keterlambatan'] }}m)</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="statusBanner ready mb-4">
                 <div class="statusIcon blue">
                     <ion-icon name="log-in-outline"></ion-icon>
                 </div>
-                <div >
+                <div>
                     <div class="statusTitle">Belum Absen Masuk</div>
                     <div class="statusSub">Silakan absen masuk terlebih dahulu</div>
                 </div>
@@ -329,7 +359,8 @@
                         <label class="d-block text-sm font-extrabold text-uppercase text-muted mb-1">
                             Moda Pembelajaran <span class="text-danger">*</span>
                         </label>
-                        <select name="moda_pembelajaran" id="selectModa" onchange="handleModaChange(this.value)" class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
+                        <select name="moda_pembelajaran" id="selectModa" onchange="handleModaChange(this.value)"
+                            class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
                             <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Sekolah (Tatap
                                 Muka di PKBM)</option>
                             <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>
@@ -344,7 +375,9 @@
                         <label class="d-block text-sm font-extrabold text-uppercase mb-1 text-primary">
                             Link Pertemuan Daring (Opsional)
                         </label>
-                        <input type="url" name="link_daring" placeholder="https://meet.google.com/... atau Zoom" value="{{ old('link_daring') }}" class="input w-full rounded-lg p-2 text-md text-dark bg-card-alt border-primary">
+                        <input type="url" name="link_daring" placeholder="https://meet.google.com/... atau Zoom"
+                            value="{{ old('link_daring') }}"
+                            class="input w-full rounded-lg p-2 text-md text-dark bg-card-alt border-primary">
                     </div>
 
                     {{-- 3. Durasi Sesi Pertemuan --}}
@@ -353,10 +386,12 @@
                             <label class="text-sm font-extrabold text-uppercase text-muted">
                                 Durasi Sesi <span class="text-danger">*</span>
                             </label>
-                            <span id="labelKategoriLayanan" class="text-xs font-extrabold text-primary rounded-sm badge-tutorial-pill">Tutorial
+                            <span id="labelKategoriLayanan"
+                                class="text-xs font-extrabold text-primary rounded-sm badge-tutorial-pill">Tutorial
                                 Komunitas</span>
                         </div>
-                        <select name="durasi_pilihan" id="selectDurasi" class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
+                        <select name="durasi_pilihan" id="selectDurasi"
+                            class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
                             <option value="2.0">2 Jam Sesi (Standar)</option>
                             <option value="3.0">3 Jam Sesi (Panjang)</option>
                         </select>
@@ -367,11 +402,12 @@
                         <div class="flex-between">
                             <label class="d-flex items-center gap-2 text-sm font-bold cursor-pointer text-dark m-0">
                                 <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} onchange="updateSelectedSiswaCount()" class="checkbox-custom">
-                                <span >Sesi Gabungan Komunitas (Rombel)</span>
+                                <span>Sesi Gabungan Komunitas (Rombel)</span>
                             </label>
-                            <span id="badgeAutoGabungan" class="d-none text-xs font-extrabold rounded-sm badge-auto-gabungan">⚡ Otomatis</span>
+                            <span id="badgeAutoGabungan" class="d-none text-xs font-extrabold rounded-sm badge-auto-gabungan">⚡
+                                Otomatis</span>
                         </div>
-                        <div  class="text-xs text-muted mt-1 ml-2 line-height-base">
+                        <div class="text-xs text-muted mt-1 ml-2 line-height-base">
                             Penggabungan beberapa rombel dalam 1 jenjang paket yang sama (sesama Paket A, B, atau C).
                         </div>
                     </div>
@@ -382,38 +418,47 @@
                             <label class="text-sm font-extrabold text-uppercase text-muted d-flex items-center gap-1">
                                 Siswa yang Diajar <span class="text-danger">*</span>
                             </label>
-                            <span  class="text-xs font-bold text-success rounded-sm badge-penugasan-pill">Penugasan
+                            <span class="text-xs font-bold text-success rounded-sm badge-penugasan-pill">Penugasan
                                 Admin</span>
                         </div>
 
                         <div class="border-base rounded-lg p-2 bg-card-alt">
                             {{-- Search Input Bar --}}
                             <div class="pos-relative d-flex items-center mb-2">
-                                <ion-icon name="search-outline" class="pos-absolute text-muted icon-sm pointer-events-none left-2"></ion-icon>
-                                <input type="text" id="inputSearchSiswa" placeholder="Cari nama siswa / NIS / ABK..." oninput="filterSiswaList(this.value)" autocomplete="off" class="w-full rounded-md border-base text-sm font-semibold text-dark bg-card search-input-px">
-                                <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch" class="d-none pos-absolute bg-none border-none text-muted cursor-pointer text-md right-2 p-1">✕</button>
+                                <ion-icon name="search-outline"
+                                    class="pos-absolute text-muted icon-sm pointer-events-none left-2"></ion-icon>
+                                <input type="text" id="inputSearchSiswa" placeholder="Cari nama siswa / NIS / ABK..."
+                                    oninput="filterSiswaList(this.value)" autocomplete="off"
+                                    class="w-full rounded-md border-base text-sm font-semibold text-dark bg-card search-input-px">
+                                <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch"
+                                    class="d-none pos-absolute bg-none border-none text-muted cursor-pointer text-md right-2 p-1">✕</button>
                             </div>
 
                             {{-- Selected Counter & Quick Toggle --}}
-                            <div  class="d-flex justify-between items-center mb-1 border-b-base pb-2">
+                            <div class="d-flex justify-between items-center mb-1 border-b-base pb-2">
                                 <div id="selectedSiswaBadge" class="text-xs font-extrabold text-primary">
                                     <span id="selectedSiswaCount">0</span> Siswa Terpilih
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button type="button" onclick="selectAllVisibleSiswa(true)" class="text-xs font-bold text-primary bg-none border-none cursor-pointer p-0">Pilih
+                                    <button type="button" onclick="selectAllVisibleSiswa(true)"
+                                        class="text-xs font-bold text-primary bg-none border-none cursor-pointer p-0">Pilih
                                         Semua</button>
                                     <span class="text-muted">|</span>
-                                    <button type="button" onclick="selectAllVisibleSiswa(false)" class="text-xs font-bold text-danger bg-none border-none cursor-pointer p-0">Reset</button>
+                                    <button type="button" onclick="selectAllVisibleSiswa(false)"
+                                        class="text-xs font-bold text-danger bg-none border-none cursor-pointer p-0">Reset</button>
                                 </div>
                             </div>
 
                             {{-- Info Banner Deteksi Rombel --}}
-                            <div id="rombelDetectionBadge" class="d-none mb-2 rounded-md text-sm font-bold p-2 border-none"></div>
+                            <div id="rombelDetectionBadge" class="d-none mb-2 rounded-md text-sm font-bold p-2 border-none">
+                            </div>
 
                             {{-- Alert Mismatch Paket Siswa Terpilih --}}
-                            <div id="gabunganPaketMismatchAlert" class="d-none mb-2 rounded-md text-danger text-sm font-bold p-2 alert-danger-box">
+                            <div id="gabunganPaketMismatchAlert"
+                                class="d-none mb-2 rounded-md text-danger text-sm font-bold p-2 alert-danger-box">
                                 <ion-icon name="alert-circle" class="align-middle text-md mr-1"></ion-icon>
-                                <span id="gabunganPaketMismatchMsg">Peringatan: Siswa yang dipilih berasal dari jenjang paket yang berbeda.</span>
+                                <span id="gabunganPaketMismatchMsg">Peringatan: Siswa yang dipilih berasal dari jenjang paket
+                                    yang berbeda.</span>
                             </div>
 
                             {{-- Scrollable List of Students --}}
@@ -423,14 +468,14 @@
                                         $p = collect($presensiToday)->get($siswa->id);
                                         $badge = '';
                                         if ($p?->foto_mulai && !$p?->foto_selesai) {
-                                             $badge = ' <span class="text-warning text-xs d-inline-flex items-center gap-1 font-bold">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
+                                            $badge = ' <span class="text-warning text-xs d-inline-flex items-center gap-1 font-bold">(<ion-icon name="time-outline"></ion-icon> Berjalan)</span>';
                                         }
                                         $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
                                         $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
                                     @endphp
-                                    <label class="siswa-item-row" data-search="{{ $searchKeyword }}" data-paket="{{ $siswa->jenjang_paket }}"
-                                        data-paket-label="{{ $siswa->jenjang_paket_label }}"
-                                        data-kelas-id="{{ $siswa->kelas_id }}"
+                                    <label class="siswa-item-row" data-search="{{ $searchKeyword }}"
+                                        data-paket="{{ $siswa->jenjang_paket }}"
+                                        data-paket-label="{{ $siswa->jenjang_paket_label }}" data-kelas-id="{{ $siswa->kelas_id }}"
                                         data-kelas-nama="{{ $siswa->relKelas?->nama_kelas ?? 'Kelas' }}"
                                         class="flex-between p-2 rounded-md mb-1 cursor-pointer border-none">
                                         <div class="d-flex items-center gap-2 min-w-0">
@@ -438,11 +483,10 @@
                                                 data-paket="{{ $siswa->jenjang_paket }}"
                                                 data-paket-label="{{ $siswa->jenjang_paket_label }}"
                                                 data-kelas-id="{{ $siswa->kelas_id }}"
-                                                data-kelas-nama="{{ $siswa->relKelas?->nama_kelas ?? 'Kelas' }}"
-                                                {{ $isChecked }} onchange="updateSelectedSiswaCount()"
-                                                class="checkbox-custom flex-shrink-0">
+                                                data-kelas-nama="{{ $siswa->relKelas?->nama_kelas ?? 'Kelas' }}" {{ $isChecked }}
+                                                onchange="updateSelectedSiswaCount()" class="checkbox-custom flex-shrink-0">
                                             <div class="min-w-0">
-                                                <div  class="text-sm font-extrabold text-dark line-height-tight">
+                                                <div class="text-sm font-extrabold text-dark line-height-tight">
                                                     {{ $siswa->nama_siswa }} {!! $badge !!}
                                                 </div>
                                                 <div class="text-xs text-muted mt-1">
@@ -453,9 +497,11 @@
                                         </div>
                                         <div class="d-flex items-center gap-1 flex-shrink-0">
                                             @if($siswa->is_abk)
-                                                <span  class="d-inline-block rounded-sm text-xs font-extrabold text-warning badge-abk">ABK</span>
+                                                <span
+                                                    class="d-inline-block rounded-sm text-xs font-extrabold text-warning badge-abk">ABK</span>
                                             @else
-                                                <span  class="d-inline-block rounded-sm text-xs font-bold text-success badge-reguler">Reguler</span>
+                                                <span
+                                                    class="d-inline-block rounded-sm text-xs font-bold text-success badge-reguler">Reguler</span>
                                             @endif
                                         </div>
                                     </label>
@@ -485,20 +531,16 @@
                         <label class="d-block text-sm font-extrabold text-uppercase text-muted mb-1">
                             Pilih Titik Lokasi Absen <span class="text-danger">*</span>
                         </label>
-                        <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
+                        <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()"
+                            class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
                             @forelse($lokasiPresensis as $lok)
-                                <option value="{{ $lok->id }}"
-                                    data-lat="{{ $lok->latitude }}"
-                                    data-lng="{{ $lok->longitude }}"
-                                    data-radius="{{ $lok->radius_meter }}"
-                                    data-nama="{{ $lok->nama_lokasi }}"
-                                    data-alamat="{{ $lok->alamat ?? '' }}"
-                                    {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
+                                <option value="{{ $lok->id }}" data-lat="{{ $lok->latitude }}" data-lng="{{ $lok->longitude }}"
+                                    data-radius="{{ $lok->radius_meter }}" data-nama="{{ $lok->nama_lokasi }}"
+                                    data-alamat="{{ $lok->alamat ?? '' }}" {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
                                     {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
                                 </option>
                             @empty
-                                <option value=""
-                                    data-lat="{{ config('lokasi.sekolah_lat', -7.8011945) }}"
+                                <option value="" data-lat="{{ config('lokasi.sekolah_lat', -7.8011945) }}"
                                     data-lng="{{ config('lokasi.sekolah_lng', 110.364917) }}"
                                     data-radius="{{ config('lokasi.radius_meter', 100) }}"
                                     data-nama="{{ config('lokasi.sekolah_nama', 'PKBM Pikat') }}"
@@ -571,25 +613,29 @@
                         {{-- Floating Camera Toolbar Overlay --}}
                         <div id="camControlBar" class="camControlBar d-none">
                             <div class="camControlGroup">
-                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Mirror Kamera">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror"
+                                    onclick="toggleCameraMirror()" title="Mirror Kamera">
                                     <ion-icon name="swap-horizontal-outline"></ion-icon> Mirror
                                 </button>
-                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Depan/Belakang">
+                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()"
+                                    title="Tukar Depan/Belakang">
                                     <ion-icon name="camera-reverse-outline"></ion-icon> Switch
                                 </button>
                             </div>
                             <div class="camControlGroup">
-                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu Komposisi">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()"
+                                    title="Garis Bantu Komposisi">
                                     <ion-icon name="grid-outline"></ion-icon> Grid
                                 </button>
-                                <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash" class="camToolBtn d-none">
+                                <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Senter / Flash"
+                                    class="camToolBtn d-none">
                                     <ion-icon name="flash-outline"></ion-icon> Flash
                                 </button>
                             </div>
                         </div>
 
                         <div class="photoPlaceholder" id="placeholder">
-                            Ketuk <b >Buka Kamera</b> untuk mengambil foto selfie presensi.
+                            Ketuk <b>Buka Kamera</b> untuk mengambil foto selfie presensi.
                         </div>
                     </div>
 
@@ -615,7 +661,9 @@
                         Mulai Sesi (Absen Masuk)
                     </button>
 
-                    <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' ingin izin untuk hari ini...') }}" target="_blank" class="d-flex items-center justify-center gap-2 p-3 rounded-lg text-no-decor text-success text-md font-extrabold mt-2 wa-support-btn">
+                    <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' ingin izin untuk hari ini...') }}"
+                        target="_blank"
+                        class="d-flex items-center justify-center gap-2 p-3 rounded-lg text-no-decor text-success text-md font-extrabold mt-2 wa-support-btn">
                         <ion-icon name="logo-whatsapp" class="icon-md text-success"></ion-icon>
                         Izin / Kendala (Hubungi Admin)
                     </a>
@@ -626,7 +674,7 @@
 
     </div>{{-- #mainContent --}}
 
-    <script >
+    <script>
         function showGateError(msg) {
             const permW = document.getElementById('permWarning');
             if (permW) permW.style.display = 'flex';
@@ -746,11 +794,13 @@
                             window.location.reload();
                             return;
                         }
-                        cdEl.textContent = (totalSec / 60).toFixed(2);
+                        var m = Math.floor(totalSec / 60);
+                        var s = totalSec % 60;
+                        cdEl.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
                     }, 1000);
                 }
             @endif
-            });
+        });
 
         /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */
         const DEFAULT_GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
@@ -1138,7 +1188,7 @@
             }
 
             navigator.geolocation.getCurrentPosition(
-                function(pos) {
+                function (pos) {
                     handleGpsSuccess(pos);
                     if (manualClick && !isLiveTracking) {
                         startLiveTracking();
@@ -1150,7 +1200,7 @@
         }
 
         // Jalankan tracking saat halaman selesai dimuat
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             refreshLocation(false);
             startLiveTracking();
         });

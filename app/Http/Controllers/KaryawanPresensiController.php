@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\LokasiPresensi;
 use App\Models\PresensiKaryawan;
 use App\Services\GeofencingService;
+use App\Services\ShiftPresensiService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class KaryawanPresensiController extends Controller
 {
-    public function index()
+    public function index(ShiftPresensiService $shiftService)
     {
         $user = auth()->user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
@@ -30,6 +31,7 @@ class KaryawanPresensiController extends Controller
             ->get();
 
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
+        $shiftEval = $shiftService->evaluateCheckIn();
 
         return view('karyawan.presensi_foto', [
             'user' => $user,
@@ -37,10 +39,11 @@ class KaryawanPresensiController extends Controller
             'activeSesi' => $activeSesi,
             'completedSessions' => $completedSessions,
             'lokasiPresensis' => $lokasiPresensis,
+            'shiftEval' => $shiftEval,
         ]);
     }
 
-    public function store(Request $request, GeofencingService $geofencingService)
+    public function store(Request $request, GeofencingService $geofencingService, ShiftPresensiService $shiftService)
     {
         $user = auth()->user();
 
@@ -75,6 +78,8 @@ class KaryawanPresensiController extends Controller
                 return back()->with('warning', $geofenceCheck['message']);
             }
 
+            $shiftEval = $shiftService->evaluateCheckIn($now);
+
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
             $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
@@ -87,11 +92,16 @@ class KaryawanPresensiController extends Controller
                 'foto_mulai' => $path,
                 'lokasi_mulai' => $validated['lokasi'] ?? null,
                 'status' => 'hadir',
+                'shift_nama' => $shiftEval['shift_nama'],
+                'status_kehadiran' => $shiftEval['status_kehadiran'],
+                'menit_keterlambatan' => $shiftEval['menit_keterlambatan'],
             ]);
+
+            $successMsg = 'Presensi masuk berhasil disimpan. '.$shiftEval['pesan'];
 
             return redirect()
                 ->route(auth()->user()->role === 'admin' ? 'admin.dashboard' : 'kepsek.dashboard')
-                ->with('success', 'Presensi masuk berhasil disimpan.');
+                ->with('success', $successMsg);
         }
 
         // Mode selesai

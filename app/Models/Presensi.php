@@ -41,6 +41,10 @@ class Presensi extends Model
             'lokasi_akurasi',         // Akurasi sinyal GPS dalam meter
             'is_mocked',              // Flag terdeteksi Fake GPS / mock location
             'status',                 // Status: 'hadir', 'izin', atau 'alpha'
+            'shift_nama',             // Nama shift SK (misal: 'Shift Pagi')
+            'status_kehadiran',       // Status ketepatan waktu: 'tepat_waktu', 'terlambat', 'lebih_awal'
+            'menit_keterlambatan',     // Selisih keterlambatan dalam menit
+            'jadwal_kerja_id',        // ID jadwal shift yang berlaku
         ];
 
     /**
@@ -74,6 +78,14 @@ class Presensi extends Model
     public function kategoriTutorial(): BelongsTo
     {
         return $this->belongsTo(KategoriTutorial::class, 'kategori_tutorial_id');
+    }
+
+    /**
+     * Relasi: Presensi terikat pada satu Jadwal Shift Kerja (BelongsTo).
+     */
+    public function jadwalKerja(): BelongsTo
+    {
+        return $this->belongsTo(JadwalKerja::class, 'jadwal_kerja_id');
     }
 
     /**

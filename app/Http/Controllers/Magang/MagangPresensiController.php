@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\LokasiPresensi;
 use App\Models\PresensiKaryawan;
 use App\Services\GeofencingService;
+use App\Services\ShiftPresensiService;
 use App\Services\WebPushService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -27,10 +28,7 @@ class MagangPresensiController extends Controller
         return $this->foto();
     }
 
-    /**
-     * Halaman kamera presensi foto magang.
-     */
-    public function foto(): View
+    public function foto(ShiftPresensiService $shiftService): View
     {
         $user = Auth::user();
         $magang = $user->magang;
@@ -50,6 +48,7 @@ class MagangPresensiController extends Controller
         $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
         $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
         $radius = (int) config('lokasi.radius_meter', 100);
+        $shiftEval = $shiftService->evaluateCheckIn();
 
         return view('magang.presensi_foto', [
             'user' => $user,
@@ -62,13 +61,14 @@ class MagangPresensiController extends Controller
             'kantorLat' => $kantorLat,
             'kantorLng' => $kantorLng,
             'radius' => $radius,
+            'shiftEval' => $shiftEval,
         ]);
     }
 
     /**
      * Proses Clock-In (Absen Masuk) dan Clock-Out (Absen Pulang) Magang.
      */
-    public function store(Request $request, GeofencingService $geofencingService): RedirectResponse
+    public function store(Request $request, GeofencingService $geofencingService, ShiftPresensiService $shiftService): RedirectResponse
     {
         $user = Auth::user();
 
@@ -123,6 +123,8 @@ class MagangPresensiController extends Controller
                 return back()->with('warning', $geofenceCheck['message']);
             }
 
+            $shiftEval = $shiftService->evaluateCheckIn($now);
+
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
             $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
@@ -135,18 +137,21 @@ class MagangPresensiController extends Controller
                 'foto_mulai' => $path,
                 'lokasi_mulai' => $validated['lokasi'] ?? null,
                 'status' => 'hadir',
+                'shift_nama' => $shiftEval['shift_nama'],
+                'status_kehadiran' => $shiftEval['status_kehadiran'],
+                'menit_keterlambatan' => $shiftEval['menit_keterlambatan'],
             ]);
 
             // Web Push Notification Konfirmasi ke HP Magang
             $this->webPushService->sendToUser($user, [
                 'title' => '📸 Presensi Masuk Berhasil',
-                'body' => 'Presensi masuk magang/PKL berhasil dicatat pada pukul '.$waktuServer.'. Selamat beraktivitas!',
+                'body' => 'Presensi masuk magang/PKL berhasil dicatat pada pukul '.$waktuServer.'. '.$shiftEval['pesan'],
                 'url' => route('magang.presensi'),
             ]);
 
             return redirect()
                 ->route('magang.dashboard')
-                ->with('success', 'Presensi masuk berhasil dicatat pada pukul '.$waktuServer.'.');
+                ->with('success', 'Presensi masuk berhasil dicatat pada pukul '.$waktuServer.'. '.$shiftEval['pesan']);
         }
 
         // ─────────────────────────────────────────────

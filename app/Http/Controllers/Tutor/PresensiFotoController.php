@@ -10,6 +10,7 @@ use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Services\GeofencingService;
 use App\Services\PayrollService;
+use App\Services\ShiftPresensiService;
 use App\Services\WebPushService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -74,7 +75,7 @@ class PresensiFotoController extends Controller
      *
      * @return View|RedirectResponse
      */
-    public function index(Request $request)
+    public function index(Request $request, ShiftPresensiService $shiftService)
     {
         // Ambil data tutor yang sedang login melalui Trait ResolvesTutor
         $tutor = $this->resolveTutor();
@@ -120,6 +121,7 @@ class PresensiFotoController extends Controller
         // Ambil data master Kategori & Tarif SK yang aktif untuk dropdown presensi
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
+        $shiftEval = $shiftService->evaluateCheckIn();
 
         // Kirim semua data ke view
         return view('tutor.presensi_foto', [
@@ -132,6 +134,7 @@ class PresensiFotoController extends Controller
             'globalActiveSesi' => $globalActiveSesi,   // Sesi yang masih berjalan pertama (null jika tidak ada)
             'activeSessions' => $activeSessions,     // Semua sesi yang masih berjalan
             'completedSessions' => $completedSessions,  // Daftar sesi selesai hari ini (riwayat)
+            'shiftEval' => $shiftEval,
         ]);
     }
 
@@ -151,7 +154,7 @@ class PresensiFotoController extends Controller
      * @param  Request  $request  Data form presensi
      * @return RedirectResponse
      */
-    public function store(Request $request, GeofencingService $geofencingService, PayrollService $payrollService)
+    public function store(Request $request, GeofencingService $geofencingService, PayrollService $payrollService, ShiftPresensiService $shiftService)
     {
         // Verifikasi tutor yang sedang login
         $tutor = $this->resolveTutor();
@@ -223,6 +226,8 @@ class PresensiFotoController extends Controller
                 }
             }
 
+            $shiftEval = $shiftService->evaluateCheckIn($now);
+
             // Upload foto masuk ke storage disk 'public'
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
@@ -276,6 +281,9 @@ class PresensiFotoController extends Controller
                 $presensi->lokasi_akurasi = $accuracy;
                 $presensi->is_mocked = $isMocked;
                 $presensi->status = 'hadir';
+                $presensi->shift_nama = $shiftEval['shift_nama'];
+                $presensi->status_kehadiran = $shiftEval['status_kehadiran'];
+                $presensi->menit_keterlambatan = $shiftEval['menit_keterlambatan'];
                 $presensi->save();
             }
 
@@ -284,14 +292,14 @@ class PresensiFotoController extends Controller
             if ($user) {
                 $this->webPushService->sendToUser($user, [
                     'title' => '📸 Presensi Masuk Berhasil',
-                    'body' => 'Presensi masuk sesi mengajar berhasil dicatat pada pukul '.$waktuServer.'. Selamat mengajar!',
+                    'body' => 'Presensi masuk sesi mengajar berhasil dicatat pada pukul '.$waktuServer.'. '.$shiftEval['pesan'],
                     'url' => route('tutor.presensi'),
                 ]);
             }
 
             return redirect()
                 ->route('tutor.dashboard')
-                ->with('success', 'Presensi masuk berhasil disimpan.');
+                ->with('success', 'Presensi masuk berhasil disimpan. '.$shiftEval['pesan']);
         }
 
         // ─────────────────────────────────────────────

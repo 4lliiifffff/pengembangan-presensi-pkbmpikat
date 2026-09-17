@@ -14,10 +14,11 @@ class DatabaseSeeder extends Seeder
             LokasiPresensiSeeder::class,
             JenjangPaketSeeder::class,
             KategoriTutorialSeeder::class,
+            JadwalKerjaSeeder::class,
             SiswaSeeder::class,
             MagangSeeder::class,
             JadwalSeeder::class,
-            DummyPresensiSeeder::class,
+            // DummyPresensiSeeder::class,
         ]);
     }
 }

@@ -230,11 +230,36 @@
                     </div>
                 </div>
             @else
+                @if(isset($shiftEval))
+                    <div class="card mb-3 p-3 border-base bg-card-alt rounded-xl">
+                        <div class="d-flex items-center justify-between flex-wrap gap-2">
+                            <div class="d-flex items-center gap-2">
+                                <div class="text-primary text-xl d-flex items-center">
+                                    <ion-icon name="calendar-outline"></ion-icon>
+                                </div>
+                                <div>
+                                    <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal Shift: {{ $shiftEval['shift_nama'] }}</div>
+                                    <div class="text-xs text-muted">Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b> &bull; Toleransi s.d. <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                                </div>
+                            </div>
+                            <div>
+                                @if($shiftEval['status_kehadiran'] === 'tepat_waktu')
+                                    <span class="badge bg-success-light text-success font-bold text-xs py-1 px-2 rounded-full">Tepat Waktu</span>
+                                @elseif($shiftEval['status_kehadiran'] === 'lebih_awal')
+                                    <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-2 rounded-full">Lebih Awal</span>
+                                @else
+                                    <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-2 rounded-full">Terlambat (+{{ $shiftEval['menit_keterlambatan'] }}m)</span>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="statusBanner ready mb-4">
                     <div class="statusIcon blue">
                         <ion-icon name="log-in-outline"></ion-icon>
                     </div>
-                    <div >
+                    <div>
                         <div class="statusTitle">Belum Absen Masuk</div>
                         <div class="statusSub">Silakan lakukan presensi masuk untuk memulai magang hari ini</div>
                     </div>

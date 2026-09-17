@@ -36,6 +36,7 @@
         $isAdminDrawerActive = request()->routeIs('admin.karyawan.*') ||
                                request()->routeIs('admin.siswa.*') ||
                                request()->routeIs('admin.jadwal.*') ||
+                               request()->routeIs('admin.jadwal-kerja.*') ||
                                request()->routeIs('admin.izin.*') ||
                                request()->routeIs('admin.lokasi-presensi.*') ||
                                request()->routeIs('admin.jenjang-paket.*') ||
@@ -93,6 +94,16 @@
                         <div class="navCardMeta">
                             <div class="navCardTitle">Data Siswa</div>
                             <div class="navCardDesc">Peserta Didik & ABK</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.jadwal-kerja.index') }}" class="navDrawerCard {{ request()->routeIs('admin.jadwal-kerja.*') ? 'active' : '' }}">
+                        <div class="navCardIcon orange">
+                            <ion-icon name="time-outline"></ion-icon>
+                        </div>
+                        <div class="navCardMeta">
+                            <div class="navCardTitle">Jadwal Shift</div>
+                            <div class="navCardDesc">Jam Masuk, Pulang & SK</div>
                         </div>
                     </a>
 

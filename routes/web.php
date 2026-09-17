@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\IzinController;
 use App\Http\Controllers\Admin\JadwalController;
+use App\Http\Controllers\Admin\JadwalKerjaController;
 use App\Http\Controllers\Admin\JenjangPaketController;
 use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KategoriTutorialController;
@@ -143,6 +144,10 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/lokasi-presensi/{lokasiPresensi}/toggle-status', [LokasiPresensiController::class, 'toggleStatus'])->name('lokasi-presensi.toggleStatus');
     Route::patch('/lokasi-presensi/{lokasiPresensi}/toggle-status-alias', [LokasiPresensiController::class, 'toggleStatus'])->name('lokasi-presensi.toggle-status');
     Route::resource('lokasi-presensi', LokasiPresensiController::class);
+
+    // Master Jadwal & Shift Kerja SK
+    Route::patch('/jadwal-kerja/{jadwalKerja}/toggle-status', [JadwalKerjaController::class, 'toggleStatus'])->name('jadwal-kerja.toggleStatus');
+    Route::resource('jadwal-kerja', JadwalKerjaController::class);
 
     // Kelola Mahasiswa / Siswa Magang (PKL)
     Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');

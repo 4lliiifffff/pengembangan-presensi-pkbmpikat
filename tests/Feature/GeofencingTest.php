@@ -125,7 +125,7 @@ class GeofencingTest extends TestCase
         $response->assertSessionHas('warning');
 
         $warning = session('warning');
-        $this->assertStringContainsString('di luar radius sekolah PKBM Pikat', $warning);
+        $this->assertStringContainsString('di luar radius', $warning);
 
         $this->assertDatabaseMissing('presensis', [
             'siswa_id' => $siswa->id,

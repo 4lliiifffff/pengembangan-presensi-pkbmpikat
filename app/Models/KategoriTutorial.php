@@ -53,6 +53,14 @@ class KategoriTutorial extends Model
     }
 
     /**
+     * Relasi ke jadwal shift kerja yang terhubung.
+     */
+    public function jadwalKerjas(): HasMany
+    {
+        return $this->hasMany(JadwalKerja::class, 'kategori_tutorial_id');
+    }
+
+    /**
      * Accessor format nominal rupiah.
      */
     public function getFormattedNominalHonorAttribute(): string
