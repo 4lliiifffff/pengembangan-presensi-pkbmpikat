@@ -367,6 +367,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 16 | **Sinkronisasi Otomatis Akun Siswa & Users (Observer & Lifecycle)** | User-Student Sync | `SiswaObserver` auto-provisioning akun `users` saat tambah siswa, auto-sync data nama/kontak, auto-deactivate saat nonaktif/soft-delete, dan reset password admin. | 🟢 Selesai |
 | 17 | **Penyelarasan Desain & Responsivitas Modul Mahasiswa Magang (PKL)** | UI/UX & Responsive | Standarisasi seluruh view `admin/magang` (index, create, edit, presensi) mengikuti design system modern `admin/karyawan` dengan *account-stats-grid*, *laporanFilterCard*, *laporanTable*, dan *mobile-card-list*. | 🟢 Selesai |
 | 18 | **Standardisasi CRUD Kategori Tutorial & Tarif SK (Full-Page Navigation)** | UI/UX & Flow | Refactoring CRUD Kategori Tutorial dari modal popup menjadi halaman `create.blade.php` dan `edit.blade.php` terpisah yang konsisten dengan standar modul Admin lainnya. | 🟢 Selesai |
+| 19 | **Standardisasi Styling Tombol Ekspor & Impor Agenda (`/jadwal`)** | UI/UX Consistency | Memperbarui tombol Export Excel (`btn-action-success`), Import Agenda (`btn-action-info`), Tambah Agenda (`profileBtnPrimary`), serta tombol modal import dan download template agar selaras dengan modul Karyawan dan Siswa. | 🟢 Selesai |
 
 ---
 

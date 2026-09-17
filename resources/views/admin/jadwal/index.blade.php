@@ -18,16 +18,16 @@
                 <div class="laporanHeaderSub">{{ $selectedDate->translatedFormat('l, d F Y') }}</div>
                 <p class="laporanHeaderDesc">Jadwal kegiatan pembelajaran, kalender akademik, dan agenda resmi PKBM PIKAT.</p>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
-                <a href="{{ route('admin.jadwal.create', ['tanggal' => $selectedDate->toDateString()]) }}" class="profileBtnPrimary">
-                    <ion-icon name="add-circle-outline" class="text-lg"></ion-icon> Tambah Agenda
+            <div class="laporanHeaderActions">
+                <a href="{{ route('admin.jadwal.exportExcel') }}" class="profileBtnPrimary btn-action-success">
+                    <ion-icon name="document-outline"></ion-icon> Export Excel
                 </a>
-                <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline">
-                    <ion-icon name="download-outline" class="text-lg"></ion-icon> Export
-                </a>
-                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="btnOutline">
-                    <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import
+                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
+                    <ion-icon name="cloud-upload-outline"></ion-icon> Import Agenda
                 </button>
+                <a href="{{ route('admin.jadwal.create', ['tanggal' => $selectedDate->toDateString()]) }}" class="profileBtnPrimary">
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Agenda
+                </a>
             </div>
         </div>
     </div>
@@ -44,18 +44,15 @@
         </p>
         <div class="mb-4">
             <a href="{{ route('admin.jadwal.downloadTemplate') }}" class="btnOutline">
-                <ion-icon name="download-outline"></ion-icon> Download Template (.xlsx)
+                <ion-icon name="download-outline"></ion-icon> Download Template Excel (.xlsx)
             </a>
         </div>
         <form method="POST" action="{{ route('admin.jadwal.importExcel') }}" enctype="multipart/form-data">
             @csrf
-            <div class="form-field-wrapper">
-                <label class="form-field-label">Pilih Berkas Jadwal:</label>
+            <div class="mb-4">
+                <label class="filterFieldLabel">Pilih Berkas Spreadsheet:</label>
                 <div class="fileUploadBox">
                     <input type="file" name="file_excel" id="jadwalFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'jadwalFileFeedback')">
-                    <div class="fileUploadIcon">
-                        <ion-icon name="cloud-upload-outline"></ion-icon>
-                    </div>
                     <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
                     <div class="fileUploadSubtext">
                         <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
@@ -65,8 +62,10 @@
                 <div id="jadwalFileFeedback" class="fileUploadFeedback"></div>
             </div>
             <div class="app-modal-footer">
-                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" class="profileBtnDanger px-3 text-sm rounded-md w-auto">Batal</button>
-                <button type="submit" class="profileBtnPrimary px-4 text-sm rounded-md w-auto">Unggah &amp; Impor</button>
+                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='none'" class="btnOutline w-auto">Batal</button>
+                <button type="submit" class="profileBtnPrimary w-auto">
+                    <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor
+                </button>
             </div>
         </form>
     </div>
