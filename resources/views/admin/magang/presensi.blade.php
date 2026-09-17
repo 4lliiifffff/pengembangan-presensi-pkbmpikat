@@ -126,6 +126,11 @@
                             <td >
                                 <div class="font-bold text-md text-dark">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</div>
                                 <div class="text-xs text-muted">{{ $u->magang?->asal_instansi ?: '-' }} (NIM: {{ $u->magang?->nim_nisn ?: $u->nik }})</div>
+                                @if($p->lokasiPresensi)
+                                    <div class="text-xs text-primary font-bold mt-1 d-flex items-center gap-1">
+                                        <ion-icon name="location-sharp"></ion-icon> {{ $p->lokasiPresensi->nama_lokasi }}
+                                    </div>
+                                @endif
                             </td>
                             <td >
                                 <div class="font-bold text-md text-primary">{{ $masuk }} WIB</div>
@@ -196,6 +201,11 @@
                     <div>
                         <h3 class="dmc-title">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</h3>
                         <div class="dmc-subtitle">{{ $hari }}, {{ $tgl }}</div>
+                        @if($p->lokasiPresensi)
+                            <div class="text-xs text-primary font-bold mt-1 d-flex items-center gap-1">
+                                <ion-icon name="location-sharp"></ion-icon> {{ $p->lokasiPresensi->nama_lokasi }}
+                            </div>
+                        @endif
                     </div>
                     <div>
                         @if($p->jam_selesai)

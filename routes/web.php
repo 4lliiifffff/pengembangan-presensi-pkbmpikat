@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KategoriTutorialController;
 use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\LokasiPresensiController;
 use App\Http\Controllers\Admin\MagangController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\SiswaController;
@@ -137,6 +138,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Master Jenjang & Program Paket
     Route::patch('/jenjang-paket/{jenjangPaket}/toggle-status', [JenjangPaketController::class, 'toggleStatus'])->name('jenjang-paket.toggleStatus');
     Route::resource('jenjang-paket', JenjangPaketController::class);
+
+    // Master Titik Lokasi Presensi (Multi-Geofence)
+    Route::patch('/lokasi-presensi/{lokasiPresensi}/toggle-status', [LokasiPresensiController::class, 'toggleStatus'])->name('lokasi-presensi.toggleStatus');
+    Route::patch('/lokasi-presensi/{lokasiPresensi}/toggle-status-alias', [LokasiPresensiController::class, 'toggleStatus'])->name('lokasi-presensi.toggle-status');
+    Route::resource('lokasi-presensi', LokasiPresensiController::class);
 
     // Kelola Mahasiswa / Siswa Magang (PKL)
     Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');

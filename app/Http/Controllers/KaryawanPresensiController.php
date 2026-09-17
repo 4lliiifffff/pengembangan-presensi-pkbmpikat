@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\LokasiPresensi;
 use App\Models\PresensiKaryawan;
+use App\Services\GeofencingService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -27,20 +29,24 @@ class KaryawanPresensiController extends Controller
             ->whereNotNull('foto_selesai')
             ->get();
 
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
+
         return view('karyawan.presensi_foto', [
             'user' => $user,
             'today' => $today,
             'activeSesi' => $activeSesi,
             'completedSessions' => $completedSessions,
+            'lokasiPresensis' => $lokasiPresensis,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(Request $request, GeofencingService $geofencingService)
     {
         $user = auth()->user();
 
         $validated = $request->validate([
             'mode' => ['required', Rule::in(['mulai', 'selesai'])],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'foto' => ['required', 'image', 'max:5120'],
             'lokasi' => ['nullable', 'string', 'max:255'],
         ]);
@@ -62,12 +68,20 @@ class KaryawanPresensiController extends Controller
                 return back()->with('warning', 'Presensi masuk masih berjalan. Silahkan absen pulang dulu.');
             }
 
+            // Validasi Geofencing berdasarkan titik lokasi yang dipilih
+            $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+            $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
+            if (! $geofenceCheck['is_valid']) {
+                return back()->with('warning', $geofenceCheck['message']);
+            }
+
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
             $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
             PresensiKaryawan::create([
                 'user_id' => $user->id,
+                'lokasi_presensi_id' => $lokasiPresensiId,
                 'tgl_presensi' => $today,
                 'jam_mulai' => $waktuServer,
                 'foto_mulai' => $path,

@@ -233,7 +233,7 @@ class MagangController extends Controller
         $magangUserId = $request->get('user_id');
         $statusFilter = $request->get('status');
 
-        $query = PresensiKaryawan::with('user.magang')
+        $query = PresensiKaryawan::with(['user.magang', 'lokasiPresensi'])
             ->whereHas('user', function ($q) {
                 $q->where('role', 'magang');
             })

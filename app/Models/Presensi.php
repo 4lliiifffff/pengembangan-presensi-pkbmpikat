@@ -25,6 +25,7 @@ class Presensi extends Model
         [
             'tutor_id',               // ID tutor yang melakukan presensi
             'siswa_id',               // ID siswa yang diajar dalam sesi ini
+            'lokasi_presensi_id',     // ID titik lokasi presensi yang dipilih (opsional/nullable)
             'moda_pembelajaran',      // Moda: 'sekolah', 'kunjungan_rumah', atau 'online'
             'link_daring',            // Link ruang pertemuan online (misal: Zoom/GMeet link)
             'durasi_pilihan',         // Durasi sesi yang disepakati (misal: 1.5, 2.0, 3.0 jam)
@@ -99,6 +100,14 @@ class Presensi extends Model
     public function siswa()
     {
         return $this->belongsTo(Siswa::class);
+    }
+
+    /**
+     * Relasi: Presensi terikat pada satu Titik Lokasi Presensi (BelongsTo).
+     */
+    public function lokasiPresensi(): BelongsTo
+    {
+        return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
     }
 
     /**

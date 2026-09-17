@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\LokasiPresensi;
 use Illuminate\Support\Facades\Http;
 
 class GeofencingService
@@ -68,6 +69,70 @@ class GeofencingService
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return self::EARTH_RADIUS_METERS * $c;
+    }
+
+    /**
+     * Memeriksa apakah lokasi presensi berada dalam radius toleransi titik lokasi yang dipilih.
+     *
+     * @param  string|null  $lokasi  String koordinat "lat,lng" dari user
+     * @param  int|null  $lokasiPresensiId  ID titik lokasi yang dipilih dari tabel lokasi_presensis
+     * @param  float|null  $fallbackLat  Fallback Latitude jika ID tidak ditemukan / null
+     * @param  float|null  $fallbackLng  Fallback Longitude jika ID tidak ditemukan / null
+     * @param  float|null  $fallbackRadius  Fallback radius meter
+     * @return array{is_valid: bool, distance: float, max_radius: float, lokasi_presensi: LokasiPresensi|null, message: string|null}
+     */
+    public function checkSelectedLokasiRadius(
+        ?string $lokasi,
+        ?int $lokasiPresensiId = null,
+        ?float $fallbackLat = null,
+        ?float $fallbackLng = null,
+        ?float $fallbackRadius = null
+    ): array {
+        $lokasiModel = $lokasiPresensiId ? LokasiPresensi::find($lokasiPresensiId) : null;
+
+        if (! $lokasiModel && ! $fallbackLat) {
+            // Ambil lokasi aktif pertama jika ada
+            $lokasiModel = LokasiPresensi::where('is_active', true)->first();
+        }
+
+        $namaLokasi = $lokasiModel ? $lokasiModel->nama_lokasi : config('lokasi.sekolah_nama', 'PKBM Pikat');
+        $targetLat = $lokasiModel ? (float) $lokasiModel->latitude : ($fallbackLat ?? (float) config('lokasi.sekolah_lat', -7.8011945));
+        $targetLng = $lokasiModel ? (float) $lokasiModel->longitude : ($fallbackLng ?? (float) config('lokasi.sekolah_lng', 110.364917));
+        $maxRadius = $lokasiModel ? (float) $lokasiModel->radius_meter : ($fallbackRadius ?? (float) config('lokasi.radius_meter', 100));
+
+        $coords = $this->parseCoordinates($lokasi);
+
+        if (! $coords) {
+            return [
+                'is_valid' => false,
+                'distance' => 0.0,
+                'max_radius' => $maxRadius,
+                'lokasi_presensi' => $lokasiModel,
+                'message' => 'Koordinat lokasi GPS tidak valid atau tidak terdeteksi. Aktifkan GPS pada perangkat Anda.',
+            ];
+        }
+
+        $distance = $this->calculateDistance(
+            $coords['lat'],
+            $coords['lng'],
+            $targetLat,
+            $targetLng
+        );
+
+        $isValid = $distance <= $maxRadius;
+        $formattedDistance = round($distance, 1);
+
+        $message = $isValid
+            ? null
+            : "Lokasi Anda berada di luar radius titik {$namaLokasi} (Jarak: {$formattedDistance} meter, Batas Maksimal: {$maxRadius} meter). Harap mendekat ke lokasi titik yang dipilih.";
+
+        return [
+            'is_valid' => $isValid,
+            'distance' => $distance,
+            'max_radius' => $maxRadius,
+            'lokasi_presensi' => $lokasiModel,
+            'message' => $message,
+        ];
     }
 
     /**

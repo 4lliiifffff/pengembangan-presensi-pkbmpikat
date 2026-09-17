@@ -147,6 +147,11 @@
                                     <button type="button" class="mapBtn" title="Lihat Peta Lokasi" onclick="openMapModal('{{ $lokasi }}')">
                                         <ion-icon name="map-outline"></ion-icon>
                                     </button>
+                                    @if($item->lokasiPresensi)
+                                        <div class="text-xs text-primary font-bold mt-1 d-flex items-center justify-center gap-1">
+                                            <ion-icon name="location-sharp"></ion-icon> {{ $item->lokasiPresensi->nama_lokasi }}
+                                        </div>
+                                    @endif
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -218,9 +223,14 @@
                     </div>
 
                     @if ($lokasi !== '-')
-                        <button type="button" onclick="openMapModal('{{ $lokasi }}')" class="btnOutline text-sm rounded-md d-inline-flex items-center gap-1 px-3 py-1">
-                            <ion-icon name="map-outline"></ion-icon> Peta GPS
-                        </button>
+                        <div class="d-flex items-center gap-2">
+                            <button type="button" onclick="openMapModal('{{ $lokasi }}')" class="btnOutline text-sm rounded-md d-inline-flex items-center gap-1 px-3 py-1">
+                                <ion-icon name="map-outline"></ion-icon> Peta GPS
+                            </button>
+                            @if($item->lokasiPresensi)
+                                <span class="text-xs text-primary font-bold"><ion-icon name="location-sharp"></ion-icon> {{ $item->lokasiPresensi->nama_lokasi }}</span>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>
@@ -233,31 +243,38 @@
     </div>
 
     {{-- ── Optional Presensi Karyawan / Staf ── --}}
-    @if (isset($karyawanPresensi) && $karyawanPresensi->isNotEmpty())
-        <div class="sectionRow mt-4">
-            <h2 >Presensi Staf / Karyawan</h2>
-            <span class="badgeCount">{{ $karyawanPresensi->count() }} Orang</span>
-        </div>
-        <div class="table-responsive-desktop">
-            <div class="tableContainer m-0 mb-4 rounded-xl border-base">
-                <table class="laporanTable">
-                    <thead >
-                        <tr >
-                            <th class="table-col-num">NO</th>
-                            <th >TANGGAL</th>
-                            <th >NAMA KARYAWAN</th>
-                            <th >ROLE</th>
-                            <th >JAM MASUK</th>
-                            <th >JAM SELESAI</th>
-                            <th >FOTO</th>
-                            <th class="text-center">GPS</th>
+    @if ($karyawanPresensi->isNotEmpty())
+        <div class="card mb-4 mt-6">
+            <div class="cardTitle flex-between flex-wrap gap-2">
+                <div class="d-flex items-center gap-2">
+                    <ion-icon name="people-outline"></ion-icon> Monitoring Presensi Staf & Admin Hari Ini
+                </div>
+                <span class="badge text-xs bg-primary-light text-primary font-extrabold rounded-pill px-3 py-1">
+                    {{ $karyawanPresensi->count() }} Staf
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="table-compact w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="p-3 w-10">No</th>
+                            <th>Tanggal</th>
+                            <th>Nama Pegawai</th>
+                            <th>Role</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Pulang</th>
+                            <th>Foto</th>
+                            <th class="text-center">Lokasi</th>
                         </tr>
                     </thead>
-                    <tbody >
+                    <tbody>
                         @foreach ($karyawanPresensi as $index => $kp)
                             @php
                                 $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/Y');
-                                $kpJamMasuk = $kp->jam_mulai ? \Carbon\Carbon::parse($kp->jam_mulai)->format('H:i') : '-';
+                                $kpJamMasuk = $kp->jam_mulai
+                                    ? \Carbon\Carbon::parse($kp->jam_mulai)->format('H:i')
+                                    : '-';
                                 $kpJamSelesai = $kp->jam_selesai
                                     ? \Carbon\Carbon::parse($kp->jam_selesai)->format('H:i')
                                     : '-';
@@ -265,32 +282,31 @@
                                 $kpRole = ucfirst($kp->user->role ?? 'Karyawan');
                                 $lokasi = $kp->lokasi_mulai;
                             @endphp
-                            <tr >
+                            <tr>
                                 <td class="p-3 font-bold text-muted">{{ $index + 1 }}</td>
                                 <td class="font-bold white-space-nowrap">{{ $kpTgl }}</td>
-                                <td class="font-extrabold text-dark">{{ $kpName }}</td>
-                                <td >
-                                    <span  class="rounded-sm text-xs font-extrabold text-muted px-2 py-1 bg-muted-light">
+                                <td class="font-semibold text-dark">{{ $kpName }}</td>
+                                <td>
+                                    <span class="badge text-xs font-bold {{ $kp->user?->role === 'admin' ? 'bg-primary-light text-primary' : 'bg-muted-light text-muted' }}">
                                         {{ $kpRole }}
                                     </span>
                                 </td>
-                                <td class="font-extrabold text-success">{{ $kpJamMasuk }}</td>
-                                <td class="font-extrabold text-primary">{{ $kpJamSelesai }}</td>
-                                <td >
+                                <td class="font-bold text-success">{{ $kpJamMasuk }}</td>
+                                <td class="font-bold text-primary">{{ $kpJamSelesai }}</td>
+                                <td>
                                     <div class="fotoStack">
                                         @if ($kp->foto_mulai)
-                                            <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail" title="Foto Mulai"
-                                                onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')"
-                                                class="cursor-pointer">
+                                            <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail cursor-pointer"
+                                                title="Foto Mulai"
+                                                onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')">
                                         @else
                                             <div class="fotoPlaceholder">M -</div>
                                         @endif
 
                                         @if ($kp->foto_selesai)
-                                            <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail"
+                                            <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail cursor-pointer"
                                                 title="Foto Selesai"
-                                                onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — {{ $kpName }}')"
-                                                class="cursor-pointer">
+                                                onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — {{ $kpName }}')">
                                         @else
                                             <div class="fotoPlaceholder">S -</div>
                                         @endif
@@ -301,6 +317,11 @@
                                         <button type="button" class="mapBtn" title="Lihat Peta Lokasi" onclick="openMapModal('{{ $lokasi }}')">
                                             <ion-icon name="map-outline"></ion-icon>
                                         </button>
+                                        @if($kp->lokasiPresensi)
+                                            <div class="text-xs text-primary font-bold mt-1 d-flex items-center justify-center gap-1">
+                                                <ion-icon name="location-sharp"></ion-icon> {{ $kp->lokasiPresensi->nama_lokasi }}
+                                            </div>
+                                        @endif
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
@@ -366,9 +387,14 @@
                         </div>
 
                         @if ($lokasi && $lokasi !== '-')
-                            <button type="button" onclick="openMapModal('{{ $lokasi }}')" class="btnOutline text-sm rounded-md d-inline-flex items-center gap-1 px-3 py-1">
-                                <ion-icon name="map-outline"></ion-icon> Peta GPS
-                            </button>
+                            <div class="d-flex items-center gap-2">
+                                <button type="button" onclick="openMapModal('{{ $lokasi }}')" class="btnOutline text-sm rounded-md d-inline-flex items-center gap-1 px-3 py-1">
+                                    <ion-icon name="map-outline"></ion-icon> Peta GPS
+                                </button>
+                                @if($kp->lokasiPresensi)
+                                    <span class="text-xs text-primary font-bold"><ion-icon name="location-sharp"></ion-icon> {{ $kp->lokasiPresensi->nama_lokasi }}</span>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 </div>

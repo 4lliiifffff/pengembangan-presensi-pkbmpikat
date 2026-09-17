@@ -13,6 +13,11 @@ class PresensiKaryawan extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function lokasiPresensi()
+    {
+        return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
+    }
+
     /**
      * Accessor: Mengembalikan URL foto masuk dengan backward compatibility.
      */

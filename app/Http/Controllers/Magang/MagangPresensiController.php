@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Magang;
 
 use App\Http\Controllers\Controller;
+use App\Models\LokasiPresensi;
 use App\Models\PresensiKaryawan;
 use App\Services\GeofencingService;
 use App\Services\WebPushService;
@@ -45,6 +46,7 @@ class MagangPresensiController extends Controller
             ->whereDate('tgl_presensi', $today)
             ->first();
 
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
         $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
         $radius = (int) config('lokasi.radius_meter', 100);
@@ -56,6 +58,7 @@ class MagangPresensiController extends Controller
             'activeSesi' => $activeSesi,
             'globalActiveSesi' => $activeSesi,
             'todayPresensi' => $todayPresensi,
+            'lokasiPresensis' => $lokasiPresensis,
             'kantorLat' => $kantorLat,
             'kantorLng' => $kantorLng,
             'radius' => $radius,
@@ -71,6 +74,7 @@ class MagangPresensiController extends Controller
 
         $validated = $request->validate([
             'mode' => ['required', Rule::in(['mulai', 'selesai'])],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'foto' => ['required', 'image', 'max:5120'],
             'lokasi' => ['nullable', 'string', 'max:255'],
             'lokasi_akurasi' => ['nullable', 'numeric'],
@@ -88,12 +92,6 @@ class MagangPresensiController extends Controller
         $antiMockCheck = $geofencingService->validateGpsIntegrity($validated['lokasi'] ?? null, $accuracy, $isMocked);
         if (! $antiMockCheck['is_valid']) {
             return back()->with('warning', $antiMockCheck['message']);
-        }
-
-        // Validasi Radius Geofencing (100m dari PKBM Pikat)
-        $geofenceCheck = $geofencingService->checkSekolahRadius($validated['lokasi'] ?? null);
-        if (! $geofenceCheck['is_valid']) {
-            return back()->with('warning', $geofenceCheck['message']);
         }
 
         $now = Carbon::now('Asia/Jakarta');
@@ -118,12 +116,20 @@ class MagangPresensiController extends Controller
                 return back()->with('warning', 'Anda sudah menyelesaikan presensi masuk dan pulang hari ini.');
             }
 
+            // Validasi Geofencing berdasarkan titik lokasi yang dipilih
+            $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+            $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
+            if (! $geofenceCheck['is_valid']) {
+                return back()->with('warning', $geofenceCheck['message']);
+            }
+
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
             $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
             PresensiKaryawan::create([
                 'user_id' => $user->id,
+                'lokasi_presensi_id' => $lokasiPresensiId,
                 'tgl_presensi' => $today,
                 'jam_mulai' => $waktuServer,
                 'foto_mulai' => $path,

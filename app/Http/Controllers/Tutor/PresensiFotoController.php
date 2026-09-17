@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tutor;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
 use App\Models\KategoriTutorial;
+use App\Models\LokasiPresensi;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Services\GeofencingService;
@@ -118,6 +119,7 @@ class PresensiFotoController extends Controller
 
         // Ambil data master Kategori & Tarif SK yang aktif untuk dropdown presensi
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
         // Kirim semua data ke view
         return view('tutor.presensi_foto', [
@@ -125,6 +127,7 @@ class PresensiFotoController extends Controller
             'today' => $today,
             'siswas' => $siswas,
             'kategoriTutorials' => $kategoriTutorials, // Master tarif SK aktif untuk searchable dropdown
+            'lokasiPresensis' => $lokasiPresensis,     // Daftar titik lokasi aktif yang dapat dipilih
             'presensiToday' => $presensiToday,       // Status presensi per siswa (untuk badge dropdown)
             'globalActiveSesi' => $globalActiveSesi,   // Sesi yang masih berjalan pertama (null jika tidak ada)
             'activeSessions' => $activeSessions,     // Semua sesi yang masih berjalan
@@ -162,6 +165,7 @@ class PresensiFotoController extends Controller
             'siswa_id' => ['required', 'array', 'min:1'],
             'siswa_id.*' => ['integer'],
             'mode' => ['required', Rule::in(['mulai', 'selesai'])], // Mode: clock-in atau clock-out
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
             'moda_pembelajaran' => ['nullable', Rule::in(['sekolah', 'kunjungan_rumah', 'online'])],
             'durasi_pilihan' => ['nullable', 'numeric', 'min:0.5', 'max:12'],
@@ -194,10 +198,11 @@ class PresensiFotoController extends Controller
         //  MODE: MULAI (Clock In / Absen Masuk)
         // ─────────────────────────────────────────────
         if ($validated['mode'] === 'mulai') {
-            // Validasi Geofencing (Rumus Haversine) jika moda sekolah
+            // Validasi Geofencing jika moda sekolah berdasarkan titik yang dipilih
             $moda = $validated['moda_pembelajaran'] ?? 'sekolah';
             if ($moda === 'sekolah') {
-                $geofenceCheck = $geofencingService->checkSekolahRadius($validated['lokasi'] ?? null);
+                $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+                $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
                 if (! $geofenceCheck['is_valid']) {
                     return back()->with('warning', $geofenceCheck['message']);
                 }
@@ -258,6 +263,7 @@ class PresensiFotoController extends Controller
                     $presensi->tutor_id = $tutor->id;
                 }
                 $presensi->siswa_id = (int) $sId;
+                $presensi->lokasi_presensi_id = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
                 $presensi->moda_pembelajaran = $moda;
                 $presensi->link_daring = $validated['link_daring'] ?? null;
                 $presensi->durasi_pilihan = $durasiPilihan;
@@ -313,9 +319,10 @@ class PresensiFotoController extends Controller
                 return back()->with('warning', 'Presensi pulang sesi terakhir sudah tercatat.');
             }
 
-            // Validasi Geofencing (Rumus Haversine) jika moda sekolah
+            // Validasi Geofencing jika moda sekolah berdasarkan titik yang dipilih / titik awal sesi
             if (($presensi->moda_pembelajaran ?? 'sekolah') === 'sekolah') {
-                $geofenceCheck = $geofencingService->checkSekolahRadius($validated['lokasi'] ?? null);
+                $targetLokasiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : $presensi->lokasi_presensi_id;
+                $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $targetLokasiId);
                 if (! $geofenceCheck['is_valid']) {
                     return back()->with('warning', $geofenceCheck['message']);
                 }

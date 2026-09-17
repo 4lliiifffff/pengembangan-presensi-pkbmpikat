@@ -82,7 +82,7 @@ class LaporanController extends Controller
         ])->having('total_jadwal', '>', 0)->orderByDesc('total_jadwal')->get();
 
         // Presensi terbaru
-        $recentQuery = Presensi::with(['siswa', 'tutor'])
+        $recentQuery = Presensi::with(['siswa', 'tutor', 'lokasiPresensi'])
             ->whereBetween('tgl_presensi', [$startDate, $endDate]);
 
         if ($tutorId) {
@@ -110,7 +110,7 @@ class LaporanController extends Controller
             });
 
         // Rekap Presensi Karyawan (Admin/Kepsek)
-        $karyawanPresensi = PresensiKaryawan::with('user')
+        $karyawanPresensi = PresensiKaryawan::with(['user', 'lokasiPresensi'])
             ->whereBetween('tgl_presensi', [$startDate, $endDate])
             ->orderByDesc('tgl_presensi')
             ->orderByDesc('id')

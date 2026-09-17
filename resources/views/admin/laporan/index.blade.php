@@ -273,9 +273,21 @@
                             </td>
                             <td class="text-center">
                                 @if ($lokasi !== '-')
-                                    <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}')">
+                                    @php
+                                        $titikLok = $presensi->lokasiPresensi;
+                                        $tNama = $titikLok?->nama_lokasi ?? '';
+                                        $tLat = $titikLok?->latitude ?? '';
+                                        $tLng = $titikLok?->longitude ?? '';
+                                        $tRad = $titikLok?->radius_meter ?? '';
+                                    @endphp
+                                    <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}', '{{ addslashes($tNama) }}', '{{ $tLat }}', '{{ $tLng }}', '{{ $tRad }}')">
                                         <ion-icon name="map-outline"></ion-icon>
                                     </button>
+                                    @if($tNama)
+                                        <div class="text-xs text-primary font-bold mt-1 d-flex items-center justify-center gap-1">
+                                            <ion-icon name="location-sharp"></ion-icon> {{ $tNama }}
+                                        </div>
+                                    @endif
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -346,9 +358,21 @@
                     </div>
 
                     @if ($lokasi !== '-')
-                        <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}')">
-                            <ion-icon name="map-outline"></ion-icon>
-                        </button>
+                        @php
+                            $titikLok = $presensi->lokasiPresensi;
+                            $tNama = $titikLok?->nama_lokasi ?? '';
+                            $tLat = $titikLok?->latitude ?? '';
+                            $tLng = $titikLok?->longitude ?? '';
+                            $tRad = $titikLok?->radius_meter ?? '';
+                        @endphp
+                        <div class="d-flex items-center gap-2">
+                            <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($tutorName) }}', '{{ $presensi->moda_label ?? 'Tatap Muka' }}', '{{ addslashes($tNama) }}', '{{ $tLat }}', '{{ $tLng }}', '{{ $tRad }}')">
+                                <ion-icon name="map-outline"></ion-icon>
+                            </button>
+                            @if($tNama)
+                                <span class="text-xs text-primary font-bold"><ion-icon name="location-sharp"></ion-icon> {{ $tNama }}</span>
+                            @endif
+                        </div>
                     @endif
                 </div>
             </div>
@@ -363,44 +387,54 @@
 
     {{-- ── Karyawan Presensi (Desktop Table & Mobile Cards) ── --}}
     @if ($karyawanPresensi->isNotEmpty())
-        <div class="sectionRow mt-4">
-            <h2>Monitoring Presensi Karyawan (Admin/Kepsek)</h2>
-            <span class="badgeCount">{{ count($karyawanPresensi) }} Staf</span>
-        </div>
-        <div class="table-responsive-desktop">
-            <div class="tableContainer m-0 mb-4 rounded-xl border-base">
-                <table class="laporanTable">
+        <div class="card mb-4 mt-6">
+            <div class="cardTitle flex-between flex-wrap gap-2">
+                <div class="d-flex items-center gap-2">
+                    <ion-icon name="people-outline"></ion-icon> Rekap Presensi Karyawan, Admin & Kepala Sekolah
+                </div>
+                <span class="badge text-xs bg-primary-light text-primary font-extrabold rounded-pill px-3 py-1">
+                    {{ $karyawanPresensi->count() }} Rekaman
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="table-compact w-full text-left">
                     <thead>
                         <tr>
-                            <th class="table-col-num">NO</th>
-                            <th>TANGGAL</th>
-                            <th>NAMA KARYAWAN</th>
-                            <th>ROLE</th>
-                            <th>MASUK</th>
-                            <th>SELESAI</th>
-                            <th>FOTO BUKTI</th>
-                            <th class="text-center">LOKASI GPS</th>
+                            <th class="p-3 w-10">No</th>
+                            <th>Tanggal</th>
+                            <th>Nama Pegawai</th>
+                            <th>Role</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Selesai</th>
+                            <th>Foto</th>
+                            <th class="text-center">Lokasi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($karyawanPresensi as $index => $kp)
                             @php
-                                $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/y');
-                                $kpJamMasuk = $kp->jam_mulai
-                                    ? \Carbon\Carbon::parse($kp->jam_mulai)->format('H:i')
-                                    : '-';
-                                $kpJamSelesai = $kp->jam_selesai
-                                    ? \Carbon\Carbon::parse($kp->jam_selesai)->format('H:i')
-                                    : '-';
+                                $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/Y');
+                                $kpJamMasuk = $kp->jam_mulai ? \Carbon\Carbon::parse($kp->jam_mulai)->format('H:i') : '-';
+                                $kpJamSelesai = $kp->jam_selesai ? \Carbon\Carbon::parse($kp->jam_selesai)->format('H:i') : '-';
                                 $kpName = $kp->user->nama_lengkap;
                                 $kpRole = ucfirst($kp->user->role);
                                 $lokasi = $kp->lokasi_mulai;
+                                $kpTitik = $kp->lokasiPresensi;
+                                $kpTitikNama = $kpTitik?->nama_lokasi ?? '';
+                                $kpLat = $kpTitik?->latitude ?? '';
+                                $kpLng = $kpTitik?->longitude ?? '';
+                                $kpRad = $kpTitik?->radius_meter ?? '';
                             @endphp
                             <tr>
                                 <td class="p-3 font-bold text-muted">{{ $index + 1 }}</td>
                                 <td class="font-bold white-space-nowrap">{{ $kpTgl }}</td>
                                 <td class="font-semibold text-dark">{{ $kpName }}</td>
-                                <td><span class="rounded-sm text-xs font-bold text-muted px-2 py-1 bg-muted-light">{{ $kpRole }}</span></td>
+                                <td>
+                                    <span class="badge text-xs font-bold {{ $kp->user->role === 'admin' ? 'bg-primary-light text-primary' : ($kp->user->role === 'kepala_sekolah' ? 'bg-success-light text-success' : 'bg-muted-light text-muted') }}">
+                                        {{ $kpRole }}
+                                    </span>
+                                </td>
                                 <td class="font-bold text-success">{{ $kpJamMasuk }}</td>
                                 <td class="font-bold text-primary">{{ $kpJamSelesai }}</td>
                                 <td>
@@ -424,9 +458,14 @@
                                 </td>
                                 <td class="text-center">
                                     @if ($lokasi && $lokasi !== '-')
-                                        <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}')">
+                                        <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}', '{{ addslashes($kpTitikNama) }}', '{{ $kpLat }}', '{{ $kpLng }}', '{{ $kpRad }}')">
                                             <ion-icon name="map-outline"></ion-icon>
                                         </button>
+                                        @if($kpTitikNama)
+                                            <div class="text-xs text-primary font-bold mt-1 d-flex items-center justify-center gap-1">
+                                                <ion-icon name="location-sharp"></ion-icon> {{ $kpTitikNama }}
+                                            </div>
+                                        @endif
                                     @else
                                         <span class="text-muted">-</span>
                                     @endif
@@ -448,6 +487,11 @@
                     $kpName = $kp->user->nama_lengkap;
                     $kpRole = ucfirst($kp->user->role);
                     $lokasi = $kp->lokasi_mulai;
+                    $kpTitik = $kp->lokasiPresensi;
+                    $kpTitikNama = $kpTitik?->nama_lokasi ?? '';
+                    $kpLat = $kpTitik?->latitude ?? '';
+                    $kpLng = $kpTitik?->longitude ?? '';
+                    $kpRad = $kpTitik?->radius_meter ?? '';
                 @endphp
                 <div class="data-mobile-card">
                     <div class="dmc-header">
@@ -488,9 +532,14 @@
                         </div>
 
                         @if ($lokasi && $lokasi !== '-')
-                            <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}')">
-                                <ion-icon name="map-outline"></ion-icon>
-                            </button>
+                            <div class="d-flex items-center gap-2">
+                                <button type="button" class="mapBtn" title="Lihat Peta" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Karyawan / {{ $kpRole }}', '{{ addslashes($kpTitikNama) }}', '{{ $kpLat }}', '{{ $kpLng }}', '{{ $kpRad }}')">
+                                    <ion-icon name="map-outline"></ion-icon>
+                                </button>
+                                @if($kpTitikNama)
+                                    <span class="text-xs text-primary font-bold"><ion-icon name="location-sharp"></ion-icon> {{ $kpTitikNama }}</span>
+                                @endif
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -659,7 +708,7 @@
             document.getElementById('photoModal').classList.add('active');
         }
 
-        function openMapModal(lokasi, nama, moda) {
+        function openMapModal(lokasi, nama, moda, titikNama, tLat, tLng, tRad) {
             var parts = (lokasi || '').split(',');
             if (parts.length < 2) {
                 alert('Format koordinat lokasi tidak valid: ' + lokasi);
@@ -674,25 +723,35 @@
                 return;
             }
 
+            var targetLat = tLat ? parseFloat(tLat) : SEKOLAH_LAT;
+            var targetLng = tLng ? parseFloat(tLng) : SEKOLAH_LNG;
+            var targetRadius = tRad ? parseInt(tRad) : SEKOLAH_RADIUS;
+            var targetNama = titikNama || SEKOLAH_NAMA;
+
             document.getElementById('mapModalTitle').textContent = '📍 Lokasi: ' + (nama || 'Presensi');
-            document.getElementById('mapModalSub').textContent = 'Moda: ' + (moda || 'Tatap Muka');
+            document.getElementById('mapModalSub').textContent = 'Titik Absen: ' + targetNama + (moda ? ' • Moda: ' + moda : '');
             document.getElementById('mapModalCoords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
             document.getElementById('btnAdminGoogleMaps').href = 'https://www.google.com/maps?q=' + lat + ',' + lng;
 
             document.getElementById('mapModal').classList.add('active');
 
             setTimeout(function() {
-                initAdminMap(lat, lng, nama, moda);
+                initAdminMap(lat, lng, nama, moda, targetLat, targetLng, targetRadius, targetNama);
             }, 100);
         }
 
-        function initAdminMap(lat, lng, nama, moda) {
+        function initAdminMap(lat, lng, nama, moda, targetLat, targetLng, targetRadius, targetNama) {
             var container = document.getElementById('adminMapContainer');
             if (!container || typeof L === 'undefined') return;
 
-            var dist = calcHaversine(lat, lng, SEKOLAH_LAT, SEKOLAH_LNG);
+            targetLat = targetLat || SEKOLAH_LAT;
+            targetLng = targetLng || SEKOLAH_LNG;
+            targetRadius = targetRadius || SEKOLAH_RADIUS;
+            targetNama = targetNama || SEKOLAH_NAMA;
+
+            var dist = calcHaversine(lat, lng, targetLat, targetLng);
             var distFormatted = dist.toFixed(1);
-            var isWithin = dist <= SEKOLAH_RADIUS;
+            var isWithin = dist <= targetRadius;
 
             var badge = document.getElementById('mapModalBadge');
             if (badge) {
@@ -701,17 +760,17 @@
                     badge.style.background = 'rgba(22, 163, 74, 0.12)';
                     badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
                     badge.style.color = '#15803d';
-                    badge.innerHTML = '🟢 <b >Di Dalam Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
+                    badge.innerHTML = '🟢 <b>Di Dalam Radius ' + targetNama + '</b> (' + distFormatted + ' m dari titik lokasi — Maks: ' + targetRadius + 'm)';
                 } else {
                     badge.style.background = 'rgba(220, 38, 38, 0.12)';
                     badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
                     badge.style.color = '#dc2626';
-                    badge.innerHTML = '🔴 <b >Di Luar Radius ' + SEKOLAH_NAMA + '</b> (' + distFormatted + ' m dari gedung sekolah — Maks: ' + SEKOLAH_RADIUS + 'm)';
+                    badge.innerHTML = '🔴 <b>Di Luar Radius ' + targetNama + '</b> (' + distFormatted + ' m dari titik lokasi — Maks: ' + targetRadius + 'm)';
                 }
             }
 
             if (!adminLeafletMap) {
-                adminLeafletMap = L.map('adminMapContainer').setView([SEKOLAH_LAT, SEKOLAH_LNG], 16);
+                adminLeafletMap = L.map('adminMapContainer').setView([targetLat, targetLng], 16);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
@@ -727,15 +786,20 @@
                     shadowSize: [41, 41]
                 });
 
-                adminSekolahMarker = L.marker([SEKOLAH_LAT, SEKOLAH_LNG], { icon: redIcon }).addTo(adminLeafletMap);
-                adminSekolahMarker.bindPopup('<b >🏢 ' + SEKOLAH_NAMA + '</b><br >Pusat Geofence (Radius ' + SEKOLAH_RADIUS + 'm)');
+                adminSekolahMarker = L.marker([targetLat, targetLng], { icon: redIcon }).addTo(adminLeafletMap);
+                adminSekolahMarker.bindPopup('<b>🏢 ' + targetNama + '</b><br>Pusat Geofence (Radius ' + targetRadius + 'm)');
 
-                adminGeofenceCircle = L.circle([SEKOLAH_LAT, SEKOLAH_LNG], {
+                adminGeofenceCircle = L.circle([targetLat, targetLng], {
                     color: '#0284c7',
                     fillColor: '#38bdf8',
                     fillOpacity: 0.2,
-                    radius: SEKOLAH_RADIUS
+                    radius: targetRadius
                 }).addTo(adminLeafletMap);
+            } else {
+                adminSekolahMarker.setLatLng([targetLat, targetLng]);
+                adminSekolahMarker.setPopupContent('<b>🏢 ' + targetNama + '</b><br>Pusat Geofence (Radius ' + targetRadius + 'm)');
+                adminGeofenceCircle.setLatLng([targetLat, targetLng]);
+                adminGeofenceCircle.setRadius(targetRadius);
             }
 
             adminLeafletMap.invalidateSize();
@@ -754,12 +818,12 @@
             } else {
                 adminPresensiMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(adminLeafletMap);
             }
-            adminPresensiMarker.bindPopup('<b >📍 ' + (nama || 'Presensi') + '</b><br >Jarak ke ' + SEKOLAH_NAMA + ': ' + distFormatted + ' meter<br >Moda: ' + (moda || 'Tatap Muka'));
+            adminPresensiMarker.bindPopup('<b>📍 ' + (nama || 'Presensi') + '</b><br>Jarak ke ' + targetNama + ': ' + distFormatted + ' meter<br>Moda: ' + (moda || 'Tatap Muka'));
 
             if (adminMeasureLine) {
-                adminMeasureLine.setLatLngs([[lat, lng], [SEKOLAH_LAT, SEKOLAH_LNG]]);
+                adminMeasureLine.setLatLngs([[lat, lng], [targetLat, targetLng]]);
             } else {
-                adminMeasureLine = L.polyline([[lat, lng], [SEKOLAH_LAT, SEKOLAH_LNG]], {
+                adminMeasureLine = L.polyline([[lat, lng], [targetLat, targetLng]], {
                     color: isWithin ? '#10b981' : '#ef4444',
                     weight: 3,
                     dashArray: '6, 6',
@@ -772,7 +836,7 @@
                 dashArray: '6, 6'
             });
 
-            var bounds = L.latLngBounds([[SEKOLAH_LAT, SEKOLAH_LNG], [lat, lng]]);
+            var bounds = L.latLngBounds([[targetLat, targetLng], [lat, lng]]);
             adminLeafletMap.fitBounds(bounds, { padding: [40, 40] });
         }
 

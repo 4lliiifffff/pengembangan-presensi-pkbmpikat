@@ -305,6 +305,37 @@
                     <div class="cardTitle">
                         <ion-icon name="location-outline"></ion-icon>Lokasi Presensi Masuk & Radius GPS
                     </div>
+
+                    {{-- Dropdown Pemilihan Titik Lokasi Absen Karyawan --}}
+                    <div class="mb-3" id="boxPilihLokasi">
+                        <label class="d-block text-sm font-extrabold text-uppercase text-muted mb-1">
+                            Pilih Titik Lokasi Absen <span class="text-danger">*</span>
+                        </label>
+                        <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="input w-full rounded-lg p-2 text-md font-semibold text-dark border-base bg-card-alt">
+                            @forelse($lokasiPresensis as $lok)
+                                <option value="{{ $lok->id }}"
+                                    data-lat="{{ $lok->latitude }}"
+                                    data-lng="{{ $lok->longitude }}"
+                                    data-radius="{{ $lok->radius_meter }}"
+                                    data-nama="{{ $lok->nama_lokasi }}"
+                                    data-alamat="{{ $lok->alamat ?? '' }}"
+                                    {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
+                                    📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                </option>
+                            @empty
+                                <option value=""
+                                    data-lat="{{ config('lokasi.sekolah_lat', -7.8011945) }}"
+                                    data-lng="{{ config('lokasi.sekolah_lng', 110.364917) }}"
+                                    data-radius="{{ config('lokasi.radius_meter', 100) }}"
+                                    data-nama="{{ config('lokasi.sekolah_nama', 'PKBM Pikat') }}"
+                                    data-alamat="Gedung Pusat PKBM Pikat">
+                                    📍 Gedung Pusat PKBM Pikat (Default)
+                                </option>
+                            @endforelse
+                        </select>
+                        <div id="lokasiPresensiAlamat" class="text-xs text-muted mt-1 font-medium"></div>
+                    </div>
+
                     <div id="mapBox" class="mapBox pos-relative">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta & lokasi GPS…</div>
                         <div id="leafletMap" class="map-camera-box d-none"></div>
@@ -539,15 +570,70 @@
         });
 
         /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */
-        const GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
-        const GEOFENCE_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
-        const GEOFENCE_RADIUS = {{ config('lokasi.radius_meter', 100) }};
-        const GEOFENCE_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
+        const DEFAULT_GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
+        const DEFAULT_GEOFENCE_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
+        const DEFAULT_GEOFENCE_RADIUS = {{ config('lokasi.radius_meter', 100) }};
+        const DEFAULT_GEOFENCE_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
+
+        let currentTargetLat = DEFAULT_GEOFENCE_LAT;
+        let currentTargetLng = DEFAULT_GEOFENCE_LNG;
+        let currentTargetRadius = DEFAULT_GEOFENCE_RADIUS;
+        let currentTargetNama = DEFAULT_GEOFENCE_NAMA;
+        let currentTargetAlamat = '';
+
+        let allLokasiPoints = @json($lokasiPresensis ?? []);
 
         let leafletMap = null;
         let geofenceCircle = null;
         let sekolahMarker = null;
         let karyawanMarker = null;
+        let trackPolyline = null;
+        let otherMarkersGroup = null;
+        let watchPositionId = null;
+        let isLiveTracking = true;
+        let lastWithinZone = null;
+        let lastUserLat = null;
+        let lastUserLng = null;
+
+        function updateTargetFromDropdown() {
+            var selectEl = document.getElementById('selectLokasiPresensi');
+            var alamatEl = document.getElementById('lokasiPresensiAlamat');
+            if (selectEl && selectEl.selectedOptions && selectEl.selectedOptions[0]) {
+                var opt = selectEl.selectedOptions[0];
+                currentTargetLat = parseFloat(opt.dataset.lat) || DEFAULT_GEOFENCE_LAT;
+                currentTargetLng = parseFloat(opt.dataset.lng) || DEFAULT_GEOFENCE_LNG;
+                currentTargetRadius = parseInt(opt.dataset.radius) || DEFAULT_GEOFENCE_RADIUS;
+                currentTargetNama = opt.dataset.nama || DEFAULT_GEOFENCE_NAMA;
+                currentTargetAlamat = opt.dataset.alamat || '';
+
+                if (alamatEl) {
+                    alamatEl.textContent = currentTargetAlamat ? ('Alamat: ' + currentTargetAlamat) : '';
+                }
+            }
+        }
+
+        function handleLokasiPresensiChange() {
+            updateTargetFromDropdown();
+
+            if (leafletMap) {
+                if (sekolahMarker) {
+                    sekolahMarker.setLatLng([currentTargetLat, currentTargetLng]);
+                    sekolahMarker.setPopupContent('<b>🏢 ' + currentTargetNama + '</b><br>Titik Lokasi Absen (Batas Maksimal: ' + currentTargetRadius + ' meter)');
+                }
+                if (geofenceCircle) {
+                    geofenceCircle.setLatLng([currentTargetLat, currentTargetLng]);
+                    geofenceCircle.setRadius(currentTargetRadius);
+                }
+
+                renderOtherMarkers();
+
+                if (lastUserLat !== null && lastUserLng !== null) {
+                    setMapFromLatLng(lastUserLat, lastUserLng);
+                } else {
+                    leafletMap.setView([currentTargetLat, currentTargetLng], 17);
+                }
+            }
+        }
 
         function haversineDistance(lat1, lon1, lat2, lon2) {
             const R = 6371000;
@@ -560,20 +646,52 @@
             return R * c;
         }
 
+        function renderOtherMarkers() {
+            if (!leafletMap || !allLokasiPoints || allLokasiPoints.length === 0) return;
+
+            if (otherMarkersGroup) {
+                leafletMap.removeLayer(otherMarkersGroup);
+            }
+            otherMarkersGroup = L.layerGroup();
+
+            var grayIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                iconSize: [20, 32],
+                iconAnchor: [10, 32],
+                popupAnchor: [1, -28],
+                shadowSize: [32, 32]
+            });
+
+            allLokasiPoints.forEach(function (lok) {
+                var lLat = parseFloat(lok.latitude);
+                var lLng = parseFloat(lok.longitude);
+                if (Math.abs(lLat - currentTargetLat) > 0.00001 || Math.abs(lLng - currentTargetLng) > 0.00001) {
+                    var m = L.marker([lLat, lLng], { icon: grayIcon });
+                    m.bindPopup('<b>📍 ' + lok.nama_lokasi + '</b><br>Radius: ' + lok.radius_meter + 'm<br><small class="text-muted">Pilih di dropdown jika ingin absen di titik ini</small>');
+                    otherMarkersGroup.addLayer(m);
+                }
+            });
+
+            otherMarkersGroup.addTo(leafletMap);
+        }
+
         function initLeafletMap() {
             var mapEl = document.getElementById('leafletMap');
             if (!mapEl || leafletMap || typeof L === 'undefined') return;
 
+            updateTargetFromDropdown();
+
             mapEl.style.display = 'block';
 
-            leafletMap = L.map('leafletMap').setView([GEOFENCE_LAT, GEOFENCE_LNG], 17);
+            leafletMap = L.map('leafletMap').setView([currentTargetLat, currentTargetLng], 17);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap'
             }).addTo(leafletMap);
 
-            // Marker Sekolah (Merah)
+            // Marker Lokasi Terpilih (Merah)
             var redIcon = L.icon({
                 iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
@@ -583,19 +701,24 @@
                 shadowSize: [41, 41]
             });
 
-            sekolahMarker = L.marker([GEOFENCE_LAT, GEOFENCE_LNG], { icon: redIcon }).addTo(leafletMap);
-            sekolahMarker.bindPopup('<b >' + GEOFENCE_NAMA + '</b><br >Titik Pusat Geofence Radius (' + GEOFENCE_RADIUS + ' meter)');
+            sekolahMarker = L.marker([currentTargetLat, currentTargetLng], { icon: redIcon }).addTo(leafletMap);
+            sekolahMarker.bindPopup('<b>' + currentTargetNama + '</b><br>Titik Lokasi Absen (Batas Maksimal: ' + currentTargetRadius + ' meter)');
 
             // Lingkaran Toleransi Radius Geofence
-            geofenceCircle = L.circle([GEOFENCE_LAT, GEOFENCE_LNG], {
+            geofenceCircle = L.circle([currentTargetLat, currentTargetLng], {
                 color: '#0284c7',
                 fillColor: '#38bdf8',
                 fillOpacity: 0.25,
-                radius: GEOFENCE_RADIUS
+                radius: currentTargetRadius
             }).addTo(leafletMap);
+
+            renderOtherMarkers();
         }
 
         function setMapFromLatLng(lat, lng) {
+            lastUserLat = lat;
+            lastUserLng = lng;
+
             var lokasiEl = document.getElementById('lokasi');
             var ph = document.getElementById('mapPlaceholder');
             var hint = document.getElementById('mapHint');
@@ -615,9 +738,9 @@
             if (ph) ph.classList.add('hidden');
 
             if (leafletMap) {
-                var dist = haversineDistance(lat, lng, GEOFENCE_LAT, GEOFENCE_LNG);
+                var dist = haversineDistance(lat, lng, currentTargetLat, currentTargetLng);
                 var distFormatted = dist.toFixed(1);
-                var isWithin = dist <= GEOFENCE_RADIUS;
+                var isWithin = dist <= currentTargetRadius;
 
                 // Marker Karyawan (Biru)
                 var blueIcon = L.icon({
@@ -634,13 +757,13 @@
                 } else {
                     karyawanMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(leafletMap);
                 }
-                karyawanMarker.bindPopup('<b >Lokasi Anda Saat Ini</b><br >Jarak ke ' + GEOFENCE_NAMA + ': ' + distFormatted + ' meter');
+                karyawanMarker.bindPopup('<b>Lokasi Anda Saat Ini</b><br>Jarak ke ' + currentTargetNama + ': ' + distFormatted + ' meter');
 
                 // Track Line Polyline
                 if (trackPolyline) {
-                    trackPolyline.setLatLngs([[lat, lng], [GEOFENCE_LAT, GEOFENCE_LNG]]);
+                    trackPolyline.setLatLngs([[lat, lng], [currentTargetLat, currentTargetLng]]);
                 } else {
-                    trackPolyline = L.polyline([[lat, lng], [GEOFENCE_LAT, GEOFENCE_LNG]], {
+                    trackPolyline = L.polyline([[lat, lng], [currentTargetLat, currentTargetLng]], {
                         color: isWithin ? '#10b981' : (dist > 200 ? '#ef4444' : '#f59e0b'),
                         weight: 3.5,
                         dashArray: isWithin ? null : '8, 8',
@@ -659,7 +782,7 @@
                 }
 
                 // Zoom fit agar titik sekolah dan posisi terlihat bersamaan
-                var bounds = L.latLngBounds([[GEOFENCE_LAT, GEOFENCE_LNG], [lat, lng]]);
+                var bounds = L.latLngBounds([[currentTargetLat, currentTargetLng], [lat, lng]]);
                 leafletMap.fitBounds(bounds, { padding: [35, 35] });
 
                 if (badge) {
@@ -669,24 +792,24 @@
                         badge.style.background = 'rgba(22, 163, 74, 0.12)';
                         badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
                         badge.style.color = '#15803d';
-                        badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><ion-icon name="checkmark-circle-outline"></ion-icon> <b >Di Dalam Radius Sekolah</b> (' + distFormatted + ' m dari ' + GEOFENCE_NAMA + ' — Maks: ' + GEOFENCE_RADIUS + 'm)</span>';
+                        badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><ion-icon name="checkmark-circle-outline"></ion-icon> <b>Di Dalam Radius ' + currentTargetNama + '</b> (' + distFormatted + ' m — Maks: ' + currentTargetRadius + 'm)</span>';
                     } else {
                         geofenceCircle.setStyle({ color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.3 });
                         badge.style.background = 'rgba(220, 38, 38, 0.12)';
                         badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
                         badge.style.color = '#dc2626';
-                        badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><ion-icon name="close-circle-outline"></ion-icon> <b >Di Luar Radius Sekolah</b> (' + distFormatted + ' m dari ' + GEOFENCE_NAMA + ' — Maks: ' + GEOFENCE_RADIUS + 'm)</span>';
+                        badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><ion-icon name="close-circle-outline"></ion-icon> <b>Di Luar Radius ' + currentTargetNama + '</b> (' + distFormatted + ' m — Maks: ' + currentTargetRadius + 'm)</span>';
                     }
                 }
 
                 // Proximity Radar Card
                 if (radarCard && radarDot && radarTitle && radarSub) {
                     radarCard.style.display = 'flex';
-                    var sisaJarak = Math.max(0, Math.round(dist - GEOFENCE_RADIUS));
+                    var sisaJarak = Math.max(0, Math.round(dist - currentTargetRadius));
 
                     if (isWithin) {
                         radarDot.className = 'radarStatusDot pulse-green';
-                        radarTitle.textContent = '✅ Anda Berada di Dalam Area ' + GEOFENCE_NAMA + ' (' + distFormatted + ' m)';
+                        radarTitle.textContent = '✅ Anda Berada di Dalam Area ' + currentTargetNama + ' (' + distFormatted + ' m)';
                         radarSub.textContent = 'Koordinat GPS valid. Silakan ambil foto selfie untuk melakukan presensi.';
                         if (btnMaps) btnMaps.style.display = 'none';
 
@@ -697,16 +820,16 @@
                         if (dist > 200) {
                             radarDot.className = 'radarStatusDot pulse-red';
                             radarTitle.textContent = '📍 Jarak: ' + distFormatted + ' m (Kurang ' + sisaJarak + ' m untuk masuk zona)';
-                            radarSub.textContent = 'Ikuti garis panduan merah pada peta menuju gerbang ' + GEOFENCE_NAMA + '.';
+                            radarSub.textContent = 'Ikuti garis panduan merah pada peta menuju gerbang ' + currentTargetNama + '.';
                         } else {
                             radarDot.className = 'radarStatusDot pulse-yellow';
                             radarTitle.textContent = '🚶‍♂️ Mendekati Lokasi (' + distFormatted + ' m — Tinggal ' + sisaJarak + ' m lagi)';
-                            radarSub.textContent = 'Sedikit lagi! Bergeraklah mendekati area kantor agar tombol presensi aktif.';
+                            radarSub.textContent = 'Sedikit lagi! Bergeraklah mendekati kantor agar tombol presensi aktif.';
                         }
 
                         if (btnMaps) {
                             btnMaps.style.display = 'inline-flex';
-                            btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + GEOFENCE_LAT + ',' + GEOFENCE_LNG + '&origin=' + lat + ',' + lng;
+                            btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + currentTargetLat + ',' + currentTargetLng + '&origin=' + lat + ',' + lng;
                         }
                     }
                 }
@@ -714,7 +837,7 @@
                 lastWithinZone = isWithin;
 
                 if (hint) {
-                    hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' (Jarak: ' + distFormatted + 'm dari ' + GEOFENCE_NAMA + ')';
+                    hint.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5) + ' (Jarak: ' + distFormatted + 'm dari ' + currentTargetNama + ')';
                 }
             }
         }
