@@ -22,15 +22,25 @@
 
 <div class="riwayatPage">
 
-    {{-- Header & Statistik (Tanpa Icon Dekoratif) --}}
-    <div class="riwayatHeaderCard">
-        <div class="d-flex justify-between items-start gap-2 flex-wrap">
-            <div >
-                <h2 class="m-0 text-xl font-extrabold text-dark">Riwayat Presensi Magang</h2>
-                <p class="mt-1 text-sm text-muted">Periode {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</p>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">LOG KEHADIRAN PRAKTIK KERJA</div>
+                <h1 class="laporanHeaderTitle">Riwayat Presensi Magang</h1>
+                <div class="laporanHeaderSub">Periode: {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</div>
+                <p class="laporanHeaderDesc">Catatan kehadiran harian mahasiswa magang/PKL, jam masuk &amp; pulang, dan persentase kehadiran.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <a href="{{ route('magang.presensi.foto') }}" class="profileBtnPrimary">
+                    <ion-icon name="camera-outline"></ion-icon> Presensi Hari Ini
+                </a>
             </div>
         </div>
+    </div>
 
+    {{-- Statistik & Filter --}}
+    <div class="riwayatHeaderCard">
         <!-- STATISTIK RINGKAS -->
         <div  class="riwayatStatsGrid grid-stats-auto">
             <div class="riwayatStatCard">

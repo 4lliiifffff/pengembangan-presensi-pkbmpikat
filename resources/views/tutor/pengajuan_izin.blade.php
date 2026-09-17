@@ -18,19 +18,24 @@
 
 @section('content')
 
-{{-- ── HEADER HALAMAN IZIN ── --}}
-<div class="sectionTitleRow">
-    <div class="sectionTitleWrap">
-        <h2 >Pengajuan Izin &amp; Sakit</h2>
-        <span class="sectionSubtitle">Formulir izin ketidakhadiran &amp; riwayat persetujuan</span>
-    </div>
-    <div class="badgeDate">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <span >{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
-    </div>
-</div>
-
 <div class="pengajuanPage">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PERIZINAN DIGITAL TUTOR</div>
+                <h1 class="laporanHeaderTitle">Pengajuan Izin &amp; Sakit</h1>
+                <div class="laporanHeaderSub">Formulir izin ketidakhadiran &amp; riwayat persetujuan</div>
+                <p class="laporanHeaderDesc">Kirim permohonan izin/sakit dengan lampiran surat keterangan untuk ditinjau oleh Kepala Sekolah.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <div class="badgeDate">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
     {{-- ── Tabs ── --}}
     <div class="tabBar">
         <button class="tabBtn active" id="tabForm" onclick="switchTab('form', this)">

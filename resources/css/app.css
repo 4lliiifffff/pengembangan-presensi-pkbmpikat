@@ -2302,13 +2302,13 @@ h1, h2, h3, h4, h5, h6 {
     width: 100%;
     max-width: 680px;
     margin: 0 auto;
-    padding: 0 16px 80px;
+    padding: 16px 16px 80px;
     box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
     .pengajuanPage {
-        padding: 0 24px 80px;
+        padding: 20px 24px 80px;
     }
 }
 
@@ -3205,6 +3205,8 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
 
 .laporanHeader {
     width: 100%;
+    padding: 16px 16px 0;
+    box-sizing: border-box;
     margin-bottom: 16px;
 }
 
@@ -3213,7 +3215,7 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
     border: 1px solid var(--border);
     border-radius: var(--radius-lg, 18px);
     padding: 18px 20px;
-    margin: 0 0 16px;
+    margin: 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     display: flex;
     align-items: center;
@@ -3225,8 +3227,29 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.laporanHeader > .laporanHeaderCard {
-    margin-bottom: 0;
+.laporanPageWrapper > .laporanHeader,
+.riwayatPage > .laporanHeader,
+.agendaPage > .laporanHeader,
+.pengajuanPage > .laporanHeader,
+.tutor-payroll-container > .laporanHeader {
+    padding: 0;
+    margin-bottom: 16px;
+}
+
+@media (min-width: 992px) {
+    .laporanHeader {
+        padding: 20px 24px 0;
+        margin-bottom: 20px;
+    }
+
+    .laporanPageWrapper > .laporanHeader,
+    .riwayatPage > .laporanHeader,
+    .agendaPage > .laporanHeader,
+    .pengajuanPage > .laporanHeader,
+    .tutor-payroll-container > .laporanHeader {
+        padding: 0;
+        margin-bottom: 20px;
+    }
 }
 
 .laporanHeaderInfo,

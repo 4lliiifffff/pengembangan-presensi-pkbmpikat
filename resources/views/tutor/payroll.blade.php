@@ -20,6 +20,23 @@
 
 <div class="tutor-payroll-container">
 
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">HONORARIUM &amp; PENGGAJIAN</div>
+                <h1 class="laporanHeaderTitle">Slip Gaji Digital Tutor</h1>
+                <div class="laporanHeaderSub">Periode: {{ strtoupper($payroll['periode_label']) }}</div>
+                <p class="laporanHeaderDesc">Rincian honorarium mengajar terverifikasi, akumulasi jam KBM, dan pengunduhan berkas slip resmi.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <a href="{{ route('tutor.payroll.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary" target="_blank">
+                    <ion-icon name="download-outline"></ion-icon> Cetak Slip PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
     {{-- ── Filter Month & Year ── --}}
     <form method="GET" action="{{ route('tutor.payroll.index') }}" class="filter-box">
         <div  class="flex-1 min-w-120">
@@ -41,7 +58,7 @@
         </div>
 
         <div >
-            <a href="{{ route('tutor.payroll.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm">
+            <a href="{{ route('tutor.payroll.pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary" target="_blank">
                 <ion-icon name="download-outline" class="icon-sm"></ion-icon> Cetak PDF
             </a>
         </div>

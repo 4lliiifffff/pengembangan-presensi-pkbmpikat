@@ -19,6 +19,25 @@
 
 @section('content')
 
+<div class="pengajuanPage">
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">KOREKSI ABSENSI SESI</div>
+                <h1 class="laporanHeaderTitle">Pengajuan Lupa Lapor</h1>
+                <div class="laporanHeaderSub">Koreksi data jam masuk atau jam selesai sesi mengajar</div>
+                <p class="laporanHeaderDesc">Ajukan permohonan lupa absen dengan menyertakan alasan dan bukti foto untuk disetujui Kepala Sekolah.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <div class="badgeDate">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {{-- ── Tabs ── --}}
 <div class="tabBar">
     <button class="tabBtn active" id="tabForm" onclick="switchTab('form', this)">
@@ -164,6 +183,7 @@
     @endif
 
     <div class="h-spacer-110"></div>
+</div>
 </div>
 
 <script >

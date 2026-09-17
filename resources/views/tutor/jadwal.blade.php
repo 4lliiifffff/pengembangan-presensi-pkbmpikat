@@ -47,6 +47,22 @@
 @section('content')
 
     <div class="agendaPage">
+        {{-- ── Header Card ── --}}
+        <div class="laporanHeader">
+            <div class="laporanHeaderCard">
+                <div class="laporanHeaderInfo">
+                    <div class="laporanHeaderLabel">AGENDA &amp; JADWAL MENGAJAR</div>
+                    <h1 class="laporanHeaderTitle">Agenda KBM Tutor</h1>
+                    <div class="laporanHeaderSub">Periode: {{ $selectedDate->translatedFormat('F Y') }}</div>
+                    <p class="laporanHeaderDesc">Jadwal sesi mengajar harian, pemetaan peserta didik, dan navigasi kalender akademik.</p>
+                </div>
+                <div class="laporanHeaderActions">
+                    <a href="{{ route('tutor.presensi') }}" class="profileBtnPrimary">
+                        <ion-icon name="camera-outline"></ion-icon> Buka Presensi
+                    </a>
+                </div>
+            </div>
+        </div>
 
         {{-- ── 1. KALENDER BULANAN (MONTH GRID VIEW) ── --}}
         <div class="agendaHeaderCard">

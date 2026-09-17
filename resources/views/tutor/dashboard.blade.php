@@ -17,15 +17,21 @@
 @endpush
 
 @section('content')
-    {{-- ── HEADER DASHBOARD TUTOR ── --}}
-    <div class="sectionTitleRow">
-        <div class="sectionTitleWrap">
-            <h2 >Dashboard Tutor</h2>
-            <span class="sectionSubtitle">Selamat datang kembali, {{ $displayName }}!</span>
-        </div>
-        <div class="badgeDate">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <span >{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PORTAL AKADEMIK TUTOR</div>
+                <h1 class="laporanHeaderTitle">Dashboard Tutor</h1>
+                <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
+                <p class="laporanHeaderDesc">Kelola agenda mengajar, lakukan presensi KBM harian, dan pantau rekapitulasi honorarium.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <div class="badgeDate">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('d M Y') }}</span>
+                </div>
+            </div>
         </div>
     </div>
 

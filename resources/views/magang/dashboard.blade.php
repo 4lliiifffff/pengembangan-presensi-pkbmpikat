@@ -18,15 +18,21 @@
 @endpush
 
 @section('content')
-    {{-- ── HEADER DASHBOARD MAGANG ── --}}
-    <div class="sectionTitleRow">
-        <div class="sectionTitleWrap">
-            <h2 >Dashboard Magang / PKL</h2>
-            <span class="sectionSubtitle">Selamat datang kembali, {{ $displayName }}!</span>
-        </div>
-        <div class="badgeDate">
-            <ion-icon name="calendar-outline"></ion-icon>
-            <span >{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PORTAL PRAKTIK KERJA &amp; MAGANG</div>
+                <h1 class="laporanHeaderTitle">Dashboard Magang / PKL</h1>
+                <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
+                <p class="laporanHeaderDesc">Lakukan presensi harian masuk dan pulang, serta pantau riwayat kehadiran praktik kerja di PKBM.</p>
+            </div>
+            <div class="laporanHeaderActions">
+                <div class="badgeDate">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+                </div>
+            </div>
         </div>
     </div>
 
