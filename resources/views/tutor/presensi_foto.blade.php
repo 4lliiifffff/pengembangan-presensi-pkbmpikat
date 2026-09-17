@@ -330,6 +330,36 @@
                 </div>
             @endif
 
+            @if(isset($scheduledSessionsToday) && $scheduledSessionsToday->count() > 0)
+                <div class="card p-3 rounded-xl border-primary bg-primary-light mb-3">
+                    <div class="d-flex items-center justify-between mb-2">
+                        <div class="d-flex items-center gap-2">
+                            <ion-icon name="calendar" class="text-primary text-lg"></ion-icon>
+                            <div class="font-extrabold text-dark text-sm">Sesi Terjadwal / Pengganti Hari Ini</div>
+                        </div>
+                        <span class="badgeCount font-bold">{{ $scheduledSessionsToday->count() }} Sesi</span>
+                    </div>
+                    <div class="d-flex flex-col gap-2">
+                        @foreach($scheduledSessionsToday as $sSesi)
+                            <div class="p-2 rounded-lg bg-card border-base d-flex items-center justify-between gap-2 text-xs">
+                                <div>
+                                    <div class="font-bold text-dark">{{ $sSesi->siswa->nama_siswa ?? 'Peserta Didik' }}</div>
+                                    <div class="text-muted">
+                                        <span class="app-badge {{ $sSesi->jenis_sesi === 'pengganti' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }} text-xxs py-0 px-1">
+                                            {{ $sSesi->jenis_label }}
+                                        </span>
+                                        Pukul <b>{{ $sSesi->jam_masuk_formatted }} - {{ $sSesi->jam_pulang_formatted }} WIB</b> ({{ $sSesi->durasi_jam }}j)
+                                    </div>
+                                </div>
+                                <button type="button" onclick="pilihSiswaSesiTerjadwal({{ $sSesi->siswa_id }})" class="profileBtnPrimary py-1 px-2 text-xxs">
+                                    Pilih Sesi
+                                </button>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             <div class="statusBanner ready mb-4">
                 <div class="statusIcon blue">
                     <ion-icon name="log-in-outline"></ion-icon>
@@ -1633,6 +1663,18 @@
                 }
             });
             updateSelectedSiswaCount();
+        }
+
+        function pilihSiswaSesiTerjadwal(siswaId) {
+            var cbs = document.querySelectorAll('.siswa-checkbox');
+            cbs.forEach(function (cb) {
+                cb.checked = (parseInt(cb.value) === parseInt(siswaId));
+            });
+            updateSelectedSiswaCount();
+            var siswaCard = document.getElementById('cardSiswaSelector');
+            if (siswaCard) {
+                siswaCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {

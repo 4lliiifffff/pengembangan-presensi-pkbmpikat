@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\JadwalKerja;
+use App\Models\JadwalSesi;
 use Carbon\Carbon;
 use Throwable;
 
@@ -154,14 +155,16 @@ class ShiftPresensiService
     }
 
     /**
-     * Evaluasi waktu check-in presensi masuk berdasarkan aturan SK.
+     * Evaluasi waktu check-in presensi masuk berdasarkan aturan SK atau Jadwal Sesi Rencana.
      *
      * @param  Carbon|null  $time  Waktu presensi
      * @param  string|null  $shiftKey  Key shift (opsional)
      * @param  int|null  $kategoriTutorialId  ID Kategori Tutorial SK (opsional)
+     * @param  JadwalSesi|null  $jadwalSesi  Objek Jadwal Sesi Belajar / Pengganti (opsional)
      * @return array{
      *     shift_id: string|int,
      *     jadwal_kerja_id: int|null,
+     *     jadwal_sesi_id: int|null,
      *     shift_nama: string,
      *     durasi_jam: float,
      *     jam_masuk_target: string,
@@ -174,28 +177,52 @@ class ShiftPresensiService
      *     is_terlambat: bool
      * }
      */
-    public function evaluateCheckIn(?Carbon $time = null, ?string $shiftKey = null, ?int $kategoriTutorialId = null): array
-    {
+    public function evaluateCheckIn(
+        ?Carbon $time = null,
+        ?string $shiftKey = null,
+        ?int $kategoriTutorialId = null,
+        ?JadwalSesi $jadwalSesi = null
+    ): array {
         $now = $time ? $time->copy()->setTimezone('Asia/Jakarta') : Carbon::now('Asia/Jakarta');
-        $shift = $this->detectShift($now, $shiftKey, $kategoriTutorialId);
-
-        $earliestMinutes = (int) ($shift['earliest_minutes'] ?? config('presensi_sk.earliest_minutes', 30));
-        $toleranceMinutes = (int) ($shift['tolerance_minutes'] ?? config('presensi_sk.tolerance_minutes', 30));
-
         $todayDate = $now->toDateString();
 
-        $targetMasuk = Carbon::parse($todayDate.' '.$shift['jam_masuk'].':00', 'Asia/Jakarta');
+        if ($jadwalSesi) {
+            $shiftId = 'sesi_'.$jadwalSesi->id;
+            $jadwalKerjaId = $jadwalSesi->jadwal_kerja_id;
+            $jadwalSesiId = $jadwalSesi->id;
+            $shiftNama = $jadwalSesi->jenis_label.($jadwalSesi->siswa ? ' - '.$jadwalSesi->siswa->nama_siswa : '');
+            $durasiJam = (float) $jadwalSesi->durasi_jam;
+            $jamMasuk = $jadwalSesi->jam_masuk_formatted;
+            $jamPulang = $jadwalSesi->jam_pulang_formatted;
+
+            $earliestMinutes = (int) ($jadwalSesi->jadwalKerja->earliest_minutes ?? config('presensi_sk.earliest_minutes', 30));
+            $toleranceMinutes = (int) ($jadwalSesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+        } else {
+            $shift = $this->detectShift($now, $shiftKey, $kategoriTutorialId);
+            $shiftId = $shift['id'];
+            $jadwalKerjaId = $shift['jadwal_kerja_id'] ?? null;
+            $jadwalSesiId = null;
+            $shiftNama = $shift['nama'];
+            $durasiJam = (float) ($shift['durasi_jam'] ?? 8.00);
+            $jamMasuk = $shift['jam_masuk'];
+            $jamPulang = $shift['jam_pulang'];
+
+            $earliestMinutes = (int) ($shift['earliest_minutes'] ?? config('presensi_sk.earliest_minutes', 30));
+            $toleranceMinutes = (int) ($shift['tolerance_minutes'] ?? config('presensi_sk.tolerance_minutes', 30));
+        }
+
+        $targetMasuk = Carbon::parse($todayDate.' '.$jamMasuk.':00', 'Asia/Jakarta');
         $batasAwal = $targetMasuk->copy()->subMinutes($earliestMinutes);
         $batasToleransi = $targetMasuk->copy()->addMinutes($toleranceMinutes);
 
         $menitKeterlambatan = 0;
         $statusKehadiran = 'tepat_waktu';
         $isTerlambat = false;
-        $pesan = "Presensi masuk tepat waktu ({$shift['nama']} {$shift['jam_masuk']} WIB).";
+        $pesan = "Presensi masuk tepat waktu ({$shiftNama} {$jamMasuk} WIB).";
 
         if ($now->lt($batasAwal)) {
             $statusKehadiran = 'lebih_awal';
-            $pesan = "Presensi masuk lebih awal dari jadwal {$shift['nama']} ({$shift['jam_masuk']} WIB).";
+            $pesan = "Presensi masuk lebih awal dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
         } elseif ($now->gt($batasToleransi)) {
             $statusKehadiran = 'terlambat';
             $isTerlambat = true;
@@ -203,16 +230,17 @@ class ShiftPresensiService
             if ($menitKeterlambatan < 0) {
                 $menitKeterlambatan = 0;
             }
-            $pesan = "Presensi masuk tercatat terlambat {$menitKeterlambatan} menit dari jadwal {$shift['nama']} ({$shift['jam_masuk']} WIB).";
+            $pesan = "Presensi masuk tercatat terlambat {$menitKeterlambatan} menit dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
         }
 
         return [
-            'shift_id' => $shift['id'],
-            'jadwal_kerja_id' => $shift['jadwal_kerja_id'] ?? null,
-            'shift_nama' => $shift['nama'],
-            'durasi_jam' => (float) ($shift['durasi_jam'] ?? 8.00),
-            'jam_masuk_target' => $shift['jam_masuk'],
-            'jam_pulang_target' => $shift['jam_pulang'],
+            'shift_id' => $shiftId,
+            'jadwal_kerja_id' => $jadwalKerjaId,
+            'jadwal_sesi_id' => $jadwalSesiId,
+            'shift_nama' => $shiftNama,
+            'durasi_jam' => $durasiJam,
+            'jam_masuk_target' => $jamMasuk,
+            'jam_pulang_target' => $jamPulang,
             'batas_awal' => $batasAwal->format('H:i'),
             'batas_toleransi' => $batasToleransi->format('H:i'),
             'status_kehadiran' => $statusKehadiran,

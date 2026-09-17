@@ -23,12 +23,12 @@
         <span class="navCenterLabel">Dashboard</span>
     </a>
 
-    {{-- 4. Agenda KBM --}}
-    <a href="{{ route('tutor.jadwal') }}" class="navItem {{ request()->routeIs('tutor.jadwal*') ? 'active' : '' }}" aria-label="Agenda Jadwal">
+    {{-- 4. Jadwal Sesi Belajar & Pengganti --}}
+    <a href="{{ route('tutor.jadwal-sesi.index') }}" class="navItem {{ request()->routeIs('tutor.jadwal*') || request()->routeIs('tutor.jadwal-sesi*') ? 'active' : '' }}" aria-label="Jadwal Sesi">
         <div class="navIconWrap">
-            <ion-icon name="{{ request()->routeIs('tutor.jadwal*') ? 'calendar' : 'calendar-outline' }}"></ion-icon>
+            <ion-icon name="{{ request()->routeIs('tutor.jadwal*') || request()->routeIs('tutor.jadwal-sesi*') ? 'calendar' : 'calendar-outline' }}"></ion-icon>
         </div>
-        <span>Agenda</span>
+        <span>Jadwal</span>
     </a>
 
     {{-- 5. Menu Lainnya (Buka Bottom Drawer) --}}
@@ -98,6 +98,16 @@
                         <div class="navCardMeta">
                             <div class="navCardTitle">Lupa Lapor</div>
                             <div class="navCardDesc">Koreksi Absensi</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('tutor.jadwal') }}" class="navDrawerCard {{ request()->routeIs('tutor.jadwal') ? 'active' : '' }}">
+                        <div class="navCardIcon emerald">
+                            <ion-icon name="megaphone-outline"></ion-icon>
+                        </div>
+                        <div class="navCardMeta">
+                            <div class="navCardTitle">Agenda PKBM</div>
+                            <div class="navCardDesc">Pengumuman & Kalender</div>
                         </div>
                     </a>
 

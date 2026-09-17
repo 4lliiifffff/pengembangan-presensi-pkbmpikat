@@ -64,6 +64,16 @@
             </div>
         </div>
 
+    {{-- ── Tab Switcher Navigasi ── --}}
+    <div class="d-flex gap-2 mb-4">
+        <a href="{{ route('tutor.jadwal-sesi.index') }}" class="profileBtnSecondary text-xs py-2 px-3">
+            <ion-icon name="calendar-outline"></ion-icon> Sesi Belajar Murid
+        </a>
+        <a href="{{ route('tutor.jadwal') }}" class="profileBtnPrimary text-xs py-2 px-3">
+            <ion-icon name="megaphone"></ion-icon> Agenda &amp; Pengumuman PKBM
+        </a>
+    </div>
+
         <div class="max-w-2xl px-0 mx-auto pb-6">
 
             {{-- ── 1. KALENDER BULANAN (MONTH GRID VIEW) ── --}}

@@ -20,6 +20,7 @@ use App\Http\Controllers\Magang\MagangDashboardController;
 use App\Http\Controllers\Magang\MagangPresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\Tutor\JadwalSesiController;
 use App\Http\Controllers\Tutor\LupaLaporController;
 use App\Http\Controllers\Tutor\PengajuanIzinController;
 use App\Http\Controllers\Tutor\PresensiFotoController;
@@ -169,6 +170,7 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
     Route::get('/riwayat', [TutorDashboardController::class, 'riwayat'])->name('riwayat');
     Route::get('/jadwal', [TutorDashboardController::class, 'jadwal'])->name('jadwal');
+    Route::resource('jadwal-sesi', JadwalSesiController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/presensi', [PresensiFotoController::class, 'index'])->name('presensi');
     Route::post('/presensi', [PresensiFotoController::class, 'store'])->name('presensi.store');
     Route::get('/lupa-lapor', [LupaLaporController::class, 'index'])->name('lupa-lapor');

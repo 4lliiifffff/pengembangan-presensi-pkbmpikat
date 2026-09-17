@@ -97,4 +97,12 @@ class Tutor extends Model
     {
         return $this->hasMany(PengajuanLupaLapor::class);
     }
+
+    /**
+     * Relasi: Tutor memiliki banyak Jadwal Sesi Belajar & Sesi Pengganti.
+     */
+    public function jadwalSesis(): HasMany
+    {
+        return $this->hasMany(JadwalSesi::class);
+    }
 }

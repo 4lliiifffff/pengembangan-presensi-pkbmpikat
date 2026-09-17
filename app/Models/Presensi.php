@@ -45,6 +45,7 @@ class Presensi extends Model
             'status_kehadiran',       // Status ketepatan waktu: 'tepat_waktu', 'terlambat', 'lebih_awal'
             'menit_keterlambatan',     // Selisih keterlambatan dalam menit
             'jadwal_kerja_id',        // ID jadwal shift yang berlaku
+            'jadwal_sesi_id',         // ID jadwal sesi rencana / pengganti
         ];
 
     /**
@@ -213,5 +214,13 @@ class Presensi extends Model
         }
 
         return asset('storage/'.ltrim($this->foto_selesai, '/'));
+    }
+
+    /**
+     * Relasi: Presensi terhubung ke Jadwal Sesi Belajar / Sesi Pengganti jika ada.
+     */
+    public function jadwalSesi(): BelongsTo
+    {
+        return $this->belongsTo(JadwalSesi::class, 'jadwal_sesi_id');
     }
 }

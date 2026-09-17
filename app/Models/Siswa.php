@@ -208,4 +208,12 @@ class Siswa extends Model
     {
         return $this->belongsTo(Tutor::class, 'tutor_id');
     }
+
+    /**
+     * Relasi: Siswa memiliki banyak Jadwal Sesi Belajar & Pengganti.
+     */
+    public function jadwalSesis(): HasMany
+    {
+        return $this->hasMany(JadwalSesi::class);
+    }
 }

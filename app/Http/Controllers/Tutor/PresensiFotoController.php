@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tutor;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
+use App\Models\JadwalSesi;
 use App\Models\KategoriTutorial;
 use App\Models\LokasiPresensi;
 use App\Models\Presensi;
@@ -123,6 +124,14 @@ class PresensiFotoController extends Controller
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $shiftEval = $shiftService->evaluateCheckIn();
 
+        // Ambil jadwal sesi rencana / sesi pengganti tutor untuk hari ini
+        $scheduledSessionsToday = JadwalSesi::with(['siswa', 'kategoriTutorial'])
+            ->where('tutor_id', $tutor->id)
+            ->whereDate('tanggal_rencana', $today)
+            ->where('status', 'terjadwal')
+            ->orderBy('jam_masuk_rencana')
+            ->get();
+
         // Kirim semua data ke view
         return view('tutor.presensi_foto', [
             'tutor' => $tutor,
@@ -135,6 +144,7 @@ class PresensiFotoController extends Controller
             'activeSessions' => $activeSessions,     // Semua sesi yang masih berjalan
             'completedSessions' => $completedSessions,  // Daftar sesi selesai hari ini (riwayat)
             'shiftEval' => $shiftEval,
+            'scheduledSessionsToday' => $scheduledSessionsToday,
         ]);
     }
 
@@ -226,7 +236,13 @@ class PresensiFotoController extends Controller
                 }
             }
 
-            $shiftEval = $shiftService->evaluateCheckIn($now);
+            $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)
+                ->whereIn('siswa_id', $validated['siswa_id'])
+                ->whereDate('tanggal_rencana', $today)
+                ->where('status', 'terjadwal')
+                ->first();
+
+            $shiftEval = $shiftService->evaluateCheckIn($now, null, null, $jadwalSesi);
 
             // Upload foto masuk ke storage disk 'public'
             $file = $request->file('foto');
@@ -284,7 +300,16 @@ class PresensiFotoController extends Controller
                 $presensi->shift_nama = $shiftEval['shift_nama'];
                 $presensi->status_kehadiran = $shiftEval['status_kehadiran'];
                 $presensi->menit_keterlambatan = $shiftEval['menit_keterlambatan'];
+                $presensi->jadwal_kerja_id = $shiftEval['jadwal_kerja_id'];
+                $presensi->jadwal_sesi_id = $shiftEval['jadwal_sesi_id'];
                 $presensi->save();
+
+                if ($jadwalSesi) {
+                    $jadwalSesi->update([
+                        'status' => 'selesai',
+                        'presensi_id' => $presensi->id,
+                    ]);
+                }
             }
 
             // Kirim konfirmasi Web Push Notification ke Tutor
