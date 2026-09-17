@@ -46,7 +46,7 @@
 
 @section('content')
 
-    <div class="agendaPage">
+    <div class="laporanPageWrapper">
         {{-- ── Header Card ── --}}
         <div class="laporanHeader">
             <div class="laporanHeaderCard">
@@ -54,7 +54,7 @@
                     <div class="laporanHeaderLabel">AGENDA &amp; JADWAL MENGAJAR</div>
                     <h1 class="laporanHeaderTitle">Agenda KBM Tutor</h1>
                     <div class="laporanHeaderSub">Periode: {{ $selectedDate->translatedFormat('F Y') }}</div>
-                    <p class="laporanHeaderDesc">Jadwal sesi mengajar harian, pemetaan peserta didik, dan navigasi kalender akademik.</p>
+                    <p class="laporanHeaderDesc">Jadwal sesi mengajar harian, pemetaan peserta didik, dan navigasi kalender akademik resmi PKBM PIKAT.</p>
                 </div>
                 <div class="laporanHeaderActions">
                     <a href="{{ route('tutor.presensi') }}" class="profileBtnPrimary">
@@ -64,117 +64,142 @@
             </div>
         </div>
 
-        {{-- ── 1. KALENDER BULANAN (MONTH GRID VIEW) ── --}}
-        <div class="agendaHeaderCard">
-            <!-- Header Navigasi Bulan -->
-            <div class="agendaMonthNav">
-                <a href="{{ route('tutor.jadwal', ['tanggal' => $prevMonthDate]) }}" class="agendaNavBtn"
-                    title="Bulan Sebelumnya">
-                    <ion-icon name="chevron-back-outline"></ion-icon>
-                </a>
-                <div class="text-center">
-                    <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
-                    <span class="text-xs font-bold text-muted">Kalender Agenda PKBM</span>
-                </div>
-                <a href="{{ route('tutor.jadwal', ['tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
-                    title="Bulan Berikutnya">
-                    <ion-icon name="chevron-forward-outline"></ion-icon>
-                </a>
-            </div>
+        <div class="max-w-2xl px-0 mx-auto pb-6">
 
-            <!-- 7 Kolom Header Hari -->
-            <div class="agendaMonthGrid mb-1">
-                @foreach($dayNames as $dName)
-                    <div class="agendaDayNameHeader {{ $dName['sunday'] ? 'sunday' : '' }}">
-                        {{ $dName['code'] }}
-                    </div>
-                @endforeach
-            </div>
-
-            <!-- Grid Sel Tanggal Bulanan -->
-            <div class="agendaMonthGrid">
-                {{-- Sel kosong sebelum awal bulan --}}
-                @for($i = 0; $i < $emptyCellsCount; $i++)
-                    <div class="agendaDayCell empty"></div>
-                @endfor
-
-                {{-- Sel tanggal dalam bulan --}}
-                @foreach($monthDays as $d)
-                    @php
-                        $dStr = $d->toDateString();
-                        $isActive = $d->isSameDay($selectedDate);
-                        $isCellToday = $d->isToday();
-                        $agendaCount = $monthCounts[$dStr] ?? 0;
-                    @endphp
-                    <a href="{{ route('tutor.jadwal', ['tanggal' => $dStr]) }}"
-                        class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }}"
-                        title="{{ $d->translatedFormat('d F Y') }} ({{ $agendaCount }} Agenda)">
-                        <span class="agendaDayNum">{{ $d->day }}</span>
-                        @if($agendaCount > 0)
-                            @if($agendaCount > 1)
-                                <span class="agendaEventBadge">{{ $agendaCount }}</span>
-                            @else
-                                <span class="agendaEventDot"></span>
-                            @endif
-                        @endif
+            {{-- ── 1. KALENDER BULANAN (MONTH GRID VIEW) ── --}}
+            <div class="agendaHeaderCard">
+                <!-- Header Navigasi Bulan -->
+                <div class="agendaMonthNav">
+                    <a href="{{ route('tutor.jadwal', ['tanggal' => $prevMonthDate]) }}" class="agendaNavBtn"
+                        title="Bulan Sebelumnya">
+                        <ion-icon name="chevron-back-outline"></ion-icon>
                     </a>
-                @endforeach
-            </div>
-        </div>
-
-        {{-- ── 2. BANNER HIGHLIGHT AGENDA TERPILIH ── --}}
-        @if($hasAgendasToday)
-            <div class="agendaBannerBox">
-                <div class="agendaBannerHeader">
-                    <div class="flex-items-center gap-2">
-                        <span class="agendaBannerBadge {{ $isToday ? 'today' : '' }}">
-                            {{ $isToday ? 'Kegiatan Hari Ini' : 'Agenda Terjadwal' }}
-                        </span>
-                        <span class="text-xs font-bold text-primary">
-                            {{ $items->count() }} Agenda
-                        </span>
+                    <div class="text-center">
+                        <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
+                        <span class="text-xs font-bold text-muted">Kalender Agenda PKBM</span>
                     </div>
-                    <div class="agendaBannerDate">
-                        {{ $selectedDate->translatedFormat('l, d F Y') }}
-                    </div>
+                    <a href="{{ route('tutor.jadwal', ['tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
+                        title="Bulan Berikutnya">
+                        <ion-icon name="chevron-forward-outline"></ion-icon>
+                    </a>
                 </div>
 
-                <!-- List Card Detail Agenda -->
-                <div >
-                    @foreach($items as $j)
-                        @php
-                            $judul = $j->judul ?? 'Agenda Kegiatan';
-                            $deskripsi = $j->deskripsi ?? null;
-                            $lokasi = $j->lokasi ?? null;
-                        @endphp
-
-                        <div class="agendaCardItem {{ $isToday ? 'today' : '' }}">
-                            <h4  class="text-lg font-extrabold text-dark m-0 mb-1">
-                                {{ $judul }}
-                            </h4>
-
-                            @if($deskripsi)
-                                <div class="text-sm text-muted mb-2">
-                                    {{ $deskripsi }}
-                                </div>
-                            @endif
-
-                            @if($lokasi)
-                                <div class="agendaMetaRow">
-                                    <ion-icon name="location-outline" class="text-primary"></ion-icon>
-                                    <span ><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
-                                </div>
-                            @endif
+                <!-- 7 Kolom Header Hari -->
+                <div class="agendaMonthGrid mb-1">
+                    @foreach($dayNames as $dName)
+                        <div class="agendaDayNameHeader {{ $dName['sunday'] ? 'sunday' : '' }}">
+                            {{ $dName['code'] }}
                         </div>
                     @endforeach
                 </div>
+
+                <!-- Grid Sel Tanggal Bulanan -->
+                <div class="agendaMonthGrid">
+                    {{-- Sel kosong sebelum awal bulan --}}
+                    @for($i = 0; $i < $emptyCellsCount; $i++)
+                        <div class="agendaDayCell empty"></div>
+                    @endfor
+
+                    {{-- Sel tanggal dalam bulan --}}
+                    @foreach($monthDays as $d)
+                        @php
+                            $dStr = $d->format('Y-m-d');
+                            $isActive = $d->isSameDay($selectedDate);
+                            $isCellToday = $d->isToday();
+                            $agendaCount = (int) ($monthCounts[$dStr] ?? 0);
+                            $hasEvent = $agendaCount > 0;
+                        @endphp
+                        <a href="{{ route('tutor.jadwal', ['tanggal' => $dStr]) }}"
+                            class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }} {{ $hasEvent ? 'hasEvent' : '' }}"
+                            title="{{ $d->translatedFormat('d F Y') }} ({{ $agendaCount }} Agenda Kegiatan)">
+                            <span class="agendaDayNum">{{ $d->day }}</span>
+                            @if($hasEvent)
+                                <span class="agendaEventIndicatorWrap">
+                                    <span class="agendaEventDot"></span>
+                                    @if($agendaCount > 1)
+                                        <span class="agendaEventCountText">{{ $agendaCount }}</span>
+                                    @endif
+                                </span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+
+                <!-- Legenda Kalender -->
+                <div class="agendaCalendarLegend">
+                    <div class="agendaLegendItem">
+                        <span class="agendaLegendIndicator todayIndicator"></span>
+                        <span>Hari Ini</span>
+                    </div>
+                    <div class="agendaLegendItem">
+                        <span class="agendaLegendIndicator eventIndicator"></span>
+                        <span>Ada Kegiatan</span>
+                    </div>
+                    <div class="agendaLegendItem">
+                        <span class="agendaLegendIndicator activeIndicator"></span>
+                        <span>Tanggal Terpilih</span>
+                    </div>
+                </div>
             </div>
-        @else
-            <div class="empty-state-standard">
-                <div class="empty-title">Tidak ada agenda kegiatan</div>
-                <div class="empty-desc">Pada tanggal {{ $selectedDate->translatedFormat('l, d F Y') }}</div>
-            </div>
-        @endif
+
+            {{-- ── 2. BANNER HIGHLIGHT AGENDA TERPILIH ── --}}
+            @if($hasAgendasToday)
+                <div class="agendaBannerBox">
+                    <div class="agendaBannerHeader">
+                        <div class="flex-items-center gap-2">
+                            <span class="agendaBannerBadge {{ $isToday ? 'today' : '' }}">
+                                {{ $isToday ? 'Kegiatan Hari Ini' : 'Agenda Terjadwal' }}
+                            </span>
+                            <span class="text-xs font-bold text-primary">
+                                {{ $items->count() }} Kegiatan
+                            </span>
+                        </div>
+                        <div class="agendaBannerDate">
+                            {{ $selectedDate->translatedFormat('l, d F Y') }}
+                        </div>
+                    </div>
+
+                    <!-- List Card Detail Agenda -->
+                    <div>
+                        @foreach($items as $j)
+                            @php
+                                $judul = $j->judul ?? 'Agenda Kegiatan';
+                                $deskripsi = $j->deskripsi ?? null;
+                                $lokasi = $j->lokasi ?? null;
+                            @endphp
+
+                            <div class="agendaCardItem {{ $isToday ? 'today' : '' }}">
+                                <h4 class="text-lg font-extrabold text-dark m-0 mb-1">
+                                    {{ $judul }}
+                                </h4>
+
+                                @if($deskripsi)
+                                    <div class="text-sm text-muted mb-2">
+                                        {{ $deskripsi }}
+                                    </div>
+                                @endif
+
+                                @if($lokasi)
+                                    <div class="agendaMetaRow">
+                                        <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                                        <span><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @else
+                <div class="emptyAgendaBox">
+                    <div class="emptyAgendaIcon">
+                        <ion-icon name="calendar-clear-outline"></ion-icon>
+                    </div>
+                    <div class="emptyAgendaTitle">Tidak Ada Agenda Kegiatan</div>
+                    <div class="emptyAgendaDesc">Belum ada agenda atau kegiatan belajar terjadwal pada <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
+                </div>
+            @endif
+
+        </div>
 
     </div>
 

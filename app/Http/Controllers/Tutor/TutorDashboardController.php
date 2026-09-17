@@ -269,10 +269,17 @@ class TutorDashboardController extends Controller
             ->get();
 
         // Hitung total agenda per hari dalam 1 bulan
-        $monthCounts = Jadwal::selectRaw('DATE(tanggal) as tgl, COUNT(*) as total')
-            ->whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
-            ->groupBy('tgl')
-            ->pluck('total', 'tgl');
+        $monthCounts = Jadwal::whereBetween('tanggal', [
+            $startOfMonth->toDateString(),
+            $endOfMonth->toDateString(),
+        ])
+            ->get()
+            ->groupBy(function ($item) {
+                return is_object($item->tanggal)
+                    ? $item->tanggal->format('Y-m-d')
+                    : substr((string) $item->tanggal, 0, 10);
+            })
+            ->map->count();
 
         return view('tutor.jadwal', [
             'tutor' => $tutor,

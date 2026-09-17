@@ -4024,84 +4024,391 @@ textarea.formControl { resize: vertical; min-height: 90px; }
 .izinHeaderLabel { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
 .izinHeaderTitle { font-size: 20px; font-weight: 800; color: #fff; }
 .izinHeaderSub { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 4px; }
-.panelCard { margin: 16px 16px 0; background: var(--card); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-.panelCardHead { background: rgba(11,94,215,0.07); border-bottom: 1px solid var(--border); padding: 12px 14px; display: flex; align-items: center; gap: 8px; }
-.panelCardHead ion-icon { font-size: 18px; color: var(--blue2); }
-.panelCardHeadTitle { font-size: 13px; font-weight: 800; color: var(--text); }
-.panelCardBody { padding: 14px; display: flex; flex-direction: column; gap: 12px; }
-.fieldGroup { display: flex; flex-direction: column; gap: 6px; }
-.fieldLabel { font-size: 11px; font-weight: 800; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
-.selectInput, .dateInput { width: 100%; padding: 11px 12px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--input-bg); color: var(--text); font-size: 13px; font-weight: 600; font-family: inherit; outline: none; appearance: none; -webkit-appearance: none; transition: border-color 0.2s, box-shadow 0.2s; }
-.selectInput:focus, .dateInput:focus { border-color: rgba(11,94,215,0.5); box-shadow: 0 0 0 3px rgba(11,94,215,0.12); }
-.siswaCheckList { display: flex; flex-direction: column; gap: 8px; }
-.siswaCheckItem { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--card-alt); cursor: pointer; transition: border-color 0.15s, background 0.15s; }
-.siswaCheckItem:has(input:checked) { border-color: rgba(11,94,215,0.45); background: rgba(11,94,215,0.06); }
-.siswaCheckItem input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--blue2); flex-shrink: 0; cursor: pointer; }
-.siswaCheckName { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
-.siswaCheckEmpty { padding: 14px 12px; text-align: center; font-size: 12px; color: var(--muted); font-weight: 700; border: 1.5px dashed var(--border); border-radius: 12px; }
-.jenisToggle { display: flex; gap: 8px; }
-.jenisBtn { flex: 1; padding: 10px 0; border-radius: 12px; border: 1.5px solid var(--border); background: var(--card-alt); color: var(--muted); font-size: 13px; font-weight: 800; cursor: pointer; text-align: center; transition: all 0.15s; font-family: inherit; }
-.jenisBtn.izin.selected { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.45); color: #d97706; }
-input[type="radio"].jenisRadio { display: none; }
-.btnSubmitIzin {
-    width: 100%;
-    height: 44px;
-    padding: 0 20px;
-    border-radius: 12px;
-    border: none;
-    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #1A73E8 100%));
-    color: #fff;
-    font-size: 13.5px;
+
+.panelCard {
+    margin: 0 0 24px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+}
+.panelCardHead {
+    background: var(--card-alt, rgba(11, 94, 215, 0.04));
+    border-bottom: 1px solid var(--border);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.panelCardHeadIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(11, 94, 215, 0.1);
+    color: var(--blue2, #0b5ed7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+.panelCardHeadTitle {
+    font-size: 14px;
     font-weight: 800;
-    cursor: pointer;
+    color: var(--text);
+}
+.panelCardHeadSub {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+.panelCardBody {
+    padding: 16px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.formGrid2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+@media (max-width: 576px) {
+    .formGrid2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.fieldLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.3px;
+}
+.fieldLabelHint {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--muted);
+}
+.selectInput, .dateInput {
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 600;
     font-family: inherit;
-    display: inline-flex;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+.selectInput:focus, .dateInput:focus {
+    border-color: rgba(11, 94, 215, 0.5);
+    box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.12);
+}
+
+.siswaCheckList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+.siswaCheckList::-webkit-scrollbar {
+    width: 5px;
+}
+.siswaCheckList::-webkit-scrollbar-track {
+    background: transparent;
+}
+.siswaCheckList::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 10px;
+}
+.siswaCheckItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--card-alt);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+}
+.siswaCheckItem:hover {
+    border-color: rgba(11, 94, 215, 0.4);
+    background: rgba(11, 94, 215, 0.04);
+}
+.siswaCheckItem:has(input:checked) {
+    border-color: rgba(11, 94, 215, 0.5);
+    background: rgba(11, 94, 215, 0.08);
+}
+.siswaCheckItem input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--blue2, #0b5ed7);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.siswaCheckName {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+}
+.siswaCheckEmpty {
+    padding: 24px 16px;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
+    font-weight: 600;
+    border: 1.5px dashed var(--border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.25);
-    transition: all 0.2s ease;
 }
-.btnSubmitIzin:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.35);
+.siswaCheckEmpty ion-icon {
+    font-size: 24px;
+    opacity: 0.6;
 }
-.btnSubmitIzin:active:not(:disabled) {
-    transform: scale(0.98);
+
+.btnSubmitIzinFull {
+    width: 100%;
+    height: 44px;
+    margin-top: 4px;
 }
-.btnSubmitIzin:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
-    box-shadow: none;
-    background: #94a3b8;
+
+.sectionRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 0 0 14px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
-.riwayatList { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; padding-bottom: 110px; }
-.riwayatRow { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
-.riwayatAvatar { width: 40px; height: 40px; border-radius: 12px; background: var(--avatar-bg); display: grid; place-items: center; font-weight: 900; font-size: 15px; color: var(--avatar-text); flex-shrink: 0; }
-.riwayatInfo { flex: 1; min-width: 0; }
-.riwayatName { font-size: 13px; font-weight: 800; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.riwayatMeta { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.riwayatRight { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+.sectionTitleWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.sectionTitleLabel {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--blue2, #0b5ed7);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
+.sectionTitle {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0;
+}
+.sectionBadge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(11, 94, 215, 0.08);
+    color: var(--blue2, #0b5ed7);
+    font-size: 12px;
+    font-weight: 700;
+}
+.sectionBadge ion-icon {
+    font-size: 14px;
+}
+
+.riwayatList {
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 30px;
+}
+.riwayatRow {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+    transition: transform 0.15s, box-shadow 0.15s;
+}
+.riwayatRow:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+.riwayatLeft {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+.riwayatAvatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(11, 94, 215, 0.15), rgba(11, 94, 215, 0.05));
+    border: 1px solid rgba(11, 94, 215, 0.15);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--blue2, #0b5ed7);
+    flex-shrink: 0;
+}
+.riwayatInfo {
+    flex: 1;
+    min-width: 0;
+}
+.riwayatName {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.riwayatMeta {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.riwayatMetaItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.riwayatMetaItem ion-icon {
+    font-size: 12px;
+    opacity: 0.7;
+}
+.riwayatMetaDivider {
+    color: var(--border);
+    font-size: 9px;
+}
+.riwayatRight {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+.badgeIzinPill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    font-size: 11.5px;
+    font-weight: 800;
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badgeIzinPill ion-icon {
+    font-size: 13px;
+}
 .btnBatal {
     font-size: 12px;
-    font-weight: 800;
-    min-height: 34px;
-    padding: 0 14px;
-    border-radius: 10px;
+    font-weight: 700;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 9px;
     border: 1px solid rgba(239, 68, 68, 0.25);
-    background: rgba(239, 68, 68, 0.08);
-    color: #dc2626;
+    background: rgba(239, 68, 68, 0.06);
+    color: #ef4444;
     cursor: pointer;
     font-family: inherit;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 5px;
     transition: all 0.15s ease;
 }
 .btnBatal:hover {
-    background: rgba(239, 68, 68, 0.18);
-    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.45);
+    color: #dc2626;
+}
+
+.emptyStateCard {
+    background: var(--card);
+    border: 1.5px dashed var(--border);
+    border-radius: 16px;
+    padding: 36px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.emptyStateIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: var(--card-alt);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+.emptyStateTitle {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+.emptyStateDesc {
+    font-size: 12px;
+    color: var(--muted);
+    max-width: 320px;
+}
+
+@media (max-width: 576px) {
+    .riwayatRow {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 14px;
+    }
+    .riwayatRight {
+        justify-content: space-between;
+        border-top: 1px dashed var(--border);
+        padding-top: 10px;
+        width: 100%;
+    }
+    .riwayatRight form {
+        flex-shrink: 0;
+    }
+    .btnBatal {
+        height: 36px;
+        padding: 0 14px;
+    }
 }
 
 /* ==========================================
@@ -6064,23 +6371,26 @@ button, a, input, select, textarea {
 .agendaDayCell {
     position: relative;
     aspect-ratio: 1 / 1;
-    min-height: 44px;
+    min-height: 48px;
     border-radius: 12px;
     background: var(--card-alt);
-    border: 1px solid var(--border);
+    border: 1.5px solid var(--border);
     color: var(--text);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 3px;
     text-decoration: none;
     transition: all 0.15s ease;
     padding: 4px;
+    box-sizing: border-box;
 }
 
 .agendaDayCell:hover {
-    border-color: var(--blue);
+    border-color: var(--blue, #0b5ed7);
     transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .agendaDayCell.empty {
@@ -6089,58 +6399,114 @@ button, a, input, select, textarea {
     pointer-events: none;
 }
 
+.agendaDayCell.hasEvent {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1.5px solid rgba(239, 68, 68, 0.45);
+    font-weight: 800;
+}
+
+.agendaDayCell.hasEvent:hover {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: #ef4444;
+}
+
 .agendaDayCell.today {
-    border: 1.5px solid var(--blue2);
+    border: 2px solid var(--blue2, #0b5ed7);
     font-weight: 900;
 }
 
+.agendaDayCell.today.hasEvent {
+    border: 2px solid var(--blue2, #0b5ed7);
+    background: rgba(239, 68, 68, 0.1);
+}
+
 .agendaDayCell.active {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(11, 94, 215, 0.3);
+    background: var(--blue, #0b5ed7) !important;
+    border-color: var(--blue, #0b5ed7) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.35);
 }
 
 .agendaDayCell.active .agendaDayNum {
     color: #ffffff;
 }
 
-.agendaDayCell.active .agendaEventBadge {
-    background: #ffffff;
-    color: var(--blue);
-}
-
 .agendaDayNum {
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 800;
     line-height: 1;
+}
+
+.agendaEventIndicatorWrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    line-height: 1;
+    margin-top: 1px;
 }
 
 .agendaEventDot {
-    position: absolute;
-    bottom: 5px;
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #e11d48;
+    background: #ef4444;
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.8);
+    display: inline-block;
+    flex-shrink: 0;
 }
 
-.agendaEventBadge {
-    position: absolute;
-    top: 3px;
-    right: 3px;
-    min-width: 16px;
-    height: 16px;
-    padding: 0 4px;
-    border-radius: 99px;
-    background: #e11d48;
+.agendaDayCell.active .agendaEventDot {
+    background: #ffffff;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.95);
+}
+
+.agendaEventCountText {
+    font-size: 9.5px;
+    font-weight: 900;
+    color: #ef4444;
+    line-height: 1;
+}
+
+.agendaDayCell.active .agendaEventCountText {
     color: #ffffff;
-    font-size: 9px;
-    font-weight: 800;
+}
+
+/* Legenda Kalender */
+.agendaCalendarLegend {
     display: flex;
     align-items: center;
     justify-content: center;
-    line-height: 1;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+    flex-wrap: wrap;
+}
+.agendaLegendItem {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--muted);
+}
+.agendaLegendIndicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.todayIndicator {
+    border: 2px solid var(--blue2, #0b5ed7);
+    background: transparent;
+}
+.eventIndicator {
+    background: #ef4444;
+    box-shadow: 0 0 4px rgba(239, 68, 68, 0.5);
+}
+.activeIndicator {
+    background: var(--blue, #0b5ed7);
 }
 
 /* Event Banner Highlight */
@@ -6212,6 +6578,45 @@ button, a, input, select, textarea {
     margin-top: 6px;
 }
 
+/* Empty State Agenda Box */
+.emptyAgendaBox {
+    background: var(--card);
+    border: 1.5px dashed var(--border);
+    border-radius: 18px;
+    padding: 32px 20px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+.emptyAgendaIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: rgba(11, 94, 215, 0.08);
+    color: var(--blue2, #0b5ed7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 12px;
+}
+.emptyAgendaTitle {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 4px;
+}
+.emptyAgendaDesc {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin: 0;
+    max-width: 360px;
+    line-height: 1.5;
+}
+
 /* ==========================================
    RESPONSIVE MEDIA QUERIES (MOBILE & DESKTOP)
    ========================================== */
@@ -6263,8 +6668,8 @@ button, a, input, select, textarea {
     }
 
     .agendaEventDot {
-        width: 4px;
-        height: 4px;
+        width: 5px;
+        height: 5px;
         bottom: 3px;
     }
 

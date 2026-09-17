@@ -23,7 +23,7 @@ class JadwalController extends Controller
         $endOfMonth = $selectedDate->copy()->endOfMonth();
 
         $monthDays = collect();
-        for ($date = $startOfMonth; $date->lte($endOfMonth); $date->addDay()) {
+        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
             $monthDays->push($date->copy());
         }
 
@@ -33,10 +33,17 @@ class JadwalController extends Controller
             ->get();
 
         // Hitung total agenda per hari dalam 1 bulan
-        $monthCounts = Jadwal::selectRaw('DATE(tanggal) as tgl, COUNT(*) as total')
-            ->whereBetween('tanggal', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
-            ->groupBy('tgl')
-            ->pluck('total', 'tgl');
+        $monthCounts = Jadwal::whereBetween('tanggal', [
+            $startOfMonth->toDateString(),
+            $endOfMonth->toDateString(),
+        ])
+            ->get()
+            ->groupBy(function ($item) {
+                return is_object($item->tanggal)
+                    ? $item->tanggal->format('Y-m-d')
+                    : substr((string) $item->tanggal, 0, 10);
+            })
+            ->map->count();
 
         return view('admin.jadwal.index', compact(
             'jadwals',

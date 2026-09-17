@@ -2,12 +2,10 @@
 
 @section('title', 'Agenda — Admin')
 
-
-
 @section('content')
 
 @php
-    $dayLabels = ['SEN','SEL','RAB','KAM','JUM','SAB'];
+    $dayLabels = ['SEN','SEL','RAB','KAM','JUM','SAB','MIN'];
 @endphp
 
 <div class="laporanPageWrapper">
@@ -18,14 +16,17 @@
                 <div class="laporanHeaderLabel">AKADEMIK &amp; KALENDER</div>
                 <h1 class="laporanHeaderTitle">Agenda &amp; Jadwal Sekolah</h1>
                 <div class="laporanHeaderSub">{{ $selectedDate->translatedFormat('l, d F Y') }}</div>
-                <p class="laporanHeaderDesc">Jadwal kegiatan pembelajaran, kalender akademik, dan agenda PKBM PIKAT.</p>
+                <p class="laporanHeaderDesc">Jadwal kegiatan pembelajaran, kalender akademik, dan agenda resmi PKBM PIKAT.</p>
             </div>
             <div class="laporanHeaderActions header-actions-group">
-                <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline">
-                    <ion-icon name="download-outline" class="text-lg"></ion-icon> Export Excel
+                <a href="{{ route('admin.jadwal.create', ['tanggal' => $selectedDate->toDateString()]) }}" class="profileBtnPrimary">
+                    <ion-icon name="add-circle-outline" class="text-lg"></ion-icon> Tambah Agenda
                 </a>
-                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
-                    <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import Jadwal
+                <a href="{{ route('admin.jadwal.exportExcel') }}" class="btnOutline">
+                    <ion-icon name="download-outline" class="text-lg"></ion-icon> Export
+                </a>
+                <button type="button" onclick="document.getElementById('importJadwalModal').style.display='flex'" class="btnOutline">
+                    <ion-icon name="cloud-upload-outline" class="text-lg"></ion-icon> Import
                 </button>
             </div>
         </div>
@@ -71,14 +72,14 @@
     </div>
 </div>
 
-<script >
+<script>
     function handleFileSelected(input, feedbackId) {
         const feedback = document.getElementById(feedbackId);
         if (!feedback) return;
         if (input.files && input.files[0]) {
             const file = input.files[0];
             const sizeKb = Math.round(file.size / 1024);
-            feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span >' + file.name + ' (' + sizeKb + ' KB)</span>';
+            feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span>' + file.name + ' (' + sizeKb + ' KB)</span>';
             feedback.style.display = 'flex';
         } else {
             feedback.style.display = 'none';
@@ -108,7 +109,7 @@
     $isToday = $selectedDate->isToday();
 @endphp
 
-<div  class="max-w-2xl px-4 mx-auto pb-6">
+<div class="max-w-2xl px-0 mx-auto pb-6">
 
     {{-- ── 1. KALENDER BULANAN (MONTH GRID VIEW) ── --}}
     <div class="agendaHeaderCard">
@@ -145,24 +146,42 @@
             {{-- Sel tanggal dalam bulan --}}
             @foreach($monthDays as $d)
                 @php
-                    $dStr = $d->toDateString();
+                    $dStr = $d->format('Y-m-d');
                     $isActive = $d->isSameDay($selectedDate);
                     $isCellToday = $d->isToday();
-                    $agendaCount = $monthCounts[$dStr] ?? 0;
+                    $agendaCount = (int) ($monthCounts[$dStr] ?? 0);
+                    $hasEvent = $agendaCount > 0;
                 @endphp
                 <a href="{{ route('admin.jadwal.index', ['tanggal' => $dStr]) }}"
-                   class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }}"
-                   title="{{ $d->translatedFormat('d F Y') }} ({{ $agendaCount }} Agenda)">
+                   class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }} {{ $hasEvent ? 'hasEvent' : '' }}"
+                   title="{{ $d->translatedFormat('d F Y') }} ({{ $agendaCount }} Agenda Kegiatan)">
                     <span class="agendaDayNum">{{ $d->day }}</span>
-                    @if($agendaCount > 0)
-                        @if($agendaCount > 1)
-                            <span class="agendaEventBadge">{{ $agendaCount }}</span>
-                        @else
+                    @if($hasEvent)
+                        <span class="agendaEventIndicatorWrap">
                             <span class="agendaEventDot"></span>
-                        @endif
+                            @if($agendaCount > 1)
+                                <span class="agendaEventCountText">{{ $agendaCount }}</span>
+                            @endif
+                        </span>
                     @endif
                 </a>
             @endforeach
+        </div>
+
+        <!-- Legenda Kalender -->
+        <div class="agendaCalendarLegend">
+            <div class="agendaLegendItem">
+                <span class="agendaLegendIndicator todayIndicator"></span>
+                <span>Hari Ini</span>
+            </div>
+            <div class="agendaLegendItem">
+                <span class="agendaLegendIndicator eventIndicator"></span>
+                <span>Ada Kegiatan</span>
+            </div>
+            <div class="agendaLegendItem">
+                <span class="agendaLegendIndicator activeIndicator"></span>
+                <span>Tanggal Terpilih</span>
+            </div>
         </div>
     </div>
 
@@ -175,7 +194,7 @@
                         {{ $isToday ? 'Kegiatan Hari Ini' : 'Agenda Terjadwal' }}
                     </span>
                     <span class="text-xs font-bold text-primary">
-                        {{ $jadwals->count() }} Agenda
+                        {{ $jadwals->count() }} Kegiatan
                     </span>
                 </div>
                 <div class="agendaBannerDate">
@@ -184,7 +203,7 @@
             </div>
 
             <!-- List Card Detail Agenda -->
-            <div >
+            <div>
                 @foreach($jadwals as $jadwal)
                     @php
                         $judul = $jadwal->judul ?? 'Agenda';
@@ -219,23 +238,29 @@
 
                         <div class="agendaMetaRow">
                             <ion-icon name="location-outline" class="text-primary"></ion-icon>
-                            <span ><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
+                            <span><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
                         </div>
                     </div>
                 @endforeach
             </div>
         </div>
     @else
-        <div class="text-center table-empty-cell border-base rounded-xl text-muted mb-4 bg-card">
-            <div class="text-md font-bold text-dark">Tidak ada agenda kegiatan</div>
-            <div class="text-sm mt-1">Pada tanggal {{ $selectedDate->translatedFormat('l, d F Y') }}</div>
+        <div class="emptyAgendaBox">
+            <div class="emptyAgendaIcon">
+                <ion-icon name="calendar-clear-outline"></ion-icon>
+            </div>
+            <div class="emptyAgendaTitle">Tidak Ada Agenda Kegiatan</div>
+            <div class="emptyAgendaDesc">Belum ada agenda atau kegiatan terjadwal pada <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
+            <a href="{{ route('admin.jadwal.create', ['tanggal' => $selectedDate->toDateString()]) }}" class="profileBtnPrimary btn-sm mt-3">
+                <ion-icon name="add-circle-outline"></ion-icon> Tambah Agenda Pada Tanggal Ini
+            </a>
         </div>
     @endif
 
 </div>
 
-<!-- FAB Tambah Agenda -->
-<a href="{{ route('admin.jadwal.create') }}" class="fabAdd" title="Tambah Agenda Baru">
+<!-- FAB Tambah Agenda Mobile -->
+<a href="{{ route('admin.jadwal.create', ['tanggal' => $selectedDate->toDateString()]) }}" class="fabAdd" title="Tambah Agenda Baru">
     <ion-icon name="add-outline"></ion-icon>
 </a>
 

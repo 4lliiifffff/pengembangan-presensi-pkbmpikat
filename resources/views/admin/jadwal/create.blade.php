@@ -57,7 +57,7 @@
             {{-- Tanggal --}}
             <div class="form-field-wrapper">
                 <label class="form-field-label">Tanggal <span class="text-danger">*</span></label>
-                <input type="date" name="tanggal" class="profileInput" value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                <input type="date" name="tanggal" class="profileInput" value="{{ old('tanggal', request('tanggal', date('Y-m-d'))) }}" required>
                 @error('tanggal')
                     <div class="field-help-text text-danger">{{ $message }}</div>
                 @enderror
