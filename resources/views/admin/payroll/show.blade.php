@@ -13,27 +13,27 @@
 
 @section('content')
 <div class="show-payroll-container">
-    {{-- ── Top Navigation & Header ── --}}
-    <div >
-        <a href="{{ route($rolePrefix . '.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="back-nav-link">
-            <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Rekapitulasi Payroll
-        </a>
-    </div>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">RINCIAN SLIP GAJI PERSONAL</div>
+                <h1 class="laporanHeaderTitle">Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h1>
+                <div class="laporanHeaderSub">Periode: {{ strtoupper($payroll['periode_label']) }} • NIK: {{ $tutor->nik }}</div>
+                <p class="laporanHeaderDesc">Rincian honorarium mengajar terverifikasi, akumulasi jam KBM, serta pengunduhan berkas slip resmi.</p>
+            </div>
 
-    <div class="show-header-row">
-        <div class="show-title-box">
-            <span class="text-xs font-extrabold text-success text-uppercase letter-spacing-sm">Rincian Slip Gaji Personal</span>
-            <h2 >Detail Slip Gaji: {{ $tutor->nama_lengkap }}</h2>
-            <p >Periode {{ $payroll['periode_label'] }} • NIK: {{ $tutor->nik }}</p>
-        </div>
-
-        <div class="show-header-actions">
-            <a href="{{ $logPresensiUrl }}" class="btnOutline text-no-decor d-inline-flex items-center gap-1 text-sm font-bold px-3 py-2">
-                <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Buka Log Presensi KBM
-            </a>
-            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm">
-                <ion-icon name="download-outline" class="icon-sm"></ion-icon> Cetak Slip Gaji PDF
-            </a>
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route($rolePrefix . '.payroll.index', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline">
+                    <ion-icon name="arrow-back-outline"></ion-icon> Kembali
+                </a>
+                <a href="{{ $logPresensiUrl }}" class="btnOutline">
+                    <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
+                </a>
+                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$tutor->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary" target="_blank">
+                    <ion-icon name="download-outline"></ion-icon> Cetak Slip PDF
+                </a>
+            </div>
         </div>
     </div>
 

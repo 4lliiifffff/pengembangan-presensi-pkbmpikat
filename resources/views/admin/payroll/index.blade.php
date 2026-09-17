@@ -8,39 +8,40 @@
 
 @section('content')
 <div class="payroll-container">
-    {{-- ── Page Header ── --}}
-    <div class="payroll-header">
-        <div class="payroll-title-box">
-            <span class="text-xs font-extrabold text-success text-uppercase letter-spacing-sm">Laporan Keuangan &amp; Payroll</span>
-            <h2 >Rekapitulasi Penggajian &amp; Honorarium Tutor</h2>
-            <p >Kalkulasi honorarium mengajar terverifikasi berbasis Master Tarif SK, durasi sesi KBM, dan anggaran bulanan lembaga.</p>
-        </div>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">LAPORAN KEUANGAN &amp; PAYROLL</div>
+                <h1 class="laporanHeaderTitle">Rekapitulasi Penggajian &amp; Honorarium Tutor</h1>
+                <div class="laporanHeaderSub">Periode: {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F') . ' ' . $tahun) }}</div>
+                <p class="laporanHeaderDesc">Kalkulasi honorarium mengajar terverifikasi berbasis Master Tarif SK, durasi sesi KBM, dan anggaran bulanan lembaga.</p>
+            </div>
 
-        <div class="payroll-actions">
-            <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline">
-                <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
-            </a>
-            <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-success">
-                <ion-icon name="document-outline"></ion-icon> Export Excel
-            </a>
-            <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary">
-                <ion-icon name="document-text-outline"></ion-icon> Export PDF
-            </a>
-            @if($rolePrefix === 'admin')
-            <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple">
-                <ion-icon name="options-outline"></ion-icon> Master Tarif SK
-            </a>
-            @endif
-            @if($rolePrefix === 'admin')
-            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" class="payroll-action-form">
-                @csrf
-                <input type="hidden" name="bulan" value="{{ $bulan }}">
-                <input type="hidden" name="tahun" value="{{ $tahun }}">
-                <button type="submit" class="profileBtnPrimary btn-action-purple-light">
-                    <ion-icon name="notifications-outline"></ion-icon> Umumkan ke Tutor
-                </button>
-            </form>
-            @endif
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline">
+                    <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
+                </a>
+                <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-success">
+                    <ion-icon name="document-outline"></ion-icon> Export Excel
+                </a>
+                <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary">
+                    <ion-icon name="document-text-outline"></ion-icon> Export PDF
+                </a>
+                @if($rolePrefix === 'admin')
+                <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple">
+                    <ion-icon name="options-outline"></ion-icon> Master Tarif SK
+                </a>
+                <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" class="payroll-action-form">
+                    @csrf
+                    <input type="hidden" name="bulan" value="{{ $bulan }}">
+                    <input type="hidden" name="tahun" value="{{ $tahun }}">
+                    <button type="submit" class="profileBtnPrimary btn-action-purple-light">
+                        <ion-icon name="notifications-outline"></ion-icon> Umumkan ke Tutor
+                    </button>
+                </form>
+                @endif
+            </div>
         </div>
     </div>
 
