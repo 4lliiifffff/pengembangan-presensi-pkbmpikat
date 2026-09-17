@@ -3415,14 +3415,102 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 .mapBtn { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--blue2); color: #fff; border-radius: 8px; text-decoration: none; cursor: pointer; border: none; }
 
 /* Modals */
-.modal-overlay { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0, 0, 0, 0.75); align-items: center; justify-content: center; padding: 16px; }
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+}
 .modal-overlay.active { display: flex; }
-.modal-box { background: var(--card); border-radius: 18px; overflow: hidden; max-width: 520px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; border: 1px solid var(--border); }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 13px; font-weight: 700; color: var(--text); }
-.modal-close { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--muted); line-height: 1; }
-.modal-body { flex: 1; overflow-y: auto; padding: 12px; display: flex; align-items: center; justify-content: center; min-height: 200px; }
-.modal-body img { max-width: 100%; border-radius: 10px; }
-.modal-body iframe { width: 100%; height: 340px; border: 0; border-radius: 10px; }
+.modal-box {
+    background: var(--card);
+    border-radius: 20px;
+    overflow: hidden;
+    max-width: 520px;
+    width: 100%;
+    margin: auto;
+    max-height: calc(100dvh - 32px);
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border);
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+}
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    flex-shrink: 0;
+}
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: var(--muted);
+    line-height: 1;
+    padding: 4px;
+    min-width: 32px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+.modal-close:hover {
+    background: var(--card-alt, rgba(0, 0, 0, 0.05));
+    color: var(--text);
+}
+.modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px;
+    overscroll-behavior: contain;
+}
+.modal-body img {
+    max-width: 100%;
+    max-height: 60vh;
+    height: auto;
+    border-radius: 10px;
+    object-fit: contain;
+}
+.modal-body iframe {
+    width: 100%;
+    height: 340px;
+    border: 0;
+    border-radius: 10px;
+}
+@media (max-width: 640px) {
+    .modal-overlay {
+        padding: 12px 10px;
+        align-items: center;
+    }
+    .modal-box {
+        border-radius: 18px;
+        max-height: calc(100dvh - 20px);
+        width: 100%;
+        max-width: 100%;
+    }
+}
 
 /* Kepsek Lupa Lapor & Izin Modern Styles */
 .kllHeader { padding: 16px 16px 10px; }
@@ -7592,9 +7680,12 @@ button, a, input, select, textarea {
     align-items: center;
     justify-content: center;
     padding: 20px 16px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.25s ease;
+    box-sizing: border-box;
 }
 
 .app-modal-backdrop.active,
@@ -7604,6 +7695,17 @@ button, a, input, select, textarea {
 .app-modal-backdrop[style*="display: block"],
 .app-modal-backdrop[style*="display:block"] {
     display: flex !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+.app-modal-backdrop.active .app-modal-dialog,
+.app-modal-backdrop.app-modal-enter .app-modal-dialog,
+.app-modal-backdrop[style*="display: flex"] .app-modal-dialog,
+.app-modal-backdrop[style*="display:flex"] .app-modal-dialog,
+.app-modal-backdrop[style*="display: block"] .app-modal-dialog,
+.app-modal-backdrop[style*="display:block"] .app-modal-dialog {
+    transform: scale(1) !important;
 }
 
 body.app-modal-open {
@@ -7613,6 +7715,9 @@ body.app-modal-open {
 .app-modal-dialog {
     width: 100%;
     max-width: 380px;
+    margin: auto;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 24px;
@@ -7624,6 +7729,7 @@ body.app-modal-open {
     align-items: center;
     transform: scale(0.9);
     transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
 }
 
 [data-theme="dark"] .app-modal-dialog {
@@ -7680,6 +7786,7 @@ body.app-modal-open {
     border: none;
     text-decoration: none;
     padding: 0 16px;
+    box-sizing: border-box;
 }
 
 .app-modal-btn:hover {
@@ -8025,24 +8132,24 @@ body.app-modal-open {
 .badge-layanan-komunitas{ background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .badge-layanan-gabungan { background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; }
 
-/* ── Standard Modal Popups ── */
-.app-modal-backdrop.active,
-.app-modal-backdrop.app-modal-enter,
-.app-modal-backdrop[style*="display: flex"],
-.app-modal-backdrop[style*="display:flex"],
-.app-modal-backdrop[style*="display: block"],
-.app-modal-backdrop[style*="display:block"] {
-    display: flex !important;
-}
-
 .app-modal-card {
     background: var(--card, #ffffff);
     border-radius: 20px;
     max-width: 520px;
     width: 100%;
+    margin: auto;
+    max-height: calc(100dvh - 32px);
+    overflow-y: auto;
     padding: 24px 28px;
     box-shadow: 0 24px 48px rgba(0, 0, 0, 0.25);
     border: 1px solid var(--border, #e2e8f0);
+    box-sizing: border-box;
+}
+
+[data-theme="dark"] .app-modal-card {
+    background: #1e293b;
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
 }
 
 .app-modal-header {
@@ -8084,6 +8191,9 @@ body.app-modal-open {
 }
 
 @media (max-width: 480px) {
+    .app-modal-card {
+        padding: 20px 16px;
+    }
     .app-modal-footer {
         flex-direction: column-reverse;
         gap: 8px;

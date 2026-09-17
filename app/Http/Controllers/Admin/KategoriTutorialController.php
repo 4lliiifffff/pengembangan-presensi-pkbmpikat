@@ -22,6 +22,16 @@ class KategoriTutorialController extends Controller
     }
 
     /**
+     * Tampilkan form pembuatan kategori tutorial baru.
+     */
+    public function create()
+    {
+        $nextUrutan = (KategoriTutorial::max('urutan') ?? 0) + 1;
+
+        return view('admin.kategori_tutorial.create', compact('nextUrutan'));
+    }
+
+    /**
      * Simpan data kategori tutorial baru.
      */
     public function store(Request $request)
@@ -47,6 +57,24 @@ class KategoriTutorialController extends Controller
         return redirect()
             ->route('admin.kategori-tutorial.index')
             ->with('success', 'Kategori tutorial baru berhasil ditambahkan.');
+    }
+
+    /**
+     * Tampilkan detail atau redirect ke form edit.
+     */
+    public function show(KategoriTutorial $kategoriTutorial)
+    {
+        return redirect()->route('admin.kategori-tutorial.edit', $kategoriTutorial);
+    }
+
+    /**
+     * Tampilkan form edit kategori tutorial.
+     */
+    public function edit(KategoriTutorial $kategoriTutorial)
+    {
+        $kategoriTutorial->loadCount('presensis');
+
+        return view('admin.kategori_tutorial.edit', compact('kategoriTutorial'));
     }
 
     /**

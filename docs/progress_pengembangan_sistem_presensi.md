@@ -275,12 +275,13 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Topbar navigasi sticky, header section `.sectionTitleRow`, dan grid 2-kolom desktop ($\ge 992$px) seimbang.
 
-#### 8.4 UI/UX Polish, Kontras Tombol & Navigasi Ikon
-- 🟢 **Penyelarasan Kontras Tombol Peta & Navigasi Admin**
+#### 8.4 UI/UX Polish, Kontras Tombol, Dialog Modal & Navigasi Ikon
+- 🟢 **Penyelarasan Kontras Tombol, Dialog Modal & Navigasi Admin**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - Perbaikan kontras warna teks tombol `.btnNavMaps` (Petunjuk Arah/Peta), `.btnLiveGpsActive`, dan tombol aksi peta di seluruh view presensi agar teks dan ikon terbaca kontras dan jelas (tidak hanya saat hover).
     - Penambahan wrapper background `.navIconWrap` pada item menu Master Jadwal & Shift Kerja di `navigasi_bawah_admin.blade.php` agar selaras dan konsisten dengan seluruh item navigasi lainnya.
+    - Standardisasi styling dialog konfirmasi `.app-modal-card`, `.app-modal-header`, `.app-modal-footer` pada `resources/css/app.css` dengan dukungan Dark Mode, scrolling viewport adaptif (`max-height: calc(100dvh - 32px)`), dan tata letak responsif pada perangkat mobile.
 
 ---
 
@@ -365,6 +366,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 15 | **Modul Portal & Presensi Mandiri Siswa PKBM** | Student Self-Attendance | Autentikasi siswa, tabel `presensi_mandiri_siswas`, dashboard ringkasan, kamera selfie Leaflet geofencing, riwayat, dan profil siswa. | 🟢 Selesai |
 | 16 | **Sinkronisasi Otomatis Akun Siswa & Users (Observer & Lifecycle)** | User-Student Sync | `SiswaObserver` auto-provisioning akun `users` saat tambah siswa, auto-sync data nama/kontak, auto-deactivate saat nonaktif/soft-delete, dan reset password admin. | 🟢 Selesai |
 | 17 | **Penyelarasan Desain & Responsivitas Modul Mahasiswa Magang (PKL)** | UI/UX & Responsive | Standarisasi seluruh view `admin/magang` (index, create, edit, presensi) mengikuti design system modern `admin/karyawan` dengan *account-stats-grid*, *laporanFilterCard*, *laporanTable*, dan *mobile-card-list*. | 🟢 Selesai |
+| 18 | **Standardisasi CRUD Kategori Tutorial & Tarif SK (Full-Page Navigation)** | UI/UX & Flow | Refactoring CRUD Kategori Tutorial dari modal popup menjadi halaman `create.blade.php` dan `edit.blade.php` terpisah yang konsisten dengan standar modul Admin lainnya. | 🟢 Selesai |
 
 ---
 
