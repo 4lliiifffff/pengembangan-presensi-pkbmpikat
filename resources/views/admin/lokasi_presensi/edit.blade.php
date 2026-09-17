@@ -15,18 +15,18 @@
                 <h1 class="laporanHeaderTitle">Edit Titik: {{ $lokasiPresensi->nama_lokasi }}</h1>
                 <div class="laporanHeaderSub">Perbarui koordinat titik peta atau sesuaikan toleransi radius geofence</div>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
+            <div class="laporanHeaderActions">
                 <a href="{{ route('admin.lokasi-presensi.index') }}" class="btnOutline">
-                    <ion-icon name="arrow-back-outline"></ion-icon> Kembali
+                    Kembali
                 </a>
             </div>
         </div>
     </div>
 
     @if ($errors->any())
-        <div class="alert alert-danger mb-4 p-3 rounded-lg bg-red-50 text-red-700 border border-red-200">
-            <strong class="d-block mb-1">Terdapat kesalahan input:</strong>
-            <ul class="mb-0 pl-4 list-disc text-sm">
+        <div class="error-list-container">
+            <div class="error-title">Periksa input berikut:</div>
+            <ul>
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
@@ -34,90 +34,80 @@
         </div>
     @endif
 
-    <div class="content-box">
+    <div class="form-card-container form-card-wide">
         <form method="POST" action="{{ route('admin.lokasi-presensi.update', $lokasiPresensi) }}">
             @csrf
             @method('PUT')
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div class="form-map-split">
                 {{-- ── Kolom Kiri: Form Data Lokasi ── --}}
-                <div class="lg:col-span-5 flex flex-col gap-4">
-                    <div class="form-group">
-                        <label class="form-label font-bold text-dark text-sm mb-1 d-block">
-                            Nama Titik Lokasi <span class="text-danger">*</span>
-                        </label>
-                        <input type="text" name="nama_lokasi" value="{{ old('nama_lokasi', $lokasiPresensi->nama_lokasi) }}" class="form-control w-full" required>
+                <div class="d-flex flex-col gap-3">
+                    <div class="form-field-wrapper">
+                        <label class="filterFieldLabel">Nama Titik Lokasi <span class="text-danger">*</span></label>
+                        <input type="text" name="nama_lokasi" value="{{ old('nama_lokasi', $lokasiPresensi->nama_lokasi) }}" placeholder="Contoh: Gedung Pusat PKBM Pikat..." class="profileInput" required>
+                        <span class="field-help-text">Nama lokasi ini akan muncul pada pilihan absensi tutor dan mahasiswa magang.</span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label font-bold text-dark text-sm mb-1 d-block">
-                            Tipe / Kategori Lokasi <span class="text-danger">*</span>
-                        </label>
-                        <select name="tipe" class="form-control w-full" required>
-                            <option value="pusat" {{ old('tipe', $lokasiPresensi->tipe) == 'pusat' ? 'selected' : '' }}>🏢 Gedung Pusat</option>
-                            <option value="cabang" {{ old('tipe', $lokasiPresensi->tipe) == 'cabang' ? 'selected' : '' }}>🏫 Cabang / Rombel Belajar</option>
-                            <option value="mitra" {{ old('tipe', $lokasiPresensi->tipe) == 'mitra' ? 'selected' : '' }}>🤝 Instansi Mitra PKL / Magang</option>
-                            <option value="kegiatan" {{ old('tipe', $lokasiPresensi->tipe) == 'kegiatan' ? 'selected' : '' }}>🎪 Sentra Belajar / Acara Khusus</option>
-                            <option value="lainnya" {{ old('tipe', $lokasiPresensi->tipe) == 'lainnya' ? 'selected' : '' }}>📍 Lainnya</option>
+                    <div class="form-field-wrapper">
+                        <label class="filterFieldLabel">Tipe / Kategori Lokasi <span class="text-danger">*</span></label>
+                        <select name="tipe" class="filterSelect" required>
+                            <option value="pusat" {{ old('tipe', $lokasiPresensi->tipe) === 'pusat' ? 'selected' : '' }}>Gedung Pusat</option>
+                            <option value="cabang" {{ old('tipe', $lokasiPresensi->tipe) === 'cabang' ? 'selected' : '' }}>Cabang / Rombel Belajar</option>
+                            <option value="mitra" {{ old('tipe', $lokasiPresensi->tipe) === 'mitra' ? 'selected' : '' }}>Instansi Mitra PKL / Magang</option>
+                            <option value="kegiatan" {{ old('tipe', $lokasiPresensi->tipe) === 'kegiatan' ? 'selected' : '' }}>Sentra Belajar / Acara Khusus</option>
+                            <option value="lainnya" {{ old('tipe', $lokasiPresensi->tipe) === 'lainnya' ? 'selected' : '' }}>Lainnya</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label font-bold text-dark text-sm mb-1 d-block">Alamat Lengkap (Opsional)</label>
-                        <textarea name="alamat" rows="2" class="form-control w-full">{{ old('alamat', $lokasiPresensi->alamat) }}</textarea>
+                    <div class="form-field-wrapper">
+                        <label class="filterFieldLabel">Alamat Lengkap (Opsional)</label>
+                        <textarea name="alamat" rows="2" placeholder="Jl. Raya No..., Kelurahan, Kecamatan..." class="profileInput">{{ old('alamat', $lokasiPresensi->alamat) }}</textarea>
                     </div>
 
                     {{-- Koordinat GPS --}}
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="form-group">
-                            <label class="form-label font-bold text-dark text-sm mb-1 d-block">Latitude <span class="text-danger">*</span></label>
-                            <input type="number" step="any" name="latitude" id="inputLat" value="{{ old('latitude', $lokasiPresensi->latitude) }}" class="form-control w-full font-mono text-sm" required>
+                    <div class="form-grid-responsive">
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Latitude <span class="text-danger">*</span></label>
+                            <input type="number" step="any" name="latitude" id="inputLat" value="{{ old('latitude', $lokasiPresensi->latitude) }}" class="profileInput font-mono text-sm" required>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label font-bold text-dark text-sm mb-1 d-block">Longitude <span class="text-danger">*</span></label>
-                            <input type="number" step="any" name="longitude" id="inputLng" value="{{ old('longitude', $lokasiPresensi->longitude) }}" class="form-control w-full font-mono text-sm" required>
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Longitude <span class="text-danger">*</span></label>
+                            <input type="number" step="any" name="longitude" id="inputLng" value="{{ old('longitude', $lokasiPresensi->longitude) }}" class="profileInput font-mono text-sm" required>
                         </div>
                     </div>
 
                     {{-- Radius Geofence --}}
-                    <div class="form-group">
+                    <div class="form-field-wrapper">
                         <div class="d-flex justify-between items-center mb-1">
-                            <label class="form-label font-bold text-dark text-sm mb-0">Radius Geofence Presensi <span class="text-danger">*</span></label>
-                            <span class="badgeDate text-xs px-2 py-0.5 font-bold" id="radiusBadgeVal">{{ old('radius_meter', $lokasiPresensi->radius_meter) }} Meter</span>
+                            <label class="filterFieldLabel mb-0">Radius Geofence Presensi <span class="text-danger">*</span></label>
+                            <span class="badgeCount font-bold" id="radiusBadgeVal">{{ old('radius_meter', $lokasiPresensi->radius_meter) }} Meter</span>
                         </div>
-                        <input type="range" min="10" max="1000" step="5" id="sliderRadius" value="{{ old('radius_meter', $lokasiPresensi->radius_meter) }}" class="w-full h-2 bg-slate-200 rounded-lg cursor-pointer">
-                        <div class="d-flex items-center gap-2 mt-2">
-                            <input type="number" min="10" max="5000" name="radius_meter" id="inputRadius" value="{{ old('radius_meter', $lokasiPresensi->radius_meter) }}" class="form-control w-28 text-center font-bold" required>
-                            <span class="text-xs text-muted">Meter (Maksimal jarak tutor dari titik pusat ini)</span>
+                        <div class="radius-slider-group">
+                            <input type="range" min="10" max="1000" step="5" id="sliderRadius" value="{{ old('radius_meter', $lokasiPresensi->radius_meter) }}" class="radius-slider-input">
+                            <div class="d-flex items-center gap-2">
+                                <input type="number" min="10" max="5000" name="radius_meter" id="inputRadius" value="{{ old('radius_meter', $lokasiPresensi->radius_meter) }}" class="profileInput text-center font-bold" style="max-width: 120px;" required>
+                                <span class="field-help-text m-0">Meter (Batas toleransi jarak presensi dari titik pusat)</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label font-bold text-dark text-sm mb-1 d-block">Keterangan / Catatan (Opsional)</label>
-                        <input type="text" name="keterangan" value="{{ old('keterangan', $lokasiPresensi->keterangan) }}" class="form-control w-full">
+                    <div class="form-field-wrapper">
+                        <label class="filterFieldLabel">Keterangan / Catatan (Opsional)</label>
+                        <input type="text" name="keterangan" value="{{ old('keterangan', $lokasiPresensi->keterangan) }}" placeholder="Catatan tambahan lokasi..." class="profileInput">
                     </div>
 
-                    <div class="form-check mt-2">
-                        <label class="d-flex items-center gap-2 cursor-pointer font-semibold text-dark text-sm">
-                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $lokasiPresensi->is_active) ? 'checked' : '' }} class="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4">
-                            Titik lokasi aktif (Dapat dipilih untuk presensi)
+                    <div class="mt-1">
+                        <label class="checkbox-toggle-card">
+                            <input type="checkbox" name="is_active" value="1" {{ old('is_active', $lokasiPresensi->is_active) ? 'checked' : '' }}>
+                            <span>Titik lokasi aktif (Dapat dipilih untuk presensi)</span>
                         </label>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 d-flex gap-2">
-                        <button type="submit" class="profileBtnPrimary flex-1 justify-center py-2.5">
-                            <ion-icon name="save-outline"></ion-icon> Perbarui Titik Lokasi
-                        </button>
-                        <a href="{{ route('admin.lokasi-presensi.index') }}" class="btnOutline justify-center py-2.5">
-                            Batal
-                        </a>
                     </div>
                 </div>
 
                 {{-- ── Kolom Kanan: Interactive Leaflet Map Picker ── --}}
-                <div class="lg:col-span-7 flex flex-col gap-2">
+                <div class="picker-map-column">
                     <div class="d-flex justify-between items-center">
-                        <span class="font-bold text-dark text-sm d-flex items-center gap-1.5">
+                        <span class="filterFieldLabel mb-0 d-flex items-center gap-1.5 font-bold">
                             <ion-icon name="navigate-circle-outline" class="text-primary text-base"></ion-icon> Peta Penentu Titik &amp; Radius
                         </span>
                         <button type="button" id="btnDetectAdminLocation" class="btnOutline text-xs py-1 px-2.5 d-inline-flex items-center gap-1">
@@ -126,12 +116,24 @@
                     </div>
 
                     <div class="pos-relative">
-                        <div id="pickerMap" style="height: 440px; width: 100%; border-radius: 14px; border: 1px solid var(--border); z-index: 1;"></div>
-                        <div class="p-2.5 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-lg border border-slate-200 dark:border-slate-800 text-xs text-muted shadow-sm mt-2">
-                            💡 <b>Petunjuk:</b> Klik di mana saja pada peta atau geser (drag) pin merah untuk menentukan titik lokasi. Lingkaran biru memvisualisasikan toleransi radius geofence.
+                        <div id="pickerMap" class="pickerMapWrapper"></div>
+                        <div class="info-callout-box mt-3">
+                            <div class="info-callout-title">Petunjuk Penggunaan Peta:</div>
+                            <div class="info-callout-desc">
+                                Klik di area mana saja pada peta atau geser pin penanda biru untuk menentukan titik koordinat presensi. Lingkaran biru memvisualisasikan batas radius toleransi geofence.
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="form-action-footer">
+                <a href="{{ route('admin.lokasi-presensi.index') }}" class="btnOutline">
+                    Batal
+                </a>
+                <button type="submit" class="profileBtnPrimary">
+                    Perbarui Titik Lokasi
+                </button>
             </div>
         </form>
     </div>
@@ -251,6 +253,10 @@
                 );
             });
         }
+
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 250);
     });
 </script>
 @endsection

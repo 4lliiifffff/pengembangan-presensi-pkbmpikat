@@ -16,9 +16,9 @@
                 <div class="laporanHeaderSub">Kelola lokasi gedung pusat, cabang belajar, mitra magang, dan batas radius geofence</div>
                 <p class="laporanHeaderDesc">Tutor, Mahasiswa Magang, dan Karyawan dapat memilih titik lokasi yang ditentukan saat melakukan absensi.</p>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
+            <div class="laporanHeaderActions">
                 <a href="{{ route('admin.lokasi-presensi.create') }}" class="profileBtnPrimary">
-                    <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Titik Lokasi
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Titik Lokasi
                 </a>
             </div>
         </div>
@@ -30,7 +30,7 @@
             <div class="kpi-top">
                 <div class="kpi-label">Total Titik Lokasi</div>
                 <div class="kpi-icon-wrap">
-                    <ion-icon name="location"></ion-icon>
+                    <ion-icon name="location-outline"></ion-icon>
                 </div>
             </div>
             <div>
@@ -41,14 +41,14 @@
 
         <div class="kpi-card blue">
             <div class="kpi-top">
-                <div class="kpi-label">Titik Aktif (Bisa Diabsen)</div>
+                <div class="kpi-label">Titik Aktif</div>
                 <div class="kpi-icon-wrap">
-                    <ion-icon name="checkmark-circle"></ion-icon>
+                    <ion-icon name="checkmark-circle-outline"></ion-icon>
                 </div>
             </div>
             <div>
                 <div class="kpi-val">{{ $stats['active'] }} Lokasi</div>
-                <div class="kpi-sub">Muncul pada pilihan presensi tutor/magang</div>
+                <div class="kpi-sub">Muncul pada pilihan presensi tutor &amp; magang</div>
             </div>
         </div>
 
@@ -56,187 +56,191 @@
             <div class="kpi-top">
                 <div class="kpi-label">Titik Non-Aktif</div>
                 <div class="kpi-icon-wrap">
-                    <ion-icon name="pause-circle"></ion-icon>
+                    <ion-icon name="pause-circle-outline"></ion-icon>
                 </div>
             </div>
             <div>
                 <div class="kpi-val">{{ $stats['inactive'] }} Lokasi</div>
-                <div class="kpi-sub">Sedang dinonaktifkan sementara</div>
+                <div class="kpi-sub">Dinonaktifkan sementara</div>
             </div>
         </div>
     </div>
 
     {{-- ── Peta Visualisasi Sebaran Seluruh Titik ── --}}
-    <div class="content-box mb-4">
-        <div class="cardHeadRow mb-3">
+    <div class="geofence-map-card">
+        <div class="geofence-map-header">
             <div>
-                <h3 class="font-bold text-dark text-md d-flex items-center gap-2">
+                <div class="geofence-map-title">
                     <ion-icon name="map-outline" class="text-primary"></ion-icon> Peta Sebaran Titik Geofence Aktif
-                </h3>
-                <span class="text-xs text-muted">Menampilkan seluruh titik lokasi presensi yang sedang aktif</span>
+                </div>
+                <div class="geofence-map-sub">Menampilkan seluruh titik lokasi presensi yang sedang aktif beserta visualisasi radius geofence</div>
             </div>
-            <span class="badgeDate text-xs px-2 py-1">{{ count($allActiveLokasis) }} Titik Terpetakan</span>
+            <span class="badgeCount">{{ count($allActiveLokasis) }} Titik Terpetakan</span>
         </div>
-        <div id="overviewMap" style="height: 320px; width: 100%; border-radius: 12px; border: 1px solid var(--border); z-index: 1;"></div>
+        <div id="overviewMap" class="overview-map-frame"></div>
     </div>
 
-    {{-- ── Filter Bar ── --}}
-    <div class="filter-card mb-4">
-        <form method="GET" action="{{ route('admin.lokasi-presensi.index') }}" class="filter-form">
-            <div class="filter-group flex-1">
-                <label class="filter-label">Cari Lokasi:</label>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama lokasi, alamat..." class="filter-select">
-            </div>
+    {{-- ── Filter Card ── --}}
+    <div class="laporanFilterCard mb-4">
+        <form method="GET" action="{{ route('admin.lokasi-presensi.index') }}">
+            <div class="laporanFilterGrid">
+                <div class="filterField">
+                    <label class="filterFieldLabel">Cari Lokasi</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama lokasi, alamat..." class="profileInput text-md">
+                </div>
 
-            <div class="filter-group">
-                <label class="filter-label">Tipe Lokasi:</label>
-                <select name="tipe" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Semua Tipe</option>
-                    <option value="pusat" {{ request('tipe') == 'pusat' ? 'selected' : '' }}>Gedung Pusat</option>
-                    <option value="cabang" {{ request('tipe') == 'cabang' ? 'selected' : '' }}>Cabang / Rombel</option>
-                    <option value="mitra" {{ request('tipe') == 'mitra' ? 'selected' : '' }}>Instansi Mitra</option>
-                    <option value="kegiatan" {{ request('tipe') == 'kegiatan' ? 'selected' : '' }}>Sentra / Kegiatan</option>
-                    <option value="lainnya" {{ request('tipe') == 'lainnya' ? 'selected' : '' }}>Lainnya</option>
-                </select>
-            </div>
+                <div class="filterField">
+                    <label class="filterFieldLabel">Tipe Lokasi</label>
+                    <select name="tipe" class="filterSelect" onchange="this.form.submit()">
+                        <option value="">Semua Tipe</option>
+                        <option value="pusat" {{ request('tipe') === 'pusat' ? 'selected' : '' }}>Gedung Pusat</option>
+                        <option value="cabang" {{ request('tipe') === 'cabang' ? 'selected' : '' }}>Cabang / Rombel</option>
+                        <option value="mitra" {{ request('tipe') === 'mitra' ? 'selected' : '' }}>Instansi Mitra</option>
+                        <option value="kegiatan" {{ request('tipe') === 'kegiatan' ? 'selected' : '' }}>Sentra / Kegiatan</option>
+                        <option value="lainnya" {{ request('tipe') === 'lainnya' ? 'selected' : '' }}>Lainnya</option>
+                    </select>
+                </div>
 
-            <div class="filter-group">
-                <label class="filter-label">Status:</label>
-                <select name="status" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Semua Status</option>
-                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Aktif</option>
-                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Non-Aktif</option>
-                </select>
-            </div>
+                <div class="filterField">
+                    <label class="filterFieldLabel">Status</label>
+                    <select name="status" class="filterSelect" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Non-Aktif</option>
+                    </select>
+                </div>
 
-            <div class="d-flex gap-1 items-end">
-                <button type="submit" class="btnOutline">
-                    <ion-icon name="filter-outline"></ion-icon> Filter
-                </button>
-                @if(request()->anyFilled(['search', 'tipe', 'status']))
-                    <a href="{{ route('admin.lokasi-presensi.index') }}" class="btnOutline" title="Reset Filter">
-                        <ion-icon name="refresh-outline"></ion-icon>
-                    </a>
-                @endif
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
+                        <ion-icon name="filter-outline"></ion-icon> Filter
+                    </button>
+                    @if(request()->anyFilled(['search', 'tipe', 'status']))
+                        <a href="{{ route('admin.lokasi-presensi.index') }}" class="btn-filter-reset" title="Reset Filter">
+                            Reset
+                        </a>
+                    @endif
+                </div>
             </div>
         </form>
     </div>
 
-    {{-- ── Desktop Table ── --}}
-    <div class="table-responsive-desktop">
-        <div class="table-wrapper-card">
-            <div class="overflow-x-auto">
-                <table class="table-modern">
-                    <thead>
-                        <tr class="table-head-row">
-                            <th class="table-col-num">#</th>
-                            <th class="p-3">Nama Titik Lokasi</th>
-                            <th class="p-3 text-center">Tipe</th>
-                            <th class="p-3">Koordinat GPS</th>
-                            <th class="p-3 text-center">Radius Geofence</th>
-                            <th class="p-3 text-center">Riwayat Presensi</th>
-                            <th class="p-3 text-center">Status</th>
-                            <th class="p-3 text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($lokasis as $l)
-                            @php
-                                $tipeClass = match($l->tipe) {
-                                    'pusat' => 'hadir',
-                                    'cabang' => 'jam',
-                                    'mitra' => 'izin',
-                                    default => 'alpha',
-                                };
-                                $tipeLabel = match($l->tipe) {
-                                    'pusat' => 'Gedung Pusat',
-                                    'cabang' => 'Cabang Belajar',
-                                    'mitra' => 'Mitra PKL',
-                                    'kegiatan' => 'Sentra Kegiatan',
-                                    default => ucfirst($l->tipe),
-                                };
-                            @endphp
-                            <tr class="table-body-row">
-                                <td class="p-3 text-center font-bold text-muted">{{ $lokasis->firstItem() + $loop->index }}</td>
-                                <td class="p-3">
-                                    <div class="font-bold text-dark text-md">{{ $l->nama_lokasi }}</div>
-                                    <div class="text-xs text-muted">{{ $l->alamat ?: 'Tidak ada alamat tertulis' }}</div>
-                                </td>
-                                <td class="p-3 text-center">
-                                    <span class="badge-chip {{ $tipeClass }}">{{ $tipeLabel }}</span>
-                                </td>
-                                <td class="p-3">
-                                    <div class="font-mono text-xs font-semibold text-primary">
-                                        {{ number_format($l->latitude, 6) }}, {{ number_format($l->longitude, 6) }}
-                                    </div>
-                                    <a href="https://www.google.com/maps?q={{ $l->latitude }},{{ $l->longitude }}" target="_blank" class="text-xs text-muted d-inline-flex items-center gap-1 mt-1 text-no-decor hover:text-primary">
-                                        <ion-icon name="open-outline"></ion-icon> Buka Google Maps
-                                    </a>
-                                </td>
-                                <td class="p-3 text-center">
-                                    <span class="font-bold text-dark">{{ $l->radius_meter }} Meter</span>
-                                </td>
-                                <td class="p-3 text-center">
-                                    <span class="text-xs font-semibold text-muted">
-                                        {{ $l->presensis_count + $l->presensi_karyawans_count }} Presensi
-                                    </span>
-                                </td>
-                                <td class="p-3 text-center">
-                                    <form method="POST" action="{{ route('admin.lokasi-presensi.toggleStatus', $l) }}">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" class="btn-status-toggle {{ $l->is_active ? 'text-success' : 'text-danger' }}" title="Klik untuk mengubah status">
-                                            @if($l->is_active)
-                                                <ion-icon name="checkmark-circle" class="align-middle"></ion-icon> Aktif
-                                            @else
-                                                <ion-icon name="close-circle" class="align-middle"></ion-icon> Non-Aktif
-                                            @endif
-                                        </button>
-                                    </form>
-                                </td>
-                                <td class="p-3 text-center">
-                                    <div class="d-flex gap-1 justify-center">
-                                        <a href="{{ route('admin.lokasi-presensi.edit', $l) }}" class="smallBtn edit btn-table-action" title="Edit Titik Lokasi">
-                                            <ion-icon name="create-outline"></ion-icon> Edit
-                                        </a>
-                                        <form method="POST" action="{{ route('admin.lokasi-presensi.destroy', $l) }}" data-confirm="Hapus titik lokasi '{{ $l->nama_lokasi }}' dari master geofence?" data-confirm-title="Hapus Titik Lokasi" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="smallBtn delete btn-table-action" title="Hapus Titik">
-                                                <ion-icon name="trash-outline"></ion-icon>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="8" class="text-center text-muted p-4">
-                                    <ion-icon name="location-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>
-                                    Belum ada titik lokasi presensi yang terdaftar.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-            @if($lokasis->hasPages())
-                <div class="p-3 border-t border-slate-100 dark:border-slate-800">
-                    {{ $lokasis->links() }}
-                </div>
-            @endif
-        </div>
+    {{-- ── Section Title ── --}}
+    <div class="sectionRow">
+        <h2>Daftar Titik Geofence</h2>
+        <span class="badgeCount">{{ $lokasis->total() }} Titik Ditemukan</span>
     </div>
 
-    {{-- ── Mobile List ── --}}
-    <div class="mobile-payroll-list">
-        @forelse($lokasis as $l)
+    {{-- ── Desktop Table ── --}}
+    <div class="table-responsive-desktop">
+        <div class="tableContainer m-0 mb-4 rounded-xl border-base">
+            <table class="laporanTable">
+                <thead>
+                    <tr>
+                        <th class="table-col-num">NO</th>
+                        <th>NAMA TITIK LOKASI</th>
+                        <th class="text-center">TIPE</th>
+                        <th>KOORDINAT GPS</th>
+                        <th class="text-center">RADIUS GEOFENCE</th>
+                        <th class="text-center">RIWAYAT PRESENSI</th>
+                        <th class="text-center">STATUS</th>
+                        <th class="text-center">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($lokasis as $index => $l)
+                        @php
+                            $tipeBadgeClass = match($l->tipe) {
+                                'pusat' => 'badge-lokasi-pusat',
+                                'cabang' => 'badge-lokasi-cabang',
+                                'mitra' => 'badge-lokasi-mitra',
+                                'kegiatan' => 'badge-lokasi-kegiatan',
+                                default => 'badge-lokasi-lainnya',
+                            };
+                            $tipeLabel = match($l->tipe) {
+                                'pusat' => 'Gedung Pusat',
+                                'cabang' => 'Cabang Belajar',
+                                'mitra' => 'Mitra PKL',
+                                'kegiatan' => 'Sentra Kegiatan',
+                                default => ucfirst($l->tipe),
+                            };
+                        @endphp
+                        <tr>
+                            <td class="text-center font-bold text-muted">{{ $lokasis->firstItem() + $index }}</td>
+                            <td>
+                                <div class="font-bold text-dark text-md">{{ $l->nama_lokasi }}</div>
+                                <div class="text-xs text-muted">{{ $l->alamat ?: 'Tidak ada alamat tertulis' }}</div>
+                            </td>
+                            <td class="text-center">
+                                <span class="app-badge {{ $tipeBadgeClass }}">{{ $tipeLabel }}</span>
+                            </td>
+                            <td>
+                                <div class="font-mono text-xs font-semibold text-primary">
+                                    {{ number_format($l->latitude, 6) }}, {{ number_format($l->longitude, 6) }}
+                                </div>
+                                <a href="https://www.google.com/maps?q={{ $l->latitude }},{{ $l->longitude }}" target="_blank" class="text-xs text-muted d-inline-flex items-center gap-1 mt-1 text-no-decor hover:text-primary">
+                                    <ion-icon name="open-outline"></ion-icon> Buka Google Maps
+                                </a>
+                            </td>
+                            <td class="text-center">
+                                <span class="font-bold text-dark">{{ $l->radius_meter }} Meter</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="text-xs font-semibold text-muted">
+                                    {{ $l->presensis_count + $l->presensi_karyawans_count }} Presensi
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <form method="POST" action="{{ route('admin.lokasi-presensi.toggleStatus', $l) }}" class="d-inline m-0">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="smallBtn btn-status-toggle btn-table-action" title="Klik untuk mengubah status">
+                                        {{ $l->is_active ? 'Aktif' : 'Nonaktif' }}
+                                    </button>
+                                </form>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex gap-1 flex-center flex-wrap">
+                                    <a href="{{ route('admin.lokasi-presensi.edit', $l) }}" class="smallBtn edit btn-table-action" title="Edit Titik Lokasi">
+                                        Edit
+                                    </a>
+                                    <form method="POST" action="{{ route('admin.lokasi-presensi.destroy', $l) }}" data-confirm="Hapus titik lokasi '{{ $l->nama_lokasi }}' dari master geofence?" data-confirm-title="Hapus Titik Lokasi" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Titik">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="8" class="table-empty-cell">
+                                <div class="font-bold text-md mb-1">Belum Ada Titik Lokasi</div>
+                                <div class="text-sm">Belum ada titik lokasi presensi yang terdaftar sesuai filter.</div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($lokasis->hasPages())
+            <div class="mt-3">
+                {{ $lokasis->links() }}
+            </div>
+        @endif
+    </div>
+
+    {{-- ── Mobile Cards List (Layar HP / Tablet) ── --}}
+    <div class="mobile-card-list">
+        @forelse($lokasis as $index => $l)
             @php
-                $tipeClass = match($l->tipe) {
-                    'pusat' => 'hadir',
-                    'cabang' => 'jam',
-                    'mitra' => 'izin',
-                    default => 'alpha',
+                $tipeBadgeClass = match($l->tipe) {
+                    'pusat' => 'badge-lokasi-pusat',
+                    'cabang' => 'badge-lokasi-cabang',
+                    'mitra' => 'badge-lokasi-mitra',
+                    'kegiatan' => 'badge-lokasi-kegiatan',
+                    default => 'badge-lokasi-lainnya',
                 };
                 $tipeLabel = match($l->tipe) {
                     'pusat' => 'Gedung Pusat',
@@ -246,59 +250,79 @@
                     default => ucfirst($l->tipe),
                 };
             @endphp
-            <div class="payroll-mobile-card">
-                <div class="pmc-header">
+            <div class="data-mobile-card">
+                <div class="dmc-header">
                     <div>
-                        <h4 class="pmc-name">{{ $l->nama_lokasi }}</h4>
-                        <div class="pmc-nik">{{ $l->alamat ?: 'Tidak ada alamat tertulis' }}</div>
+                        <h3 class="dmc-title">{{ $l->nama_lokasi }}</h3>
+                        <div class="dmc-subtitle">{{ $l->alamat ?: 'Tidak ada alamat tertulis' }}</div>
                     </div>
-                    <span class="badge-chip {{ $tipeClass }}">{{ $tipeLabel }}</span>
+                    <div class="flex-col gap-1 flex-items-end">
+                        <span class="app-badge {{ $tipeBadgeClass }}">{{ $tipeLabel }}</span>
+                        @if($l->is_active)
+                            <span class="app-badge badge-status-aktif">Aktif</span>
+                        @else
+                            <span class="app-badge badge-status-nonaktif">Non-Aktif</span>
+                        @endif
+                    </div>
                 </div>
 
-                <div class="pmc-stats">
-                    <div class="pmc-stat-item">
-                        <div class="val text-primary">{{ $l->radius_meter }}m</div>
-                        <div class="lbl">Radius Geofence</div>
+                <div class="dmc-grid">
+                    <div class="dmc-field">
+                        <div class="dmc-label">Radius Geofence</div>
+                        <div class="dmc-value text-primary">{{ $l->radius_meter }} Meter</div>
                     </div>
-                    <div class="pmc-stat-item">
-                        <div class="val font-mono text-xs">{{ number_format($l->latitude, 4) }}, {{ number_format($l->longitude, 4) }}</div>
-                        <div class="lbl">Koordinat GPS</div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Total Presensi</div>
+                        <div class="dmc-value">{{ $l->presensis_count + $l->presensi_karyawans_count }} Presensi</div>
                     </div>
-                    <div class="pmc-stat-item">
-                        <form method="POST" action="{{ route('admin.lokasi-presensi.toggleStatus', $l) }}">
+
+                    <div class="dmc-field full">
+                        <div class="dmc-label">Koordinat GPS</div>
+                        <div class="dmc-value font-mono text-xs">{{ number_format($l->latitude, 6) }}, {{ number_format($l->longitude, 6) }}</div>
+                        <a href="https://www.google.com/maps?q={{ $l->latitude }},{{ $l->longitude }}" target="_blank" class="text-xs text-muted d-inline-flex items-center gap-1 mt-1 text-no-decor hover:text-primary">
+                            <ion-icon name="open-outline"></ion-icon> Buka Google Maps
+                        </a>
+                    </div>
+                </div>
+
+                <div class="dmc-footer">
+                    <div class="text-xs font-bold text-muted">
+                        No. {{ $lokasis->firstItem() + $index }}
+                    </div>
+                    <div class="dmc-actions">
+                        <a href="{{ route('admin.lokasi-presensi.edit', $l) }}" class="smallBtn edit btn-table-action">
+                            Edit
+                        </a>
+                        <form method="POST" action="{{ route('admin.lokasi-presensi.toggleStatus', $l) }}" class="d-inline m-0">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="btn-status-toggle w-full mt-1 {{ $l->is_active ? 'text-success' : 'text-danger' }}">
-                                {{ $l->is_active ? '🟢 Aktif' : '🔴 Non-Aktif' }}
+                            <button type="submit" class="smallBtn btn-status-toggle btn-table-action">
+                                {{ $l->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
                             </button>
                         </form>
-                    </div>
-                </div>
-
-                <div class="pmc-footer">
-                    <div class="text-xs text-muted">
-                        {{ $l->presensis_count + $l->presensi_karyawans_count }} Presensi Tercatat
-                    </div>
-                    <div class="d-flex gap-1">
-                        <a href="{{ route('admin.lokasi-presensi.edit', $l) }}" class="smallBtn edit btn-table-action">
-                            <ion-icon name="create-outline"></ion-icon> Edit
-                        </a>
-                        <form method="POST" action="{{ route('admin.lokasi-presensi.destroy', $l) }}" data-confirm="Hapus titik lokasi '{{ $l->nama_lokasi }}'?" data-confirm-title="Hapus Titik Lokasi" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
+                        <form method="POST" action="{{ route('admin.lokasi-presensi.destroy', $l) }}" data-confirm="Hapus titik lokasi '{{ $l->nama_lokasi }}'?" data-confirm-title="Hapus Titik Lokasi" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="smallBtn delete btn-table-action">
-                                <ion-icon name="trash-outline"></ion-icon>
+                                Hapus
                             </button>
                         </form>
                     </div>
                 </div>
             </div>
         @empty
-            <div class="text-center table-empty-cell text-muted">
-                <ion-icon name="location-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>
-                Belum ada titik lokasi presensi yang terdaftar.
+            <div class="table-empty-cell">
+                <div class="font-bold text-md mb-1">Belum Ada Titik Lokasi</div>
+                <div class="text-sm">Belum ada titik lokasi presensi yang terdaftar sesuai filter.</div>
             </div>
         @endforelse
+
+        @if($lokasis->hasPages())
+            <div class="mt-3">
+                {{ $lokasis->links() }}
+            </div>
+        @endif
     </div>
 </div>
 
@@ -330,7 +354,7 @@
             bounds.push([lat, lng]);
 
             const marker = L.marker([lat, lng]).addTo(map);
-            marker.bindPopup('<b>🏢 ' + loc.nama_lokasi + '</b><br><span style="font-size:11px;">' + (loc.alamat || '') + '</span><br><b>Radius Geofence:</b> ' + rad + ' Meter');
+            marker.bindPopup('<b>' + loc.nama_lokasi + '</b><br><span style="font-size:11px;">' + (loc.alamat || '') + '</span><br><b>Radius Geofence:</b> ' + rad + ' Meter');
 
             L.circle([lat, lng], {
                 color: '#0284c7',
@@ -345,6 +369,11 @@
         } else if (bounds.length === 1) {
             map.setView(bounds[0], 16);
         }
+
+        // Trigger map invalidateSize after rendering to ensure full tile rendering without grey edges
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 250);
     });
 </script>
 @endsection

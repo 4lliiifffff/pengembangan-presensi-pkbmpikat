@@ -494,7 +494,7 @@
                                     data-nama="{{ $lok->nama_lokasi }}"
                                     data-alamat="{{ $lok->alamat ?? '' }}"
                                     {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
-                                    📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                    {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
                                 </option>
                             @empty
                                 <option value=""
@@ -503,7 +503,7 @@
                                     data-radius="{{ config('lokasi.radius_meter', 100) }}"
                                     data-nama="{{ config('lokasi.sekolah_nama', 'PKBM Pikat') }}"
                                     data-alamat="Gedung Pusat PKBM Pikat">
-                                    📍 Gedung Pusat PKBM Pikat (Default)
+                                    Gedung Pusat PKBM Pikat (Default)
                                 </option>
                             @endforelse
                         </select>
