@@ -1287,7 +1287,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================
-   BOTTOM NAVIGATION
+   BOTTOM NAVIGATION WITH CENTER ANCHOR & DRAWER
    ========================================== */
 .appBottomMenu, .bottomNavAdmin {
     position: fixed;
@@ -1298,54 +1298,395 @@ h1, h2, h3, h4, h5, h6 {
     max-width: 430px;
     background: var(--nav-bg);
     border-top: 1px solid var(--border);
-    padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    gap: 2px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    align-items: end;
     z-index: 1000;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
 }
 
-.bottomNavAdmin a, .appBottomMenu .item {
+[data-theme="dark"] .appBottomMenu,
+[data-theme="dark"] .bottomNavAdmin {
+    background: rgba(30, 41, 59, 0.92);
+    border-top-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.35);
+}
+
+/* Regular Nav Item */
+.bottomNavAdmin a.navItem,
+.bottomNavAdmin button.navItem,
+.bottomNavAdmin a:not(.navItemCenter),
+.appBottomMenu .item:not(.navItemCenter) {
     text-decoration: none;
     color: var(--nav-icon);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 3px;
     font-weight: 600;
-    font-size: 9.5px;
-    flex: 1 1 0;
+    font-size: 10px;
     min-width: 0;
-    padding: 5px 2px;
-    border-radius: 10px;
-    transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+    padding: 6px 2px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
     white-space: nowrap;
+    width: 100%;
+    user-select: none;
 }
 
-.bottomNavAdmin a span, .appBottomMenu .item span {
+.bottomNavAdmin a.navItem:active,
+.bottomNavAdmin button.navItem:active,
+.appBottomMenu .item:active {
+    transform: scale(0.92);
+}
+
+.navIconWrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottomNavAdmin a.navItem ion-icon,
+.bottomNavAdmin button.navItem ion-icon,
+.bottomNavAdmin a:not(.navItemCenter) ion-icon,
+.appBottomMenu .item:not(.navItemCenter) ion-icon {
+    font-size: 21px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.bottomNavAdmin a.navItem span,
+.bottomNavAdmin button.navItem span,
+.bottomNavAdmin a:not(.navItemCenter) span,
+.appBottomMenu .item:not(.navItemCenter) span {
     display: block;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 9.5px;
+    font-size: 10px;
     line-height: 1.15;
+    font-weight: 600;
+    letter-spacing: -0.1px;
 }
 
-.bottomNavAdmin a ion-icon, .appBottomMenu .item ion-icon {
+/* Active State for Regular Items */
+.bottomNavAdmin a.navItem.active,
+.bottomNavAdmin button.navItem.active,
+.bottomNavAdmin a.active:not(.navItemCenter),
+.appBottomMenu .item.active:not(.navItemCenter) {
+    color: var(--nav-active);
+    background: var(--nav-active-bg);
+    font-weight: 700;
+}
+
+.bottomNavAdmin a.navItem.active ion-icon,
+.bottomNavAdmin button.navItem.active ion-icon {
+    transform: translateY(-1px);
+}
+
+/* Red / Blue Dot Badge on 'Lainnya' */
+.navDotBadge {
+    position: absolute;
+    top: -1px;
+    right: -3px;
+    width: 7px;
+    height: 7px;
+    background: #0b5ed7;
+    border: 1.5px solid var(--nav-bg);
+    border-radius: 50%;
+    box-shadow: 0 0 6px rgba(11, 94, 215, 0.6);
+}
+
+/* ==========================================
+   CENTER HERO / DASHBOARD ANCHOR BUTTON
+   ========================================== */
+.navItemCenter {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
+    margin-top: -14px;
+    padding-bottom: 2px;
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.navItemCenter:active {
+    transform: scale(0.92);
+}
+
+.navCenterCircle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b5ed7 0%, #0284c7 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(11, 94, 215, 0.45);
+    border: 3.5px solid var(--nav-bg);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 2;
+}
+
+[data-theme="dark"] .navCenterCircle {
+    border-color: rgba(30, 41, 59, 0.95);
+    box-shadow: 0 4px 20px rgba(2, 132, 199, 0.45);
+}
+
+.navCenterCircle ion-icon {
+    font-size: 24px;
+    color: #ffffff;
+    transition: transform 0.2s ease;
+}
+
+.navCenterLabel {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--nav-icon);
+    margin-top: 3px;
+    line-height: 1.1;
+    letter-spacing: -0.1px;
+    transition: color 0.2s ease;
+}
+
+/* Active State for Center Anchor */
+.navItemCenter.active .navCenterCircle {
+    background: linear-gradient(135deg, #1d4ed8 0%, #0b5ed7 50%, #0284c7 100%);
+    box-shadow: 0 6px 22px rgba(11, 94, 215, 0.65), 0 0 0 3px rgba(11, 94, 215, 0.25);
+    transform: translateY(-2px);
+}
+
+.navItemCenter.active .navCenterLabel {
+    color: var(--nav-active);
+    font-weight: 800;
+}
+
+/* ==========================================
+   INTERACTIVE ACTION SHEET / BOTTOM DRAWER
+   ========================================== */
+.navDrawerBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.60);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.navDrawerBackdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.navDrawerSheet {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    border-top-left-radius: 26px;
+    border-top-right-radius: 26px;
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.22);
+    padding: 12px 18px calc(24px + env(safe-area-inset-bottom, 0px));
+    max-height: 85vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 2001;
+}
+
+.navDrawerBackdrop.active .navDrawerSheet {
+    transform: translateX(-50%) translateY(0);
+}
+
+.navDrawerHandle {
+    width: 42px;
+    height: 4.5px;
+    background: var(--muted);
+    opacity: 0.35;
+    border-radius: 999px;
+    margin: 4px auto 14px;
+}
+
+.navDrawerHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+}
+
+.navDrawerTitleWrap {
+    display: flex;
+    flex-direction: column;
+}
+
+.navDrawerSub {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+}
+
+.navDrawerTitle {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text);
+    margin: 2px 0 0;
+}
+
+.navDrawerCloseBtn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--card-alt);
+    color: var(--text);
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.navDrawerCloseBtn:active {
+    transform: scale(0.92);
+}
+
+.navDrawerBody {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.navDrawerSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.navDrawerSectionTitle {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.navDrawerSectionTitle ion-icon {
+    font-size: 14px;
+    color: var(--primary, #0b5ed7);
+}
+
+.navDrawerGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.navDrawerCard {
+    text-decoration: none;
+    background: var(--card-alt);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s ease;
+    user-select: none;
+}
+
+.navDrawerCard:hover {
+    background: var(--card);
+    border-color: rgba(11, 94, 215, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.navDrawerCard:active {
+    transform: scale(0.97);
+}
+
+.navDrawerCard.active {
+    background: rgba(11, 94, 215, 0.08);
+    border-color: rgba(11, 94, 215, 0.35);
+}
+
+.navDrawerCard.active .navCardTitle {
+    color: var(--nav-active);
+    font-weight: 800;
+}
+
+.navCardIcon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
     font-size: 20px;
     flex-shrink: 0;
 }
 
-.bottomNavAdmin a.active, .appBottomMenu .item.active {
-    color: var(--nav-active);
-    background: var(--nav-active-bg);
+.navCardIcon.emerald { background: rgba(16, 185, 129, 0.12); color: #059669; }
+.navCardIcon.blue    { background: rgba(14, 165, 233, 0.12); color: #0284c7; }
+.navCardIcon.cyan    { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+.navCardIcon.indigo  { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.navCardIcon.purple  { background: rgba(168, 85, 247, 0.12); color: #9333ea; }
+.navCardIcon.amber   { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.navCardIcon.rose    { background: rgba(244, 63, 94, 0.12); color: #e11d48; }
+.navCardIcon.teal    { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
+.navCardIcon.slate   { background: rgba(100, 116, 139, 0.12); color: #475569; }
+
+.navCardMeta {
+    min-width: 0;
+    flex: 1;
+}
+
+.navCardTitle {
+    font-size: 12.5px;
     font-weight: 700;
+    color: var(--text);
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.navCardDesc {
+    font-size: 10.5px;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ==========================================
