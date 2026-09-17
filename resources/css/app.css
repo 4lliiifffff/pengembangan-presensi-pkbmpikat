@@ -4049,7 +4049,7 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
     .laporanHeaderCard {
         flex-direction: column;
         align-items: stretch;
-        gap: 14px;
+        gap: 16px;
         padding: 16px;
     }
     .laporanHeaderInfo,
@@ -4061,36 +4061,48 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
         margin-top: 0;
         padding-top: 14px;
         border-top: 1px solid var(--border);
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
     .laporanHeaderActions .btnPayrollShortcut {
-        grid-column: 1 / -1;
         width: 100%;
         justify-content: center;
         text-align: center;
     }
     .laporanHeaderActions > a,
     .laporanHeaderActions > button,
-    .laporanHeaderActions > form > button {
-        width: 100%;
-        min-height: 40px;
-        height: 100%;
-        padding: 8px 12px;
+    .laporanHeaderActions > form > button,
+    .laporanHeaderActions .profileBtnPrimary,
+    .laporanHeaderActions .profileBtnDanger,
+    .laporanHeaderActions .btnPrimary,
+    .laporanHeaderActions .btnOutline {
+        width: 100% !important;
+        min-height: 42px;
+        height: auto;
+        padding: 10px 16px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         text-align: center;
         box-sizing: border-box;
-        font-size: 13px;
-        line-height: 1.2;
+        font-size: 13.5px;
+        line-height: 1.25;
+        white-space: normal;
     }
     .laporanHeaderActions > form {
         display: flex;
         width: 100%;
         margin: 0;
         padding: 0;
+    }
+}
+
+@media (min-width: 520px) and (max-width: 860px) {
+    .laporanHeaderActions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+        gap: 10px;
     }
 }
 
@@ -8088,9 +8100,9 @@ body.app-modal-open {
 /* ── Button Semantic Utilities ── */
 .profileBtnPrimary {
     height: 42px;
-    padding: 0 20px;
+    padding: 0 18px;
     font-size: 13.5px;
-    font-weight: 800;
+    font-weight: 700;
     border-radius: 12px;
     display: inline-flex;
     align-items: center;
@@ -8103,7 +8115,8 @@ body.app-modal-open {
     text-decoration: none;
     box-shadow: 0 2px 8px rgba(11, 94, 215, 0.25);
     transition: all 0.2s ease;
-    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
 }
 
 .profileBtnPrimary:hover {
@@ -8117,9 +8130,9 @@ body.app-modal-open {
 
 .profileBtnDanger {
     height: 42px;
-    padding: 0 20px;
+    padding: 0 18px;
     font-size: 13.5px;
-    font-weight: 800;
+    font-weight: 700;
     border-radius: 12px;
     display: inline-flex;
     align-items: center;
@@ -8132,7 +8145,8 @@ body.app-modal-open {
     text-decoration: none;
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.25);
     transition: all 0.2s ease;
-    width: 100%;
+    box-sizing: border-box;
+    white-space: nowrap;
 }
 
 .profileBtnDanger:hover {

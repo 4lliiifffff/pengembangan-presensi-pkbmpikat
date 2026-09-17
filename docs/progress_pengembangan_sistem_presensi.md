@@ -364,6 +364,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 14 | **Perbaikan Aksesibilitas Kontras Tombol & Navigasi Ikon** | UI/UX Polish | Penyelarasan styling tombol `.btnNavMaps` agar selalu kontras terbaca dan background icon Jadwal Shift di nav bawah Admin. | 🟢 Selesai |
 | 15 | **Modul Portal & Presensi Mandiri Siswa PKBM** | Student Self-Attendance | Autentikasi siswa, tabel `presensi_mandiri_siswas`, dashboard ringkasan, kamera selfie Leaflet geofencing, riwayat, dan profil siswa. | 🟢 Selesai |
 | 16 | **Sinkronisasi Otomatis Akun Siswa & Users (Observer & Lifecycle)** | User-Student Sync | `SiswaObserver` auto-provisioning akun `users` saat tambah siswa, auto-sync data nama/kontak, auto-deactivate saat nonaktif/soft-delete, dan reset password admin. | 🟢 Selesai |
+| 17 | **Penyelarasan Desain & Responsivitas Modul Mahasiswa Magang (PKL)** | UI/UX & Responsive | Standarisasi seluruh view `admin/magang` (index, create, edit, presensi) mengikuti design system modern `admin/karyawan` dengan *account-stats-grid*, *laporanFilterCard*, *laporanTable*, dan *mobile-card-list*. | 🟢 Selesai |
 
 ---
 

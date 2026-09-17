@@ -12,119 +12,188 @@
                 <div class="laporanHeaderLabel">KEMITRAAN &amp; PRAKTIK KERJA</div>
                 <h1 class="laporanHeaderTitle">Data Peserta Magang &amp; PKL</h1>
                 <div class="laporanHeaderSub">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</div>
-                <p class="laporanHeaderDesc">Pendaftaran peserta PKL, verifikasi instansi asal, dan status keaktifan penugasan.</p>
+                <p class="laporanHeaderDesc">Pendaftaran peserta PKL, verifikasi instansi asal, monitoring log kehadiran, dan status keaktifan penugasan.</p>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
-                <a href="{{ route('admin.magang.presensi') }}" class="btnOutline">
+            <div class="laporanHeaderActions">
+                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnPrimary btn-action-info">
                     <ion-icon name="calendar-outline"></ion-icon> Monitoring Presensi
                 </a>
                 <a href="{{ route('admin.magang.create') }}" class="profileBtnPrimary">
-                    <ion-icon name="add-outline"></ion-icon> Tambah Peserta Magang
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Peserta Magang
                 </a>
             </div>
         </div>
     </div>
 
-<!-- Statistik -->
-<div class="statsRow px-4">
-    <div class="statBox dark">
-        <ion-icon name="school-outline" class="icon-xl mb-1"></ion-icon>
-        <h2 >{{ $total }}</h2>
-        <div >TOTAL MAGANG</div>
-    </div>
-    <div class="statBox active">
-        <ion-icon name="checkmark-circle-outline" class="icon-xl mb-1"></ion-icon>
-        <h2 >{{ $aktif }}</h2>
-        <div >AKTIF</div>
-    </div>
-    <div class="statBox inactive">
-        <ion-icon name="pause-circle-outline" class="icon-xl mb-1"></ion-icon>
-        <h2 >{{ $nonaktif }}</h2>
-        <div >SELESAI / NONAKTIF</div>
-    </div>
-</div>
-
-<!-- Filter Search -->
-<div  class="searchRow mt-4 px-4">
-    <form method="GET" action="{{ route('admin.magang.index') }}" class="d-flex gap-2 w-full flex-wrap">
-        <div  class="flex-1 pos-relative min-w-220">
-            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari nama, NIM, instansi, email..." class="profileInput w-full text-md pl-8 text-md">
-            <ion-icon name="search-outline" class="pos-absolute icon-md text-muted left-2"></ion-icon>
+    {{-- ── Quick Stats Grid ── --}}
+    <div class="account-stats-grid">
+        <div class="account-stat-card">
+            <div class="account-stat-icon teal">
+                <ion-icon name="briefcase-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Total Peserta Magang</div>
+                <div class="account-stat-value">{{ $total }}</div>
+                <div class="account-stat-sub">Mahasiswa &amp; Siswa PKL</div>
+            </div>
         </div>
-        <select name="status" onchange="this.form.submit()" class="profileInput w-auto text-md text-md">
-            <option value="">Semua Status</option>
-            <option value="1" {{ ($status === '1') ? 'selected' : '' }}>Aktif</option>
-            <option value="0" {{ ($status === '0') ? 'selected' : '' }}>Nonaktif / Selesai</option>
-        </select>
-        <button type="submit" class="profileBtnPrimary text-md w-auto px-4 text-md">Filter</button>
-        @if($search || $status !== null)
-            <a href="{{ route('admin.magang.index') }}" class="btnOutline text-md d-inline-flex items-center px-3 text-md">Reset</a>
-        @endif
-    </form>
-</div>
 
-<!-- Tabel Magang (Desktop) -->
-<div class="table-responsive-desktop">
-    <div class="tableCard overflow-hidden border-base m-4 rounded-xl bg-card">
-        <div class="tableResponsive overflow-x-auto">
-            <table class="table w-full table-modern">
-                <thead >
-                    <tr class="text-left bg-card-alt table-head-row">
-                        <th class="p-3 text-sm font-bold">Peserta Magang</th>
-                        <th class="p-3 text-sm font-bold">Asal Instansi & Jurusan</th>
-                        <th class="p-3 text-sm font-bold">Periode Magang</th>
-                        <th class="p-3 text-sm font-bold">No. WhatsApp</th>
-                        <th class="p-3 text-sm font-bold">Status</th>
-                        <th class="p-3 text-sm font-bold text-right">Aksi</th>
+        <div class="account-stat-card">
+            <div class="account-stat-icon emerald">
+                <ion-icon name="checkmark-circle-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Sedang Aktif</div>
+                <div class="account-stat-value">{{ $aktif }}</div>
+                <div class="account-stat-sub">Penugasan Berjalan</div>
+            </div>
+        </div>
+
+        <div class="account-stat-card">
+            <div class="account-stat-icon orange">
+                <ion-icon name="pause-circle-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Selesai / Nonaktif</div>
+                <div class="account-stat-value">{{ $nonaktif }}</div>
+                <div class="account-stat-sub">Masa Magang Berakhir</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Filter Card ── --}}
+    <div class="laporanFilterCard">
+        <form method="GET" action="{{ route('admin.magang.index') }}">
+            <div class="laporanFilterGrid">
+                <div class="filterField">
+                    <label class="filterFieldLabel">Pencarian Peserta Magang</label>
+                    <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari Nama, NIK, NIM, Asal Instansi, Jurusan..." class="profileInput text-md">
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Status Penugasan</label>
+                    <select name="status" class="filterSelect" onchange="this.form.submit()">
+                        <option value="" {{ $status === null || $status === '' ? 'selected' : '' }}>Semua Status ({{ $total }})</option>
+                        <option value="1" {{ $status === '1' ? 'selected' : '' }}>Hanya Aktif ({{ $aktif }})</option>
+                        <option value="0" {{ $status === '0' ? 'selected' : '' }}>Selesai / Nonaktif ({{ $nonaktif }})</option>
+                    </select>
+                </div>
+
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
+                        <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
+                    </button>
+                    <a href="{{ route('admin.magang.index') }}" class="btn-filter-reset">
+                        Reset
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {{-- ── Section Title & Filter Chips ── --}}
+    <div class="sectionRow">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h2 class="m-0 font-bold">Daftar Mahasiswa &amp; Siswa Magang</h2>
+            @if($status !== null && $status !== '')
+                <span class="app-badge {{ $status === '1' ? 'badge-status-aktif' : 'badge-status-nonaktif' }}">
+                    Status: {{ $status === '1' ? 'Aktif' : 'Nonaktif' }}
+                </span>
+            @endif
+            @if(!empty($search))
+                <span class="app-badge badge-role-magang">
+                    Kata Kunci: "{{ $search }}"
+                </span>
+            @endif
+        </div>
+        <span class="badgeCount">{{ $magangs->total() }} Peserta Ditampilkan</span>
+    </div>
+
+    {{-- ── Data Table Container (Desktop) ── --}}
+    <div class="table-responsive-desktop">
+        <div class="tableContainer m-0 mb-4 rounded-xl border-base">
+            <table class="laporanTable">
+                <thead>
+                    <tr>
+                        <th class="table-col-num">NO</th>
+                        <th>PESERTA &amp; EMAIL</th>
+                        <th>NIK / NIM</th>
+                        <th>ASAL INSTANSI &amp; JURUSAN</th>
+                        <th>PERIODE MAGANG</th>
+                        <th>NO WHATSAPP</th>
+                        <th>STATUS</th>
+                        <th class="text-right">AKSI</th>
                     </tr>
                 </thead>
-                <tbody >
-                    @forelse($magangs as $m)
+                <tbody>
+                    @forelse($magangs as $index => $m)
                         @php
                             $detail = $m->magang;
-                            $tglMulai = $detail?->tgl_mulai ? \Carbon\Carbon::parse($detail->tgl_mulai)->format('d/m/Y') : '-';
-                            $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->format('d/m/Y') : '-';
+                            $tglMulai = $detail?->tgl_mulai ? \Carbon\Carbon::parse($detail->tgl_mulai)->translatedFormat('d M Y') : '-';
+                            $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->translatedFormat('d M Y') : '-';
                             $avatarUrl = $m->foto ? (str_starts_with($m->foto, 'uploads/') ? asset($m->foto) : asset('storage/' . $m->foto)) : null;
+                            $displayName = $m->nama_lengkap ?? $m->name;
                         @endphp
-                        <tr class="table-body-row">
-                            <td class="p-3">
-                                <div class="d-flex items-center gap-3">
+                        <tr>
+                            <td class="table-col-num">
+                                {{ $magangs->firstItem() + $index }}
+                            </td>
+                            <td>
+                                <div class="table-user-cell">
                                     @if($avatarUrl)
-                                        <img src="{{ $avatarUrl }}" class="rounded-full object-cover avatar-icon-36">
+                                        <img src="{{ $avatarUrl }}" alt="{{ $displayName }}" class="table-user-avatar">
                                     @else
-                                        <div class="rounded-full d-flex items-center justify-center font-bold text-md avatar-icon-36 bg-primary-light text-primary">
-                                            {{ strtoupper(substr($m->nama_lengkap ?? $m->name, 0, 1)) }}
+                                        <div class="table-user-avatar-placeholder">
+                                            {{ strtoupper(substr($displayName, 0, 1)) }}
                                         </div>
                                     @endif
-                                    <div >
-                                        <div class="font-bold text-md text-dark">{{ $m->nama_lengkap ?? $m->name }}</div>
-                                        <div class="text-xs text-muted">NIK: {{ $m->nik }} • {{ $m->email }}</div>
+                                    <div class="table-user-info">
+                                        <div class="table-user-name">{{ $displayName }}</div>
+                                        <div class="table-user-email">{{ $m->email }}</div>
                                     </div>
                                 </div>
                             </td>
-                            <td class="p-3">
-                                <div class="font-semibold text-md text-dark">{{ $detail?->asal_instansi ?: '-' }}</div>
-                                <div class="text-xs text-muted">{{ $detail?->jurusan ?: '-' }} (NIM: {{ $detail?->nim_nisn ?: '-' }})</div>
-                            </td>
-                            <td class="p-3">
-                                <div class="text-sm font-semibold text-dark">{{ $tglMulai }} s/d {{ $tglSelesai }}</div>
-                            </td>
-                            <td class="p-3 text-sm">
-                                {{ $m->no_hp ?: '-' }}
-                            </td>
-                            <td class="p-3">
-                                @if($m->is_active)
-                                    <span class="app-badge badge-status-aktif">Aktif</span>
-                                @else
-                                    <span class="app-badge badge-status-nonaktif">Nonaktif</span>
+                            <td>
+                                <div class="font-mono text-xs font-bold text-dark">{{ $m->nik }}</div>
+                                @if($detail?->nim_nisn && $detail->nim_nisn !== $m->nik)
+                                    <div class="text-xs text-muted">NIM: {{ $detail->nim_nisn }}</div>
                                 @endif
                             </td>
-                            <td class="p-3 text-right">
-                                <div class="d-flex justify-end gap-1">
+                            <td>
+                                <div class="font-bold text-sm text-dark">{{ $detail?->asal_instansi ?: '-' }}</div>
+                                <div class="text-xs text-muted">{{ $detail?->jurusan ?: '-' }}</div>
+                            </td>
+                            <td>
+                                <div class="text-xs font-semibold text-dark">{{ $tglMulai }}</div>
+                                <div class="text-xs text-muted">s/d {{ $tglSelesai }}</div>
+                            </td>
+                            <td>
+                                @if($m->no_hp)
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $m->no_hp) }}" target="_blank" class="table-phone-link">
+                                        <ion-icon name="logo-whatsapp"></ion-icon>
+                                        <span>{{ $m->no_hp }}</span>
+                                    </a>
+                                @else
+                                    <span class="text-muted text-xs">-</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if($m->is_active)
+                                    <span class="app-badge badge-status-aktif">
+                                        <ion-icon name="checkmark-circle-outline"></ion-icon> Aktif
+                                    </span>
+                                @else
+                                    <span class="app-badge badge-status-nonaktif">
+                                        <ion-icon name="pause-circle-outline"></ion-icon> Nonaktif
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="text-right">
+                                <div class="table-actions-group">
                                     <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit btn-table-action" title="Edit Data Magang">
                                         <ion-icon name="create-outline"></ion-icon> Edit
                                     </a>
-                                    <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
+                                    <form method="POST" action="{{ route('admin.magang.destroy', $m->id) }}" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang {{ $displayName }} beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Data Magang">
@@ -133,13 +202,13 @@
                                     </form>
                                 </div>
                             </td>
-
                         </tr>
                     @empty
-                        <tr >
-                            <td colspan="6" class="text-center text-muted p-4">
-                                <ion-icon name="school-outline" class="icon-2xl mb-2 opacity-50"></ion-icon>
-                                <div >Belum ada data peserta magang/PKL.</div>
+                        <tr>
+                            <td colspan="8" class="table-empty-cell">
+                                <ion-icon name="briefcase-outline" class="table-empty-icon"></ion-icon>
+                                <div class="table-empty-title">Belum Ada Data Peserta Magang</div>
+                                <div class="table-empty-desc">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -147,107 +216,109 @@
             </table>
         </div>
     </div>
-</div>
 
-{{-- ── Mobile Cards List (Layar HP / Tablet) ── --}}
-<div class="mobile-card-list px-4">
-    @forelse($magangs as $m)
-        @php
-            $detail = $m->magang;
-            $tglMulai = $detail?->tgl_mulai ? \Carbon\Carbon::parse($detail->tgl_mulai)->format('d/m/Y') : '-';
-            $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->format('d/m/Y') : '-';
-            $avatarUrl = $m->foto ? (str_starts_with($m->foto, 'uploads/') ? asset($m->foto) : asset('storage/' . $m->foto)) : null;
-        @endphp
-        <div class="data-mobile-card">
-            <div class="dmc-header">
-                <div class="d-flex items-center gap-2">
-                    @if($avatarUrl)
-                        <img src="{{ $avatarUrl }}" class="rounded-full object-cover avatar-icon-36 flex-shrink-0">
-                    @else
-                        <div class="rounded-full d-flex items-center justify-center font-bold text-md avatar-icon-36 bg-primary-light text-primary flex-shrink-0">
-                            {{ strtoupper(substr($m->nama_lengkap ?? $m->name, 0, 1)) }}
-                        </div>
-                    @endif
-                    <div>
-                        <h3 class="dmc-title">{{ $m->nama_lengkap ?? $m->name }}</h3>
-                        <div class="dmc-subtitle">NIK: {{ $m->nik }}</div>
-                    </div>
-                </div>
-                <div>
-                    @if($m->is_active)
-                        <span class="app-badge badge-status-aktif">Aktif</span>
-                    @else
-                        <span class="app-badge badge-status-nonaktif">Nonaktif</span>
-                    @endif
-                </div>
-            </div>
-
-            <div class="dmc-grid">
-                <div class="dmc-field full">
-                    <div class="dmc-label">Instansi & Jurusan</div>
-                    <div class="dmc-value">
-                        {{ $detail?->asal_instansi ?: '-' }}
-                        @if($detail?->jurusan)
-                            <span class="text-xs text-muted d-block font-normal">{{ $detail->jurusan }} (NIM: {{ $detail->nim_nisn ?: '-' }})</span>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="dmc-field">
-                    <div class="dmc-label">Periode Magang</div>
-                    <div class="dmc-value text-xs font-semibold">
-                        {{ $tglMulai }} s/d {{ $tglSelesai }}
-                    </div>
-                </div>
-
-                <div class="dmc-field">
-                    <div class="dmc-label">No WhatsApp</div>
-                    <div class="dmc-value">
-                        @if($m->no_hp)
-                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $m->no_hp) }}" target="_blank" class="text-primary text-no-decor text-xs font-bold">
-                                {{ $m->no_hp }}
-                            </a>
+    {{-- ── Mobile Cards List (Layar HP / Tablet) ── --}}
+    <div class="mobile-card-list">
+        @forelse($magangs as $m)
+            @php
+                $detail = $m->magang;
+                $tglMulai = $detail?->tgl_mulai ? \Carbon\Carbon::parse($detail->tgl_mulai)->translatedFormat('d M Y') : '-';
+                $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->translatedFormat('d M Y') : '-';
+                $avatarUrl = $m->foto ? (str_starts_with($m->foto, 'uploads/') ? asset($m->foto) : asset('storage/' . $m->foto)) : null;
+                $displayName = $m->nama_lengkap ?? $m->name;
+            @endphp
+            <div class="data-mobile-card">
+                <div class="dmc-header">
+                    <div class="dmc-user-info">
+                        @if($avatarUrl)
+                            <img src="{{ $avatarUrl }}" alt="{{ $displayName }}" class="dmc-avatar">
                         @else
-                            <span class="text-muted text-xs">-</span>
+                            <div class="dmc-avatar-placeholder">
+                                {{ strtoupper(substr($displayName, 0, 1)) }}
+                            </div>
+                        @endif
+                        <div>
+                            <h3 class="dmc-title">{{ $displayName }}</h3>
+                            <div class="dmc-subtitle">NIK: {{ $m->nik }}</div>
+                        </div>
+                    </div>
+                    <div class="dmc-badges">
+                        <span class="app-badge badge-role-magang">Magang</span>
+                        @if($m->is_active)
+                            <span class="app-badge badge-status-aktif">Aktif</span>
+                        @else
+                            <span class="app-badge badge-status-nonaktif">Nonaktif</span>
                         @endif
                     </div>
                 </div>
 
-                <div class="dmc-field full">
-                    <div class="dmc-label">Email</div>
-                    <div class="dmc-value text-muted text-xs font-normal">{{ $m->email }}</div>
+                <div class="dmc-grid">
+                    <div class="dmc-field" style="grid-column: span 2;">
+                        <div class="dmc-label">Instansi &amp; Jurusan</div>
+                        <div class="dmc-value text-sm font-bold text-dark">
+                            {{ $detail?->asal_instansi ?: '-' }}
+                            @if($detail?->jurusan)
+                                <span class="text-xs text-muted d-block font-normal">{{ $detail->jurusan }} (NIM: {{ $detail->nim_nisn ?: '-' }})</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Periode Magang</div>
+                        <div class="dmc-value text-xs font-semibold">
+                            {{ $tglMulai }} s/d {{ $tglSelesai }}
+                        </div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">No WhatsApp</div>
+                        <div class="dmc-value">
+                            @if($m->no_hp)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $m->no_hp) }}" target="_blank" class="text-primary text-no-decor text-xs font-bold">
+                                    {{ $m->no_hp }}
+                                </a>
+                            @else
+                                <span class="text-muted text-xs">-</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="dmc-field" style="grid-column: span 2;">
+                        <div class="dmc-label">Email Login</div>
+                        <div class="dmc-value text-xs font-mono text-muted">{{ $m->email }}</div>
+                    </div>
+                </div>
+
+                <div class="dmc-footer">
+                    <div class="dmc-actions">
+                        <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit btn-table-action" title="Edit Data Magang">
+                            <ion-icon name="create-outline"></ion-icon> Edit
+                        </a>
+                        <form method="POST" action="{{ route('admin.magang.destroy', $m->id) }}" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang {{ $displayName }} beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Data Magang">
+                                <ion-icon name="trash-outline"></ion-icon> Hapus
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-
-            <div class="dmc-footer">
-                <div class="dmc-actions">
-                    <a href="{{ route('admin.magang.edit', $m->id) }}" class="smallBtn edit btn-table-action" title="Edit Data Magang">
-                        <ion-icon name="create-outline"></ion-icon> Edit
-                    </a>
-                    <form action="{{ route('admin.magang.destroy', $m->id) }}" method="POST" data-confirm="Apakah Anda yakin ingin menghapus data peserta magang ini beserta seluruh riwayat presensinya?" data-confirm-title="Hapus Data Magang" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Data Magang">
-                            <ion-icon name="trash-outline"></ion-icon> Hapus
-                        </button>
-                    </form>
-                </div>
+        @empty
+            <div class="data-mobile-card table-empty-cell">
+                <ion-icon name="briefcase-outline" class="table-empty-icon"></ion-icon>
+                <div class="font-bold text-md mb-1">Belum Ada Peserta Magang</div>
+                <div class="text-sm">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
             </div>
-        </div>
-    @empty
-        <div class="data-mobile-card table-empty-cell">
-            <ion-icon name="school-outline" class="icon-2xl mb-2 opacity-50 mx-auto d-block"></ion-icon>
-            <div class="font-bold text-md mb-1">Belum Ada Peserta Magang</div>
-            <div class="text-sm">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
-        </div>
-    @endforelse
-</div>
-
-@if($magangs->hasPages())
-    <div class="p-4 paginatePad">
-        {{ $magangs->links() }}
+        @endforelse
     </div>
-@endif
+
+    @if(method_exists($magangs, 'links'))
+        <div class="paginatePad py-4">
+            {{ $magangs->links() }}
+        </div>
+    @endif
 </div>
 
 @endsection
+
