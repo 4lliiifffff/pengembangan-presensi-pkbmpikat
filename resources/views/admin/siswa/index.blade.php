@@ -12,15 +12,15 @@
                 <div class="laporanHeaderSub">Kelola data peserta didik, wali murid, status siklus, dan rombongan belajar</div>
                 <p class="laporanHeaderDesc">Daftar siswa, pemetaan paket kesetaraan, data ABK, dan histori rombel.</p>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
+            <div class="laporanHeaderActions">
                 <a href="{{ route('admin.siswa.exportExcel') }}" class="profileBtnPrimary btn-action-success">
-                    Export Excel
+                    <ion-icon name="document-outline"></ion-icon> Export Excel
                 </a>
                 <button type="button" onclick="document.getElementById('importSiswaModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
-                    Import Siswa
+                    <ion-icon name="cloud-upload-outline"></ion-icon> Import Siswa
                 </button>
                 <a href="{{ route('admin.siswa.create') }}" class="profileBtnPrimary">
-                    Tambah Siswa
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Siswa
                 </a>
             </div>
         </div>
@@ -38,7 +38,7 @@
             </p>
             <div class="mb-4">
                 <a href="{{ route('admin.siswa.downloadTemplate') }}" class="btnOutline">
-                    Download Template Siswa (.xlsx)
+                    <ion-icon name="download-outline"></ion-icon> Download Template Siswa (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.siswa.importExcel') }}" enctype="multipart/form-data">
@@ -56,8 +56,10 @@
                     <div id="siswaFileFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div class="app-modal-footer">
-                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="profileBtnDanger w-auto px-4 text-md">Batal</button>
-                    <button type="submit" class="profileBtnPrimary w-auto px-4 text-md">Unggah &amp; Impor</button>
+                    <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="btnOutline w-auto">Batal</button>
+                    <button type="submit" class="profileBtnPrimary w-auto">
+                        <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor
+                    </button>
                 </div>
             </form>
         </div>

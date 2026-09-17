@@ -3616,13 +3616,29 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
         margin-top: 14px;
         padding-top: 14px;
         border-top: 1px solid var(--border);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    .laporanHeaderActions .btnPayrollShortcut,
-    .laporanHeaderActions a,
-    .laporanHeaderActions button {
+    .laporanHeaderActions .btnPayrollShortcut {
         width: 100%;
         justify-content: center;
         text-align: center;
+    }
+    .laporanHeaderActions > a,
+    .laporanHeaderActions > button,
+    .laporanHeaderActions > form {
+        flex: 1 1 calc(50% - 4px);
+        min-width: 130px;
+        justify-content: center;
+        text-align: center;
+        box-sizing: border-box;
+    }
+    .laporanHeaderActions > form {
+        display: flex;
+    }
+    .laporanHeaderActions > form > button {
+        width: 100%;
     }
 }
 
@@ -5127,11 +5143,25 @@ button, a, input, select, textarea {
     }
     .payroll-actions, .show-header-actions {
         width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
     }
-    .payroll-actions a, .payroll-actions button, .show-header-actions a {
+    .payroll-actions > a,
+    .payroll-actions > button,
+    .payroll-actions > form,
+    .show-header-actions > a {
         flex: 1 1 calc(50% - 4px);
+        min-width: 130px;
         justify-content: center;
         text-align: center;
+        box-sizing: border-box;
+    }
+    .payroll-actions > form {
+        display: flex;
+    }
+    .payroll-actions > form > button {
+        width: 100%;
     }
     .filter-form {
         flex-direction: column;
@@ -7229,6 +7259,41 @@ body.app-modal-open {
     border-color: #94a3b8;
 }
 
+.btnPrimary {
+    height: 42px;
+    padding: 0 20px;
+    font-size: 13.5px;
+    font-weight: 800;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--blue-gradient, linear-gradient(135deg, #0B5ED7 0%, #1A73E8 100%));
+    color: #ffffff !important;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.25);
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.btnPrimary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.35);
+}
+
+.btnPrimary:active {
+    transform: scale(0.98);
+}
+
+.btn-action-primary {
+    background: #0B5ED7 !important;
+    color: #ffffff !important;
+}
+
 .btn-action-success {
     background: #16a34a !important;
     color: #ffffff !important;
@@ -7242,6 +7307,18 @@ body.app-modal-open {
 .btn-action-danger {
     background: #dc2626 !important;
     color: #ffffff !important;
+}
+
+.btn-action-purple {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25) !important;
+}
+
+.btn-action-purple-light {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25) !important;
 }
 
 .btn-table-action {

@@ -17,27 +17,27 @@
         </div>
 
         <div class="payroll-actions">
-            <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline" class="btn-emerald-sm">
+            <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline">
                 <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
             </a>
-            <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm bg-success">
-                <ion-icon name="document-outline" class="icon-sm"></ion-icon> Export Excel
+            <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-success">
+                <ion-icon name="document-outline"></ion-icon> Export Excel
             </a>
-            <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnPrimary" class="btn-emerald-sm bg-primary">
-                <ion-icon name="document-text-outline" class="icon-sm"></ion-icon> Export PDF
+            <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary">
+                <ion-icon name="document-text-outline"></ion-icon> Export PDF
             </a>
             @if($rolePrefix === 'admin')
-            <a href="{{ route('admin.kategori-tutorial.index') }}" class="btnPrimary text-sm font-bold d-inline-flex items-center gap-1 btn-emerald-sm bg-purple">
-                <ion-icon name="options-outline" class="icon-sm"></ion-icon> Master Tarif SK
+            <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple">
+                <ion-icon name="options-outline"></ion-icon> Master Tarif SK
             </a>
             @endif
             @if($rolePrefix === 'admin')
-            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" class="d-inline">
+            <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" class="payroll-action-form">
                 @csrf
                 <input type="hidden" name="bulan" value="{{ $bulan }}">
                 <input type="hidden" name="tahun" value="{{ $tahun }}">
-                <button type="submit" class="btnPrimary text-sm font-bold d-inline-flex items-center gap-1 border-none cursor-pointer btn-emerald-sm bg-purple-light">
-                    <ion-icon name="notifications-outline" class="icon-sm"></ion-icon> Umumkan ke Tutor
+                <button type="submit" class="profileBtnPrimary btn-action-purple-light">
+                    <ion-icon name="notifications-outline"></ion-icon> Umumkan ke Tutor
                 </button>
             </form>
             @endif
@@ -67,9 +67,9 @@
                 </select>
             </div>
 
-            <div >
-                <button type="submit" class="btnOutline rounded-md font-bold text-md cursor-pointer px-3 py-2 h-9">
-                    <ion-icon name="funnel-outline" class="align-middle mr-1"></ion-icon> Terapkan Filter
+            <div>
+                <button type="submit" class="btnOutline">
+                    <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                 </button>
             </div>
         </form>

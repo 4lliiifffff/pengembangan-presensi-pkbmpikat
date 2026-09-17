@@ -12,18 +12,18 @@
                 <div class="laporanHeaderSub">Kelola tenaga pendidik, staf pengajar, dan hak akses akun sistem</div>
                 <p class="laporanHeaderDesc">Daftar staf, pembaruan data login, status keaktifan, dan impor/ekspor data.</p>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
+            <div class="laporanHeaderActions">
                 <a href="{{ route('admin.magang.index') }}" class="btnOutline">
-                    Peserta Magang
+                    <ion-icon name="school-outline" class="text-primary"></ion-icon> Peserta Magang
                 </a>
                 <a href="{{ route('admin.karyawan.exportExcel') }}" class="profileBtnPrimary btn-action-success">
-                    Export Excel
+                    <ion-icon name="document-outline"></ion-icon> Export Excel
                 </a>
                 <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
-                    Import Tutor
+                    <ion-icon name="cloud-upload-outline"></ion-icon> Import Tutor
                 </button>
                 <a href="{{ route('admin.karyawan.create') }}" class="profileBtnPrimary">
-                    Tambah Staf
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Staf
                 </a>
             </div>
         </div>
@@ -41,7 +41,7 @@
             </p>
             <div class="mb-4">
                 <a href="{{ route('admin.karyawan.downloadTemplate') }}" class="btnOutline">
-                    Download Template Tutor (.xlsx)
+                    <ion-icon name="download-outline"></ion-icon> Download Template Tutor (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.karyawan.importExcel') }}" enctype="multipart/form-data">
@@ -60,7 +60,9 @@
                 </div>
                 <div class="app-modal-footer">
                     <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="btnOutline w-auto">Batal</button>
-                    <button type="submit" class="profileBtnPrimary w-auto">Unggah &amp; Impor Tutor</button>
+                    <button type="submit" class="profileBtnPrimary w-auto">
+                        <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor Tutor
+                    </button>
                 </div>
             </form>
         </div>
