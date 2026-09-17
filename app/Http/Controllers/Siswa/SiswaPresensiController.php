@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Siswa;
 
 use App\Http\Controllers\Controller;
+use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
 use App\Models\LokasiPresensi;
 use App\Models\PresensiMandiriSiswa;
@@ -45,6 +46,42 @@ class SiswaPresensiController extends Controller
             ->whereDate('tgl_presensi', $today)
             ->first();
 
+        // Cek Jadwal Sesi KBM Hari Ini untuk Smart Time-Gating
+        $todaySesi = JadwalSesi::with(['tutor', 'kategoriTutorial'])
+            ->where('siswa_id', $siswa->id)
+            ->whereDate('tanggal_rencana', $today)
+            ->whereIn('status', ['terjadwal', 'selesai'])
+            ->orderBy('jam_masuk_rencana')
+            ->first();
+
+        $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
+            || JadwalSesi::where('siswa_id', $siswa->id)->exists();
+
+        $canCheckIn = true;
+        $gatingReason = 'open';
+        $gatingMessage = null;
+        $waktuBukaStr = null;
+
+        if (! $todayPresensi) {
+            if ($hasConfiguredSchedule && ! $todaySesi) {
+                $canCheckIn = false;
+                $gatingReason = 'no_schedule';
+                $gatingMessage = 'Anda tidak memiliki jadwal belajar (KBM) yang terdaftar hari ini.';
+            } elseif ($todaySesi) {
+                $jamMasukStr = substr((string) $todaySesi->jam_masuk_rencana, 0, 5);
+                $jamMasukCarbon = Carbon::createFromFormat('Y-m-d H:i', $today.' '.$jamMasukStr, 'Asia/Jakarta');
+                $waktuBuka = $jamMasukCarbon->copy()->subMinutes(30);
+                $waktuBukaStr = $waktuBuka->format('H:i');
+
+                $now = Carbon::now('Asia/Jakarta');
+                if ($now->lt($waktuBuka)) {
+                    $canCheckIn = false;
+                    $gatingReason = 'too_early';
+                    $gatingMessage = "Presensi belum dibuka. Absen dibuka mulai pukul {$waktuBukaStr} WIB (30 menit sebelum sesi KBM dimulai).";
+                }
+            }
+        }
+
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
         $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
@@ -56,6 +93,11 @@ class SiswaPresensiController extends Controller
             'today' => $today,
             'todayPresensi' => $todayPresensi,
             'alreadyCheckedIn' => (bool) $todayPresensi,
+            'todaySesi' => $todaySesi,
+            'canCheckIn' => $canCheckIn,
+            'gatingReason' => $gatingReason,
+            'gatingMessage' => $gatingMessage,
+            'waktuBukaStr' => $waktuBukaStr,
             'lokasiPresensis' => $lokasiPresensis,
             'kantorLat' => $kantorLat,
             'kantorLng' => $kantorLng,
@@ -90,6 +132,36 @@ class SiswaPresensiController extends Controller
             return redirect()
                 ->route('siswa.dashboard')
                 ->with('warning', "Anda sudah melakukan presensi masuk hari ini pada pukul {$jamTercatat} WIB.");
+        }
+
+        // ── Smart Time-Gating Check ──────────────────────────────────────
+        $todaySesi = JadwalSesi::where('siswa_id', $siswa->id)
+            ->whereDate('tanggal_rencana', $today)
+            ->where('status', 'terjadwal')
+            ->orderBy('jam_masuk_rencana')
+            ->first();
+
+        $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
+            || JadwalSesi::where('siswa_id', $siswa->id)->exists();
+
+        if ($hasConfiguredSchedule && ! $todaySesi) {
+            return redirect()
+                ->route('siswa.dashboard')
+                ->with('warning', 'Presensi tidak dapat dilakukan karena Anda tidak memiliki jadwal KBM yang aktif hari ini.');
+        }
+
+        if ($todaySesi) {
+            $jamMasukStr = substr((string) $todaySesi->jam_masuk_rencana, 0, 5);
+            $jamMasukCarbon = Carbon::createFromFormat('Y-m-d H:i', $today.' '.$jamMasukStr, 'Asia/Jakarta');
+            $waktuBuka = $jamMasukCarbon->copy()->subMinutes(30);
+
+            if ($now->lt($waktuBuka)) {
+                $waktuBukaStr = $waktuBuka->format('H:i');
+
+                return redirect()
+                    ->route('siswa.presensi')
+                    ->with('warning', "Presensi belum dibuka. Sesi Anda dijadwalkan pukul {$jamMasukStr} WIB, absensi baru dibuka mulai pukul {$waktuBukaStr} WIB.");
+            }
         }
 
         $validated = $request->validate([

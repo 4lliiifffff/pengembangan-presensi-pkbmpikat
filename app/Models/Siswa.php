@@ -231,6 +231,14 @@ class Siswa extends Model
     }
 
     /**
+     * Relasi: Siswa memiliki Master Jadwal Rutin KBM Mingguan.
+     */
+    public function jadwalRutins(): HasMany
+    {
+        return $this->hasMany(JadwalRutin::class);
+    }
+
+    /**
      * Relasi: Siswa terhubung ke satu akun User untuk login (HasOne).
      */
     public function user(): BelongsTo

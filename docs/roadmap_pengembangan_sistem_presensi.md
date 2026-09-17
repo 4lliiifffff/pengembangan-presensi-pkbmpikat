@@ -119,6 +119,27 @@
   - Kartu rincian sesi tutorial (jam sesi, nama tutor, mapel/kategori, jenis sesi reguler/pengganti, dan status kehadiran siswa).
   - Sinkronisasi Bottom Navigation Bar 5 slot (Absen, Riwayat, Dashboard, Jadwal, Lainnya) serta drawer menu komprehensif.
 
+### 4.3 Master Jadwal Rutin KBM Siswa Tertentu & Smart Presensi Time-Gating
+* 🟢 **Struktur Master Template Berulang (`jadwal_rutins`):** [SELESAI]
+  - Tabel `jadwal_rutins` mengikat secara eksplisit `siswa_id`, `tutor_id`, `kategori_tutorial_id`, `jadwal_kerja_id`, `hari` (`senin` s.d. `minggu`), `jam_masuk`, `jam_pulang`, `durasi_jam`, `is_active`, `berlaku_mulai`, dan `berlaku_sampai`.
+  - Foreign key `jadwal_rutin_id` (nullable) pada tabel `jadwal_sesis` untuk menghubungkan sesi aktual ke master template mingguan.
+* 🟢 **Engine Otomatisasi Generator Sesi (`JadwalRutinService` & Artisan Command):** [SELESAI]
+  - `JadwalRutinService::generateSesiForPeriod()` otomatis menghasilkan instance sesi kalender per tanggal hingga 4 minggu ke depan.
+  - Cek anti-duplikasi dan deteksi otomatis agenda hari libur / cuti sekolah dari tabel `jadwals`.
+  - Artisan Command `php artisan jadwal:generate-sesi {--weeks=4}` terpasang pada Laravel Scheduler (`routes/console.php`) berjalan setiap Minggu malam pukul 23:00 WIB.
+* 🟢 **Panel Admin Kelola Jadwal Rutin Siswa (`admin/jadwal_rutin`):** [SELESAI]
+  - CRUD lengkap master jadwal mingguan per-siswa (`index`, `create`, `edit`, `destroy`, `toggleStatus`).
+  - Modal generator cepat untuk sinkronisasi kalender sesi 2-8 minggu ke depan.
+  - Pintasan menu terintegrasi di Drawer Navigasi Bawah Admin.
+* 🟢 **Penanganan Kondisi Dinamis & Fleksibilitas Reschedule:** [SELESAI]
+  - Penyesuaian jadwal kesepakatan tutor-siswa (*reschedule* / sesi pengganti) dilakukan pada level instance `jadwal_sesis` tanpa merusak pola master berulang minggu berikutnya.
+  - Indikator badge jelas antara `Sesi Rutin Mingguan` vs `Sesi Pengganti (Reschedule)` di kalender tutor dan siswa.
+* 🟢 **Smart Presensi Time-Gating Masuk Siswa:** [SELESAI]
+  - Form kamera presensi siswa terkunci jika tidak ada sesi KBM yang dijadwalkan hari ini (`gatingReason = 'no_schedule'`).
+  - Form presensi masuk hanya terbuka mulai **30 menit sebelum sesi dimulai** (`gatingReason = 'too_early'`).
+  - Tampilan UI interaktif dilengkapi kartu informasi sesi, tutor pengampu, dan *live countdown timer* JavaScript yang otomatis me-refresh halaman saat jam buka tiba.
+  - Server-side validation pada `SiswaPresensiController::store()` menolak upaya manipulasi check-in di luar jadwal.
+
 ---
 
 ## 5. MASTER DATA RELASIONAL & AKADEMIK (ACADEMIC LIFECYCLE)

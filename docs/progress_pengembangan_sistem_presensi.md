@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 43
+    "Selesai (Completed)" : 44
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -21,14 +21,14 @@ pie title Status Fitur & Pengkondisian Sistem
 | 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
 | 2. Core Presensi & Validasi Lokasi | 9 | 8 | 0 | 1 |
 | 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
-| 4. Penjadwalan Sesi Belajar & Reschedule (*New*) | 5 | 5 | 0 | 0 |
+| 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 6 | 6 | 0 | 0 |
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
 | 6. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
 | 7. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
 | 8. UI/UX Excellence & Responsive Layout | 5 | 5 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **49** | **43** | **0** | **6** |
+| **TOTAL** | **50** | **44** | **0** | **6** |
 
 ---
 
@@ -223,6 +223,18 @@ pie title Status Fitur & Pengkondisian Sistem
     - Slot ke-4 Bottom Nav Siswa (`navigasi_bawah_siswa.blade.php`) diarahkan langsung ke `route('siswa.jadwal')` dengan ikon kalender.
     - Drawer menu "Lainnya" diperbarui dengan 4 kartu menu cepat: Profil Siswa, Jadwal & Agenda, Rekap Kehadiran, dan Presensi Mandiri.
     - Penambahan tautan pintas "Lihat Kalender" dan "Lihat Semua" pada dashboard siswa.
+
+#### 4.6 Master Jadwal Rutin KBM Siswa Tertentu & Smart Presensi Time-Gating
+- 🟢 **Master Template Berulang, Generator Otomatis, & Smart Time-Gating Siswa**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Database & Model:** Migrasi `2026_09_18_000001_create_jadwal_rutins_table.php`, Model `app/Models/JadwalRutin.php`, serta relasi `jadwalRutins()` pada model `Siswa` dan `Tutor`. Menambahkan `jadwal_rutin_id` pada tabel `jadwal_sesis`.
+    - **Generator Engine:** Service `app/Services/JadwalRutinService.php` untuk auto-generation sesi KBM 1-4 minggu ke depan, deteksi otomatis hari libur/cuti sekolah dari tabel `jadwals`, serta sinkronisasi dinamis perubahan master.
+    - **Scheduler Otomatis:** Artisan command `php artisan jadwal:generate-sesi` terpasang di Laravel Console Scheduler (`routes/console.php`) berjalan mingguan setiap Minggu pukul 23:00 WIB.
+    - **Admin Management Panel:** Controller `Admin\JadwalRutinController.php` dengan halaman `index`, `create`, `edit` di `resources/views/admin/jadwal_rutin/`, modal cepat generator kalender, dan tautan di drawer navigasi admin.
+    - **Penanganan Reschedule Fleksibel:** Perubahan jadwal kesepakatan tutor-siswa dilakukan pada instance `jadwal_sesis` tanpa merusak pola master berulang minggu berikutnya.
+    - **Smart Presensi Time-Gating Siswa:** Proteksi form presensi masuk siswa di `SiswaPresensiController` (kamera & tombol absen terkunci jika bukan hari KBM atau sebelum H-30 menit jam mulai sesi), dilengkapi kartu status dan *live countdown timer* JavaScript pada view `resources/views/siswa/presensi_foto.blade.php`.
+    - **Testing Suite:** `tests/Feature/JadwalRutinAndPresensiGatingTest.php` (7 test cases) lolos 100%. Total 132 tests (546 assertions) PASSED.
 
 ---
 

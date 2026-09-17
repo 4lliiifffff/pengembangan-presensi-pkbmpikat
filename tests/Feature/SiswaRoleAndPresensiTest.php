@@ -30,6 +30,12 @@ class SiswaRoleAndPresensiTest extends TestCase
         Config::set('lokasi.radius_meter', 100);
     }
 
+    protected function tearDown(): void
+    {
+        Carbon::setTestNow();
+        parent::tearDown();
+    }
+
     public function test_siswa_user_login_redirects_to_siswa_dashboard(): void
     {
         $siswaUser = User::factory()->create([
@@ -312,6 +318,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $today = Carbon::now('Asia/Jakarta')->toDateString();
+        Carbon::setTestNow(Carbon::parse($today.' 08:15:00', 'Asia/Jakarta'));
 
         $jadwalSesi = JadwalSesi::create([
             'tutor_id' => $tutor->id,

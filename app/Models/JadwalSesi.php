@@ -15,6 +15,7 @@ class JadwalSesi extends Model
     protected $table = 'jadwal_sesis';
 
     protected $fillable = [
+        'jadwal_rutin_id',
         'tutor_id',
         'siswa_id',
         'kategori_tutorial_id',
@@ -43,6 +44,11 @@ class JadwalSesi extends Model
     }
 
     // ── Relationships ──────────────────────────────────────────────────────────
+
+    public function jadwalRutin(): BelongsTo
+    {
+        return $this->belongsTo(JadwalRutin::class);
+    }
 
     public function tutor(): BelongsTo
     {
@@ -103,9 +109,9 @@ class JadwalSesi extends Model
     public function getJenisLabelAttribute(): string
     {
         return match ($this->jenis_sesi) {
-            'pengganti' => 'Sesi Pengganti',
+            'pengganti' => 'Sesi Pengganti (Reschedule)',
             'tambahan' => 'Sesi Tambahan',
-            default => 'Sesi Reguler',
+            default => $this->jadwal_rutin_id ? 'Sesi Rutin Mingguan' : 'Sesi Reguler',
         };
     }
 }

@@ -25,3 +25,8 @@ Schedule::command('presensi:send-reminder --type=clockout')
 Schedule::command('presensi:send-reminder --type=pending-approvals')
     ->dailyAt('16:00')
     ->timezone('Asia/Jakarta');
+
+// 4. Auto-Generate Jadwal Sesi KBM 4 Minggu ke Depan dari Master Rutin (Setiap Minggu 23:00 WIB)
+Schedule::command('jadwal:generate-sesi --weeks=4')
+    ->weeklyOn(0, '23:00')
+    ->timezone('Asia/Jakarta');

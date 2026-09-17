@@ -105,4 +105,12 @@ class Tutor extends Model
     {
         return $this->hasMany(JadwalSesi::class);
     }
+
+    /**
+     * Relasi: Tutor memiliki Master Jadwal Rutin KBM Mingguan.
+     */
+    public function jadwalRutins(): HasMany
+    {
+        return $this->hasMany(JadwalRutin::class);
+    }
 }

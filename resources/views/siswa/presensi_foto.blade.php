@@ -93,12 +93,133 @@
                 </div>
             </div>
 
-        {{-- ── BELUM ABSEN MASUK HARI INI ── --}}
+        {{-- ── TIME-GATED: TIDAK BISA ABSEN (BELUM WAKTUNYA ATAU TIDAK ADA JADWAL) ── --}}
+        @elseif (! $canCheckIn)
+            @if ($gatingReason === 'no_schedule')
+                <div class="statusBanner mb-4" style="background: #fef2f2; border-left: 4px solid #ef4444;">
+                    <div>
+                        <div class="statusTitle" style="color: #b91c1c;">Tidak Ada Jadwal Belajar Hari Ini</div>
+                        <div class="statusSub" style="color: #6b7280;">Presensi masuk hanya dapat dilakukan pada hari dan jam KBM yang telah ditentukan.</div>
+                    </div>
+                </div>
+
+                <div class="card mb-4 text-center p-4">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                        </div>
+                    </div>
+                    <h3 class="font-extrabold text-lg text-dark mb-1">Hari Ini Tidak Ada KBM</h3>
+                    <p class="text-sm text-muted mb-4" style="max-width: 380px; margin-left: auto; margin-right: auto;">
+                        Anda tidak memiliki jadwal sesi belajar yang aktif untuk hari ini ({{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}). Silakan periksa menu Jadwal Belajar untuk melihat agenda mingguan Anda.
+                    </p>
+
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a href="{{ route('siswa.jadwal') }}" class="btn btn-primary px-4 py-2 font-bold rounded-xl" style="display: inline-flex; align-items: center; gap: 6px;">
+                            <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal Mingguan
+                        </a>
+                        <a href="{{ route('siswa.dashboard') }}" class="btn btn-light px-4 py-2 font-bold rounded-xl">
+                            Kembali ke Dashboard
+                        </a>
+                    </div>
+                </div>
+
+            @elseif ($gatingReason === 'too_early')
+                <div class="statusBanner mb-4" style="background: #fffbeb; border-left: 4px solid #f59e0b;">
+                    <div>
+                        <div class="statusTitle" style="color: #b45309;">Presensi Belum Dibuka (Terkunci)</div>
+                        <div class="statusSub" style="color: #6b7280;">Absensi mandiri dibuka mulai 30 menit sebelum sesi KBM dimulai.</div>
+                    </div>
+                </div>
+
+                <div class="card mb-4 text-center p-4">
+                    <div class="d-flex justify-content-center mb-3">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                            <ion-icon name="lock-closed-outline"></ion-icon>
+                        </div>
+                    </div>
+                    <h3 class="font-extrabold text-lg text-dark mb-1">Jadwal Sesi KBM Hari Ini</h3>
+                    <div class="badge badge-warning mb-3" style="font-size: 0.82rem; padding: 4px 12px;">
+                        Terkunci Hingga Pukul {{ $waktuBukaStr }} WIB
+                    </div>
+
+                    <div class="bg-light p-3 rounded-xl mb-4 text-left d-inline-block w-full" style="max-width: 400px;">
+                        <div class="d-flex justify-content-between text-sm py-1 border-b">
+                            <span class="text-muted">Tutor Pengampu:</span>
+                            <span class="font-bold text-dark">{{ $todaySesi->tutor->nama_lengkap ?? 'Tutor Pembimbing' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-sm py-1 border-b">
+                            <span class="text-muted">Mata Pelajaran:</span>
+                            <span class="font-bold text-dark">{{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-sm py-1 border-b">
+                            <span class="text-muted">Jam KBM:</span>
+                            <span class="font-bold text-dark">{{ $todaySesi->jam_masuk_formatted }} - {{ $todaySesi->jam_pulang_formatted }} WIB</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-sm py-1">
+                            <span class="text-muted">Waktu Buka Absen:</span>
+                            <span class="font-bold text-success">{{ $waktuBukaStr }} WIB (H-30 Menit)</span>
+                        </div>
+                    </div>
+
+                    {{-- Countdown Timer Box --}}
+                    <div style="background: #1e293b; color: white; border-radius: 12px; padding: 1rem; max-width: 360px; margin: 0 auto 1.5rem auto;">
+                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 4px;">Waktu Menuju Buka Presensi</div>
+                        <div id="countdownClock" style="font-size: 1.75rem; font-weight: 800; letter-spacing: 0.05em; font-family: monospace; color: #38bdf8;">
+                            -- : -- : --
+                        </div>
+                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Halaman akan otomatis memuat ulang saat jam absen tiba.</div>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a href="{{ route('siswa.dashboard') }}" class="btn btn-light px-4 py-2 font-bold rounded-xl">
+                            Kembali ke Dashboard
+                        </a>
+                        <a href="{{ route('siswa.jadwal') }}" class="btn btn-secondary px-4 py-2 font-bold rounded-xl">
+                            Lihat Jadwal
+                        </a>
+                    </div>
+                </div>
+
+                <script>
+                    (function() {
+                        const openTime = new Date("{{ $today }}T{{ $waktuBukaStr }}:00").getTime();
+                        const clockEl = document.getElementById('countdownClock');
+
+                        function tick() {
+                            const now = new Date().getTime();
+                            const diff = openTime - now;
+
+                            if (diff <= 0) {
+                                if (clockEl) clockEl.textContent = "00:00:00 (Terbuka!)";
+                                setTimeout(() => window.location.reload(), 1500);
+                                return;
+                            }
+
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                            if (clockEl) {
+                                clockEl.textContent = 
+                                    String(hours).padStart(2, '0') + " : " + 
+                                    String(minutes).padStart(2, '0') + " : " + 
+                                    String(seconds).padStart(2, '0');
+                            }
+                        }
+
+                        tick();
+                        setInterval(tick, 1000);
+                    })();
+                </script>
+            @endif
+
+        {{-- ── WAKTU ABSEN TERBUKA (NORMAL FORM) ── --}}
         @else
             <div class="statusBanner ready mb-4">
                 <div>
-                    <div class="statusTitle">Belum Melakukan Absensi Hari Ini</div>
-                    <div class="statusSub">Silakan lakukan absensi kehadiran saat tiba di area PKBM Pikat</div>
+                    <div class="statusTitle">Presensi KBM Masuk Dibuka</div>
+                    <div class="statusSub">Silakan ambil foto kehadiran Anda di lokasi sekolah</div>
                 </div>
             </div>
 

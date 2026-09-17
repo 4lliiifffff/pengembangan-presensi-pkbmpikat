@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\IzinController;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\JadwalKerjaController;
+use App\Http\Controllers\Admin\JadwalRutinController;
 use App\Http\Controllers\Admin\JenjangPaketController;
 use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KategoriTutorialController;
@@ -155,6 +156,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Master Jadwal & Shift Kerja SK
     Route::patch('/jadwal-kerja/{jadwalKerja}/toggle-status', [JadwalKerjaController::class, 'toggleStatus'])->name('jadwal-kerja.toggleStatus');
     Route::resource('jadwal-kerja', JadwalKerjaController::class);
+
+    // Master Jadwal Rutin KBM Siswa (Recurring Weekly Schedule)
+    Route::post('/jadwal-rutin/generate-manual', [JadwalRutinController::class, 'generateManual'])->name('jadwal-rutin.generate-manual');
+    Route::patch('/jadwal-rutin/{jadwalRutin}/toggle-status', [JadwalRutinController::class, 'toggleStatus'])->name('jadwal-rutin.toggleStatus');
+    Route::resource('jadwal-rutin', JadwalRutinController::class);
 
     // Kelola Mahasiswa / Siswa Magang (PKL)
     Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');

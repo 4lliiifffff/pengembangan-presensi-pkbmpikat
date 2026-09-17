@@ -242,6 +242,8 @@ class MultiRoleNotificationAndReminderTest extends TestCase
         ]);
 
         // Ada sesi terjadwal hari ini
+        Carbon::setTestNow(Carbon::parse($today.' 09:15:00', 'Asia/Jakarta'));
+
         JadwalSesi::create([
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
