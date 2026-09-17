@@ -71,7 +71,7 @@
                 <input type="hidden" name="jenis" value="izin">
 
                 <button type="submit" class="btnSubmitIzin" id="btnSubmit" disabled>
-                    Beri Izin
+                    <ion-icon name="checkmark-circle-outline"></ion-icon> Beri Izin
                 </button>
             </div>
         </form>
@@ -105,7 +105,9 @@
                           data-confirm-btn="Ya, Batalkan">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btnBatal">Batalkan</button>
+                        <button type="submit" class="btnBatal">
+                            <ion-icon name="trash-outline"></ion-icon> Batalkan
+                        </button>
                     </form>
                 </div>
             </div>

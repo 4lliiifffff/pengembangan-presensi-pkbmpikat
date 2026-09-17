@@ -98,11 +98,11 @@
                     </select>
                 </div>
 
-                <div class="filterActionGroup grid-span-full mt-1 d-flex flex-wrap gap-2">
-                    <button type="submit" class="profileBtnPrimary px-4 text-md rounded-lg flex-1">
-                        Terapkan Filter
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
+                        <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
-                    <a href="{{ route('admin.siswa.index') }}" class="profileBtnDanger px-3 text-md rounded-lg w-auto text-no-decor flex-center">
+                    <a href="{{ route('admin.siswa.index') }}" class="btn-filter-reset">
                         Reset
                     </a>
                 </div>

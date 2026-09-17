@@ -53,20 +53,18 @@
                     <input type="date" name="tanggal" class="profileInput" value="{{ request('tanggal') }}">
                 </div>
 
-                <div class="filterField grid-span-2">
+                <div class="filterField">
                     <label class="filterFieldLabel">Cari Tutor / Siswa</label>
                     <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}" placeholder="Nama tutor atau siswa...">
                 </div>
 
                 <div class="filter-actions-full">
                     <button type="submit" class="btn-filter-primary">
-                        <ion-icon name="search-outline"></ion-icon> Cari Data
+                        <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
-                    @if(request('tanggal') || request('cari') || request('status'))
-                        <a href="{{ route('kepsek.lupa-lapor') }}" class="btn-filter-reset">
-                            Reset Filter
-                        </a>
-                    @endif
+                    <a href="{{ route('kepsek.lupa-lapor') }}" class="btn-filter-reset">
+                        Reset
+                    </a>
                 </div>
             </div>
         </form>
@@ -145,24 +143,24 @@
                     {{-- Actions --}}
                     <div class="kllActions">
                         @if($status === 'pending')
-                            <form method="POST" action="{{ route('kepsek.lupa-lapor.setujui', $item->id) }}" class="flex-1" data-confirm="Setujui permohonan lupa lapor ini? Presensi mengajar tutor akan otomatis dicatat." data-confirm-title="Setujui Lupa Lapor" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
+                            <form method="POST" action="{{ route('kepsek.lupa-lapor.setujui', $item->id) }}" class="kllActionForm" data-confirm="Setujui permohonan lupa lapor ini? Presensi mengajar tutor akan otomatis dicatat." data-confirm-title="Setujui Lupa Lapor" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="profileBtnPrimary w-full text-sm rounded-md btn-success-h38">
+                                <button type="submit" class="btn-kll-success">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Setujui
                                 </button>
                             </form>
 
-                            <form method="POST" action="{{ route('kepsek.lupa-lapor.tolak', $item->id) }}" class="flex-1" data-confirm="Apakah Anda yakin ingin menolak permohonan lupa lapor ini?" data-confirm-title="Tolak Lupa Lapor" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
+                            <form method="POST" action="{{ route('kepsek.lupa-lapor.tolak', $item->id) }}" class="kllActionForm" data-confirm="Apakah Anda yakin ingin menolak permohonan lupa lapor ini?" data-confirm-title="Tolak Lupa Lapor" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="profileBtnDanger w-full text-sm rounded-md text-white btn-danger-h38">
+                                <button type="submit" class="btn-kll-danger">
                                     <ion-icon name="close-circle-outline"></ion-icon> Tolak
                                 </button>
                             </form>
                         @endif
 
-                        <form method="POST" action="{{ route('kepsek.lupa-lapor.destroy', $item->id) }}" data-confirm="Hapus permanen arsip pengajuan ini?" data-confirm-title="Hapus Arsip Pengajuan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
+                        <form method="POST" action="{{ route('kepsek.lupa-lapor.destroy', $item->id) }}" class="kllDeleteForm" data-confirm="Hapus permanen arsip pengajuan ini?" data-confirm-title="Hapus Arsip Pengajuan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus">
                             @csrf @method('DELETE')
-                            <button type="submit" title="Hapus Data" class="profileBtnDanger text-sm rounded-md w-auto px-3 text-sm">
+                            <button type="submit" title="Hapus Data" class="btn-kll-delete">
                                 <ion-icon name="trash-outline"></ion-icon>
                             </button>
                         </form>

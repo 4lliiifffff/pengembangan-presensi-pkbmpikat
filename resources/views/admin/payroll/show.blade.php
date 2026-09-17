@@ -138,7 +138,8 @@
             </div>
         </div>
 
-        <div class="overflow-x-auto">
+        {{-- Desktop View --}}
+        <div class="table-responsive-desktop overflow-x-auto">
             <table class="modern-table">
                 <thead >
                     <tr >
@@ -181,6 +182,27 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+
+        {{-- Mobile Session Cards --}}
+        <div class="mobile-session-cards">
+            @forelse($payroll['session_rows'] as $row)
+                <div class="session-card-item">
+                    <div class="ses-header">
+                        <div>
+                            <div class="ses-date">{{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}</div>
+                            <div class="font-bold text-dark text-sm mt-1">{{ $row['nama_siswa'] }}</div>
+                        </div>
+                        <div class="ses-subtotal">{{ $row['formatted_subtotal'] }}</div>
+                    </div>
+                    <div class="d-flex items-center justify-between text-xs text-muted mt-2 pt-2 border-t-base">
+                        <div>{{ $row['jam_mulai'] }} - {{ $row['jam_selesai'] }} ({{ $row['durasi_jam'] }} J)</div>
+                        <span class="badge-code text-xs rounded-sm font-bold">{{ $row['moda_label'] }}</span>
+                    </div>
+                </div>
+            @empty
+                <div class="text-center p-4 text-muted">Belum ada log sesi mengajar terverifikasi.</div>
+            @endforelse
         </div>
     </div>
 </div>

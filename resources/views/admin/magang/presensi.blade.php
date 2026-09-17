@@ -74,99 +74,179 @@
                     <option value="proses" {{ $statusFilter === 'proses' ? 'selected' : '' }}>Sedang Berlangsung</option>
                 </select>
             </div>
-            <div class="d-flex gap-2">
-                <button type="submit" class="profileBtnPrimary text-sm rounded-lg flex-1 px-4 text-sm">
-                    <ion-icon name="filter-outline"></ion-icon> Filter
+            <div class="filter-actions-full">
+                <button type="submit" class="btn-filter-primary">
+                    <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                 </button>
-                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnDanger text-sm rounded-lg w-auto text-no-decor d-inline-flex items-center justify-center px-3 text-sm">
+                <a href="{{ route('admin.magang.presensi') }}" class="btn-filter-reset">
                     Reset
                 </a>
             </div>
         </form>
     </div>
 
-    <!-- Tabel Log Presensi -->
-    <div class="tableContainer rounded-xl border-base px-4 mb-4">
-        <table class="laporanTable">
-            <thead >
-                <tr >
-                    <th class="p-3">TANGGAL</th>
-                    <th >PESERTA MAGANG</th>
-                    <th >ABSEN MASUK</th>
-                    <th >ABSEN PULANG</th>
-                    <th >DURASI</th>
-                    <th >STATUS</th>
-                </tr>
-            </thead>
-            <tbody >
-                @forelse($presensis as $p)
-                    @php
-                        $u = $p->user;
-                        $tgl = \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('d M Y');
-                        $hari = \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('l');
-                        $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
-                        $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
-                        
-                        $durasi = '—';
-                        if ($p->jam_mulai && $p->jam_selesai) {
-                            try {
-                                $dtMulai = \Carbon\Carbon::parse($p->tgl_presensi . ' ' . $p->jam_mulai);
-                                $dtSelesai = \Carbon\Carbon::parse($p->tgl_presensi . ' ' . $p->jam_selesai);
-                                $diffMin = $dtMulai->diffInMinutes($dtSelesai);
-                                $durasi = floor($diffMin / 60) . 'j ' . ($diffMin % 60) . 'm';
-                            } catch (\Throwable) {}
-                        }
-                    @endphp
+    <!-- Tabel Log Presensi (Desktop) -->
+    <div class="table-responsive-desktop px-4">
+        <div class="tableContainer rounded-xl border-base mb-4">
+            <table class="laporanTable">
+                <thead >
                     <tr >
-                        <td class="white-space-nowrap">
-                            <div class="font-bold text-md text-dark">{{ $tgl }}</div>
-                            <div class="text-xs text-muted">{{ $hari }}</div>
-                        </td>
-                        <td >
-                            <div class="font-bold text-md text-dark">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</div>
-                            <div class="text-xs text-muted">{{ $u->magang?->asal_instansi ?: '-' }} (NIM: {{ $u->magang?->nim_nisn ?: $u->nik }})</div>
-                        </td>
-                        <td >
-                            <div class="font-bold text-md text-primary">{{ $masuk }} WIB</div>
-                            @if($p->foto_mulai)
-                                <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-primary font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
-                                    <ion-icon name="image-outline"></ion-icon> Lihat Foto
-                                </a>
-                            @endif
-                        </td>
-                        <td >
-                            <div class="font-bold text-md {{ $p->jam_selesai ? 'text-success' : 'text-muted' }}">{{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}</div>
-                            @if($p->foto_selesai)
-                                <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-success font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
-                                    <ion-icon name="image-outline"></ion-icon> Lihat Foto
-                                </a>
-                            @endif
-                        </td>
-                        <td class="text-sm font-bold text-dark">
-                            {{ $durasi }}
-                        </td>
-                        <td >
-                            @if($p->jam_selesai)
-                                <span class="app-badge badge-status-aktif">
-                                    <ion-icon name="checkmark-circle-outline"></ion-icon> Hadir Lengkap
-                                </span>
-                            @else
-                                <span class="app-badge badge-status-cuti">
-                                    <ion-icon name="time-outline"></ion-icon> Berlangsung
-                                </span>
-                            @endif
-                        </td>
+                        <th class="p-3">TANGGAL</th>
+                        <th >PESERTA MAGANG</th>
+                        <th >ABSEN MASUK</th>
+                        <th >ABSEN PULANG</th>
+                        <th >DURASI</th>
+                        <th >STATUS</th>
                     </tr>
-                @empty
-                    <tr >
-                        <td colspan="6" class="table-empty-cell text-center text-muted">
-                            <ion-icon name="calendar-outline" class="icon-2xl mb-1 d-block opacity-40 mx-auto"></ion-icon>
-                            <div class="text-md font-semibold">Tidak ada riwayat presensi magang pada periode filter ini.</div>
-                        </td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
+                </thead>
+                <tbody >
+                    @forelse($presensis as $p)
+                        @php
+                            $u = $p->user;
+                            $tgl = \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('d M Y');
+                            $hari = \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('l');
+                            $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
+                            $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
+                            
+                            $durasi = '—';
+                            if ($p->jam_mulai && $p->jam_selesai) {
+                                try {
+                                    $dtMulai = \Carbon\Carbon::parse($p->tgl_presensi . ' ' . $p->jam_mulai);
+                                    $dtSelesai = \Carbon\Carbon::parse($p->tgl_presensi . ' ' . $p->jam_selesai);
+                                    $diffMin = $dtMulai->diffInMinutes($dtSelesai);
+                                    $durasi = floor($diffMin / 60) . 'j ' . ($diffMin % 60) . 'm';
+                                } catch (\Throwable) {}
+                            }
+                        @endphp
+                        <tr >
+                            <td class="white-space-nowrap">
+                                <div class="font-bold text-md text-dark">{{ $tgl }}</div>
+                                <div class="text-xs text-muted">{{ $hari }}</div>
+                            </td>
+                            <td >
+                                <div class="font-bold text-md text-dark">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</div>
+                                <div class="text-xs text-muted">{{ $u->magang?->asal_instansi ?: '-' }} (NIM: {{ $u->magang?->nim_nisn ?: $u->nik }})</div>
+                            </td>
+                            <td >
+                                <div class="font-bold text-md text-primary">{{ $masuk }} WIB</div>
+                                @if($p->foto_mulai)
+                                    <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-primary font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
+                                        <ion-icon name="image-outline"></ion-icon> Lihat Foto
+                                    </a>
+                                @endif
+                            </td>
+                            <td >
+                                <div class="font-bold text-md {{ $p->jam_selesai ? 'text-success' : 'text-muted' }}">{{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}</div>
+                                @if($p->foto_selesai)
+                                    <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-success font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
+                                        <ion-icon name="image-outline"></ion-icon> Lihat Foto
+                                    </a>
+                                @endif
+                            </td>
+                            <td class="text-sm font-bold text-dark">
+                                {{ $durasi }}
+                            </td>
+                            <td >
+                                @if($p->jam_selesai)
+                                    <span class="app-badge badge-status-aktif">
+                                        <ion-icon name="checkmark-circle-outline"></ion-icon> Hadir Lengkap
+                                    </span>
+                                @else
+                                    <span class="app-badge badge-status-cuti">
+                                        <ion-icon name="time-outline"></ion-icon> Berlangsung
+                                    </span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr >
+                            <td colspan="6" class="table-empty-cell text-center text-muted">
+                                <ion-icon name="calendar-outline" class="icon-2xl mb-1 d-block opacity-40 mx-auto"></ion-icon>
+                                <div class="text-md font-semibold">Tidak ada riwayat presensi magang pada periode filter ini.</div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- ── Mobile Cards List (Layar HP / Tablet) ── --}}
+    <div class="mobile-card-list px-4">
+        @forelse($presensis as $index => $p)
+            @php
+                $u = $p->user;
+                $tgl = \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('d M Y');
+                $hari = \Carbon\Carbon::parse($p->tgl_presensi)->translatedFormat('l');
+                $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
+                $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
+                
+                $durasi = '—';
+                if ($p->jam_mulai && $p->jam_selesai) {
+                    try {
+                        $dtMulai = \Carbon\Carbon::parse($p->tgl_presensi . ' ' . $p->jam_mulai);
+                        $dtSelesai = \Carbon\Carbon::parse($p->tgl_presensi . ' ' . $p->jam_selesai);
+                        $diffMin = $dtMulai->diffInMinutes($dtSelesai);
+                        $durasi = floor($diffMin / 60) . 'j ' . ($diffMin % 60) . 'm';
+                    } catch (\Throwable) {}
+                }
+            @endphp
+            <div class="data-mobile-card">
+                <div class="dmc-header">
+                    <div>
+                        <h3 class="dmc-title">{{ $u->nama_lengkap ?? ($u->name ?? 'Magang') }}</h3>
+                        <div class="dmc-subtitle">{{ $hari }}, {{ $tgl }}</div>
+                    </div>
+                    <div>
+                        @if($p->jam_selesai)
+                            <span class="app-badge badge-status-aktif">Hadir Lengkap</span>
+                        @else
+                            <span class="app-badge badge-status-cuti">Berlangsung</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="dmc-grid">
+                    <div class="dmc-field">
+                        <div class="dmc-label">Jam Masuk</div>
+                        <div class="dmc-value text-primary">{{ $masuk }} WIB</div>
+                        @if($p->foto_mulai)
+                            <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-primary font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
+                                <ion-icon name="image-outline"></ion-icon> Foto Masuk
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Jam Pulang</div>
+                        <div class="dmc-value {{ $p->jam_selesai ? 'text-success' : 'text-muted' }}">
+                            {{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}
+                        </div>
+                        @if($p->foto_selesai)
+                            <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $u->nama_lengkap ?? $u->name }}')" class="text-xs text-success font-semibold text-no-decor d-inline-flex items-center gap-1 mt-1">
+                                <ion-icon name="image-outline"></ion-icon> Foto Pulang
+                            </a>
+                        @endif
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Total Durasi</div>
+                        <div class="dmc-value font-bold text-dark">{{ $durasi }}</div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Instansi</div>
+                        <div class="dmc-value text-xs text-muted">{{ $u->magang?->asal_instansi ?: '-' }}</div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="data-mobile-card table-empty-cell">
+                <ion-icon name="calendar-outline" class="icon-2xl mb-1 d-block opacity-40 mx-auto"></ion-icon>
+                <div class="font-bold text-md mb-1">Belum Ada Riwayat Presensi</div>
+                <div class="text-sm">Tidak ada riwayat presensi magang pada periode filter ini.</div>
+            </div>
+        @endforelse
     </div>
 
     @if($presensis->hasPages())

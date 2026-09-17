@@ -57,20 +57,18 @@
                     </select>
                 </div>
 
-                <div class="filterField grid-span-2">
+                <div class="filterField">
                     <label class="filterFieldLabel">Cari Tutor</label>
                     <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}" placeholder="Ketik nama tutor...">
                 </div>
 
                 <div class="filter-actions-full">
                     <button type="submit" class="btn-filter-primary">
-                        <ion-icon name="search-outline"></ion-icon> Cari Data
+                        <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
-                    @if(request('cari') || request('status') || request('jenis'))
-                        <a href="{{ route('kepsek.pengajuan-izin') }}" class="btn-filter-reset">
-                            Reset Filter
-                        </a>
-                    @endif
+                    <a href="{{ route('kepsek.pengajuan-izin') }}" class="btn-filter-reset">
+                        Reset
+                    </a>
                 </div>
             </div>
         </form>
@@ -147,17 +145,17 @@
                     {{-- Actions --}}
                     @if($item->status === 'pending')
                         <div class="kllActions">
-                            <form action="{{ route('kepsek.pengajuan-izin.setujui', $item->id) }}" method="POST" class="flex-1" data-confirm="Setujui permohonan izin/sakit ini? Log presensi kehadiran tutor akan disinkronkan secara otomatis." data-confirm-title="Setujui Pengajuan Izin" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
+                            <form action="{{ route('kepsek.pengajuan-izin.setujui', $item->id) }}" method="POST" class="kllActionForm" data-confirm="Setujui permohonan izin/sakit ini? Log presensi kehadiran tutor akan disinkronkan secara otomatis." data-confirm-title="Setujui Pengajuan Izin" data-confirm-type="success" data-confirm-btn="Ya, Setujui">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="profileBtnPrimary w-full text-sm rounded-md btn-success-h38">
+                                <button type="submit" class="btn-kll-success">
                                     <ion-icon name="checkmark-circle-outline"></ion-icon> Setujui
                                 </button>
                             </form>
-                            <form action="{{ route('kepsek.pengajuan-izin.tolak', $item->id) }}" method="POST" class="flex-1" data-confirm="Apakah Anda yakin ingin menolak permohonan izin ini?" data-confirm-title="Tolak Pengajuan Izin" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
+                            <form action="{{ route('kepsek.pengajuan-izin.tolak', $item->id) }}" method="POST" class="kllActionForm" data-confirm="Apakah Anda yakin ingin menolak permohonan izin ini?" data-confirm-title="Tolak Pengajuan Izin" data-confirm-type="danger" data-confirm-btn="Ya, Tolak">
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" class="profileBtnDanger w-full text-sm rounded-md text-white btn-danger-h38">
+                                <button type="submit" class="btn-kll-danger">
                                     <ion-icon name="close-circle-outline"></ion-icon> Tolak
                                 </button>
                             </form>
