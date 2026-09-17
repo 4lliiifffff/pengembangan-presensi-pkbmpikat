@@ -42,9 +42,9 @@
                     <label class="filterFieldLabel">Status</label>
                     <select name="status" class="filterSelect" onchange="this.form.submit()">
                         <option value="">Semua Status</option>
-                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>🟡 Menunggu ({{ $totalPending ?? 0 }})</option>
-                        <option value="disetujui" {{ request('status') === 'disetujui' ? 'selected' : '' }}>🟢 Disetujui</option>
-                        <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>🔴 Ditolak</option>
+                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Menunggu ({{ $totalPending ?? 0 }})</option>
+                        <option value="disetujui" {{ request('status') === 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                        <option value="ditolak" {{ request('status') === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                     </select>
                 </div>
 

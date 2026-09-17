@@ -88,7 +88,7 @@
                             @if ($sisaDetikPulang > 0)
                                 Selesai dalam: <strong id="dashCountdown">{{ gmdate('i:s', $sisaDetikPulang) }}</strong>
                             @else
-                                <span class="text-success font-bold">✔ Sudah bisa presensi selesai</span>
+                                <span class="text-success font-bold">Sudah bisa presensi selesai</span>
                             @endif
                         </div>
                     @endif

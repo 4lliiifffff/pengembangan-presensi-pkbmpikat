@@ -131,9 +131,9 @@
                                         default => 'normal',
                                     };
                                     $rankText = match($rank) {
-                                        1 => '🥇 #1',
-                                        2 => '🥈 #2',
-                                        3 => '🥉 #3',
+                                        1 => '#1',
+                                        2 => '#2',
+                                        3 => '#3',
                                         default => '#'.$rank,
                                     };
                                     $kpiScore = $item['kpi_score'];

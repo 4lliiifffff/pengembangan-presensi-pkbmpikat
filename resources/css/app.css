@@ -955,7 +955,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .btnOutline {
     background: var(--card, #ffffff);
-    color: var(--blue2) !important;
+    color: var(--blue2);
     border: 1px solid var(--border, rgba(11, 94, 215, 0.2));
     border-radius: 12px;
     padding: 10px 16px;
@@ -1661,6 +1661,7 @@ h1, h2, h3, h4, h5, h6 {
 .navCardIcon.indigo  { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
 .navCardIcon.purple  { background: rgba(168, 85, 247, 0.12); color: #9333ea; }
 .navCardIcon.amber   { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.navCardIcon.orange  { background: rgba(249, 115, 22, 0.12); color: #ea580c; }
 .navCardIcon.rose    { background: rgba(244, 63, 94, 0.12); color: #e11d48; }
 .navCardIcon.teal    { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
 .navCardIcon.slate   { background: rgba(100, 116, 139, 0.12); color: #475569; }
@@ -3058,50 +3059,48 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 }
 
 .countdownCard {
-    margin-bottom: 14px;
+    margin-bottom: 20px;
     border-radius: 20px;
     background: var(--card);
     border: 1px solid var(--border);
-    padding: 18px 16px;
+    padding: 22px 18px;
     text-align: center;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 .countdownLabel {
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.6px;
-    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 700;
     color: var(--muted);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 .countdownTime {
-    font-size: 40px;
+    font-size: 42px;
     font-weight: 900;
     color: #d97706;
     font-variant-numeric: tabular-nums;
     line-height: 1;
-    margin: 4px 0;
+    margin: 6px 0;
 }
 .countdownSub {
-    font-size: 11.5px;
-    font-weight: 700;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--muted);
-    margin-top: 4px;
+    margin-top: 6px;
 }
 
 .cardTitle {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 8px;
-    font-size: 12.5px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--text);
-    margin-bottom: 12px;
+    margin-bottom: 18px;
     letter-spacing: -0.2px;
 }
 .cardTitle ion-icon {
-    font-size: 17px;
-    color: var(--blue2);
+    display: none;
 }
 
 .mapBox {
@@ -3112,6 +3111,7 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
     border: 1px solid var(--border);
     overflow: hidden;
     position: relative;
+    margin-bottom: 14px;
 }
 .mapBox .gmapFrame {
     display: block;
@@ -3129,8 +3129,8 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
     text-align: center;
     padding: 16px;
     color: var(--muted);
-    font-weight: 800;
-    font-size: 12px;
+    font-weight: 700;
+    font-size: 13px;
     z-index: 1;
     background: var(--card-alt);
 }
@@ -3139,13 +3139,13 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 }
 .mapCoordHint {
     margin-top: 8px;
-    font-size: 11px;
+    font-size: 12px;
     color: var(--muted);
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.4;
 }
 .mapToolbar {
-    margin-top: 10px;
+    margin-top: 12px;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -3153,15 +3153,15 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 .mapToolbar button {
     border: 1px solid var(--border);
     background: var(--card-alt);
-    border-radius: 10px;
-    padding: 7px 12px;
-    font-size: 11.5px;
+    border-radius: 12px;
+    padding: 9px 16px;
+    font-size: 12.5px;
     font-weight: 700;
     color: var(--blue2);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
     transition: all 0.15s ease;
 }
 .mapToolbar button:hover {
@@ -3172,7 +3172,8 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
     width: 100%;
     aspect-ratio: 4/3;
     border-radius: 18px;
-    margin-top: 10px;
+    margin-top: 14px;
+    margin-bottom: 14px;
     background: var(--card-alt);
     border: 2px solid var(--border);
     display: flex;
@@ -3197,10 +3198,10 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 }
 .photoPlaceholder {
     color: var(--muted);
-    font-weight: 700;
-    font-size: 12px;
+    font-weight: 600;
+    font-size: 13px;
     text-align: center;
-    padding: 16px;
+    padding: 20px;
     line-height: 1.5;
 }
 .photoPlaceholder.hidden {
@@ -3208,28 +3209,28 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 }
 
 .camActions {
-    margin-top: 12px;
+    margin-top: 14px;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 10px;
 }
 .camRow {
     display: flex;
-    gap: 8px;
+    gap: 10px;
 }
 .camRow .captureBtn {
     margin-top: 0;
     flex: 1;
 }
 .captureBtn {
-    margin-top: 10px;
+    margin-top: 12px;
     width: 100%;
     border-radius: 14px;
-    padding: 13px 14px;
+    padding: 14px 16px;
     background: var(--card-alt);
     border: 1px solid var(--border);
     color: var(--blue2);
-    font-size: 13.5px;
+    font-size: 14px;
     font-weight: 800;
     display: flex;
     align-items: center;
@@ -3273,20 +3274,20 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
 }
 
 .hint {
-    margin-top: 8px;
-    font-size: 11px;
+    margin-top: 10px;
+    font-size: 12px;
     color: var(--muted);
-    font-weight: 600;
+    font-weight: 500;
     text-align: center;
 }
 .select {
     width: 100%;
-    padding: 11px 14px;
+    padding: 12px 14px;
     border-radius: 12px;
     border: 1px solid var(--border);
     background: var(--card);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 13.5px;
+    font-weight: 600;
     color: var(--text);
     outline: none;
 }
@@ -9254,27 +9255,6 @@ body.app-modal-open {
     font-weight: 700;
     color: var(--text, #0f172a);
     word-break: break-word;
-}
-
-.btnNavMaps {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    background: var(--card, #ffffff);
-    color: var(--blue2, #1f3b8a);
-    border: 1px solid var(--border, #cbd5e1);
-    border-radius: 8px;
-    text-decoration: none;
-    transition: all 0.2s ease;
-}
-
-.btnNavMaps:hover {
-    background: var(--blue2, #1f3b8a);
-    color: #ffffff;
-    border-color: var(--blue2, #1f3b8a);
 }
 
 
