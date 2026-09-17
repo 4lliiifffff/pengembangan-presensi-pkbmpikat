@@ -171,6 +171,7 @@ class SiswaSeeder extends Seeder
         ];
 
         foreach ($siswaData as $data) {
+            $data['status_siswa'] = $data['status_siswa'] ?? 'aktif';
             Siswa::updateOrCreate(
                 [
                     'no_absen' => $data['no_absen'],

@@ -29,7 +29,8 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        Paginator::useBootstrapFive();
+        Paginator::defaultView('vendor.pagination.custom');
+        Paginator::defaultSimpleView('vendor.pagination.custom');
         Carbon::setLocale(config('app.locale', 'id'));
         date_default_timezone_set(config('app.timezone', 'Asia/Jakarta'));
 

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Siswa;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,28 +60,84 @@ class AuthWebController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        // Percobaan login: coba dengan NIK terlebih dahulu,
-        // jika gagal, fallback ke email (menggunakan operator OR / ||)
-        // Parameter ketiga adalah "remember me" (dari checkbox di form)
-        $attempt =
-            Auth::attempt([
-                'nik' => $credentials['username'],
-                'password' => $credentials['password'],
-            ], $request->boolean('remember')) ||
-            Auth::attempt([
-                'email' => $credentials['username'],
-                'password' => $credentials['password'],
-            ], $request->boolean('remember'));
+        $username = trim((string) $credentials['username']);
+        $password = (string) $credentials['password'];
+        $remember = $request->boolean('remember');
 
-        // Jika login gagal (NIK dan email keduanya tidak cocok)
+        // 1. Percobaan login langsung dengan NIK (case-insensitive)
+        $attempt = Auth::attempt([
+            'nik' => $username,
+            'password' => $password,
+        ], $remember);
+
+        // 2. Percobaan login dengan Email
+        if (! $attempt) {
+            $attempt = Auth::attempt([
+                'email' => $username,
+                'password' => $password,
+            ], $remember);
+        }
+
+        // 3. Percobaan login variasi NIK / Nomor Absen Siswa (e.g. SW001, sw001, 001, SW0001, dll.)
+        if (! $attempt) {
+            $cleanNo = preg_replace('/^sw/i', '', $username);
+            $cleanNo = ltrim($cleanNo, '0') ?: $cleanNo;
+            $padded3 = str_pad($cleanNo, 3, '0', STR_PAD_LEFT);
+            $padded4 = str_pad($cleanNo, 4, '0', STR_PAD_LEFT);
+
+            // Cari di tabel Siswa
+            $siswa = Siswa::where('no_absen', $username)
+                ->orWhere('no_absen', $cleanNo)
+                ->orWhere('no_absen', $padded3)
+                ->orWhere('no_absen', $padded4)
+                ->first();
+
+            if ($siswa && $siswa->user_id) {
+                $attempt = Auth::attempt([
+                    'id' => $siswa->user_id,
+                    'password' => $password,
+                ], $remember);
+            }
+
+            // Jika belum ketemu, cari di tabel Users dengan variasi NIK
+            if (! $attempt) {
+                $userSiswa = User::where('role', 'siswa')
+                    ->where(function ($q) use ($username, $cleanNo, $padded3, $padded4) {
+                        $q->where('nik', 'SW'.$padded3)
+                            ->orWhere('nik', 'SW'.$padded4)
+                            ->orWhere('nik', 'SW'.$cleanNo)
+                            ->orWhere('nik', $username)
+                            ->orWhere('email', 'siswa'.$cleanNo.'@pkbmpikat.com')
+                            ->orWhere('email', 'siswa'.$padded3.'@pkbmpikat.com');
+                    })->first();
+
+                if ($userSiswa) {
+                    $attempt = Auth::attempt([
+                        'id' => $userSiswa->id,
+                        'password' => $password,
+                    ], $remember);
+                }
+            }
+        }
+
+        // Jika login gagal (tidak ditemukan atau password salah)
         if (! $attempt) {
             return back()
-                ->withInput($request->only('username')) // Pertahankan username di form agar tidak perlu mengetik ulang
+                ->withInput($request->only('username'))
                 ->with('warning', 'Username/NIK atau password salah.');
         }
 
+        // Cek status keaktifan akun pengguna
+        if (Auth::check() && ! Auth::user()->is_active) {
+            Auth::logout();
+
+            return back()
+                ->withInput($request->only('username'))
+                ->with('warning', 'Akun Anda dinonaktifkan. Silakan hubungi administrator.');
+        }
+
         // Bersihkan counter RateLimiter karena login berhasil
-        $throttleKey = strtolower((string) $credentials['username']).'|'.$request->ip();
+        $throttleKey = strtolower($username).'|'.$request->ip();
         RateLimiter::clear($throttleKey);
 
         // Regenerasi session ID untuk mencegah Session Fixation Attack

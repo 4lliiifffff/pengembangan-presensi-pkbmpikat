@@ -275,28 +275,72 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Topbar navigasi sticky, header section `.sectionTitleRow`, dan grid 2-kolom desktop ($\ge 992$px) seimbang.
 
-#### 8.2 Unified Modal, Toast, & Dialog System
-- 🟢 **Sistem Modal Dialog & Toast Modern**
+#### 8.4 UI/UX Polish, Kontras Tombol & Navigasi Ikon
+- 🟢 **Penyelarasan Kontras Tombol Peta & Navigasi Admin**
   - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Modal pop-up dan toast notification terpadu (`app-dialog-overlay`, `app-toast-container`) yang elegan dan mendukung dark/light mode.
-
-#### 8.3 Desain Halaman Pengajuan Izin & Sakit Tutor
-- 🟢 **Redesain Form & Riwayat Izin Tutor**
-  - **Status:** **SELESAI**
-  - **Rincian Implementasi:** Struktur layout `.pengajuanPage` lega dan responsif, formulir bersih `.izinFormCard`, dan grid tanggal adaptif.
+  - **Rincian Implementasi:**
+    - Perbaikan kontras warna teks tombol `.btnNavMaps` (Petunjuk Arah/Peta), `.btnLiveGpsActive`, dan tombol aksi peta di seluruh view presensi agar teks dan ikon terbaca kontras dan jelas (tidak hanya saat hover).
+    - Penambahan wrapper background `.navIconWrap` pada item menu Master Jadwal & Shift Kerja di `navigasi_bawah_admin.blade.php` agar selaras dan konsisten dengan seluruh item navigasi lainnya.
 
 ---
 
-### 9. Refactored Codebase, Standardisasi & QA
+### 9. Portal & Presensi Mandiri Siswa PKBM (*Student Self-Attendance*)
 
-#### 9.1 Standardisasi System Codebase
+#### 9.1 Autentikasi & Arsitektur Role Siswa
+- 🟢 **Role Siswa, Middleware & Relasi User**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Integrasi role `'siswa'` pada `RoleMiddleware`, pengalihan otomatis login di `AuthWebController`, dan pembatasan akses rute `/siswa/*`.
+    - Migrasi penambahan kolom `user_id` pada tabel `siswas`, relasi timbal-balik `belongsTo(User::class)` & `hasOne(Siswa::class)`, serta pembuatan `SiswaUserSeeder`.
+    - **Sinkronisasi Otomatis Model (`App\Observers\SiswaObserver`)**:
+      - **Auto-Provisioning**: Setiap kali Siswa baru dibuat (via Form Admin, Excel Import, atau Seeder), akun `User` dengan role `siswa` otomatis dibuat dan dikaitkan ke `user_id`.
+      - **Auto-Update**: Saat nama atau kontak siswa diperbarui, data di tabel `users` otomatis tersinkronisasi.
+      - **Auto-Deactivate**: Saat siswa diarsipkan (soft delete) atau status diset nonaktif/alumni, akun `User` otomatis dinonaktifkan (`is_active = 0`).
+      - **Admin Reset Password**: Tombol reset password default (`password123`) pada halaman detail Siswa di panel Admin (`admin.siswa.resetPassword`).
+    - **Normalisasi Identifier & Fleksibilitas Login Siswa (`AuthWebController`)**:
+      - Mendukung berbagai variasi input username: `sw001`, `SW001`, `SW0001`, `001`, `01`, `1`, `siswa@pkbmpikat.com`, `siswa001@pkbmpikat.com`, maupun NIK `SW202601`.
+    - **Desain Notifikasi Alert Login (`login.blade.php` & `app.css`)**:
+      - Komponen visual alert `.login-alert` dengan warna kontras, border lembut, icon, dan animasi `fadeInSlide` agar pesan peringatan atau kesalahan selalu terlihat jelas oleh pengguna.
+
+#### 9.2 Presensi Mandiri Harian Siswa
+- 🟢 **Tabel `presensi_mandiri_siswas` & Engine Absensi Siswa**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Migrasi `create_presensi_mandiri_siswas_table` dan Model `PresensiMandiriSiswa.php`.
+    - `SiswaPresensiController.php`: Form absensi masuk & pulang dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), anti fake-GPS, dan jeda minimal 15 menit belajar.
+    - `SiswaDashboardController.php`: Dashboard ringkasan kehadiran mandiri dan sesi kelas, filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification.
+    - Template antarmuka blade responsif: `siswa/dashboard.blade.php`, `siswa/presensi_foto.blade.php`, `siswa/riwayat.blade.php`, `siswa/profil.blade.php`, dan `navigasi_bawah_siswa.blade.php`.
+
+#### 9.3 Pusat Pengelolaan Akun Pengguna Terintegrasi (Unified User & Account Center)
+- 🟢 **Halaman Manajemen Akun Terpadu (`resources/views/admin/karyawan/index.blade.php`)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Mengintegrasikan seluruh akun pengguna (Admin, Kepala Sekolah, Tutor/Pendidik, Siswa, dan Mahasiswa Magang) ke dalam satu pusat pengelolaan yang terstruktur.
+    - **4 Kartu Metrik Cepat**: Total Pengguna, Tutor & Pengajar, Siswa Terdaftar, dan Magang/Staf Manajemen.
+    - **Filter Peran Dropdown Responsif**: Dropdown pemilihan peran/role adaptif dengan live counter badge (`Semua Peran`, `Pendidik / Tutor`, `Peserta Didik / Siswa`, `Mahasiswa Magang`, `Administrator`, `Kepala Sekolah`) yang terintegrasi langsung dalam grid filter responsif.
+    - **Fitur Aksi Lengkap**: Reset Password instan (`password123`) dengan dialog konfirmasi, toggle aktif/nonaktif, edit profil akun, dan link cerdas ke detail data modul terkait (Data Siswa, Slip Honor Tutor, Presensi Magang).
+    - **Desain Responsif Desktop & Mobile**: Tabel modern pada desktop dan kartu ramah sentuhan (*touch-friendly $\ge 44\text{px}$*) pada layar smartphone.
+
+#### 9.4 Sistem Pagination Responsif & Bahasa Indonesia
+- 🟢 **Sentralisasi Komponen Navigasi Halaman (`resources/views/vendor/pagination/`)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - `custom.blade.php`, `bootstrap-5.blade.php`, `bootstrap-4.blade.php`, `default.blade.php`: Seluruh pagination di sistem diseragamkan dengan teks **Bahasa Indonesia** (`Sebelumnya`, `Selanjutnya`, `X / Y`, `Menampilkan X - Y dari Z data`).
+    - Didaftarkan secara global di [AppServiceProvider.php](file:///c:/laragon/www/pengembangan-presensi-pikat/app/Providers/AppServiceProvider.php) via `Paginator::defaultView('vendor.pagination.custom')` & `Paginator::defaultSimpleView('vendor.pagination.custom')`.
+    - **Dual-Mode Ultra-Responsive UI**: Mode desktop ($\gt 768\text{px}$) dengan pil nomor halaman (*page pills*) elegan + shadow aktif, dan mode mobile / tablet ($\le 768\text{px}$) beralih otomatis ke mode *compact touch navigation* berukuran sentuh nyaman ($\ge 42\text{px}$) dengan *zero horizontal overflow* pada seluruh smartphone.
+
+---
+
+### 10. Refactored Codebase, Standardisasi & QA
+
+#### 10.1 Standardisasi System Codebase
 - 🟢 **Laravel Pint Code Formatter**: `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
 - 🟢 **Sentralisasi Design System via `resources/css/app.css`**: Menyatukan seluruh styling CSS komponen, menghapus inline styles, dan merapikan layout Vite native.
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
-#### 9.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **107 Feature & Unit Tests** lulus 100% (**438 assertions**).
-- 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error (2.11s).
+#### 10.2 Automated Testing Suite
+- 🟢 **PHPUnit Test Suite**: Seluruh **118 Feature & Unit Tests** lulus 100% (**497 assertions**).
+- 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
 
 ---
 
@@ -315,8 +359,11 @@ pie title Status Fitur & Pengkondisian Sistem
 | 9 | **Total Refactoring `tarif_per_jam` & Skema Terstruktur `kelas`** | Database Refactor | Drop `siswas.tarif_per_jam`, tambah `kelas.tingkat` (varchar 50) untuk modularitas Vokasi/Paket baru. | 🟢 Selesai |
 | 10 | **Refactoring Foreign Key Relasional `kelas.jenjang_paket_id`** | Database Integrity | Migrasi Foreign Key murni `kelas.jenjang_paket_id` $\rightarrow$ `jenjang_pakets.id` dengan ON DELETE SET NULL. | 🟢 Selesai |
 | 11 | **Penguatan Integrasi Murid > Kelas > Paket & Anti Data-Loss** | Academic Lifecycle | Status siklus siswa (`aktif`, `alumni`, `cuti`, `nonaktif`), SoftDeletes (`deleted_at`), dan migrasi rombel saat hapus jenjang. | 🟢 Selesai |
-| 12 | **Penjadwalan Sesi Pengganti (*Make-Up Class*) & Future-Proof Role Siswa** | Schedule & Attendance | Tabel `jadwal_sesis`, kalender bulanan, toleransi jam fleksibel, auto-complete sesi kamera presensi, bottom nav sync, dan kolom presensi mandiri siswa. | 🟢 Selesai |
+| 12 | **Penjadwalan Sesi Pengganti (*Make-Up Class*) & Master Lokasi** | Schedule & Attendance | Tabel `jadwal_sesis`, kalender bulanan, toleransi jam fleksibel, auto-complete sesi kamera presensi, dan bottom nav sync. | 🟢 Selesai |
 | 13 | **Master Titik Lokasi Presensi Multi-Geofence & Pemilihan Radius** | Geofencing & Location | Tabel `lokasi_presensis`, CRUD Admin lokasi + radius meter per titik, dropdown pemilih titik di kamera presensi, dan validasi Haversine per lokasi. | 🟢 Selesai |
+| 14 | **Perbaikan Aksesibilitas Kontras Tombol & Navigasi Ikon** | UI/UX Polish | Penyelarasan styling tombol `.btnNavMaps` agar selalu kontras terbaca dan background icon Jadwal Shift di nav bawah Admin. | 🟢 Selesai |
+| 15 | **Modul Portal & Presensi Mandiri Siswa PKBM** | Student Self-Attendance | Autentikasi siswa, tabel `presensi_mandiri_siswas`, dashboard ringkasan, kamera selfie Leaflet geofencing, riwayat, dan profil siswa. | 🟢 Selesai |
+| 16 | **Sinkronisasi Otomatis Akun Siswa & Users (Observer & Lifecycle)** | User-Student Sync | `SiswaObserver` auto-provisioning akun `users` saat tambah siswa, auto-sync data nama/kontak, auto-deactivate saat nonaktif/soft-delete, dan reset password admin. | 🟢 Selesai |
 
 ---
 

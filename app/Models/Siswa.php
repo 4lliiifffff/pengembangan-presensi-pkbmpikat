@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Observers\SiswaObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Model Siswa — Data Murid/Peserta Didik
  */
+#[ObservedBy([SiswaObserver::class])]
 class Siswa extends Model
 {
     use SoftDeletes;

@@ -164,20 +164,46 @@
 ### 8.2 Unified Modal, Toast, & Dialog System
 * 🟢 **Sistem Modal Dialog & Toast Modern:** [SELESAI] Modal pop-up dan toast notification terpadu (`app-dialog-overlay`, `app-toast-container`) yang elegan dan mendukung tema gelap/terang.
 
-### 8.3 Desain Halaman Pengajuan Izin & Sakit Tutor
-* 🟢 **Redesain Form & Riwayat Izin Tutor:** [SELESAI] Struktur halaman lega (`.pengajuanPage`), formulir bersih (`.izinFormCard`), dan grid tanggal adaptif.
+### 8.4 UI/UX Polish, Kontras Tombol & Navigasi Ikon
+* 🟢 **Perbaikan Kontras Tombol & Aksesibilitas Warna:** [SELESAI] Penyelarasan styling tombol `.btnNavMaps` (Petunjuk Arah/Peta), `.btnLiveGpsActive`, dan tombol aksi peta di seluruh view presensi agar teks dan ikon terbaca kontras dan jelas (tidak hanya saat hover).
+* 🟢 **Penyelarasan Ikon Navigasi Bawah Admin:** [SELESAI] Penambahan wrapper background `.navIconWrap` pada item menu Master Jadwal & Shift Kerja di `navigasi_bawah_admin.blade.php` agar selaras dan konsisten dengan seluruh item navigasi lainnya.
 
 ---
 
-## 9. QUALITY ASSURANCE & TESTING (TEST SUITE)
+## 9. PORTAL & PRESENSI MANDIRI SISWA (STUDENT SELF-ATTENDANCE)
+
+### 9.1 Autentikasi & Arsitektur Role Siswa
+* 🟢 **Normalisasi Identifier & Fleksibilitas Login Siswa:** [SELESAI] `AuthWebController` mendukung login menggunakan variasi format: Nomor Absen (`001`, `01`, `1`), format prefix (`sw001`, `SW001`, `SW0001`), NIK resmi (`SW202601`), maupun Email (`siswa@pkbmpikat.com`, `siswa001@pkbmpikat.com`).
+* 🟢 **Desain Kotak Notifikasi Login (`login-alert`):** [SELESAI] Komponen visual `.login-alert`, `.login-alert-danger`, `.login-alert-warning`, dan `.login-alert-success` dengan animasi `fadeInSlide` di `app.css` untuk memastikan setiap pesan kesalahan/peringatan terlihat jelas.
+
+### 9.2 Presensi Mandiri Harian Siswa
+* 🟢 **Tabel `presensi_mandiri_siswas` & Model:** [SELESAI] Struktur tabel pencatatan kehadiran mandiri siswa lengkap dengan koordinat GPS, foto masuk/pulang, akurasi sinyal, anti-mocking, dan status kehadiran.
+* 🟢 **Kamera Presensi & Geofencing Siswa:** [SELESAI] Form absensi masuk & pulang dengan peta interaktif Leaflet, radar proximity, verifikasi radius geofence di lokasi PKBM/mitra, kamera selfie (mirror, switch facing, flash torch), dan jeda minimal 15 menit belajar (`SiswaPresensiController.php`).
+* 🟢 **Dashboard, Riwayat & Profil Siswa:** [SELESAI] Dashboard ringkasan kehadiran mandiri dan sesi kelas, filter riwayat kehadiran bulanan, modal preview foto presensi, serta pengaturan profil dan Web Push Notification (`SiswaDashboardController.php`).
+
+### 9.3 Pusat Pengelolaan Akun Pengguna Terintegrasi (Unified User & Account Center)
+* 🟢 **Pusat Kelola Seluruh Akun (`admin.karyawan.index`):** [SELESAI] Satu pintu terintegrasi untuk mengelola seluruh akun pengguna sistem (Tutor, Siswa, Magang, Admin, Kepala Sekolah).
+* 🟢 **Dropdown Filter Peran Responsif & Live Counter Badges:** [SELESAI] Pemilihan peran/role via dropdown adaptif terpadu dalam kartu filter (Semua Peran, Pendidik/Tutor, Siswa, Mahasiswa Magang, Admin, Kepala Sekolah) dengan jumlah pengguna real-time.
+* 🟢 **4 Kartu Metrik Ringkas:** [SELESAI] Ringkasan Total Pengguna (Aktif/Nonaktif), Total Tutor, Total Siswa, dan Total Staf/Magang/Manajemen.
+* 🟢 **Fitur Manajemen Cepat:** [SELESAI] Reset Password Default (`password123`) sekali klik dengan konfirmasi interaktif, toggle status akun aktif/nonaktif, edit profil pengguna, dan tautan cerdas ke data modul terkait (Data Siswa, Jadwal & Slip Honor Tutor, Presensi Magang).
+* 🟢 **Desain Konsisten & Responsif Mobile:** [SELESAI] Tampilan tabel desktop yang rapi dengan badge peran berkode warna, serta tampilan kartu mobile (*mobile-card-list*) yang nyaman digunakan di smartphone (touch targets $\ge 44\text{px}$).
+
+### 9.4 Sistem Pagination Responsif & Bahasa Indonesia
+* 🟢 **Sentralisasi Template Pagination (`resources/views/vendor/pagination/custom.blade.php`):** [SELESAI] Terintegrasi otomatis melalui `AppServiceProvider.php` (`Paginator::defaultView`) di seluruh modul aplikasi.
+* 🟢 **100% Bahasa Indonesia Baku:** [SELESAI] Menggunakan label `"Sebelumnya"`, `"Selanjutnya"`, `"Hal. X dari Y"`, dan `"Menampilkan X - Y dari Z data"`.
+* 🟢 **Tampilan Responsif Adaptif Mobile:** [SELESAI] Di desktop menampilkan daftar nomor halaman (*page pills*) lengkap, dan di layar mobile bertransformasi menjadi mode *compact navigation* dengan tombol sentuh nyaman ($\ge 44\text{px}$) tanpa *horizontal overflow*.
+
+---
+
+## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)
 
 * 🟢 **Standardisasi Penulisan Kode (Laravel Pint):** [SELESAI] `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
-* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **107 Feature & Unit Tests** lulus 100% (**438 assertions**).
-* 🟢 **Vite Production Assets:** [SELESAI] Kompilasi CSS & JS (`npm run build`) berjalan bersih tanpa error (2.11s).
+* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **118 Feature & Unit Tests** lulus 100% (**497 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, dan siswa mandiri.
+* 🟢 **Vite Production Assets:** [SELESAI] Kompilasi CSS & JS (`npm run build`) berjalan bersih tanpa error.
 
 ---
 
-## 10. MATRIKS PRIORITAS DAN TAHAPAN IMPLEMENTASI (ROADMAP MATRIX)
+## 11. MATRIKS PRIORITAS DAN TAHAPAN IMPLEMENTASI (ROADMAP MATRIX)
 
 | Tahap | Fokus Utama | Target Hasil | Estimasi Dampak | Status |
 |---|---|---|---|---|
@@ -186,5 +212,6 @@
 | **Fase 3** | Web Push Notification Real-Time, Bulk Import/Export Excel, & Analytics KPI | Notifikasi push instan di HP, manajemen data massal, & dashboard analitik eksekutif | 🟢 Sedang (Efisiensi Operasional) | 🟢 Selesai |
 | **Fase 4** | **Honorarium SK: Master Kategori & Tarif Otomatis Sesi SK** | 6 tipe tarif flat sesi SK, dynamic resolver, snapshot immutability, & penghapusan tarif manual | 🔴 Kritis (Akurasi Finansial & Regulasi) | 🟢 Selesai |
 | **Fase 5** | **UI/UX Excellence, Unified Modal/Dialog, & Validasi Rombel Paket** | Sticky topbar, spacing dashboard rapi, pop-up dialog modern, form izin lega, & validasi paket gabungan rombel | 🟡 Tinggi (User Experience & Integritas) | 🟢 Selesai |
-| **Fase 6** | **Jadwal Sesi Belajar, Reschedule / Sesi Pengganti & Arsitektur Role Siswa** | Tabel `jadwal_sesis`, kalender bulanan tutor, evaluasi shift jam fleksibel sesi pengganti, auto-complete sesi di kamera presensi, bottom nav sync, & kolom future-ready absensi siswa | 🔴 Kritis (Operasional KBM & Fleksibilitas) | 🟢 Selesai |
-| **Fase 7 (Mendatang)** | Single Sign-On (SIM), WhatsApp Gateway, Secure Private Storage, & AI Recognition | Ekosistem terintegrasi utuh dengan SIM lembaga, WA gateway wali murid, & proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |
+| **Fase 6** | **Jadwal Sesi Belajar, Reschedule / Sesi Pengganti & Master Lokasi** | Tabel `jadwal_sesis`, kalender bulanan tutor, evaluasi shift jam fleksibel sesi pengganti, auto-complete sesi di kamera presensi, bottom nav sync, & master lokasi multi-geofence | 🔴 Kritis (Operasional KBM & Fleksibilitas) | 🟢 Selesai |
+| **Fase 7** | **Portal & Presensi Mandiri Siswa PKBM (Student Self-Attendance)** | Autentikasi siswa, dashboard mandiri, absensi foto selfie + Leaflet geofencing, riwayat kehadiran, dan profil akun siswa | 🔴 Kritis (Aktivitas Siswa & Digitalisasi KBM) | 🟢 Selesai |
+| **Fase 8 (Mendatang)** | Single Sign-On (SIM), WhatsApp Gateway, Secure Private Storage, & AI Recognition | Ekosistem terintegrasi utuh dengan SIM lembaga, WA gateway wali murid, & proteksi AI lanjutan | 🔵 Strategis (Skalabilitas Sistem) | ⚪ Pending |

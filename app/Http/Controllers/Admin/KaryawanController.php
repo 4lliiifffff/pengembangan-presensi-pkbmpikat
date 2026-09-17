@@ -9,6 +9,7 @@ use App\Imports\TutorImport;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
@@ -18,48 +19,42 @@ class KaryawanController extends Controller
     public function index(Request $request)
     {
         $search = $request->input('search') ?? $request->input('q');
-        $status = $request->query('status', 'aktif');
-        $role = $request->query('role');
+        $status = $request->query('status', 'semua');
+        $role = $request->query('role', 'semua');
 
-        $karyawanQuery = User::query();
+        $karyawanQuery = User::with(['siswa.relKelas.jenjangPaket']);
 
-        if (Schema::hasColumn('users', 'role')) {
-            $karyawanQuery->whereIn('role', ['admin', 'tutor', 'kepala_sekolah']);
+        if ($role && $role !== 'semua') {
+            $karyawanQuery->where('role', $role);
         }
 
         if ($status !== 'semua' && Schema::hasColumn('users', 'is_active')) {
             $karyawanQuery->where('is_active', $status === 'aktif' ? 1 : 0);
         }
 
-        if ($role && Schema::hasColumn('users', 'role')) {
-            $karyawanQuery->where('role', $role);
-        }
-
         if ($search) {
             $karyawanQuery->where(function ($q) use ($search) {
-                if (Schema::hasColumn('users', 'nama_lengkap')) {
-                    $q->where('nama_lengkap', 'like', "%{$search}%");
-                }
-                if (Schema::hasColumn('users', 'name')) {
-                    $q->orWhere('name', 'like', "%{$search}%");
-                }
-                if (Schema::hasColumn('users', 'nik')) {
-                    $q->orWhere('nik', 'like', "%{$search}%");
-                }
-                if (Schema::hasColumn('users', 'no_hp')) {
-                    $q->orWhere('no_hp', 'like', "%{$search}%");
-                }
+                $q->where('nama_lengkap', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhere('nik', 'like', "%{$search}%")
+                    ->orWhere('email', 'like', "%{$search}%")
+                    ->orWhere('no_hp', 'like', "%{$search}%");
             });
         }
 
         $karyawan = $karyawanQuery->latest('id')->paginate(15)->withQueryString();
 
-        $allUsers = User::whereIn('role', ['admin', 'tutor', 'kepala_sekolah'])->get();
+        // Hitung statistik untuk badge dan tab peran
+        $allUsers = User::all();
         $total = $allUsers->count();
-        $hasIsActive = Schema::hasColumn('users', 'is_active');
-        $aktif = $hasIsActive ? $allUsers->where('is_active', 1)->count() : $total;
-        $nonaktif = $hasIsActive ? $allUsers->where('is_active', 0)->count() : 0;
+        $aktif = $allUsers->where('is_active', 1)->count();
+        $nonaktif = $allUsers->where('is_active', 0)->count();
+
         $tutorCount = $allUsers->where('role', 'tutor')->count();
+        $siswaCount = $allUsers->where('role', 'siswa')->count();
+        $magangCount = $allUsers->where('role', 'magang')->count();
+        $adminCount = $allUsers->where('role', 'admin')->count();
+        $kepsekCount = $allUsers->where('role', 'kepala_sekolah')->count();
 
         return view('admin.karyawan.index', compact(
             'karyawan',
@@ -67,9 +62,23 @@ class KaryawanController extends Controller
             'aktif',
             'nonaktif',
             'tutorCount',
+            'siswaCount',
+            'magangCount',
+            'adminCount',
+            'kepsekCount',
             'status',
             'role'
         ));
+    }
+
+    public function resetPassword($id)
+    {
+        $user = User::findOrFail($id);
+        $user->update([
+            'password' => Hash::make('password123'),
+        ]);
+
+        return back()->with('success', "Password untuk akun {$user->nama_lengkap} ({$user->role}) berhasil direset menjadi 'password123'.");
     }
 
     public function create()

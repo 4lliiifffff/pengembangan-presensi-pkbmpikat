@@ -17,34 +17,56 @@ class SiswaUserSeeder extends Seeder
         // 1. Akun Siswa 1: Ahmad Rizky Pratama (no_absen 001)
         $siswa1 = Siswa::where('no_absen', '001')->first() ?? Siswa::first();
         if ($siswa1) {
-            $user1 = User::updateOrCreate(
-                ['email' => 'siswa@pkbmpikat.com'],
-                [
-                    'nik' => 'SW202601',
+            $user1 = $siswa1->user ?? User::where('email', 'siswa001@pkbmpikat.com')->orWhere('nik', 'SW0001')->orWhere('email', 'siswa@pkbmpikat.com')->first();
+            if ($user1) {
+                $user1->update([
+                    'nik' => 'SW0001',
+                    'email' => 'siswa001@pkbmpikat.com',
                     'nama_lengkap' => $siswa1->nama_siswa,
                     'password' => Hash::make('password123'),
                     'role' => 'siswa',
                     'no_hp' => $siswa1->no_hp ?? '081234567001',
                     'is_active' => 1,
-                ]
-            );
+                ]);
+            } else {
+                $user1 = User::create([
+                    'nik' => 'SW0001',
+                    'email' => 'siswa001@pkbmpikat.com',
+                    'nama_lengkap' => $siswa1->nama_siswa,
+                    'password' => Hash::make('password123'),
+                    'role' => 'siswa',
+                    'no_hp' => $siswa1->no_hp ?? '081234567001',
+                    'is_active' => 1,
+                ]);
+            }
             $siswa1->update(['user_id' => $user1->id]);
         }
 
         // 2. Akun Siswa 2: Siti Nurhaliza (no_absen 002)
         $siswa2 = Siswa::where('no_absen', '002')->first();
         if ($siswa2) {
-            $user2 = User::updateOrCreate(
-                ['email' => 'siswa2@pkbmpikat.com'],
-                [
-                    'nik' => 'SW202602',
+            $user2 = $siswa2->user ?? User::where('email', 'siswa002@pkbmpikat.com')->orWhere('nik', 'SW0002')->orWhere('email', 'siswa2@pkbmpikat.com')->first();
+            if ($user2) {
+                $user2->update([
+                    'nik' => 'SW0002',
+                    'email' => 'siswa002@pkbmpikat.com',
                     'nama_lengkap' => $siswa2->nama_siswa,
                     'password' => Hash::make('password123'),
                     'role' => 'siswa',
                     'no_hp' => $siswa2->no_hp ?? '081234567002',
                     'is_active' => 1,
-                ]
-            );
+                ]);
+            } else {
+                $user2 = User::create([
+                    'nik' => 'SW0002',
+                    'email' => 'siswa002@pkbmpikat.com',
+                    'nama_lengkap' => $siswa2->nama_siswa,
+                    'password' => Hash::make('password123'),
+                    'role' => 'siswa',
+                    'no_hp' => $siswa2->no_hp ?? '081234567002',
+                    'is_active' => 1,
+                ]);
+            }
             $siswa2->update(['user_id' => $user2->id]);
         }
 

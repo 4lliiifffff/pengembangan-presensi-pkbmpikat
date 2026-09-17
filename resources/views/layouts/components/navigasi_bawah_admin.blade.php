@@ -79,11 +79,11 @@
                 <div class="navDrawerGrid">
                     <a href="{{ route('admin.karyawan.index') }}" class="navDrawerCard {{ request()->routeIs('admin.karyawan.*') ? 'active' : '' }}">
                         <div class="navCardIcon emerald">
-                            <ion-icon name="id-card-outline"></ion-icon>
+                            <ion-icon name="people-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Data Karyawan</div>
-                            <div class="navCardDesc">Tutor, Staf & Akun</div>
+                            <div class="navCardTitle">Kelola Akun</div>
+                            <div class="navCardDesc">Semua Pengguna &amp; Akses</div>
                         </div>
                     </a>
 

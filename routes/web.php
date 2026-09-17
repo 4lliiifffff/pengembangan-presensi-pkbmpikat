@@ -100,6 +100,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/siswa/export/excel', [SiswaController::class, 'exportExcel'])->name('siswa.exportExcel');
     Route::get('/siswa/template/excel', [SiswaController::class, 'downloadTemplate'])->name('siswa.downloadTemplate');
     Route::post('/siswa/import/excel', [SiswaController::class, 'importExcel'])->name('siswa.importExcel');
+    Route::post('/siswa/{siswa}/reset-password', [SiswaController::class, 'resetPassword'])->name('siswa.resetPassword');
     Route::resource('siswa', SiswaController::class);
 
     Route::resource('kelas', KelasController::class);
@@ -114,6 +115,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/karyawan/export/excel', [KaryawanController::class, 'exportExcel'])->name('karyawan.exportExcel');
     Route::get('/karyawan/template/excel', [KaryawanController::class, 'downloadTemplate'])->name('karyawan.downloadTemplate');
     Route::post('/karyawan/import/excel', [KaryawanController::class, 'importExcel'])->name('karyawan.importExcel');
+    Route::post('/karyawan/{id}/reset-password', [KaryawanController::class, 'resetPassword'])->name('karyawan.resetPassword');
     Route::resource('karyawan', KaryawanController::class);
     Route::patch('karyawan/{id}/status', [KaryawanController::class, 'status'])->name('karyawan.status');
     Route::patch('karyawan/{id}/toggle-status', [KaryawanController::class, 'status'])->name('karyawan.toggleStatus');

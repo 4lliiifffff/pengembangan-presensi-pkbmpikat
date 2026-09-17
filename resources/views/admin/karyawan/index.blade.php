@@ -7,23 +7,20 @@
     <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
-                <div class="laporanHeaderLabel">MANAJEMEN PENDIDIK &amp; STAF</div>
-                <h1 class="laporanHeaderTitle">Data Karyawan &amp; Tutor</h1>
-                <div class="laporanHeaderSub">Kelola tenaga pendidik, staf pengajar, dan hak akses akun sistem</div>
-                <p class="laporanHeaderDesc">Daftar staf, pembaruan data login, status keaktifan, dan impor/ekspor data.</p>
+                <div class="laporanHeaderLabel">PUSAT KONTROL AKSES &amp; IDENTITAS</div>
+                <h1 class="laporanHeaderTitle">Pusat Pengelolaan Akun Pengguna</h1>
+                <div class="laporanHeaderSub">Manajemen akun terintegrasi untuk Tutor, Siswa, Magang, Admin, dan Kepala Sekolah</div>
+                <p class="laporanHeaderDesc">Kelola hak akses sistem, reset kata sandi, status keaktifan akun pengguna, serta integrasi data antar modul dalam satu pintu.</p>
             </div>
             <div class="laporanHeaderActions">
-                <a href="{{ route('admin.magang.index') }}" class="btnOutline">
-                    <ion-icon name="school-outline" class="text-primary"></ion-icon> Peserta Magang
-                </a>
                 <a href="{{ route('admin.karyawan.exportExcel') }}" class="profileBtnPrimary btn-action-success">
                     <ion-icon name="document-outline"></ion-icon> Export Excel
                 </a>
                 <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
-                    <ion-icon name="cloud-upload-outline"></ion-icon> Import Tutor
+                    <ion-icon name="cloud-upload-outline"></ion-icon> Import Akun
                 </button>
                 <a href="{{ route('admin.karyawan.create') }}" class="profileBtnPrimary">
-                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Staf
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Akun
                 </a>
             </div>
         </div>
@@ -33,21 +30,21 @@
     <div id="importKaryawanModal" class="app-modal-backdrop">
         <div class="app-modal-card">
             <div class="app-modal-header">
-                <h3 class="app-modal-title">Impor Data Tutor &amp; Karyawan</h3>
+                <h3 class="app-modal-title">Impor Data Akun &amp; Tutor</h3>
                 <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="app-modal-close">&times;</button>
             </div>
             <p class="app-modal-desc">
-                Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan tutor dan staf baru secara massal. Akun login akan otomatis digenerate dengan password default berbasis NIK.
+                Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan akun secara massal. Akun login akan otomatis dibuat dengan password default berbasis NIK / <code>password123</code>.
             </p>
             <div class="mb-4">
                 <a href="{{ route('admin.karyawan.downloadTemplate') }}" class="btnOutline">
-                    <ion-icon name="download-outline"></ion-icon> Download Template Tutor (.xlsx)
+                    <ion-icon name="download-outline"></ion-icon> Download Template Excel (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.karyawan.importExcel') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="mb-4">
-                    <label class="filterFieldLabel">Pilih Berkas Data Tutor/Staf:</label>
+                    <label class="filterFieldLabel">Pilih Berkas Spreadsheet:</label>
                     <div class="fileUploadBox">
                         <input type="file" name="file_excel" id="karyawanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'karyawanFileFeedback')">
                         <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
@@ -61,21 +58,21 @@
                 <div class="app-modal-footer">
                     <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="btnOutline w-auto">Batal</button>
                     <button type="submit" class="profileBtnPrimary w-auto">
-                        <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor Tutor
+                        <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script >
+    <script>
         function handleFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<span >' + file.name + ' (' + sizeKb + ' KB)</span>';
+                feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
                 feedback.style.display = 'flex';
             } else {
                 feedback.style.display = 'none';
@@ -83,31 +80,98 @@
         }
     </script>
 
-    {{-- ── Filter Card ── --}}
+    {{-- ── Quick Stats Grid ── --}}
+    <div class="account-stats-grid">
+        <div class="account-stat-card">
+            <div class="account-stat-icon blue">
+                <ion-icon name="people-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Total Pengguna</div>
+                <div class="account-stat-value">{{ $total }}</div>
+                <div class="account-stat-sub">{{ $aktif }} aktif · {{ $nonaktif }} nonaktif</div>
+            </div>
+        </div>
+
+        <div class="account-stat-card">
+            <div class="account-stat-icon emerald">
+                <ion-icon name="id-card-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Tutor &amp; Pengajar</div>
+                <div class="account-stat-value">{{ $tutorCount }}</div>
+                <div class="account-stat-sub">Tenaga Pendidik Terdaftar</div>
+            </div>
+        </div>
+
+        <div class="account-stat-card">
+            <div class="account-stat-icon indigo">
+                <ion-icon name="school-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Peserta Didik (Siswa)</div>
+                <div class="account-stat-value">{{ $siswaCount }}</div>
+                <div class="account-stat-sub">Presensi Mandiri Siswa</div>
+            </div>
+        </div>
+
+        <div class="account-stat-card">
+            <div class="account-stat-icon teal">
+                <ion-icon name="briefcase-outline"></ion-icon>
+            </div>
+            <div class="account-stat-content">
+                <div class="account-stat-label">Magang, Staf &amp; Admin</div>
+                <div class="account-stat-value">{{ $magangCount + $adminCount + $kepsekCount }}</div>
+                <div class="account-stat-sub">{{ $magangCount }} Magang · {{ $adminCount + $kepsekCount }} Manajemen</div>
+            </div>
+        </div>
+    </div>
+
+    {{-- ── Filter Card (Responsive Role & Status Filter) ── --}}
+    @php
+        $currentRole = request('role', 'semua');
+        $currentStatus = request('status', 'semua');
+        $currentSearch = request('search') ?? request('q');
+    @endphp
+
     <div class="laporanFilterCard">
         <form method="GET" action="{{ route('admin.karyawan.index') }}">
             <div class="laporanFilterGrid">
                 <div class="filterField">
-                    <label class="filterFieldLabel">Pencarian</label>
-                    <input type="text" name="search" value="{{ request('search') ?? request('q') }}" placeholder="Nama, NIK, No HP..." class="profileInput text-md">
+                    <label class="filterFieldLabel">Pencarian Pengguna</label>
+                    <input type="text" name="search" value="{{ $currentSearch }}" placeholder="Cari Nama, NIK, Username, Email, No HP..." class="profileInput text-md">
                 </div>
 
                 <div class="filterField">
-                    <label class="filterFieldLabel">Status Akun</label>
-                    <select name="status" class="filterSelect">
-                        <option value="aktif" {{ ($status ?? 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif ({{ $aktif ?? 0 }})</option>
-                        <option value="nonaktif" {{ ($status ?? '') === 'nonaktif' ? 'selected' : '' }}>Nonaktif ({{ $nonaktif ?? 0 }})</option>
-                        <option value="semua" {{ ($status ?? '') === 'semua' ? 'selected' : '' }}>Semua Status ({{ $total ?? 0 }})</option>
+                    <label class="filterFieldLabel">Peran / Role Pengguna</label>
+                    <select name="role" class="filterSelect" onchange="this.form.submit()">
+                        <option value="semua" {{ $currentRole === 'semua' || empty($currentRole) ? 'selected' : '' }}>
+                            Semua Peran / Role ({{ $total }})
+                        </option>
+                        <option value="tutor" {{ $currentRole === 'tutor' ? 'selected' : '' }}>
+                            Pendidik / Tutor ({{ $tutorCount }})
+                        </option>
+                        <option value="siswa" {{ $currentRole === 'siswa' ? 'selected' : '' }}>
+                            Peserta Didik / Siswa ({{ $siswaCount }})
+                        </option>
+                        <option value="magang" {{ $currentRole === 'magang' ? 'selected' : '' }}>
+                            Mahasiswa Magang ({{ $magangCount }})
+                        </option>
+                        <option value="admin" {{ $currentRole === 'admin' ? 'selected' : '' }}>
+                            Administrator ({{ $adminCount }})
+                        </option>
+                        <option value="kepala_sekolah" {{ $currentRole === 'kepala_sekolah' ? 'selected' : '' }}>
+                            Kepala Sekolah ({{ $kepsekCount }})
+                        </option>
                     </select>
                 </div>
 
                 <div class="filterField">
-                    <label class="filterFieldLabel">Role / Jabatan</label>
-                    <select name="role" class="filterSelect">
-                        <option value="">Semua Role</option>
-                        <option value="tutor" {{ request('role') === 'tutor' ? 'selected' : '' }}>Tutor / Pengajar</option>
-                        <option value="admin" {{ request('role') === 'admin' ? 'selected' : '' }}>Administrator</option>
-                        <option value="kepala_sekolah" {{ request('role') === 'kepala_sekolah' ? 'selected' : '' }}>Kepala Sekolah</option>
+                    <label class="filterFieldLabel">Status Akun Login</label>
+                    <select name="status" class="filterSelect" onchange="this.form.submit()">
+                        <option value="semua" {{ $currentStatus === 'semua' ? 'selected' : '' }}>Semua Status ({{ $total }})</option>
+                        <option value="aktif" {{ $currentStatus === 'aktif' ? 'selected' : '' }}>Hanya Aktif ({{ $aktif }})</option>
+                        <option value="nonaktif" {{ $currentStatus === 'nonaktif' ? 'selected' : '' }}>Hanya Nonaktif ({{ $nonaktif }})</option>
                     </select>
                 </div>
 
@@ -123,29 +187,46 @@
         </form>
     </div>
 
-    {{-- ── Section Title ── --}}
+    {{-- ── Section Title & Filter Chips ── --}}
     <div class="sectionRow">
-        <h2 >Daftar Karyawan &amp; Tenaga Pendidik</h2>
-        <span class="badgeCount">{{ $karyawan->total() }} Staf Terdaftar</span>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h2 class="m-0 font-bold">Daftar Akun Pengguna</h2>
+            @if($currentRole !== 'semua' && !empty($currentRole))
+                <span class="app-badge badge-role-{{ $currentRole }}">
+                    Peran: {{ ucfirst(str_replace('_', ' ', $currentRole)) }}
+                </span>
+            @endif
+            @if($currentStatus !== 'semua')
+                <span class="app-badge {{ $currentStatus === 'aktif' ? 'badge-status-aktif' : 'badge-status-nonaktif' }}">
+                    Status: {{ ucfirst($currentStatus) }}
+                </span>
+            @endif
+            @if(!empty($currentSearch))
+                <span class="app-badge badge-role-admin">
+                    Kata Kunci: "{{ $currentSearch }}"
+                </span>
+            @endif
+        </div>
+        <span class="badgeCount">{{ $karyawan->total() }} Akun Ditemukan</span>
     </div>
 
     {{-- ── Data Table Container (Desktop) ── --}}
     <div class="table-responsive-desktop">
         <div class="tableContainer m-0 mb-4 rounded-xl border-base">
             <table class="laporanTable">
-                <thead >
-                    <tr >
+                <thead>
+                    <tr>
                         <th class="table-col-num">NO</th>
-                        <th >NAMA LENGKAP</th>
-                        <th >NIK</th>
-                        <th >ROLE / JABATAN</th>
-                        <th >NO HP / WHATSAPP</th>
-                        <th >EMAIL</th>
-                        <th >STATUS</th>
-                        <th class="text-center">AKSI</th>
+                        <th>PENGGUNA &amp; EMAIL</th>
+                        <th>NIK / USERNAME</th>
+                        <th>PERAN / ROLE</th>
+                        <th>INFORMASI MODUL</th>
+                        <th>NO WHATSAPP</th>
+                        <th>STATUS</th>
+                        <th class="text-center">AKSI PENGELOLAAN</th>
                     </tr>
                 </thead>
-                <tbody >
+                <tbody>
                     @forelse($karyawan as $index => $k)
                         @php
                             $displayName = (string) ($k->nama_lengkap ?? $k->name ?? '-');
@@ -154,43 +235,79 @@
                                 'admin' => 'Administrator',
                                 'tutor' => 'Tutor / Pengajar',
                                 'kepala_sekolah' => 'Kepala Sekolah',
+                                'siswa' => 'Peserta Didik (Siswa)',
+                                'magang' => 'Mahasiswa Magang',
                                 default => ucfirst(str_replace('_', ' ', (string) $k->role)),
                             };
                             $roleBadgeClass = match($k->role) {
                                 'admin' => 'badge-role-admin',
                                 'tutor' => 'badge-role-tutor',
                                 'kepala_sekolah' => 'badge-role-kepsek',
-                                default => 'badge-role-magang',
+                                'siswa' => 'badge-role-siswa',
+                                'magang' => 'badge-role-magang',
+                                default => 'badge-role-admin',
                             };
+                            $initial = strtoupper(substr($displayName, 0, 1));
                         @endphp
-                        <tr >
+                        <tr>
                             <td class="p-3 font-bold text-muted">
                                 {{ $karyawan->firstItem() + $index }}
                             </td>
-                            <td class="font-extrabold text-dark">
-                                {{ $displayName }}
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar-initial {{ $k->role }}">
+                                        {{ $initial }}
+                                    </div>
+                                    <div>
+                                        <div class="font-extrabold text-dark">{{ $displayName }}</div>
+                                        <div class="text-xs text-muted font-mono">{{ $k->email ?? '-' }}</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="font-bold text-muted">
+                            <td class="font-bold font-mono text-dark">
                                 {{ $k->nik ?? '-' }}
+                                @if($k->role === 'siswa' && $k->siswa)
+                                    <span class="text-xs text-muted d-block font-sans">No Absen: {{ $k->siswa->no_absen }}</span>
+                                @endif
                             </td>
-                            <td >
+                            <td>
                                 <span class="app-badge {{ $roleBadgeClass }}">
                                     {{ $roleLabel }}
                                 </span>
                             </td>
+                            <td>
+                                @if($k->role === 'siswa' && $k->siswa)
+                                    <div class="text-sm font-semibold text-dark">
+                                        {{ $k->siswa->relKelas?->nama_kelas ?? 'Tanpa Kelas' }}
+                                    </div>
+                                    <a href="{{ route('admin.siswa.index', ['search' => $k->siswa->nama_siswa]) }}" class="text-xs text-primary font-bold">
+                                        Lihat Data Siswa &rarr;
+                                    </a>
+                                @elseif($k->role === 'tutor')
+                                    <div class="text-sm text-dark font-semibold">Tenaga Pendidik</div>
+                                    <a href="{{ route('admin.payroll.show', $k->id) }}" class="text-xs text-primary font-bold">
+                                        Slip Honor &amp; KBM &rarr;
+                                    </a>
+                                @elseif($k->role === 'magang')
+                                    <div class="text-sm text-dark font-semibold">Peserta PKL</div>
+                                    <a href="{{ route('admin.magang.presensi') }}" class="text-xs text-primary font-bold">
+                                        Presensi Magang &rarr;
+                                    </a>
+                                @else
+                                    <span class="text-xs text-muted">Akses Manajemen</span>
+                                @endif
+                            </td>
                             <td class="font-bold">
                                 @if($k->no_hp)
-                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $k->no_hp) }}" target="_blank" class="text-primary text-no-decor">
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $k->no_hp) }}" target="_blank" class="text-primary text-no-decor d-inline-flex align-items-center gap-1">
+                                        <ion-icon name="logo-whatsapp"></ion-icon>
                                         {{ $k->no_hp }}
                                     </a>
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
                             </td>
-                            <td class="text-muted text-sm">
-                                {{ $k->email ?? '-' }}
-                            </td>
-                            <td >
+                            <td>
                                 @if($isActive)
                                     <span class="app-badge badge-status-aktif">Aktif</span>
                                 @else
@@ -199,10 +316,20 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex gap-1 flex-center flex-wrap">
-                                    <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}" title="Edit Staf">
+                                    {{-- Reset Password Button --}}
+                                    <form method="POST" action="{{ route('admin.karyawan.resetPassword', $k->id) }}" data-confirm="Reset password akun {{ $displayName }} menjadi 'password123'?" data-confirm-title="Reset Password Akun" data-confirm-type="warning" data-confirm-btn="Ya, Reset Password" class="d-inline m-0">
+                                        @csrf
+                                        <button type="submit" class="smallBtn btn-action-reset-pw btn-table-action" title="Reset Password Default (password123)">
+                                            <ion-icon name="key-outline"></ion-icon> Reset PW
+                                        </button>
+                                    </form>
+
+                                    {{-- Edit Button --}}
+                                    <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}" title="Edit Data Akun">
                                         Edit
                                     </a>
 
+                                    {{-- Toggle Status Button --}}
                                     <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" class="d-inline m-0">
                                         @csrf
                                         @method('PATCH')
@@ -211,21 +338,24 @@
                                         </button>
                                     </form>
 
-                                    <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Staf">
-                                            Hapus
-                                        </button>
-                                    </form>
+                                    {{-- Delete Button (khusus non-current admin) --}}
+                                    @if(auth()->id() !== $k->id)
+                                        <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus akun {{ $displayName }}? Seluruh hak akses login akan dihapus." data-confirm-title="Hapus Akun Pengguna" data-confirm-type="danger" data-confirm-btn="Ya, Hapus Akun" class="d-inline m-0">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Akun">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
                     @empty
-                        <tr >
+                        <tr>
                             <td colspan="8" class="table-empty-cell">
-                                <div class="font-bold text-md mb-1">Belum Ada Data Karyawan</div>
-                                <div class="text-sm">Tidak ada data staf atau tutor pada filter yang dipilih.</div>
+                                <div class="font-bold text-md mb-1">Belum Ada Akun Pengguna</div>
+                                <div class="text-sm">Tidak ada data akun pada peran atau kriteria pencarian yang dipilih.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -244,20 +374,30 @@
                     'admin' => 'Administrator',
                     'tutor' => 'Tutor / Pengajar',
                     'kepala_sekolah' => 'Kepala Sekolah',
+                    'siswa' => 'Peserta Didik (Siswa)',
+                    'magang' => 'Mahasiswa Magang',
                     default => ucfirst(str_replace('_', ' ', (string) $k->role)),
                 };
                 $roleBadgeClass = match($k->role) {
                     'admin' => 'badge-role-admin',
                     'tutor' => 'badge-role-tutor',
                     'kepala_sekolah' => 'badge-role-kepsek',
-                    default => 'badge-role-magang',
+                    'siswa' => 'badge-role-siswa',
+                    'magang' => 'badge-role-magang',
+                    default => 'badge-role-admin',
                 };
+                $initial = strtoupper(substr($displayName, 0, 1));
             @endphp
             <div class="data-mobile-card">
                 <div class="dmc-header">
-                    <div >
-                        <h3 class="dmc-title">{{ $displayName }}</h3>
-                        <div class="dmc-subtitle">NIK: {{ $k->nik ?? '-' }}</div>
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="user-avatar-initial {{ $k->role }}">
+                            {{ $initial }}
+                        </div>
+                        <div>
+                            <h3 class="dmc-title">{{ $displayName }}</h3>
+                            <div class="dmc-subtitle font-mono">NIK: {{ $k->nik ?? '-' }}</div>
+                        </div>
                     </div>
                     <div class="flex-col gap-1 flex-items-end">
                         @if($isActive)
@@ -273,6 +413,13 @@
 
                 <div class="dmc-grid">
                     <div class="dmc-field">
+                        <div class="dmc-label">Email Login</div>
+                        <div class="dmc-value text-xs font-mono text-muted">
+                            {{ $k->email ?? '-' }}
+                        </div>
+                    </div>
+
+                    <div class="dmc-field">
                         <div class="dmc-label">No WhatsApp</div>
                         <div class="dmc-value">
                             @if($k->no_hp)
@@ -285,12 +432,14 @@
                         </div>
                     </div>
 
-                    <div class="dmc-field">
-                        <div class="dmc-label">Email</div>
-                        <div class="dmc-value text-sm text-muted">
-                            {{ $k->email ?? '-' }}
+                    @if($k->role === 'siswa' && $k->siswa)
+                        <div class="dmc-field" style="grid-column: span 2;">
+                            <div class="dmc-label">Kelas &amp; Program</div>
+                            <div class="dmc-value text-sm font-bold text-dark">
+                                {{ $k->siswa->relKelas?->nama_kelas ?? 'Tanpa Kelas' }} (No Absen: {{ $k->siswa->no_absen }})
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
 
                 <div class="dmc-footer">
@@ -298,10 +447,20 @@
                         No. {{ $karyawan->firstItem() + $index }}
                     </div>
                     <div class="dmc-actions">
-                        <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}" title="Edit Staf">
+                        {{-- Reset Password --}}
+                        <form method="POST" action="{{ route('admin.karyawan.resetPassword', $k->id) }}" data-confirm="Reset password akun {{ $displayName }} menjadi 'password123'?" data-confirm-title="Reset Password Akun" data-confirm-type="warning" data-confirm-btn="Ya, Reset" class="d-inline m-0">
+                            @csrf
+                            <button type="submit" class="smallBtn btn-action-reset-pw btn-table-action" title="Reset Password">
+                                <ion-icon name="key-outline"></ion-icon> Reset PW
+                            </button>
+                        </form>
+
+                        {{-- Edit --}}
+                        <a class="smallBtn edit btn-table-action" href="{{ route('admin.karyawan.edit', $k->id) }}" title="Edit Akun">
                             Edit
                         </a>
 
+                        {{-- Toggle Status --}}
                         <form method="POST" action="{{ route('admin.karyawan.toggleStatus', $k->id) }}" class="d-inline m-0">
                             @csrf
                             @method('PATCH')
@@ -310,20 +469,23 @@
                             </button>
                         </form>
 
-                        <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus staf {{ $displayName }}? Seluruh riwayat akun akan dihapus." data-confirm-title="Hapus Karyawan" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Staf">
-                                Hapus
-                            </button>
-                        </form>
+                        {{-- Delete --}}
+                        @if(auth()->id() !== $k->id)
+                            <form method="POST" action="{{ route('admin.karyawan.destroy', $k->id) }}" data-confirm="Apakah Anda yakin ingin menghapus akun {{ $displayName }}?" data-confirm-title="Hapus Akun" data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Akun">
+                                    Hapus
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
         @empty
             <div class="data-mobile-card table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Data Karyawan</div>
-                <div class="text-sm">Tidak ada data staf atau tutor pada filter yang dipilih.</div>
+                <div class="font-bold text-md mb-1">Belum Ada Akun Pengguna</div>
+                <div class="text-sm">Tidak ada data akun pada peran atau kriteria pencarian yang dipilih.</div>
             </div>
         @endforelse
     </div>

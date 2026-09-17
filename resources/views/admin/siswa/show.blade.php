@@ -78,6 +78,51 @@
             </div>
         </div>
 
+        {{-- ── Akun Login Portal Siswa (Tabel Users) ── --}}
+        <div class="mt-4 p-4 border border-dashed rounded-xl bg-slate-50">
+            <div class="d-flex justify-between items-center flex-wrap gap-2 mb-3">
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800 m-0">AKUN LOGIN SISWA (PORTAL MANDIRI)</h3>
+                    <p class="text-xs text-muted m-0">Kredensial akun untuk siswa login presensi mandiri dan melihat riwayat kehadiran</p>
+                </div>
+                @if($siswa->user)
+                    <form method="POST" action="{{ route('admin.siswa.resetPassword', $siswa) }}" data-confirm="Reset password akun siswa ini menjadi 'password123'?" data-confirm-title="Reset Password Siswa" data-confirm-type="warning" data-confirm-btn="Ya, Reset Password">
+                        @csrf
+                        <button type="submit" class="btnOutline btn-sm text-xs font-semibold">
+                            Reset Password Default
+                        </button>
+                    </form>
+                @endif
+            </div>
+
+            @if($siswa->user)
+                <div class="form-grid-responsive">
+                    <div class="card-sub-alt bg-white">
+                        <div class="form-field-label mb-1">EMAIL LOGIN</div>
+                        <div class="text-sm font-bold text-dark font-mono">{{ $siswa->user->email }}</div>
+                    </div>
+                    <div class="card-sub-alt bg-white">
+                        <div class="form-field-label mb-1">NIK / USERNAME ALTERNATIF</div>
+                        <div class="text-sm font-bold text-dark font-mono">{{ $siswa->user->nik ?? '-' }}</div>
+                    </div>
+                    <div class="card-sub-alt bg-white">
+                        <div class="form-field-label mb-1">STATUS AKUN LOGIN</div>
+                        <div>
+                            @if($siswa->user->is_active)
+                                <span class="app-badge badge-sm badge-reguler">Aktif (Dapat Login)</span>
+                            @else
+                                <span class="app-badge badge-sm badge-status-nonaktif">Nonaktif (Akses Diblokir)</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @else
+                <div class="alert alert-warning text-xs mb-0">
+                    Siswa ini belum memiliki akun pengguna yang terhubung. Akun akan otomatis terbuat saat data siswa disimpan kembali.
+                </div>
+            @endif
+        </div>
+
         <div class="form-action-footer">
             <a class="btnOutline" href="{{ route('admin.siswa.edit', $siswa) }}">
                 Edit Data

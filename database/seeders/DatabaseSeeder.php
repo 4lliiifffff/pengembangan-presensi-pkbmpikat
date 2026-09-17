@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
             KategoriTutorialSeeder::class,
             JadwalKerjaSeeder::class,
             SiswaSeeder::class,
+            SiswaUserSeeder::class,
             MagangSeeder::class,
             JadwalSeeder::class,
             // DummyPresensiSeeder::class,

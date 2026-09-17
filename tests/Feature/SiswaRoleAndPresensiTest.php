@@ -58,6 +58,33 @@ class SiswaRoleAndPresensiTest extends TestCase
         $response->assertRedirect(route('siswa.dashboard'));
     }
 
+    public function test_siswa_can_login_with_sw001_variation_or_no_absen(): void
+    {
+        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+
+        $siswa = Siswa::create([
+            'no_absen' => '001',
+            'nama_siswa' => 'Ahmad Rizky Pratama',
+            'nama_wali' => 'Bambang',
+            'no_hp' => '081234567890',
+            'kelas_id' => $kls->id,
+            'status_siswa' => 'aktif',
+            'is_abk' => false,
+        ]);
+
+        $testVariations = ['0001', 'sw0001', 'SW0001', '001', 'sw001', 'SW001', '1', 'SW1', 'siswa001@pkbmpikat.com'];
+
+        foreach ($testVariations as $usernameInput) {
+            $this->post(route('logout'));
+            $res = $this->post(route('login.process'), [
+                'username' => $usernameInput,
+                'password' => 'password123',
+            ]);
+            $res->assertRedirect(route('siswa.dashboard'));
+        }
+    }
+
     public function test_siswa_user_cannot_access_admin_or_tutor_routes(): void
     {
         $siswaUser = User::factory()->create([
@@ -293,5 +320,96 @@ class SiswaRoleAndPresensiTest extends TestCase
         $responseProfil = $this->get(route('siswa.profil'));
         $responseProfil->assertStatus(200);
         $responseProfil->assertSee('Gita Siswa Test');
+    }
+
+    public function test_creating_siswa_automatically_creates_and_links_user_account(): void
+    {
+        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+
+        $siswa = Siswa::create([
+            'no_absen' => 'SW999',
+            'nama_siswa' => 'Rendra Pratama',
+            'nama_wali' => 'Pratama',
+            'no_hp' => '089988776655',
+            'kelas_id' => $kls->id,
+            'status_siswa' => 'aktif',
+            'is_abk' => false,
+        ]);
+
+        $siswa->refresh();
+        $this->assertNotNull($siswa->user_id);
+        $this->assertNotNull($siswa->user);
+        $this->assertEquals('Rendra Pratama', $siswa->user->nama_lengkap);
+        $this->assertEquals('siswa', $siswa->user->role);
+        $this->assertEquals(1, $siswa->user->is_active);
+        $this->assertEquals('089988776655', $siswa->user->no_hp);
+    }
+
+    public function test_updating_and_deleting_siswa_synchronizes_user_account(): void
+    {
+        $jp = JenjangPaket::create(['kode' => 'paket_b', 'nama_jenjang' => 'Paket B', 'status' => 'aktif']);
+        $kls = kelas::create(['nama_kelas' => 'Paket B - Kelas 8', 'jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+
+        $siswa = Siswa::create([
+            'no_absen' => 'SW888',
+            'nama_siswa' => 'Indah Permata',
+            'nama_wali' => 'Wali Indah',
+            'no_hp' => '081122334455',
+            'kelas_id' => $kls->id,
+            'status_siswa' => 'aktif',
+            'is_abk' => false,
+        ]);
+
+        $siswa->refresh();
+        $user = $siswa->user;
+        $this->assertNotNull($user);
+
+        // Update status menjadi nonaktif
+        $siswa->update([
+            'nama_siswa' => 'Indah Permata Putri',
+            'status_siswa' => 'nonaktif',
+        ]);
+
+        $user->refresh();
+        $this->assertEquals('Indah Permata Putri', $user->nama_lengkap);
+        $this->assertEquals(0, $user->is_active);
+
+        // Soft delete siswa
+        $siswa->delete();
+        $user->refresh();
+        $this->assertEquals(0, $user->is_active);
+    }
+
+    public function test_admin_can_reset_siswa_account_password(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $jp = JenjangPaket::create(['kode' => 'paket_a', 'nama_jenjang' => 'Paket A', 'status' => 'aktif']);
+        $kls = kelas::create(['nama_kelas' => 'Paket A - Kelas 5', 'jenjang_paket_id' => $jp->id, 'tingkat' => '5']);
+
+        $siswa = Siswa::create([
+            'no_absen' => 'SW777',
+            'nama_siswa' => 'Agus Santoso',
+            'nama_wali' => 'Santoso',
+            'no_hp' => '087766554433',
+            'kelas_id' => $kls->id,
+            'status_siswa' => 'aktif',
+            'is_abk' => false,
+        ]);
+
+        $siswa->refresh();
+        $this->actingAs($admin);
+
+        $response = $this->post(route('admin.siswa.resetPassword', $siswa));
+        $response->assertRedirect(route('admin.siswa.show', $siswa));
+        $response->assertSessionHas('success');
+
+        // Pastikan siswa bisa login dengan password123 setelah direset
+        $this->post(route('logout'));
+        $loginRes = $this->post(route('login.process'), [
+            'username' => $siswa->user->email,
+            'password' => 'password123',
+        ]);
+        $loginRes->assertRedirect(route('siswa.dashboard'));
     }
 }

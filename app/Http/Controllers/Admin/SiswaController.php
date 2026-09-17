@@ -10,6 +10,7 @@ use App\Models\kelas as Kelas;
 use App\Models\Siswa;
 use App\Services\TutorService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -82,9 +83,26 @@ class SiswaController extends Controller
 
     public function show(Siswa $siswa)
     {
-        $siswa->load(['relKelas.jenjangPaket', 'tutor']);
+        $siswa->load(['relKelas.jenjangPaket', 'tutor', 'user']);
 
         return view('admin.siswa.show', compact('siswa'));
+    }
+
+    public function resetPassword(Siswa $siswa)
+    {
+        if (! $siswa->user) {
+            return redirect()
+                ->route('admin.siswa.show', $siswa)
+                ->with('error', 'Siswa ini belum memiliki akun user.');
+        }
+
+        $siswa->user->update([
+            'password' => Hash::make('password123'),
+        ]);
+
+        return redirect()
+            ->route('admin.siswa.show', $siswa)
+            ->with('success', 'Password akun siswa berhasil direset menjadi "password123".');
     }
 
     public function edit(Siswa $siswa)
