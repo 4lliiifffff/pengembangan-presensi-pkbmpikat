@@ -1,24 +1,32 @@
 @extends('layouts.kepsek')
 
+@section('title', 'Dashboard Kepala Sekolah')
+
+@php
+    $user = auth()->user();
+    $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Kepala Sekolah'));
+@endphp
+
 @section('content')
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <div class="page-wrapper">
-
-        {{-- ===== MAIN CONTENT ===== --}}
-        <div class="content">
-
-            {{-- Ringkasan Hari Ini --}}
-            <div class="sectionTitleRow">
-                <div class="sectionTitleWrap">
-                    <h2 >Ringkasan Hari ini</h2>
-                    <span class="sectionSubtitle">Monitoring presensi bimbingan & kinerja tutor</span>
-                </div>
+    {{-- ── Header Card ── --}}
+    <div class="laporanHeader">
+        <div class="laporanHeaderCard">
+            <div class="laporanHeaderInfo">
+                <div class="laporanHeaderLabel">PORTAL MONITORING &amp; SUPERVISI</div>
+                <h1 class="laporanHeaderTitle">Dashboard Kepala Sekolah</h1>
+                <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
+                <p class="laporanHeaderDesc">Monitoring presensi bimbingan, evaluasi performa tutor, serta analisis tren kehadiran KBM lembaga.</p>
+            </div>
+            <div class="laporanHeaderActions">
                 <div class="badgeDate">
                     <ion-icon name="calendar-outline"></ion-icon>
-                    <span >{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
+                    <span>{{ \Carbon\Carbon::parse($today)->translatedFormat('d M Y') }}</span>
                 </div>
             </div>
+        </div>
+    </div>
 
             <div class="summaryGrid">
                 <div class="summaryCard">
@@ -227,10 +235,6 @@
                     </div>
                 </div>
             </div>
-
-        </div>{{-- end .content --}}
-
-    </div>{{-- end .page-wrapper --}}
 
     {{-- Script Inisialisasi Grafik Chart.js --}}
     <script >
