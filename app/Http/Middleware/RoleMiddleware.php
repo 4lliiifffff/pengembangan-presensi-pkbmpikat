@@ -59,6 +59,7 @@ class RoleMiddleware
                 'kepala_sekolah' => route('kepsek.dashboard'),
                 'tutor' => route('tutor.dashboard'),
                 'magang' => route('magang.dashboard'),
+                'siswa' => route('siswa.dashboard'),
                 default => route('login'),
             };
 

@@ -48,6 +48,8 @@
             @include('layouts.components.navigasi_bawah_kepsek')
         @elseif (auth()->user()->role === 'magang')
             @include('layouts.components.navigasi_bawah_magang')
+        @elseif (auth()->user()->role === 'siswa')
+            @include('layouts.components.navigasi_bawah_siswa')
         @else
             @include('layouts.components.navigasi_bawah_tutor')
         @endif

@@ -96,6 +96,17 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User memiliki satu profil Siswa (One-to-One / HasOne).
+     * Hanya berlaku jika user memiliki role = 'siswa'.
+     *
+     * @return HasOne
+     */
+    public function siswa()
+    {
+        return $this->hasOne(Siswa::class);
+    }
+
+    /**
      * Mendefinisikan casting (konversi tipe data) untuk atribut tertentu.
      * Cast ini otomatis diterapkan saat membaca/menulis nilai atribut.
      *

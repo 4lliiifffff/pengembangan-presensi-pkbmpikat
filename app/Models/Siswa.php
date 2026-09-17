@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,6 +30,7 @@ class Siswa extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'user_id',      // Foreign key ke akun login siswa (tabel users)
         'no_absen',     // Nomor Absen Siswa
         'nama_siswa',   // Nama lengkap siswa
         'is_abk',       // Status Anak Berkebutuhan Khusus (ABK)
@@ -170,6 +172,14 @@ class Siswa extends Model
     }
 
     /**
+     * Alias relasi relKelas.
+     */
+    public function kelas(): BelongsTo
+    {
+        return $this->relKelas();
+    }
+
+    /**
      * Relasi: Menghubungkan langsung Siswa ke Master Jenjang Paket melalui Kelas (HasOneThrough).
      * Memungkinkan pemanggilan: $siswa->masterJenjang->nama_jenjang atau $siswa->relJenjangPaket
      */
@@ -215,5 +225,21 @@ class Siswa extends Model
     public function jadwalSesis(): HasMany
     {
         return $this->hasMany(JadwalSesi::class);
+    }
+
+    /**
+     * Relasi: Siswa terhubung ke satu akun User untuk login (HasOne).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relasi: Siswa memiliki banyak record Presensi Mandiri.
+     */
+    public function presensiMandiri(): HasMany
+    {
+        return $this->hasMany(PresensiMandiriSiswa::class);
     }
 }

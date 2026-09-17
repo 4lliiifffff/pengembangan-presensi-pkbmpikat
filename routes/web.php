@@ -20,6 +20,8 @@ use App\Http\Controllers\Magang\MagangDashboardController;
 use App\Http\Controllers\Magang\MagangPresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\Siswa\SiswaDashboardController;
+use App\Http\Controllers\Siswa\SiswaPresensiController;
 use App\Http\Controllers\Tutor\JadwalSesiController;
 use App\Http\Controllers\Tutor\LupaLaporController;
 use App\Http\Controllers\Tutor\PengajuanIzinController;
@@ -53,6 +55,7 @@ Route::get('/', function () {
             'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
             'tutor' => redirect()->route('tutor.dashboard'),
             'magang' => redirect()->route('magang.dashboard'),
+            'siswa' => redirect()->route('siswa.dashboard'),
             default => view('auth.login'),
         };
     }
@@ -67,6 +70,7 @@ Route::get('/login', function () {
             'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
             'tutor' => redirect()->route('tutor.dashboard'),
             'magang' => redirect()->route('magang.dashboard'),
+            'siswa' => redirect()->route('siswa.dashboard'),
             default => view('auth.login'),
         };
     }
@@ -164,6 +168,16 @@ Route::middleware(['auth', 'role:magang'])->prefix('magang')->name('magang.')->g
     Route::get('/presensi', [MagangPresensiController::class, 'index'])->name('presensi');
     Route::get('/presensi/foto', [MagangPresensiController::class, 'foto'])->name('presensi.foto');
     Route::post('/presensi', [MagangPresensiController::class, 'store'])->name('presensi.store');
+});
+
+Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/riwayat', [SiswaDashboardController::class, 'riwayat'])->name('riwayat');
+    Route::get('/profil', [SiswaDashboardController::class, 'profil'])->name('profil');
+    Route::post('/profil/password', [SiswaDashboardController::class, 'updatePassword'])->name('profil.password');
+    Route::get('/presensi', [SiswaPresensiController::class, 'index'])->name('presensi');
+    Route::get('/presensi/foto', [SiswaPresensiController::class, 'foto'])->name('presensi.foto');
+    Route::post('/presensi', [SiswaPresensiController::class, 'store'])->name('presensi.store');
 });
 
 Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
