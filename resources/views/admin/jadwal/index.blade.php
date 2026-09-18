@@ -32,6 +32,18 @@
         </div>
     </div>
 
+    {{-- ── Tab Switcher Navigasi Admin ── --}}
+    <div class="calendarNavTabsContainer">
+        <a href="{{ route('admin.jadwal.index') }}" class="calendarNavTab active">
+            <ion-icon name="megaphone-outline"></ion-icon>
+            <span>Kalender Agenda Sekolah</span>
+        </a>
+        <a href="{{ route('admin.jadwal-rutin.index') }}" class="calendarNavTab">
+            <ion-icon name="repeat-outline"></ion-icon>
+            <span>Master Jadwal Rutin Siswa</span>
+        </a>
+    </div>
+
 {{-- ── Modal Impor Jadwal / Agenda ── --}}
 <div id="importJadwalModal" class="app-modal-backdrop">
     <div class="app-modal-card">

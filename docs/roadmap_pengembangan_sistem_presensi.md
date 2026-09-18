@@ -109,7 +109,7 @@
 * 🟢 **Evaluasi Presensi Jam Fleksibel Sesi Pengganti (`ShiftPresensiService`):** [SELESAI]
   - Pengecekan toleransi keterlambatan dihitung presisi terhadap jam target sesi pengganti (misal jam 14:00) alih-alih dipaksa mengikuti jam shift pagi default (07:30).
 * 🟢 **Antarmuka Kalender Bulanan & Modal Jadwal Pengganti Tutor:** [SELESAI]
-  - Halaman kalender interaktif bulanan (`tutor/jadwal_sesi/index.blade.php`), modal responsive `+ Buat Jadwal Pengganti`, dan tab switcher di menu jadwal.
+  - Halaman kalender interaktif bulanan (`tutor/jadwal_sesi/index.blade.php`), modal responsive `Buat Jadwal Pengganti`, dan tab switcher di menu jadwal.
   - Kartu sesi aktif terintegrasi langsung pada preview kamera presensi tutor (`tutor/presensi_foto.blade.php`), dengan auto-link & auto-complete sesi saat presensi dikirim.
 * 🟢 **Penyelarasan Bottom Navigation Bar & Drawer:** [SELESAI]
   - Item ke-4 Bottom Nav Tutor langsung mengarah ke `route('tutor.jadwal-sesi.index')`, dengan drawer "Lainnya" yang menyediakan pintasan lengkap ke Agenda PKBM, Slip Honor, Pengajuan Izin, Lupa Lapor, dan Profil.
@@ -144,9 +144,32 @@
   - **Badge Hari Belajar Harmonis & Dark Mode:** Menambahkan class `.badge-hari-senin` s.d. `.badge-hari-minggu` dengan warna tematik dan adaptasi mode gelap instan.
   - **Modal Generator Sesi Terstandarisasi:** Modal manual generator berbasis `.app-modal-card` dengan overlay blur dan tata letak form konsisten.
   - Pintasan menu terintegrasi di Drawer Navigasi Bawah Admin.
-* 🟢 **Penanganan Kondisi Dinamis & Fleksibilitas Reschedule:** [SELESAI]
-  - Penyesuaian jadwal kesepakatan tutor-siswa (*reschedule* / sesi pengganti) dilakukan pada level instance `jadwal_sesis` tanpa merusak pola master berulang minggu berikutnya.
-  - Indikator badge jelas antara `Sesi Rutin Mingguan` vs `Sesi Pengganti (Reschedule)` di kalender tutor dan siswa.
+* 🟢 **Penanganan Kondisi Dinamis & Fleksibilitas Reschedule (Alur Mandiri Tutor & Opsi 2):** [SELESAI]
+  - **Desentralisasi Penjadwalan ke Tutor:** Admin tidak wajib membuat jadwal rutin; Tutor memiliki kewenangan penuh menyepakati dan menetapkan jadwal langsung bersama peserta didik bimbingannya via modal terpadu 2-in-1:
+    - *Mode Rutin Mingguan:* Menetapkan hari, jam, dan batas akhir semester / bulan selesai (`berlaku_sampai`), atau dibiarkan terbuka terus-menerus yang otomatis di-generate berkala oleh sistem.
+    - *Mode Sesi Sekali / Pengganti:* Menjadwalkan pertemuan tanggal tunggal (*ad-hoc* / *make-up class*).
+  - **Alur Reschedule Terstandarisasi (Opsi 2):** Saat terjadi reschedule, sesi pada tanggal lama otomatis berstatus `dibatalkan` dengan riwayat alasan tercatat jelas, dan sesi pengganti baru dibuat pada tanggal/jam yang disepakati (`jenis_sesi = 'pengganti'`, `tanggal_asli` terdokumentasi) tanpa merusak pola mingguan berikutnya.
+  - **Manajemen Pola Rutin Mandiri Tutor:** Tab *"Pola Rutin Saya"* di portal Tutor untuk memantau, mem-pause/mengaktifkan kembali, dan menghapus master jadwal rutin tanpa intervensi manual admin.
+  - **Peleburan Halaman `/tutor/jadwal` ke dalam `/tutor/jadwal-sesi` (Tab 3: `tab=agenda`):**
+    - Mengeliminasi redundansi halaman kalender terpisah. Seluruh agenda dan pengumuman resmi PKBM kini terintegrasi langsung sebagai **Tab 3 ("Agenda & Pengumuman PKBM")** di halaman `/tutor/jadwal-sesi`.
+    - Rute legacy `route('tutor.jadwal')` secara otomatis dialihkan (*HTTP Redirect*) ke `route('tutor.jadwal-sesi.index', ['tab' => 'agenda'])` sehingga kompatibilitas tautan tetap terjaga.
+    - File view lama `resources/views/tutor/jadwal.blade.php` telah dihapus dan drawer menu tutor diperbarui langsung mengarah ke tab agenda terpadu.
+  - **Header Action Dinamis & Eliminasi Redundansi Tombol:**
+    - Header card di `tutor/jadwal_sesi` beradaptasi otomatis sesuai tab yang dipilih: pada tab *"Pola Rutin Saya"* judul menjadi *"Pola Rutin Mengajar"* dengan tombol header tunggal `+ Tambah Pola Rutin`, pada tab *"Agenda & Pengumuman PKBM"* judul menjadi *"Agenda KBM & Libur Sekolah"*, dan pada tab *"Kalender Sesi Belajar"* judul menjadi *"Jadwal Sesi & Pengganti"* dengan tombol header tunggal `+ Buat Jadwal Belajar`.
+    - Menghapus tombol redundan inline *"Tambah Pola Rutin"* di dalam body kartu sehingga halaman rapi, konsisten, dan bebas tombol ganda.
+  - **Optimalisasi Responsivitas Mobile Ekstra & Penyelarasan Bottom Section:**
+    - Menambahkan styling responsif pada `.calendarNavTabsContainer` dan `.calendarNavTab` untuk layar $\le 640$px dan $\le 480$px agar navigasi tab tetap rapat, touch-friendly, dan bebas overflow.
+    - Penyesuaian ukuran titik multi-event (`.agendaDotSesi` & `.agendaDotAgenda`) di dalam sel kalender ponsel.
+    - Penyelarasan `.dmc-actions` dan `.dmc-footer` pada kartu mobile sehingga tombol aksi (`.profileBtnPrimary`, `.btn-table-action`, `.smallBtn`) tertata ergonomis dan membungkus penuh secara rapi di layar kecil ($\le 480$px).
+    - **Penyelarasan Desain Bottom Section (Banner & Empty State):** Seluruh tab (Tab 1 Kalender, Tab 2 Rutin, Tab 3 Agenda) kini mengadopsi bahasa visual terpadu:
+      - Saat ada data: dibungkus dalam container beraksen `.agendaBannerBox` dengan `.agendaBannerHeader` yang menyajikan status badge dinamis, live counter kuantitas sesi/pola/kegiatan, serta keterangan tanggal atau frekuensi pengulangan. Varian tema emerald `.rutin` khusus dihadirkan pada Tab Rutin untuk merefleksikan master jadwal berulang.
+      - Saat kosong: menyajikan `.emptyAgendaBox` terstandarisasi dengan ikon tematik melayang berlatar pastel, judul bold elegan, deskripsi kontekstual, dan tombol aksi utama (*primary call-to-action*) yang memudahkan aksi cepat.
+  - Standardisasi lebar kontainer (`max-w-4xl`) sehingga transisi antar tab bebas dari lonjakan tata letak (*zero layout shift*).
+  - Kalender terpadu multi-dot: menampilkan titik biru untuk Sesi Belajar Murid dan titik amber untuk Agenda/Libur resmi PKBM pada grid kalender kedua halaman.
+  - Integrasi detail tanggal: menampilkan banner peringatan agenda sekolah (`.agendaNoticeBox`) pada kalender sesi belajar, serta ringkasan sesi murid (`.sesiSummaryBox`) pada kalender agenda sekolah.
+  - Parameter URL `?open_modal=1` otomatis membuka modal buat jadwal belajar saat tutor beralih dari halaman agenda.
+  - Tab navigasi terpadu serupa juga diterapkan pada panel Admin antara *Kalender Agenda Sekolah* (`admin.jadwal.index`) dan *Master Jadwal Rutin Siswa* (`admin.jadwal-rutin.index`).
+  - **Web Push Notifikasi Instan:** Siswa otomatis menerima notifikasi Web Push setiap kali jadwal baru ditetapkan atau di-reschedule oleh tutornya.
 * 🟢 **Smart Presensi Time-Gating Masuk Siswa:** [SELESAI]
   - Form kamera presensi siswa terkunci jika tidak ada sesi KBM yang dijadwalkan hari ini (`gatingReason = 'no_schedule'`).
   - Form presensi masuk hanya terbuka mulai **30 menit sebelum sesi dimulai** (`gatingReason = 'too_early'`).

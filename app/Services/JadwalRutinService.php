@@ -174,4 +174,106 @@ class JadwalRutinService
 
         return $updatedCount;
     }
+
+    /**
+     * Buat master jadwal rutin baru langsung oleh Tutor untuk siswa bimbingannya.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array{rutin: JadwalRutin, generated: array{created: int, skipped: int, holidays: int, total_processed: int}}
+     */
+    public function createRutinFromTutor(array $data, int $tutorId): array
+    {
+        $tz = 'Asia/Jakarta';
+        $today = Carbon::now($tz)->toDateString();
+
+        $data['tutor_id'] = $tutorId;
+        $data['is_active'] = $data['is_active'] ?? true;
+        $data['berlaku_mulai'] = $data['berlaku_mulai'] ?? $today;
+
+        $rutin = JadwalRutin::create($data);
+
+        $generatedStats = ['created' => 0, 'skipped' => 0, 'holidays' => 0, 'total_processed' => 0];
+
+        $autoGenerate = filter_var($data['auto_generate'] ?? true, FILTER_VALIDATE_BOOLEAN);
+        if ($autoGenerate) {
+            $startDate = $rutin->berlaku_mulai ? $rutin->berlaku_mulai->toDateString() : $today;
+
+            // Jika berlaku_sampai ditentukan, generate hingga tanggal tersebut.
+            // Jika kosong (terbuka), generate untuk 4 minggu ke depan secara berkala.
+            if (! empty($rutin->berlaku_sampai)) {
+                $endDate = $rutin->berlaku_sampai->toDateString();
+            } else {
+                $endDate = Carbon::parse($startDate)->addWeeks(4)->toDateString();
+            }
+
+            $generatedStats = $this->generateSesiForPeriod(
+                $startDate,
+                $endDate,
+                $rutin->siswa_id,
+                $rutin->tutor_id
+            );
+        }
+
+        return [
+            'rutin' => $rutin,
+            'generated' => $generatedStats,
+        ];
+    }
+
+    /**
+     * Reschedule sesi KBM (Opsi 2: Sesi lama dibatalkan dengan riwayat alasan, sesi baru dibuat sebagai pengganti).
+     */
+    public function rescheduleSesi(
+        JadwalSesi $oldSesi,
+        string $newDate,
+        string $newJamMasuk,
+        string $newJamPulang,
+        string $alasan,
+        ?float $durasiJam = null
+    ): JadwalSesi {
+        if ($oldSesi->status === 'selesai' || $oldSesi->presensi_id) {
+            throw new \InvalidArgumentException('Sesi yang sudah selesai presensi tidak dapat di-reschedule.');
+        }
+
+        $formattedOldDate = $oldSesi->tanggal_rencana ? $oldSesi->tanggal_rencana->format('d/m/Y') : '-';
+        $oldCatatan = $oldSesi->catatan ? $oldSesi->catatan.' | ' : '';
+
+        // 1. Tandai sesi lama sebagai dibatalkan karena reschedule
+        $oldSesi->update([
+            'status' => 'dibatalkan',
+            'alasan_penggantian' => $alasan,
+            'catatan' => $oldCatatan."Direschedule ke {$newDate} pukul {$newJamMasuk} WIB. Alasan: {$alasan}",
+        ]);
+
+        // 2. Hitung durasi jam jika tidak diberikan
+        if ($durasiJam === null) {
+            $t1 = Carbon::createFromFormat('H:i', substr($newJamMasuk, 0, 5));
+            $t2 = Carbon::createFromFormat('H:i', substr($newJamPulang, 0, 5));
+            $diffMin = (int) $t1->diffInMinutes($t2, false);
+            if ($diffMin > 0) {
+                $durasiJam = round($diffMin / 60, 2);
+            } else {
+                $durasiJam = (float) $oldSesi->durasi_jam;
+            }
+        }
+
+        // 3. Buat sesi pengganti baru
+        return JadwalSesi::create([
+            'jadwal_rutin_id' => $oldSesi->jadwal_rutin_id,
+            'tutor_id' => $oldSesi->tutor_id,
+            'siswa_id' => $oldSesi->siswa_id,
+            'kategori_tutorial_id' => $oldSesi->kategori_tutorial_id,
+            'jadwal_kerja_id' => $oldSesi->jadwal_kerja_id,
+            'tanggal_rencana' => $newDate,
+            'jam_masuk_rencana' => $newJamMasuk,
+            'jam_pulang_rencana' => $newJamPulang,
+            'durasi_jam' => $durasiJam,
+            'jenis_sesi' => 'pengganti',
+            'status' => 'terjadwal',
+            'status_kehadiran_siswa' => 'belum_presensi',
+            'tanggal_asli' => $oldSesi->tanggal_rencana,
+            'alasan_penggantian' => $alasan,
+            'catatan' => "Sesi pengganti untuk pertemuan tanggal {$formattedOldDate} ({$alasan})",
+        ]);
+    }
 }

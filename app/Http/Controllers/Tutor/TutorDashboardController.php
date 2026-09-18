@@ -233,61 +233,13 @@ class TutorDashboardController extends Controller
     }
 
     /**
-     * Menampilkan halaman jadwal kegiatan untuk tutor.
-     *
-     * Tutor dapat melihat jadwal kegiatan berdasarkan tanggal dan kalender bulanan yang dipilih.
-     * Default menampilkan jadwal hari ini.
-     *
-     * @return View|RedirectResponse
+     * Tampilkan agenda PKBM (Telah dilebur ke Jadwal Sesi tab agenda).
      */
-    public function jadwal()
+    public function jadwal(Request $request): RedirectResponse
     {
-        $tutor = $this->resolveTutor();
-        if (! $tutor) {
-            return redirect()
-                ->route('tutor.dashboard')
-                ->with('warning', 'Data tutor belum terhubung ke akun ini.');
-        }
-
-        $tz = 'Asia/Jakarta';
-        $today = Carbon::now($tz)->toDateString();
-        // Ambil tanggal dari parameter GET, default: hari ini
-        $selectedDate = Carbon::parse(request('tanggal', $today))->startOfDay();
-
-        $startOfMonth = $selectedDate->copy()->startOfMonth();
-        $endOfMonth = $selectedDate->copy()->endOfMonth();
-
-        $monthDays = collect();
-        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-            $monthDays->push($date->copy());
-        }
-
-        // Ambil semua jadwal pada tanggal yang dipilih, diurutkan berdasarkan waktu dibuat
-        $items = Jadwal::whereDate('tanggal', $selectedDate)
-            ->orderBy('tanggal')
-            ->orderBy('created_at')
-            ->get();
-
-        // Hitung total agenda per hari dalam 1 bulan
-        $monthCounts = Jadwal::whereBetween('tanggal', [
-            $startOfMonth->toDateString(),
-            $endOfMonth->toDateString(),
-        ])
-            ->get()
-            ->groupBy(function ($item) {
-                return is_object($item->tanggal)
-                    ? $item->tanggal->format('Y-m-d')
-                    : substr((string) $item->tanggal, 0, 10);
-            })
-            ->map->count();
-
-        return view('tutor.jadwal', [
-            'tutor' => $tutor,
-            'items' => $items,
-            'today' => $today,
-            'selectedDate' => $selectedDate,
-            'monthDays' => $monthDays,
-            'monthCounts' => $monthCounts,
-        ]);
+        return redirect()->route('tutor.jadwal-sesi.index', array_merge(
+            ['tab' => 'agenda'],
+            $request->only('tanggal')
+        ));
     }
 }

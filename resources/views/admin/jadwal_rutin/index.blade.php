@@ -25,6 +25,19 @@
         </div>
     </div>
 
+    {{-- ── Tab Switcher Navigasi Admin ── --}}
+    <div class="calendarNavTabsContainer">
+        <a href="{{ route('admin.jadwal.index') }}" class="calendarNavTab">
+            <ion-icon name="megaphone-outline"></ion-icon>
+            <span>Kalender Agenda Sekolah</span>
+        </a>
+        <a href="{{ route('admin.jadwal-rutin.index') }}" class="calendarNavTab active">
+            <ion-icon name="repeat-outline"></ion-icon>
+            <span>Master Jadwal Rutin Siswa</span>
+            <span class="calendarNavBadge">{{ $stats['total'] ?? 0 }}</span>
+        </a>
+    </div>
+
     {{-- ── KPI Summary Cards ── --}}
     <div class="kpi-grid mb-4">
         <div class="kpi-card emerald">

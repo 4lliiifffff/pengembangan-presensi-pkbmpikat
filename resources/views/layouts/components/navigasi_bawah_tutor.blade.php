@@ -101,7 +101,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('tutor.jadwal') }}" class="navDrawerCard {{ request()->routeIs('tutor.jadwal') ? 'active' : '' }}">
+                    <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda']) }}" class="navDrawerCard {{ (request()->routeIs('tutor.jadwal-sesi*') && request('tab') === 'agenda') || request()->routeIs('tutor.jadwal') ? 'active' : '' }}">
                         <div class="navCardIcon emerald">
                             <ion-icon name="megaphone-outline"></ion-icon>
                         </div>

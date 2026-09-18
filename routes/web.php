@@ -193,6 +193,9 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
     Route::get('/riwayat', [TutorDashboardController::class, 'riwayat'])->name('riwayat');
     Route::get('/jadwal', [TutorDashboardController::class, 'jadwal'])->name('jadwal');
+    Route::post('/jadwal-sesi/{jadwalSesi}/reschedule', [JadwalSesiController::class, 'reschedule'])->name('jadwal-sesi.reschedule');
+    Route::patch('/jadwal-rutin/{jadwalRutin}/toggle-status', [JadwalSesiController::class, 'toggleStatusRutin'])->name('jadwal-rutin.toggleStatus');
+    Route::delete('/jadwal-rutin/{jadwalRutin}', [JadwalSesiController::class, 'destroyRutin'])->name('jadwal-rutin.destroy');
     Route::resource('jadwal-sesi', JadwalSesiController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/presensi', [PresensiFotoController::class, 'index'])->name('presensi');
     Route::post('/presensi', [PresensiFotoController::class, 'store'])->name('presensi.store');
