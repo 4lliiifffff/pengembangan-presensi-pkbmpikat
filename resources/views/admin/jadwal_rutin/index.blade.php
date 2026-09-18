@@ -14,12 +14,12 @@
                 <div class="laporanHeaderSub">Jadwal belajar mingguan berulang khusus siswa tertentu bersama tutor pengampu</div>
                 <p class="laporanHeaderDesc">Pola hari dan jam belajar akan terus berulang secara otomatis setiap minggu, terhubung dengan smart time-gating presensi masuk siswa.</p>
             </div>
-            <div class="laporanHeaderActions header-actions-group">
+            <div class="laporanHeaderActions">
                 <button type="button" class="profileBtnSecondary" onclick="document.getElementById('modalGenerate').style.display='flex'">
-                    <ion-icon name="sync-outline" class="icon-sm"></ion-icon> Generate Sesi
+                    <ion-icon name="sync-outline"></ion-icon> Generate Sesi
                 </button>
                 <a href="{{ route('admin.jadwal-rutin.create') }}" class="profileBtnPrimary">
-                    <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Jadwal Siswa
+                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Jadwal Siswa
                 </a>
             </div>
         </div>
@@ -81,166 +81,166 @@
     </div>
 
     {{-- ── Filter Card ── --}}
-    <div class="filterCard mb-4">
-        <form action="{{ route('admin.jadwal-rutin.index') }}" method="GET" class="filterGrid">
-            <div class="filterItem">
-                <label class="filterLabel">Cari Siswa / Tutor / Catatan</label>
-                <div class="searchWrap">
-                    <ion-icon name="search-outline" class="searchIcon"></ion-icon>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik nama siswa, tutor..." class="filterInput">
+    <div class="laporanFilterCard mb-4">
+        <form action="{{ route('admin.jadwal-rutin.index') }}" method="GET">
+            <div class="laporanFilterGrid">
+                <div class="filterField">
+                    <label class="filterFieldLabel">Cari Jadwal</label>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari siswa, tutor, catatan..." class="profileInput text-md">
                 </div>
-            </div>
 
-            <div class="filterItem">
-                <label class="filterLabel">Filter Siswa</label>
-                <select name="siswa_id" class="filterSelect">
-                    <option value="">-- Semua Siswa --</option>
-                    @foreach ($siswas as $s)
-                        <option value="{{ $s->id }}" {{ request('siswa_id') == $s->id ? 'selected' : '' }}>
-                            {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="filterField">
+                    <label class="filterFieldLabel">Filter Siswa</label>
+                    <select name="siswa_id" class="filterSelect" onchange="this.form.submit()">
+                        <option value="">Semua Siswa</option>
+                        @foreach ($siswas as $s)
+                            <option value="{{ $s->id }}" {{ request('siswa_id') == $s->id ? 'selected' : '' }}>
+                                {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="filterItem">
-                <label class="filterLabel">Filter Tutor</label>
-                <select name="tutor_id" class="filterSelect">
-                    <option value="">-- Semua Tutor --</option>
-                    @foreach ($tutors as $t)
-                        <option value="{{ $t->id }}" {{ request('tutor_id') == $t->id ? 'selected' : '' }}>
-                            {{ $t->nama_lengkap }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="filterField">
+                    <label class="filterFieldLabel">Filter Tutor</label>
+                    <select name="tutor_id" class="filterSelect" onchange="this.form.submit()">
+                        <option value="">Semua Tutor</option>
+                        @foreach ($tutors as $t)
+                            <option value="{{ $t->id }}" {{ request('tutor_id') == $t->id ? 'selected' : '' }}>
+                                {{ $t->nama_lengkap }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="filterItem">
-                <label class="filterLabel">Hari Belajar</label>
-                <select name="hari" class="filterSelect">
-                    <option value="">-- Semua Hari --</option>
-                    @foreach (['senin' => 'Senin', 'selasa' => 'Selasa', 'rabu' => 'Rabu', 'kamis' => 'Kamis', 'jumat' => 'Jumat', 'sabtu' => 'Sabtu', 'minggu' => 'Minggu'] as $val => $label)
-                        <option value="{{ $val }}" {{ request('hari') == $val ? 'selected' : '' }}>{{ $label }}</option>
-                    @endforeach
-                </select>
-            </div>
+                <div class="filterField">
+                    <label class="filterFieldLabel">Hari Belajar</label>
+                    <select name="hari" class="filterSelect" onchange="this.form.submit()">
+                        <option value="">Semua Hari</option>
+                        @foreach (['senin' => 'Senin', 'selasa' => 'Selasa', 'rabu' => 'Rabu', 'kamis' => 'Kamis', 'jumat' => 'Jumat', 'sabtu' => 'Sabtu', 'minggu' => 'Minggu'] as $val => $label)
+                            <option value="{{ $val }}" {{ request('hari') == $val ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="filterItem">
-                <label class="filterLabel">Status</label>
-                <select name="status" class="filterSelect">
-                    <option value="">-- Semua Status --</option>
-                    <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
-                    <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
-                </select>
-            </div>
+                <div class="filterField">
+                    <label class="filterFieldLabel">Status</label>
+                    <select name="status" class="filterSelect" onchange="this.form.submit()">
+                        <option value="">Semua Status</option>
+                        <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
+                        <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Nonaktif</option>
+                    </select>
+                </div>
 
-            <div class="filterActions">
-                <button type="submit" class="profileBtnPrimary">
-                    <ion-icon name="filter-outline"></ion-icon> Filter
-                </button>
-                <a href="{{ route('admin.jadwal-rutin.index') }}" class="profileBtnSecondary">
-                    <ion-icon name="refresh-outline"></ion-icon> Reset
-                </a>
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
+                        <ion-icon name="filter-outline"></ion-icon> Filter
+                    </button>
+                    @if(request()->anyFilled(['search', 'siswa_id', 'tutor_id', 'hari', 'status']))
+                        <a href="{{ route('admin.jadwal-rutin.index') }}" class="btn-filter-reset" title="Reset Filter">
+                            <ion-icon name="refresh-outline"></ion-icon> Reset
+                        </a>
+                    @endif
+                </div>
             </div>
         </form>
     </div>
 
-    {{-- ── Table Card ── --}}
-    <div class="laporanTableCard">
-        <div class="tableResponsive">
+    {{-- ── Section Title ── --}}
+    <div class="sectionRow">
+        <h2>Daftar Pola Jadwal KBM</h2>
+        <span class="badgeCount">{{ $jadwalRutins->total() }} Pola Ditemukan</span>
+    </div>
+
+    {{-- ── Desktop Table ── --}}
+    <div class="table-responsive-desktop">
+        <div class="tableContainer m-0 mb-4 rounded-xl border-base">
             <table class="laporanTable">
                 <thead>
                     <tr>
-                        <th style="width: 50px;">No</th>
-                        <th>Siswa Bimbingan</th>
-                        <th>Tutor Pengampu</th>
-                        <th>Hari &amp; Jam Belajar</th>
-                        <th>Kategori &amp; Durasi</th>
-                        <th>Status</th>
-                        <th>Sesi Aktif</th>
-                        <th style="width: 140px; text-align: center;">Aksi</th>
+                        <th class="table-col-num">NO</th>
+                        <th>SISWA BIMBINGAN</th>
+                        <th>TUTOR PENGAMPU</th>
+                        <th>HARI &amp; JAM BELAJAR</th>
+                        <th>KATEGORI &amp; DURASI</th>
+                        <th class="text-center">STATUS</th>
+                        <th class="text-center">SESI AKTIF</th>
+                        <th class="text-center">AKSI</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse ($jadwalRutins as $index => $item)
                         @php
-                            $hariColors = [
-                                'senin' => 'background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe;',
-                                'selasa' => 'background: #fdf4ff; color: #a21caf; border: 1px solid #f0abfc;',
-                                'rabu' => 'background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0;',
-                                'kamis' => 'background: #fffbeb; color: #b45309; border: 1px solid #fde68a;',
-                                'jumat' => 'background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4;',
-                                'sabtu' => 'background: #fff1f2; color: #be123c; border: 1px solid #fecdd3;',
-                                'minggu' => 'background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5;',
-                            ];
-                            $badgeStyle = $hariColors[strtolower((string) $item->hari)] ?? 'background: #f3f4f6; color: #374151;';
+                            $hariSlug = strtolower((string) $item->hari);
                         @endphp
                         <tr>
-                            <td>{{ $jadwalRutins->firstItem() + $index }}</td>
+                            <td class="text-center font-bold text-muted">{{ $jadwalRutins->firstItem() + $index }}</td>
                             <td>
-                                <div style="font-weight: 600; color: #111827;">{{ $item->siswa->nama_siswa ?? '-' }}</div>
-                                <div style="font-size: 0.78rem; color: #6b7280;">
-                                    No. Absen: {{ $item->siswa->no_absen ?? '-' }} · {{ $item->siswa->nama_kelas_lengkap ?? 'Reguler' }}
+                                <div class="font-bold text-base" style="color: var(--text);">{{ $item->siswa->nama_siswa ?? '-' }}</div>
+                                <div class="text-xs text-muted mt-1">
+                                    No. Absen: <strong>{{ $item->siswa->no_absen ?? '-' }}</strong> · {{ $item->siswa->nama_kelas_lengkap ?? 'Reguler' }}
                                 </div>
                             </td>
                             <td>
-                                <div style="font-weight: 600; color: #1f2937;">{{ $item->tutor->nama_lengkap ?? '-' }}</div>
-                                <div style="font-size: 0.78rem; color: #6b7280;">
-                                    {{ $item->tutor->kontak ?? ($item->tutor->email ?? 'Tutor Terdaftar') }}
+                                <div class="font-bold" style="color: var(--text);">{{ $item->tutor->nama_lengkap ?? '-' }}</div>
+                                <div class="text-xs text-muted mt-1">
+                                    {{ $item->tutor->kontak ?? ($item->tutor->email ?? 'Tutor PKBM') }}
                                 </div>
                             </td>
                             <td>
-                                <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
-                                    <span style="font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 6px; text-transform: uppercase; {{ $badgeStyle }}">
-                                        {{ $item->nama_hari_label }}
+                                <div class="d-flex items-center gap-1 mb-1 flex-wrap">
+                                    <span class="app-badge badge-hari-{{ $hariSlug }}">
+                                        {{ strtoupper((string) $item->nama_hari_label) }}
                                     </span>
-                                    <span style="font-weight: 700; color: #111827; font-size: 0.88rem;">
+                                    <span class="font-bold text-sm" style="color: var(--text);">
                                         {{ $item->jam_masuk_formatted }} - {{ $item->jam_pulang_formatted }} WIB
                                     </span>
                                 </div>
-                                <div style="font-size: 0.75rem; color: #059669; font-weight: 500;">
-                                    <ion-icon name="time-outline" style="vertical-align: middle;"></ion-icon> Absen buka mulai: {{ \Carbon\Carbon::createFromFormat('H:i:s', $item->jam_masuk)->subMinutes(30)->format('H:i') }} WIB
+                                <div class="text-xs font-semibold" style="color: #059669;">
+                                    <ion-icon name="time-outline" style="vertical-align: middle;"></ion-icon>
+                                    Absen buka: {{ \Carbon\Carbon::createFromFormat('H:i:s', $item->jam_masuk)->subMinutes(30)->format('H:i') }} WIB
                                 </div>
                             </td>
                             <td>
-                                <span class="badge badge-info" style="font-size: 0.75rem;">
+                                <span class="badge badge-info text-xs">
                                     {{ $item->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}
                                 </span>
-                                <div style="font-size: 0.75rem; color: #6b7280; margin-top: 2px;">
+                                <div class="text-xs text-muted mt-1">
                                     Durasi: <strong>{{ number_format((float) $item->durasi_jam, 1) }} Jam</strong>
                                 </div>
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if ($item->is_active)
-                                    <span class="badge badge-success" style="font-size: 0.75rem;">Aktif Rutin</span>
+                                    <span class="app-badge badge-status-aktif">Aktif</span>
                                 @else
-                                    <span class="badge badge-secondary" style="font-size: 0.75rem;">Nonaktif</span>
+                                    <span class="app-badge badge-status-nonaktif">Nonaktif</span>
                                 @endif
                             </td>
-                            <td>
-                                <span class="badge badge-primary" style="font-size: 0.75rem;">
+                            <td class="text-center">
+                                <span class="app-badge badge-role-tutor">
                                     {{ $item->jadwal_sesis_count }} Sesi
                                 </span>
                             </td>
-                            <td style="text-align: center;">
-                                <div style="display: inline-flex; align-items: center; gap: 4px;">
-                                    <form action="{{ route('admin.jadwal-rutin.toggleStatus', $item) }}" method="POST" style="display: inline;">
+                            <td class="text-center">
+                                <div class="d-flex gap-1 flex-center flex-wrap">
+                                    <form action="{{ route('admin.jadwal-rutin.toggleStatus', $item) }}" method="POST" class="d-inline m-0">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="actionBtn" title="{{ $item->is_active ? 'Nonaktifkan' : 'Aktifkan' }}" style="color: {{ $item->is_active ? '#d97706' : '#059669' }};">
-                                            <ion-icon name="{{ $item->is_active ? 'pause-circle-outline' : 'play-circle-outline' }}"></ion-icon>
+                                        <button type="submit" class="smallBtn btn-table-action" title="{{ $item->is_active ? 'Nonaktifkan Jadwal' : 'Aktifkan Jadwal' }}" style="background: var(--card-alt); border: 1px solid var(--border); color: {{ $item->is_active ? '#d97706' : '#059669' }};">
+                                            <ion-icon name="{{ $item->is_active ? 'pause-circle-outline' : 'play-circle-outline' }}" style="font-size: 15px;"></ion-icon>
+                                            {{ $item->is_active ? 'Pause' : 'Aktifkan' }}
                                         </button>
                                     </form>
 
-                                    <a href="{{ route('admin.jadwal-rutin.edit', $item) }}" class="actionBtn text-blue-600" title="Edit Jadwal">
-                                        <ion-icon name="create-outline"></ion-icon>
+                                    <a href="{{ route('admin.jadwal-rutin.edit', $item) }}" class="smallBtn edit btn-table-action" title="Edit Jadwal">
+                                        <ion-icon name="create-outline" style="font-size: 14px;"></ion-icon> Edit
                                     </a>
 
-                                    <form action="{{ route('admin.jadwal-rutin.destroy', $item) }}" method="POST" style="display: inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal rutin ini?');">
+                                    <form action="{{ route('admin.jadwal-rutin.destroy', $item) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal rutin ini?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="actionBtn text-red-600" title="Hapus">
-                                            <ion-icon name="trash-outline"></ion-icon>
+                                        <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Jadwal">
+                                            <ion-icon name="trash-outline" style="font-size: 14px;"></ion-icon> Hapus
                                         </button>
                                     </form>
                                 </div>
@@ -248,10 +248,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" style="text-align: center; padding: 3rem 1rem; color: #9ca3af;">
-                                <ion-icon name="calendar-clear-outline" style="font-size: 3rem; margin-bottom: 0.5rem; color: #d1d5db; display: block; margin-left: auto; margin-right: auto;"></ion-icon>
-                                <strong>Belum ada master jadwal rutin KBM siswa yang terdaftar.</strong>
-                                <p style="font-size: 0.85rem; margin-top: 4px;">Klik tombol "Tambah Jadwal Siswa" di atas untuk menetapkan jadwal mingguan siswa tertentu.</p>
+                            <td colspan="8" class="table-empty-cell">
+                                <div class="font-bold text-md mb-1">Belum Ada Jadwal Rutin KBM</div>
+                                <div class="text-sm text-muted">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
                             </td>
                         </tr>
                     @endforelse
@@ -260,7 +259,109 @@
         </div>
 
         @if ($jadwalRutins->hasPages())
-            <div style="padding: 1rem;">
+            <div class="mt-3">
+                {{ $jadwalRutins->links() }}
+            </div>
+        @endif
+    </div>
+
+    {{-- ── Mobile Cards List (Layar HP / Tablet) ── --}}
+    <div class="mobile-card-list">
+        @forelse ($jadwalRutins as $index => $item)
+            @php
+                $hariSlug = strtolower((string) $item->hari);
+            @endphp
+            <div class="data-mobile-card">
+                <div class="dmc-header">
+                    <div>
+                        <h3 class="dmc-title">{{ $item->siswa->nama_siswa ?? '-' }}</h3>
+                        <div class="dmc-subtitle">
+                            No. Absen: <strong>{{ $item->siswa->no_absen ?? '-' }}</strong> · {{ $item->siswa->nama_kelas_lengkap ?? 'Reguler' }}
+                        </div>
+                    </div>
+                    <div class="flex-col gap-1 flex-items-end">
+                        <span class="app-badge badge-hari-{{ $hariSlug }}">
+                            {{ strtoupper((string) $item->nama_hari_label) }}
+                        </span>
+                        @if ($item->is_active)
+                            <span class="app-badge badge-status-aktif">Aktif</span>
+                        @else
+                            <span class="app-badge badge-status-nonaktif">Nonaktif</span>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="dmc-grid">
+                    <div class="dmc-field">
+                        <div class="dmc-label">Tutor Pengampu</div>
+                        <div class="dmc-value font-bold">{{ $item->tutor->nama_lengkap ?? '-' }}</div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Jam Belajar KBM</div>
+                        <div class="dmc-value text-primary font-bold">{{ $item->jam_masuk_formatted }} - {{ $item->jam_pulang_formatted }} WIB</div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Kategori / Modul</div>
+                        <div class="dmc-value">{{ $item->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}</div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Durasi / Sesi Kalender</div>
+                        <div class="dmc-value font-bold">{{ number_format((float) $item->durasi_jam, 1) }} Jam ({{ $item->jadwal_sesis_count }} Sesi)</div>
+                    </div>
+
+                    <div class="dmc-field full">
+                        <div class="dmc-label">Jendela Presensi Masuk Siswa</div>
+                        <div class="dmc-value text-xs font-semibold" style="color: #059669;">
+                            <ion-icon name="time-outline" style="vertical-align: middle;"></ion-icon>
+                            Absen dibuka 30 menit sebelum ({{ \Carbon\Carbon::createFromFormat('H:i:s', $item->jam_masuk)->subMinutes(30)->format('H:i') }} WIB)
+                        </div>
+                        @if($item->keterangan)
+                            <div class="text-xs text-muted mt-1" style="line-height: 1.4;">
+                                <em>Catatan: {{ $item->keterangan }}</em>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="dmc-footer">
+                    <div class="text-xs font-bold text-muted">
+                        No. {{ $jadwalRutins->firstItem() + $index }}
+                    </div>
+                    <div class="d-flex gap-1 flex-items-center">
+                        <form action="{{ route('admin.jadwal-rutin.toggleStatus', $item) }}" method="POST" class="d-inline m-0">
+                            @csrf
+                            @method('PATCH')
+                            <button type="submit" class="smallBtn btn-table-action" title="{{ $item->is_active ? 'Nonaktifkan' : 'Aktifkan' }}" style="background: var(--card-alt); border: 1px solid var(--border); color: {{ $item->is_active ? '#d97706' : '#059669' }};">
+                                <ion-icon name="{{ $item->is_active ? 'pause-circle-outline' : 'play-circle-outline' }}"></ion-icon>
+                            </button>
+                        </form>
+
+                        <a href="{{ route('admin.jadwal-rutin.edit', $item) }}" class="smallBtn edit btn-table-action" title="Edit Jadwal">
+                            <ion-icon name="create-outline"></ion-icon> Edit
+                        </a>
+
+                        <form action="{{ route('admin.jadwal-rutin.destroy', $item) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Apakah Anda yakin ingin menghapus jadwal rutin ini?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="smallBtn delete cursor-pointer btn-table-action" title="Hapus Jadwal">
+                                <ion-icon name="trash-outline"></ion-icon>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="data-mobile-card text-center p-4">
+                <div class="font-bold text-md mb-1">Belum Ada Jadwal Rutin KBM</div>
+                <div class="text-sm text-muted">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
+            </div>
+        @endforelse
+
+        @if ($jadwalRutins->hasPages())
+            <div class="mt-3">
                 {{ $jadwalRutins->links() }}
             </div>
         @endif
@@ -268,61 +369,61 @@
 </div>
 
 {{-- ── Modal Manual Generate Sesi ── --}}
-<div id="modalGenerate" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 1rem;">
-    <div style="background: white; border-radius: 16px; max-width: 480px; width: 100%; padding: 1.5rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #f3f4f6; padding-bottom: 0.75rem;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-                <div style="background: #eff6ff; color: #2563eb; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+<div id="modalGenerate" style="display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); align-items: center; justify-content: center; padding: 16px;">
+    <div class="app-modal-card">
+        <div class="app-modal-header">
+            <div class="d-flex items-center gap-2">
+                <div style="background: rgba(37, 99, 235, 0.12); color: #2563eb; width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
                     <ion-icon name="sync-outline"></ion-icon>
                 </div>
                 <div>
-                    <h3 style="font-size: 1.1rem; font-weight: 700; color: #111827; margin: 0;">Generate Sesi KBM</h3>
-                    <p style="font-size: 0.78rem; color: #6b7280; margin: 0;">Sinkronkan kalender sesi dari master jadwal rutin</p>
+                    <h3 class="app-modal-title">Generate Sesi KBM</h3>
+                    <p class="text-xs text-muted m-0">Sinkronkan kalender sesi KBM dari master jadwal rutin</p>
                 </div>
             </div>
-            <button type="button" onclick="document.getElementById('modalGenerate').style.display='none'" style="border: none; background: none; font-size: 1.5rem; color: #9ca3af; cursor: pointer;">&times;</button>
+            <button type="button" onclick="document.getElementById('modalGenerate').style.display='none'" style="border: none; background: transparent; font-size: 1.75rem; color: var(--muted); cursor: pointer; line-height: 1;">&times;</button>
         </div>
 
-        <form action="{{ route('admin.jadwal-rutin.generate-manual') }}" method="POST">
+        <form action="{{ route('admin.jadwal-rutin.generate-manual') }}" method="POST" class="mt-3">
             @csrf
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 4px;">Periode Generate ke Depan</label>
-                <select name="weeks" class="filterSelect" style="width: 100%;">
+            <div class="form-field-wrapper mb-3">
+                <label class="form-field-label">Periode Generate ke Depan</label>
+                <select name="weeks" class="filterSelect">
                     <option value="2">2 Minggu ke Depan</option>
                     <option value="4" selected>4 Minggu ke Depan (1 Bulan)</option>
                     <option value="8">8 Minggu ke Depan (2 Bulan)</option>
                 </select>
             </div>
 
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 4px;">Filter Siswa Khusus (Opsional)</label>
-                <select name="siswa_id" class="filterSelect" style="width: 100%;">
-                    <option value="">-- Semua Siswa Aktif --</option>
+            <div class="form-field-wrapper mb-3">
+                <label class="form-field-label">Filter Siswa Khusus (Opsional)</label>
+                <select name="siswa_id" class="filterSelect">
+                    <option value="">Semua Siswa Aktif</option>
                     @foreach ($siswas as $s)
-                        <option value="{{ $s->id }}">{{ $s->nama_siswa }}</option>
+                        <option value="{{ $s->id }}">{{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})</option>
                     @endforeach
                 </select>
             </div>
 
-            <div style="margin-bottom: 1rem;">
-                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 4px;">Filter Tutor Khusus (Opsional)</label>
-                <select name="tutor_id" class="filterSelect" style="width: 100%;">
-                    <option value="">-- Semua Tutor --</option>
+            <div class="form-field-wrapper mb-3">
+                <label class="form-field-label">Filter Tutor Khusus (Opsional)</label>
+                <select name="tutor_id" class="filterSelect">
+                    <option value="">Semua Tutor</option>
                     @foreach ($tutors as $t)
                         <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <div style="margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="skip_holidays" name="skip_holidays" value="1" style="width: 16px; height: 16px;">
-                <label for="skip_holidays" style="font-size: 0.82rem; color: #4b5563; cursor: pointer;">
-                    Lewati tanggal merah / hari libur (jangan buat sesi pada tanggal libur)
+            <div class="checkbox-toggle-card mb-4">
+                <input type="checkbox" id="skip_holidays" name="skip_holidays" value="1" checked>
+                <label for="skip_holidays" class="cursor-pointer text-xs" style="margin: 0; font-weight: 600;">
+                    Lewati tanggal merah / libur nasional (jangan buat sesi pada tanggal libur)
                 </label>
             </div>
 
-            <div style="display: flex; justify-content: flex-end; gap: 8px;">
-                <button type="button" class="profileBtnSecondary" onclick="document.getElementById('modalGenerate').style.display='none'">Batal</button>
+            <div class="form-action-footer mt-4">
+                <button type="button" class="btnOutline" onclick="document.getElementById('modalGenerate').style.display='none'">Batal</button>
                 <button type="submit" class="profileBtnPrimary">
                     <ion-icon name="flash-outline"></ion-icon> Jalankan Generator
                 </button>

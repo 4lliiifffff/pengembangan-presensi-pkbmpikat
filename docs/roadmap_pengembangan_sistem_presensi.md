@@ -139,7 +139,10 @@
   - Artisan Command `php artisan jadwal:generate-sesi {--weeks=4}` terpasang pada Laravel Scheduler (`routes/console.php`) berjalan setiap Minggu malam pukul 23:00 WIB.
 * 🟢 **Panel Admin Kelola Jadwal Rutin Siswa (`admin/jadwal_rutin`):** [SELESAI]
   - CRUD lengkap master jadwal mingguan per-siswa (`index`, `create`, `edit`, `destroy`, `toggleStatus`).
-  - Modal generator cepat untuk sinkronisasi kalender sesi 2-8 minggu ke depan.
+  - **Standardisasi UI & Mobile Responsive Layout:** Menyelaraskan tata letak halaman `index`, `create`, dan `edit` dengan design system utama: tabel responsif desktop (`.table-responsive-desktop`) yang bertransformasi menjadi kartu data mobile (`.data-mobile-card` & `.mobile-card-list`) pada layar ponsel ($\le 768$px).
+  - **Form Grid Responsif & Komponen Anti-Squish:** Menggunakan `.form-card-container`, `.form-grid-responsive`, `.info-callout-box`, dan `.checkbox-toggle-card` pada halaman `create` dan `edit` sehingga input waktu, durasi, dan dropdown tertata rapi tanpa penyempitan di layar kecil.
+  - **Badge Hari Belajar Harmonis & Dark Mode:** Menambahkan class `.badge-hari-senin` s.d. `.badge-hari-minggu` dengan warna tematik dan adaptasi mode gelap instan.
+  - **Modal Generator Sesi Terstandarisasi:** Modal manual generator berbasis `.app-modal-card` dengan overlay blur dan tata letak form konsisten.
   - Pintasan menu terintegrasi di Drawer Navigasi Bawah Admin.
 * 🟢 **Penanganan Kondisi Dinamis & Fleksibilitas Reschedule:** [SELESAI]
   - Penyesuaian jadwal kesepakatan tutor-siswa (*reschedule* / sesi pengganti) dilakukan pada level instance `jadwal_sesis` tanpa merusak pola master berulang minggu berikutnya.
