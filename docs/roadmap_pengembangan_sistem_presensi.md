@@ -50,10 +50,10 @@
   - **Pemilih Lokasi Interaktif di Kamera Presensi:** Dropdown dinamis `lokasi_presensi_id` pada halaman presensi Tutor, Karyawan, dan Magang.
   - **Validasi Radius Matematis Haversine:** `GeofencingService::checkSelectedLokasiRadius()` memvalidasi posisi GPS pengguna secara presisi terhadap titik lokasi yang dipilih. Jika di luar radius titik tersebut, presensi otomatis ditolak dengan pesan peringatan jarak riil.
   - **Automated Testing Suite:** 8 skenario pengujian komprehensif di `tests/Feature/LokasiPresensiTest.php`.
-* 🟢 **Modernisasi Infrastruktur Peta Leaflet (Aset Lokal, Dark Mode Tile CartoDB & Modul JS Bersama):** [SELESAI]
+* 🟢 **Modernisasi Infrastruktur Peta Leaflet (Aset Lokal, CSS Dark Mode Filter & Modul JS Bersama):** [SELESAI]
   - **Eliminasi CDN Eksternal:** Menghapus seluruh dependensi CDN `unpkg.com` dan gambar remote GitHub. Menginstall `leaflet` via NPM dan mem-bundle CSS serta JS langsung ke pipeline Vite aplikasi (`resources/js/app.js`).
   - **Resolusi Path Default Marker Icon & Aset Lokal Fallback:** Mengatasi bug HTTP 500 pada `marker-shadow.png` & `marker-icon-2x.png` saat Leaflet memanggil subpath rute (seperti `/admin/lokasi-presensi/marker-shadow.png`) akibat auto-detection bundler. Menyediakan aset statis di `public/images/leaflet/`, mengkonfigurasi `L.Icon.Default.mergeOptions(...)` dengan Vite image imports, meniadakan prototype `_getIconUrl`, dan menyematkan `createPinIcon('target')` di seluruh view admin master lokasi presensi (`create`, `edit`, `index`).
-  - **Auto Dark Mode Tile Switching:** Integrasi tile layer CartoDB Dark Matter saat mode gelap (`[data-theme="dark"]`) aktif dan OpenStreetMap standar saat mode terang via `MutationObserver` secara real-time tanpa refresh.
+  - **Tile Dark Mode Mandiri (Bebas API Key & Tanpa Watermark):** Menggunakan OpenStreetMap standar dengan CSS Dark Mode filter (`brightness`, `invert`, `contrast`, `hue-rotate`) pada layer `.leaflet-tile` saat `[data-theme="dark"]` aktif. Menghilangkan ketergantungan pada server CartoDB yang memunculkan watermark *"API KEY REQUIRED"* tanpa memerlukan API key eksternal.
   - **Konsolidasi Modul Bersama (`resources/js/leaflet-presensi.js`):** Menggantikan 100+ baris duplikasi kode Leaflet di 4 view kamera presensi berbeda (`siswa`, `tutor`, `magang`, `karyawan`) dengan satu modul terpadu `window.createPresensiMap`.
   - **Marker Pin SVG Lokal & Retina-Ready:** Menggantikan ikon remote dengan `L.divIcon` inline SVG (Target merah ber-drop shadow, User biru dengan efek animasi pulse ring, dan Alternatif abu-abu).
   - **Dark Mode Map Controls Styling:** Penataan CSS khusus pada `.leaflet-container`, zoom control, attribution bar, dan popups agar harmonis dengan tema gelap.
@@ -269,6 +269,10 @@
 ### 8.4 UI/UX Polish, Kontras Tombol & Navigasi Ikon
 * 🟢 **Perbaikan Kontras Tombol & Aksesibilitas Warna:** [SELESAI] Penyelarasan styling tombol `.btnNavMaps` (Petunjuk Arah/Peta), `.btnLiveGpsActive`, dan tombol aksi peta di seluruh view presensi agar teks dan ikon terbaca kontras dan jelas (tidak hanya saat hover).
 * 🟢 **Penyelarasan Ikon Navigasi Bawah Admin:** [SELESAI] Penambahan wrapper background `.navIconWrap` pada item menu Master Jadwal & Shift Kerja di `navigasi_bawah_admin.blade.php` agar selaras dan konsisten dengan seluruh item navigasi lainnya.
+* 🟢 **Standardisasi & Kelengkapan Varian Warna KPI Card (`.kpi-card`):** [SELESAI] Melengkapi style `resources/css/app.css` untuk varian warna kartu KPI yang sebelumnya belum terdefinisi (`.cyan`, `.purple`, `.rose`, `.orange`, `.teal`, `.slate`), menyelaraskan gradient aksen `::before`, latar ikon `.kpi-icon-wrap`, angka metrik `.kpi-val`, serta optimasi kontras tema gelap (`[data-theme="dark"]`).
+* 🟢 **Kelengkapan Style Komponen Tabel, Empty State & Utility (`app.css`):** [SELESAI] Melengkapi definisi kelas state kosong tabel (`.tableEmptyState`, `.table-empty-state`, `.tableEmptyIcon`, `.table-empty-icon`, `.tableEmptyTitle`, `.table-empty-title`, `.tableEmptyDesc`, `.table-empty-desc`) dengan Dark Mode, selaras `.filterActionsGroup`, komponen baris user tabel desktop & kartu mobile (`.table-user-*`, `.dmc-*`), animasi `@keyframes spin` (`.spinIcon`), `.radarInfo`, dan `.activeBody`.
+
+
 
 ---
 

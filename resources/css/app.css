@@ -2101,6 +2101,17 @@ h1, h2, h3, h4, h5, h6 {
     animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spinIcon,
+.animate-spin {
+    animation: spin 1s linear infinite;
+    display: inline-block;
+}
+
 /* ==========================================
    TUTOR & DASHBOARD SPECIFIC COMPONENTS
    ========================================== */
@@ -2469,6 +2480,12 @@ h1, h2, h3, h4, h5, h6 {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.activeBody {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .activePulse {
@@ -4274,7 +4291,8 @@ input[type="date"].filterInput { height: 42px; padding: 0 12px; line-height: 42p
     box-shadow: 0 0 0 3px rgba(11, 94, 215, 0.12);
 }
 
-.filterActionGroup {
+.filterActionGroup,
+.filterActionsGroup {
     display: flex;
     gap: 8px;
     width: 100%;
@@ -5853,9 +5871,15 @@ button, a, input, select, textarea {
 }
 
 .kpi-card.emerald::before { background: linear-gradient(90deg, #059669, #10b981); }
-.kpi-card.blue::before { background: linear-gradient(90deg, #0284c7, #38bdf8); }
-.kpi-card.amber::before { background: linear-gradient(90deg, #d97706, #f59e0b); }
-.kpi-card.indigo::before { background: linear-gradient(90deg, #6366f1, #818cf8); }
+.kpi-card.blue::before    { background: linear-gradient(90deg, #0284c7, #38bdf8); }
+.kpi-card.cyan::before    { background: linear-gradient(90deg, #0891b2, #06b6d4); }
+.kpi-card.indigo::before  { background: linear-gradient(90deg, #6366f1, #818cf8); }
+.kpi-card.purple::before  { background: linear-gradient(90deg, #9333ea, #a855f7); }
+.kpi-card.amber::before   { background: linear-gradient(90deg, #d97706, #f59e0b); }
+.kpi-card.orange::before  { background: linear-gradient(90deg, #ea580c, #f97316); }
+.kpi-card.rose::before    { background: linear-gradient(90deg, #e11d48, #f43f5e); }
+.kpi-card.teal::before    { background: linear-gradient(90deg, #0d9488, #14b8a6); }
+.kpi-card.slate::before   { background: linear-gradient(90deg, #475569, #64748b); }
 
 .kpi-top {
     display: flex;
@@ -5883,9 +5907,15 @@ button, a, input, select, textarea {
 }
 
 .kpi-card.emerald .kpi-icon-wrap { background: rgba(16, 185, 129, 0.12); color: #059669; }
-.kpi-card.blue .kpi-icon-wrap { background: rgba(2, 132, 199, 0.12); color: #0284c7; }
-.kpi-card.amber .kpi-icon-wrap { background: rgba(245, 158, 11, 0.12); color: #d97706; }
-.kpi-card.indigo .kpi-icon-wrap { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.kpi-card.blue .kpi-icon-wrap    { background: rgba(2, 132, 199, 0.12); color: #0284c7; }
+.kpi-card.cyan .kpi-icon-wrap    { background: rgba(6, 182, 212, 0.12); color: #0891b2; }
+.kpi-card.indigo .kpi-icon-wrap  { background: rgba(99, 102, 241, 0.12); color: #6366f1; }
+.kpi-card.purple .kpi-icon-wrap  { background: rgba(168, 85, 247, 0.12); color: #9333ea; }
+.kpi-card.amber .kpi-icon-wrap   { background: rgba(245, 158, 11, 0.12); color: #d97706; }
+.kpi-card.orange .kpi-icon-wrap  { background: rgba(249, 115, 22, 0.12); color: #ea580c; }
+.kpi-card.rose .kpi-icon-wrap    { background: rgba(244, 63, 94, 0.12); color: #e11d48; }
+.kpi-card.teal .kpi-icon-wrap    { background: rgba(20, 184, 166, 0.12); color: #0d9488; }
+.kpi-card.slate .kpi-icon-wrap   { background: rgba(100, 116, 139, 0.12); color: #475569; }
 
 .kpi-val {
     font-size: 26px;
@@ -5896,9 +5926,38 @@ button, a, input, select, textarea {
 }
 
 .kpi-card.emerald .kpi-val { color: #059669; }
-.kpi-card.blue .kpi-val { color: #0284c7; }
-.kpi-card.amber .kpi-val { color: #d97706; }
-.kpi-card.indigo .kpi-val { color: #4f46e5; }
+.kpi-card.blue .kpi-val    { color: #0284c7; }
+.kpi-card.cyan .kpi-val    { color: #0891b2; }
+.kpi-card.indigo .kpi-val  { color: #4f46e5; }
+.kpi-card.purple .kpi-val  { color: #9333ea; }
+.kpi-card.amber .kpi-val   { color: #d97706; }
+.kpi-card.orange .kpi-val  { color: #ea580c; }
+.kpi-card.rose .kpi-val    { color: #e11d48; }
+.kpi-card.teal .kpi-val    { color: #0d9488; }
+.kpi-card.slate .kpi-val   { color: #475569; }
+
+/* Dark mode adjustments for KPI card contrast */
+[data-theme="dark"] .kpi-card.emerald .kpi-icon-wrap { background: rgba(16, 185, 129, 0.22); color: #34d399; }
+[data-theme="dark"] .kpi-card.blue .kpi-icon-wrap    { background: rgba(14, 165, 233, 0.22); color: #38bdf8; }
+[data-theme="dark"] .kpi-card.cyan .kpi-icon-wrap    { background: rgba(6, 182, 212, 0.22); color: #22d3ee; }
+[data-theme="dark"] .kpi-card.indigo .kpi-icon-wrap  { background: rgba(99, 102, 241, 0.22); color: #818cf8; }
+[data-theme="dark"] .kpi-card.purple .kpi-icon-wrap  { background: rgba(168, 85, 247, 0.22); color: #c084fc; }
+[data-theme="dark"] .kpi-card.amber .kpi-icon-wrap   { background: rgba(245, 158, 11, 0.22); color: #fbbf24; }
+[data-theme="dark"] .kpi-card.orange .kpi-icon-wrap  { background: rgba(249, 115, 22, 0.22); color: #fb923c; }
+[data-theme="dark"] .kpi-card.rose .kpi-icon-wrap    { background: rgba(244, 63, 94, 0.22); color: #fb7185; }
+[data-theme="dark"] .kpi-card.teal .kpi-icon-wrap    { background: rgba(20, 184, 166, 0.22); color: #2dd4bf; }
+[data-theme="dark"] .kpi-card.slate .kpi-icon-wrap   { background: rgba(100, 116, 139, 0.22); color: #cbd5e1; }
+
+[data-theme="dark"] .kpi-card.emerald .kpi-val { color: #34d399; }
+[data-theme="dark"] .kpi-card.blue .kpi-val    { color: #38bdf8; }
+[data-theme="dark"] .kpi-card.cyan .kpi-val    { color: #22d3ee; }
+[data-theme="dark"] .kpi-card.indigo .kpi-val  { color: #818cf8; }
+[data-theme="dark"] .kpi-card.purple .kpi-val  { color: #c084fc; }
+[data-theme="dark"] .kpi-card.amber .kpi-val   { color: #fbbf24; }
+[data-theme="dark"] .kpi-card.orange .kpi-val  { color: #fb923c; }
+[data-theme="dark"] .kpi-card.rose .kpi-val    { color: #fb7185; }
+[data-theme="dark"] .kpi-card.teal .kpi-val    { color: #2dd4bf; }
+[data-theme="dark"] .kpi-card.slate .kpi-val   { color: #cbd5e1; }
 
 .kpi-sub {
     font-size: 12px;
@@ -6519,6 +6578,45 @@ button, a, input, select, textarea {
     color: var(--muted, #64748b);
     margin-top: 3px;
     font-weight: 600;
+}
+
+/* DMC User Header Elements */
+.dmc-user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.dmc-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid var(--border, #e2e8f0);
+    flex-shrink: 0;
+}
+
+.dmc-avatar-placeholder {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(11, 94, 215, 0.12) 0%, rgba(26, 115, 232, 0.18) 100%);
+    color: var(--blue, #0b5ed7);
+    font-weight: 800;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(11, 94, 215, 0.2);
+    flex-shrink: 0;
+}
+
+.dmc-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
 }
 
 .dmc-grid {
@@ -8228,6 +8326,11 @@ body.app-modal-open {
     gap: 12px;
 }
 
+.radarInfo {
+    flex: 1;
+    min-width: 0;
+}
+
 .radarStatusDot {
     width: 14px;
     height: 14px;
@@ -9333,6 +9436,139 @@ body.app-modal-open {
     padding: 32px 16px;
     text-align: center;
     color: var(--muted, #64748b);
+}
+
+/* ==========================================
+   TABLE EMPTY STATE (DESKTOP & MOBILE)
+   ========================================== */
+.tableEmptyState,
+.table-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 16px;
+    text-align: center;
+}
+
+.tableEmptyIcon,
+.table-empty-icon {
+    font-size: 44px;
+    color: var(--muted, #64748b);
+    opacity: 0.45;
+    margin: 0 auto 10px;
+    display: block;
+}
+
+.tableEmptyTitle,
+.table-empty-title {
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--text, #0f172a);
+    margin-bottom: 4px;
+}
+
+.tableEmptyDesc,
+.table-empty-desc {
+    font-size: 12.5px;
+    color: var(--muted, #64748b);
+    max-width: 440px;
+    margin: 0 auto;
+    line-height: 1.5;
+}
+
+[data-theme="dark"] .tableEmptyIcon,
+[data-theme="dark"] .table-empty-icon {
+    color: #94a3b8;
+    opacity: 0.6;
+}
+
+[data-theme="dark"] .tableEmptyTitle,
+[data-theme="dark"] .table-empty-title {
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .tableEmptyDesc,
+[data-theme="dark"] .table-empty-desc {
+    color: #94a3b8;
+}
+
+/* ==========================================
+   TABLE USER ROW & AVATAR CELL
+   ========================================== */
+.table-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.table-user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1px solid var(--border, #e2e8f0);
+    flex-shrink: 0;
+}
+
+.table-user-avatar-placeholder {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(11, 94, 215, 0.12) 0%, rgba(26, 115, 232, 0.18) 100%);
+    color: var(--blue, #0b5ed7);
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(11, 94, 215, 0.2);
+    flex-shrink: 0;
+}
+
+.table-user-info {
+    min-width: 0;
+}
+
+.table-user-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    line-height: 1.25;
+}
+
+.table-user-email {
+    font-size: 11.5px;
+    color: var(--muted, #64748b);
+    margin-top: 2px;
+}
+
+.table-phone-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #16a34a;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.table-phone-link:hover {
+    color: #15803d;
+    text-decoration: underline;
+}
+
+.table-actions-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.table-compact th,
+.table-compact td {
+    padding: 8px 12px;
 }
 
 .badge-code {
@@ -10464,6 +10700,12 @@ body.app-modal-open {
 /* Leaflet Controls & Popups in Dark Mode */
 [data-theme="dark"] .leaflet-container {
     background-color: #0b1120 !important;
+}
+
+/* Elegant Leaflet Dark Mode Tile Filter (No API Key & No Watermark Required) */
+.map-dark-theme .leaflet-tile,
+[data-theme="dark"] .leaflet-container .leaflet-tile {
+    filter: brightness(0.65) invert(1) contrast(1.4) hue-rotate(200deg) saturate(0.3) brightness(0.85);
 }
 
 [data-theme="dark"] .leaflet-bar a {

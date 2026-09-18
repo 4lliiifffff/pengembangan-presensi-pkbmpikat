@@ -36,13 +36,13 @@ export function haversineDistance(lat1, lon1, lat2, lon2) {
 }
 
 /**
- * Otomatisasi Pergantian Tile Peta Antara Light Mode & Dark Mode
- * Mendukung CartoDB Dark Matter dan OpenStreetMap secara real-time
+ * Otomatisasi Penataan Tile Peta (Bebas Watermark & Bebas API Key)
+ * Menggunakan OpenStreetMap berlisensi terbuka dengan filter CSS Dark Mode yang elegan
  */
 export function setupLeafletTileTheme(map, elementOrId) {
     const mapEl = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
-    const lightTileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-    const darkTileUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    const osmTileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const cartoApiKey = window.CARTO_API_KEY || null;
 
     let currentTileLayer = null;
 
@@ -52,21 +52,29 @@ export function setupLeafletTileTheme(map, elementOrId) {
 
     function applyTileLayer() {
         const isDark = isDarkModeActive();
-        const url = isDark ? darkTileUrl : lightTileUrl;
-        const subdomains = isDark ? 'abcd' : 'abc';
-        const attribution = isDark
-            ? '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+        let url = osmTileUrl;
+        let attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        let subdomains = 'abc';
 
-        if (currentTileLayer) {
-            map.removeLayer(currentTileLayer);
+        // Hanya gunakan CartoDB jika pengguna menyediakan API Key resmi,
+        // jika tidak gunakan OpenStreetMap dengan CSS Dark Filter (bebas watermark)
+        if (isDark && cartoApiKey) {
+            url = `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=${cartoApiKey}`;
+            attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+            subdomains = 'abcd';
         }
 
-        currentTileLayer = L.tileLayer(url, {
-            maxZoom: 20,
-            subdomains: subdomains,
-            attribution: attribution
-        }).addTo(map);
+        if (!currentTileLayer || currentTileLayer._url !== url) {
+            if (currentTileLayer) {
+                map.removeLayer(currentTileLayer);
+            }
+
+            currentTileLayer = L.tileLayer(url, {
+                maxZoom: 20,
+                subdomains: subdomains,
+                attribution: attribution
+            }).addTo(map);
+        }
 
         if (mapEl) {
             if (isDark) {

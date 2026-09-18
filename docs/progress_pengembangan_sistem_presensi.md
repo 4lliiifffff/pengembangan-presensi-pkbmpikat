@@ -103,16 +103,17 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Pemilih Lokasi Interaktif di Kamera Presensi**: Dropdown `lokasi_presensi_id` pada halaman presensi Tutor, Karyawan, dan Magang.
     - **Validasi Radius Matematis Haversine (`GeofencingService::checkSelectedLokasiRadius`)**: Memverifikasi posisi koordinat pengguna terhadap titik lokasi terpilih. Jika jarak melebihi `radius_meter` titik lokasi tersebut, presensi ditolak dengan alert selisih meter riil.
     - **Automated Feature Test**: 8 skenario komprehensif pada `tests/Feature/LokasiPresensiTest.php`.
-- 🟢 **Pembaruan Infrastruktur Peta Leaflet: Bundling Aset Lokal, Auto Dark Mode Tile CartoDB Dark Matter, & Konsolidasi Modul Bersama (`resources/js/leaflet-presensi.js`)**
+- 🟢 **Pembaruan Infrastruktur Peta Leaflet: Bundling Aset Lokal, Tile Dark Mode Mandiri (Bebas API Key & Tanpa Watermark), & Konsolidasi Modul Bersama (`resources/js/leaflet-presensi.js`)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
     - **Pembersihan Dependensi CDN Eksternal**: Menghapus seluruh link `<link>` dan `<script>` eksternal `unpkg.com/leaflet@1.9.4` serta asset gambar remote `raw.githubusercontent.com/pointhi/leaflet-color-markers` dari 9 view aplikasi (`siswa`, `tutor`, `magang`, `karyawan`, `admin/lokasi-presensi`, `admin/laporan`, `kepsek/presensi`).
     - **Bundling Mandiri via NPM & Vite**: Menginstall package `leaflet` ke `package.json`, mengimpor style `leaflet/dist/leaflet.css` dan modul `leaflet-presensi.js` langsung ke `resources/js/app.js`, serta mengekspor `window.L = L` agar aplikasi mandiri secara offline.
     - **Resolusi Path Default Marker Icon & Eliminasi HTTP 500 Subpath**: Memperbaiki issue di mana Leaflet default icon mengasumsikan marker asset berada di subpath URL halaman saat ini (`/admin/lokasi-presensi/marker-shadow.png` & `marker-icon-2x.png`). Menaruh salinan fisik aset di `public/images/leaflet/`, mengimpor marker PNG melalui Vite asset resolver dengan `delete L.Icon.Default.prototype._getIconUrl` dan `L.Icon.Default.mergeOptions(...)`, serta memperbarui pemanggilan marker di form Admin Lokasi Presensi (`create`, `edit`, `index`) agar menggunakan `window.createPinIcon('target')`.
-    - **Auto Dark Mode Tile Switching**: Mengintegrasikan layer CartoDB Dark Matter (`https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png`) saat tema `[data-theme="dark"]` aktif dan OpenStreetMap standar saat mode terang. Dilengkapi `MutationObserver` pada atribut `data-theme` dokumen HTML root untuk transisi visual instan tanpa refresh halaman.
+    - **Tile Dark Mode Mandiri (Bebas API Key & Tanpa Watermark)**: Menggantikan pemanggilan langsung tile server CartoDB Dark Matter yang memerlukan API Key berbayar/registrasi (mencegah munculnya watermark tulisan *"API KEY REQUIRED carto.com/basemap/apikey"* pada peta). Sistem kini menggunakan OpenStreetMap standar yang di-styling secara dinamis menggunakan filter CSS Dark Mode (`brightness`, `invert`, `contrast`, `hue-rotate`, `saturate`) pada layer `.leaflet-tile` ketika atribut `[data-theme="dark"]` aktif. Tetap menyediakan backward-compatibility jika suatu saat pengguna mendefinisikan `window.CARTO_API_KEY`.
     - **Konsolidasi Modul Bersama (`resources/js/leaflet-presensi.js`)**: Mengeliminasi 100+ baris kode redundan Leaflet di 4 view kamera presensi berbeda (`siswa/presensi_foto.blade.php`, `tutor/presensi_foto.blade.php`, `magang/presensi_foto.blade.php`, `karyawan/presensi_foto.blade.php`) dengan fungsi terpadu `window.createPresensiMap(options)` yang menangani kalkulasi Haversine, akurasi GPS ring, polyline track rute dinamis, multi-lokasi markers, dan fitBounds secara otomatis.
     - **Marker Pin SVG Lokal & Bebas Risiko Broken Asset**: Menggantikan ikon remote dengan `L.divIcon` inline SVG modern (Pin Merah dengan drop shadow untuk target sekolah/gedung, Pin Biru dengan efek animasi pulse ring untuk posisi user, dan Pin Abu-abu untuk alternatif titik presensi).
     - **Styling Kontrol & Popup Peta Mode Gelap**: Menambahkan CSS khusus pada `resources/css/app.css` untuk `.leaflet-container`, kontrol zoom, attribution bar, dan `.leaflet-popup-content-wrapper` agar selaras dengan skema warna gelap aplikasi.
+
 - 🟢 **Kalkulasi Radius Lokasi Sekolah (Rumus Haversine), Live Tracking & Interactive Peta Leaflet**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -522,6 +523,19 @@ pie title Status Fitur & Pengkondisian Sistem
     - Perbaikan kontras warna teks tombol `.btnNavMaps` (Petunjuk Arah/Peta), `.btnLiveGpsActive`, dan tombol aksi peta di seluruh view presensi agar teks dan ikon terbaca kontras dan jelas (tidak hanya saat hover).
     - Penambahan wrapper background `.navIconWrap` pada item menu Master Jadwal & Shift Kerja di `navigasi_bawah_admin.blade.php` agar selaras dan konsisten dengan seluruh item navigasi lainnya.
     - Standardisasi styling dialog konfirmasi `.app-modal-card`, `.app-modal-header`, `.app-modal-footer` pada `resources/css/app.css` dengan dukungan Dark Mode, scrolling viewport adaptif (`max-height: calc(100dvh - 32px)`), dan tata letak responsif pada perangkat mobile.
+    - **Standardisasi & Kelengkapan Varian Warna KPI Card (`.kpi-card`)**:
+      - Mengatasi celah style di `resources/css/app.css` di mana kartu KPI dengan kelas warna `.cyan` dan `.purple` (digunakan pada `admin/jadwal_kerja/index.blade.php` dan `admin/jadwal_rutin/index.blade.php`) belum terdefinisi.
+      - Melengkapi spektrum varian warna penuh yang selaras dengan sistem token aplikasi (`.navCardIcon`): `.emerald`, `.blue`, `.cyan`, `.indigo`, `.purple`, `.amber`, `.orange`, `.rose`, `.teal`, `.slate`.
+      - Menerapkan gradient aksen `::before`, latar ikon `.kpi-icon-wrap`, dan warna angka metrik `.kpi-val` untuk masing-masing varian.
+      - Menambahkan optimasi kontras WCAG untuk tema gelap (`[data-theme="dark"] .kpi-card.<color>`), sehingga teks metrik dan ikon tetap tajam, cerah, dan ramah pembaca di latar belakang gelap.
+    - **Resolusi Kelengkapan Style Komponen Tabel, Empty State & Utility (`app.css`)**:
+      - Menyelesaikan ketiadaan styling pada state kosong tabel: `.tableEmptyState`, `.table-empty-state`, `.tableEmptyIcon`, `.table-empty-icon`, `.tableEmptyTitle`, `.table-empty-title`, `.tableEmptyDesc`, dan `.table-empty-desc` baik untuk mode desktop maupun kartu mobile, lengkap dengan dukungan mode gelap (*Dark Mode*).
+      - Menyelaraskan selector `.filterActionsGroup` dan `.filterActionGroup` pada form filter master data.
+      - Melengkapi komponen baris tabel data pengguna: `.table-user-cell`, `.table-user-avatar`, `.table-user-avatar-placeholder`, `.table-user-info`, `.table-user-name`, `.table-user-email`, `.table-phone-link`, `.table-actions-group`, dan `.table-compact`.
+      - Melengkapi komponen kartu mobile profil pengguna: `.dmc-user-info`, `.dmc-avatar`, `.dmc-avatar-placeholder`, dan `.dmc-badges`.
+      - Melengkapi utility interaktif: `@keyframes spin` & `.spinIcon`, `.radarInfo` (radar proximity Leaflet), serta `.activeBody` (kartu sesi magang aktif).
+
+
 
 ---
 
