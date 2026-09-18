@@ -27,26 +27,46 @@
     </div>
 
     {{-- ── Modal Impor Tutor / Karyawan ── --}}
-    <div id="importKaryawanModal" class="app-modal-backdrop">
+    <div id="importKaryawanModal" class="app-modal-backdrop" onclick="if(event.target===this) this.style.display='none'">
         <div class="app-modal-card">
             <div class="app-modal-header">
-                <h3 class="app-modal-title">Impor Data Akun &amp; Tutor</h3>
-                <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="app-modal-close">&times;</button>
+                <div class="app-modal-header-left">
+                    <div class="app-modal-badge-icon">
+                        <ion-icon name="people-outline"></ion-icon>
+                    </div>
+                    <div>
+                        <h3 class="app-modal-title m-0">Impor Data Akun &amp; Tutor</h3>
+                        <div class="text-xs text-muted">Format Spreadsheet Excel / CSV</div>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('importKaryawanModal').style.display='none'" class="app-modal-close" title="Tutup">&times;</button>
             </div>
             <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan akun secara massal. Akun login akan otomatis dibuat dengan password default berbasis NIK / <code>password123</code>.
             </p>
-            <div class="mb-4">
-                <a href="{{ route('admin.karyawan.downloadTemplate') }}" class="btnOutline">
-                    <ion-icon name="download-outline"></ion-icon> Download Template Excel (.xlsx)
+            <div class="import-template-banner">
+                <div class="import-template-info">
+                    <div class="import-template-icon">
+                        <ion-icon name="cloud-download-outline"></ion-icon>
+                    </div>
+                    <div class="import-template-texts">
+                        <div class="import-template-title">Belum memiliki template?</div>
+                        <div class="import-template-desc">Gunakan format kolom resmi agar data akun terbaca otomatis.</div>
+                    </div>
+                </div>
+                <a href="{{ route('admin.karyawan.downloadTemplate') }}" class="btn-download-template" title="Download Template Akun & Tutor">
+                    <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.karyawan.importExcel') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="mb-4">
-                    <label class="filterFieldLabel">Pilih Berkas Spreadsheet:</label>
+                <div class="form-field-wrapper mb-3">
+                    <label class="form-field-label">Pilih Berkas Spreadsheet:</label>
                     <div class="fileUploadBox">
-                        <input type="file" name="file_excel" id="karyawanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'karyawanFileFeedback')">
+                        <input type="file" name="file_excel" id="karyawanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleExcelFileSelected(this, 'karyawanFileFeedback')">
+                        <div class="fileUploadIcon">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                        </div>
                         <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
                         <div class="fileUploadSubtext">
                             <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
@@ -66,16 +86,61 @@
     </div>
 
     <script>
-        function handleFileSelected(input, feedbackId) {
+        function handleExcelFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
-                feedback.style.display = 'flex';
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                const sizeText = sizeKb > 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    feedback.style.display = 'block';
+                    feedback.innerHTML = `
+                        <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
+                            <div class="fsc-info">
+                                <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
+                                <div class="fsc-details">
+                                    <div class="fsc-name">${file.name}</div>
+                                    <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
+                                </div>
+                            </div>
+                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>`;
+                    input.value = '';
+                    return;
+                }
+
+                feedback.style.display = 'block';
+                feedback.innerHTML = `
+                    <div class="file-selected-card">
+                        <div class="fsc-info">
+                            <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
+                            <div class="fsc-details">
+                                <div class="fsc-name">${file.name}</div>
+                                <div class="fsc-meta">${sizeText} &bull; Berkas siap diunggah</div>
+                            </div>
+                        </div>
+                        <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Ganti berkas">
+                            <ion-icon name="close-circle-outline"></ion-icon>
+                        </button>
+                    </div>`;
             } else {
                 feedback.style.display = 'none';
+                feedback.innerHTML = '';
+            }
+        }
+
+        function clearSelectedExcel(inputId, feedbackId) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById(feedbackId);
+            if (input) input.value = '';
+            if (feedback) {
+                feedback.style.display = 'none';
+                feedback.innerHTML = '';
             }
         }
     </script>

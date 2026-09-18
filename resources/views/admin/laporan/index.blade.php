@@ -97,26 +97,43 @@
     </div>
 
     {{-- ── Modal Impor Presensi Retroaktif / Log Manual ── --}}
-    <div id="importPresensiModal" class="app-modal-backdrop">
-        <div class="app-modal-card max-w-md">
+    <div id="importPresensiModal" class="app-modal-backdrop" onclick="if(event.target===this) this.style.display='none'">
+        <div class="app-modal-card">
             <div class="app-modal-header">
-                <h3 class="app-modal-title text-xl">Impor Rekapan Presensi Manual</h3>
-                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="app-modal-close">&times;</button>
+                <div class="app-modal-header-left">
+                    <div class="app-modal-badge-icon">
+                        <ion-icon name="time-outline"></ion-icon>
+                    </div>
+                    <div>
+                        <h3 class="app-modal-title m-0">Impor Rekapan Presensi Manual</h3>
+                        <div class="text-xs text-muted">Format Spreadsheet Excel / CSV</div>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="app-modal-close" title="Tutup">&times;</button>
             </div>
             <p class="app-modal-desc">
                 Unggah berkas spreadsheet Excel/CSV untuk menyinkronkan rekapan data presensi fisik atau kegiatan offline luar jaringan secara massal.
             </p>
-            <div class="mb-4">
-                <a href="{{ route('admin.laporan.downloadTemplate') }}" class="btnOutline d-inline-flex items-center gap-1 text-sm font-bold px-3 py-2">
-                    <ion-icon name="download-outline"></ion-icon> Download Template Presensi (.xlsx)
+            <div class="import-template-banner">
+                <div class="import-template-info">
+                    <div class="import-template-icon">
+                        <ion-icon name="cloud-download-outline"></ion-icon>
+                    </div>
+                    <div class="import-template-texts">
+                        <div class="import-template-title">Belum memiliki template?</div>
+                        <div class="import-template-desc">Gunakan format resmi agar rekapan terbaca akurat.</div>
+                    </div>
+                </div>
+                <a href="{{ route('admin.laporan.downloadTemplate') }}" class="btn-download-template" title="Download Template Presensi">
+                    <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.laporan.importExcel') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="mb-4">
-                    <label class="d-block text-sm font-extrabold text-uppercase mb-1 text-muted">Pilih Berkas Rekap Presensi:</label>
+                <div class="form-field-wrapper mb-3">
+                    <label class="form-field-label">Pilih Berkas Rekap Presensi:</label>
                     <div class="fileUploadBox">
-                        <input type="file" name="file_excel" id="laporanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'laporanFileFeedback')">
+                        <input type="file" name="file_excel" id="laporanFileInput" accept=".xlsx,.xls,.csv" required onchange="handleExcelFileSelected(this, 'laporanFileFeedback')">
                         <div class="fileUploadIcon">
                             <ion-icon name="cloud-upload-outline"></ion-icon>
                         </div>
@@ -129,24 +146,71 @@
                     <div id="laporanFileFeedback" class="fileUploadFeedback"></div>
                 </div>
                 <div class="app-modal-footer">
-                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="profileBtnDanger px-3 text-sm rounded-md w-auto">Batal</button>
-                    <button type="submit" class="profileBtnPrimary px-4 text-sm rounded-md w-auto">Unggah &amp; Impor Presensi</button>
+                    <button type="button" onclick="document.getElementById('importPresensiModal').style.display='none'" class="btnOutline w-auto">Batal</button>
+                    <button type="submit" class="profileBtnPrimary w-auto">
+                        <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor Presensi
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script >
-        function handleFileSelected(input, feedbackId) {
+    <script>
+        function handleExcelFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span >' + file.name + ' (' + sizeKb + ' KB)</span>';
-                feedback.style.display = 'flex';
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                const sizeText = sizeKb > 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    feedback.style.display = 'block';
+                    feedback.innerHTML = `
+                        <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
+                            <div class="fsc-info">
+                                <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
+                                <div class="fsc-details">
+                                    <div class="fsc-name">${file.name}</div>
+                                    <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
+                                </div>
+                            </div>
+                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>`;
+                    input.value = '';
+                    return;
+                }
+
+                feedback.style.display = 'block';
+                feedback.innerHTML = `
+                    <div class="file-selected-card">
+                        <div class="fsc-info">
+                            <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
+                            <div class="fsc-details">
+                                <div class="fsc-name">${file.name}</div>
+                                <div class="fsc-meta">${sizeText} &bull; Berkas siap diunggah</div>
+                            </div>
+                        </div>
+                        <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Ganti berkas">
+                            <ion-icon name="close-circle-outline"></ion-icon>
+                        </button>
+                    </div>`;
             } else {
                 feedback.style.display = 'none';
+                feedback.innerHTML = '';
+            }
+        }
+
+        function clearSelectedExcel(inputId, feedbackId) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById(feedbackId);
+            if (input) input.value = '';
+            if (feedback) {
+                feedback.style.display = 'none';
+                feedback.innerHTML = '';
             }
         }
     </script>

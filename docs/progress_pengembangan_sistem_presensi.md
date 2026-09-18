@@ -534,6 +534,13 @@ pie title Status Fitur & Pengkondisian Sistem
       - Melengkapi komponen baris tabel data pengguna: `.table-user-cell`, `.table-user-avatar`, `.table-user-avatar-placeholder`, `.table-user-info`, `.table-user-name`, `.table-user-email`, `.table-phone-link`, `.table-actions-group`, dan `.table-compact`.
       - Melengkapi komponen kartu mobile profil pengguna: `.dmc-user-info`, `.dmc-avatar`, `.dmc-avatar-placeholder`, dan `.dmc-badges`.
       - Melengkapi utility interaktif: `@keyframes spin` & `.spinIcon`, `.radarInfo` (radar proximity Leaflet), serta `.activeBody` (kartu sesi magang aktif).
+    - **Modernisasi & Desain Responsif Modal Import Excel (`app.css` & Admin Views)**:
+      - Menstandarisasi antarmuka modal impor spreadsheet Excel di 4 modul Admin: Siswa (`admin/siswa/index.blade.php`), Kelola Akun/Karyawan (`admin/karyawan/index.blade.php`), Jadwal & Agenda PKBM (`admin/jadwal/index.blade.php`), dan Rekap Laporan Presensi (`admin/laporan/index.blade.php`).
+      - Komponen banner edukasi unduh format template (`.import-template-banner`, `.import-template-info`, `.import-template-icon`, `.import-template-texts`, `.btn-download-template`) dengan gaya tombol modern dan responsif.
+      - Komponen kartu visual file terpilih (`.file-selected-card`, `.fsc-info`, `.fsc-icon`, `.fsc-details`, `.fsc-name`, `.fsc-meta`, `.fsc-remove-btn`) yang menampilkan ekstensi berkas, ukuran riil dalam KB/MB, status badge "Siap diunggah", serta tombol hapus/reset pilihan file.
+      - Script client-side terstandarisasi (`handleExcelFileSelected` & `clearSelectedExcel`) dengan validasi otomatis: ukuran maksimal file (5 MB) dan format berkas (`.xlsx`, `.xls`, `.csv`).
+      - Penyelarasan tombol aksi modal (`.btnOutline` dan `.profileBtnPrimary`), backdrop click-to-close (`onclick="if(event.target===this) this.style.display='none'"`), serta perataan tombol bertumpuk (*stacked*) pada layar kecil ($\le 540$px dan $\le 480$px) tanpa menghasilkan overflow horizontal.
+      - Dukungan penuh *Dark Mode* (`[data-theme="dark"]`) dengan kontras border, warna teks, dan latar belakang yang harmonis.
 
 
 

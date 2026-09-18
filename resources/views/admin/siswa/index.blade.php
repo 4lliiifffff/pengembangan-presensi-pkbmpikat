@@ -27,26 +27,46 @@
     </div>
 
     {{-- ── Modal Impor Siswa ── --}}
-    <div id="importSiswaModal" class="app-modal-backdrop">
+    <div id="importSiswaModal" class="app-modal-backdrop" onclick="if(event.target===this) this.style.display='none'">
         <div class="app-modal-card">
             <div class="app-modal-header">
-                <h3 class="app-modal-title">Impor Data Siswa Massal</h3>
-                <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="app-modal-close">&times;</button>
+                <div class="app-modal-header-left">
+                    <div class="app-modal-badge-icon">
+                        <ion-icon name="document-text-outline"></ion-icon>
+                    </div>
+                    <div>
+                        <h3 class="app-modal-title m-0">Impor Data Siswa Massal</h3>
+                        <div class="text-xs text-muted">Format Spreadsheet Excel / CSV</div>
+                    </div>
+                </div>
+                <button type="button" onclick="document.getElementById('importSiswaModal').style.display='none'" class="app-modal-close" title="Tutup">&times;</button>
             </div>
             <p class="app-modal-desc">
-                Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan siswa baru secara massal atau memperbarui data siswa berdasarkan nomor absen (NIS).
+                Unggah berkas spreadsheet Excel/CSV untuk mendaftarkan siswa baru secara massal atau memperbarui data siswa berdasarkan nomor induk/absen (NIS).
             </p>
-            <div class="mb-4">
-                <a href="{{ route('admin.siswa.downloadTemplate') }}" class="btnOutline">
-                    <ion-icon name="download-outline"></ion-icon> Download Template Siswa (.xlsx)
+            <div class="import-template-banner">
+                <div class="import-template-info">
+                    <div class="import-template-icon">
+                        <ion-icon name="cloud-download-outline"></ion-icon>
+                    </div>
+                    <div class="import-template-texts">
+                        <div class="import-template-title">Belum memiliki template?</div>
+                        <div class="import-template-desc">Gunakan format kolom resmi agar data terbaca otomatis.</div>
+                    </div>
+                </div>
+                <a href="{{ route('admin.siswa.downloadTemplate') }}" class="btn-download-template" title="Download Template Siswa">
+                    <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
                 </a>
             </div>
             <form method="POST" action="{{ route('admin.siswa.importExcel') }}" enctype="multipart/form-data">
                 @csrf
-                <div class="form-field-wrapper">
-                    <label class="form-field-label">Pilih Berkas Data Siswa:</label>
+                <div class="form-field-wrapper mb-3">
+                    <label class="form-field-label">Pilih Berkas Spreadsheet Siswa:</label>
                     <div class="fileUploadBox">
-                        <input type="file" name="file_excel" id="siswaFileInput" accept=".xlsx,.xls,.csv" required onchange="handleFileSelected(this, 'siswaFileFeedback')">
+                        <input type="file" name="file_excel" id="siswaFileInput" accept=".xlsx,.xls,.csv" required onchange="handleExcelFileSelected(this, 'siswaFileFeedback')">
+                        <div class="fileUploadIcon">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                        </div>
                         <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
                         <div class="fileUploadSubtext">
                             <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
@@ -65,17 +85,62 @@
         </div>
     </div>
 
-    <script >
-        function handleFileSelected(input, feedbackId) {
+    <script>
+        function handleExcelFileSelected(input, feedbackId) {
             const feedback = document.getElementById(feedbackId);
             if (!feedback) return;
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<span >' + file.name + ' (' + sizeKb + ' KB)</span>';
-                feedback.style.display = 'flex';
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                const sizeText = sizeKb > 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    feedback.style.display = 'block';
+                    feedback.innerHTML = `
+                        <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
+                            <div class="fsc-info">
+                                <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
+                                <div class="fsc-details">
+                                    <div class="fsc-name">${file.name}</div>
+                                    <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
+                                </div>
+                            </div>
+                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>`;
+                    input.value = '';
+                    return;
+                }
+
+                feedback.style.display = 'block';
+                feedback.innerHTML = `
+                    <div class="file-selected-card">
+                        <div class="fsc-info">
+                            <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
+                            <div class="fsc-details">
+                                <div class="fsc-name">${file.name}</div>
+                                <div class="fsc-meta">${sizeText} &bull; Berkas siap diunggah</div>
+                            </div>
+                        </div>
+                        <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Ganti berkas">
+                            <ion-icon name="close-circle-outline"></ion-icon>
+                        </button>
+                    </div>`;
             } else {
                 feedback.style.display = 'none';
+                feedback.innerHTML = '';
+            }
+        }
+
+        function clearSelectedExcel(inputId, feedbackId) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById(feedbackId);
+            if (input) input.value = '';
+            if (feedback) {
+                feedback.style.display = 'none';
+                feedback.innerHTML = '';
             }
         }
     </script>
