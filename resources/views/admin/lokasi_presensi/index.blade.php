@@ -3,8 +3,6 @@
 @section('title', 'Master Titik Lokasi Presensi — Admin')
 
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <div class="laporanPageWrapper">
     {{-- ── Header Card ── --}}
@@ -336,11 +334,14 @@
         const defaultLng = {{ config('lokasi.sekolah_lng', 110.364917) }};
 
         const map = L.map('overviewMap').setView([defaultLat, defaultLng], 14);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+        if (window.setupLeafletTileTheme) {
+            window.setupLeafletTileTheme(map, 'overviewMap');
+        } else {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+        }
 
         const bounds = [];
 
@@ -353,7 +354,11 @@
 
             bounds.push([lat, lng]);
 
-            const marker = L.marker([lat, lng]).addTo(map);
+            const markerOptions = {};
+            if (typeof window.createPinIcon === 'function') {
+                markerOptions.icon = window.createPinIcon('target');
+            }
+            const marker = L.marker([lat, lng], markerOptions).addTo(map);
             marker.bindPopup('<b>' + loc.nama_lokasi + '</b><br><span style="font-size:11px;">' + (loc.alamat || '') + '</span><br><b>Radius Geofence:</b> ' + rad + ' Meter');
 
             L.circle([lat, lng], {

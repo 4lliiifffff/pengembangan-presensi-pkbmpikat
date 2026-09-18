@@ -10354,6 +10354,116 @@ body.app-modal-open {
     }
 }
 
+/* ==========================================================================
+   LEAFLET CUSTOM MARKERS & DARK MODE STYLING
+   ========================================================================== */
+.leaflet-custom-marker {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* User Pulse Marker */
+.user-pulse-marker {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-pulse-core {
+    width: 24px;
+    height: 24px;
+    background: linear-gradient(135deg, #2563eb, #0284c7);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+    border: 2px solid #ffffff;
+    z-index: 2;
+    position: relative;
+}
+
+.user-pulse-ring {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.35);
+    animation: userPulseAnimation 2s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    z-index: 1;
+}
+
+@keyframes userPulseAnimation {
+    0% {
+        transform: scale(0.6);
+        opacity: 0.9;
+    }
+    70% {
+        transform: scale(1.6);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.8);
+        opacity: 0;
+    }
+}
+
+/* Pin Target & Alt Wrapper */
+.pin-svg-wrapper {
+    display: inline-block;
+    transition: transform 0.2s ease;
+}
+
+.pin-svg-wrapper:hover {
+    transform: scale(1.12);
+}
+
+/* Leaflet Controls & Popups in Dark Mode */
+[data-theme="dark"] .leaflet-container {
+    background-color: #0b1120 !important;
+}
+
+[data-theme="dark"] .leaflet-bar a {
+    background-color: #1e293b !important;
+    border-bottom: 1px solid #334155 !important;
+    color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .leaflet-bar a:hover {
+    background-color: #334155 !important;
+    color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .leaflet-bar a.leaflet-disabled {
+    background-color: #0f172a !important;
+    color: #64748b !important;
+}
+
+[data-theme="dark"] .leaflet-popup-content-wrapper,
+[data-theme="dark"] .leaflet-popup-tip {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .leaflet-popup-close-button {
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .leaflet-control-attribution {
+    background-color: rgba(15, 23, 42, 0.8) !important;
+    color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .leaflet-control-attribution a {
+    color: #38bdf8 !important;
+}
+
 
 
 

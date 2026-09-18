@@ -2,14 +2,7 @@
 
 @section('title', 'Monitoring Presensi Tutor — Kepala Sekolah')
 
-@push('head')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-@endpush
-
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <div class="laporanPageWrapper">
     {{-- ── Header ── --}}
@@ -499,36 +492,13 @@
     let kepsekMeasureLine = null;
 
     function ensureLeafletLoaded(callback) {
-        if (typeof L !== 'undefined') {
-            callback();
-            return;
-        }
-        if (!document.getElementById('leaflet-css')) {
-            const link = document.createElement('link');
-            link.id = 'leaflet-css';
-            link.rel = 'stylesheet';
-            link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-            document.head.appendChild(link);
-        }
-        if (!document.getElementById('leaflet-js')) {
-            const script = document.createElement('script');
-            script.id = 'leaflet-js';
-            script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-            script.onload = function() {
-                callback();
-            };
-            document.head.appendChild(script);
-        } else {
-            const checkInterval = setInterval(function() {
-                if (typeof L !== 'undefined') {
-                    clearInterval(checkInterval);
-                    callback();
-                }
-            }, 50);
-        }
+        callback();
     }
 
     function calcHaversine(lat1, lon1, lat2, lon2) {
+        if (typeof window.haversineDistance === 'function') {
+            return window.haversineDistance(lat1, lon1, lat2, lon2);
+        }
         const R = 6371000;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
@@ -635,10 +605,14 @@
                 scrollWheelZoom: false
             }).setView([targetLat, targetLng], 16);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(kepsekLeafletMap);
+            if (window.setupLeafletTileTheme) {
+                window.setupLeafletTileTheme(kepsekLeafletMap, 'kepsekMapContainer');
+            } else {
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(kepsekLeafletMap);
+            }
 
             kepsekSekolahMarker = L.marker([targetLat, targetLng], { icon: targetPin }).addTo(kepsekLeafletMap);
             kepsekSekolahMarker.bindPopup('<b>' + targetNama + '</b><br><span style="font-size:11px;">Pusat Geofence (Radius ' + targetRadius + ' m)</span>');

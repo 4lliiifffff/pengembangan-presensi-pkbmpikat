@@ -2,10 +2,6 @@
 
 @section('title', 'Presensi Siswa')
 
-@push('head')
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-@endpush
 
 @section('content')
     @php
@@ -614,17 +610,12 @@
 
         let allLokasiPoints = @json($lokasiPresensis ?? []);
 
-        let leafletMap = null;
-        let geofenceCircle = null;
-        let sekolahMarker = null;
-        let userMarker = null;
-        let trackPolyline = null;
-        let otherMarkersGroup = null;
+        let presensiMap = null;
         let watchPositionId = null;
         let isLiveTracking = true;
-        let lastWithinZone = null;
         let lastUserLat = null;
         let lastUserLng = null;
+        let lastUserAccuracy = null;
 
         function updateTargetFromDropdown() {
             var selectEl = document.getElementById('selectLokasiPresensi');
@@ -646,223 +637,109 @@
         function handleLokasiPresensiChange() {
             updateTargetFromDropdown();
 
-            if (leafletMap) {
-                if (sekolahMarker) {
-                    sekolahMarker.setLatLng([currentTargetLat, currentTargetLng]);
-                    sekolahMarker.setPopupContent('<b>' + currentTargetNama + '</b><br>Titik Lokasi Absen (Batas Maksimal: ' + currentTargetRadius + ' meter)');
-                }
-                if (geofenceCircle) {
-                    geofenceCircle.setLatLng([currentTargetLat, currentTargetLng]);
-                    geofenceCircle.setRadius(currentTargetRadius);
-                }
-
-                renderOtherMarkers();
-
-                if (lastUserLat !== null && lastUserLng !== null) {
-                    setMapFromLatLng(lastUserLat, lastUserLng);
-                } else {
-                    leafletMap.setView([currentTargetLat, currentTargetLng], 17);
-                }
+            if (presensiMap) {
+                presensiMap.setTarget(
+                    currentTargetLat,
+                    currentTargetLng,
+                    currentTargetRadius,
+                    currentTargetNama,
+                    currentTargetAlamat,
+                    allLokasiPoints
+                );
             }
         }
 
-        function haversineDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371000;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            return R * c;
-        }
-
-        function renderOtherMarkers() {
-            if (!leafletMap || !allLokasiPoints || allLokasiPoints.length === 0) return;
-
-            if (otherMarkersGroup) {
-                leafletMap.removeLayer(otherMarkersGroup);
-            }
-            otherMarkersGroup = L.layerGroup();
-
-            var grayIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-grey.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [20, 32],
-                iconAnchor: [10, 32],
-                popupAnchor: [1, -28],
-                shadowSize: [32, 32]
-            });
-
-            allLokasiPoints.forEach(function (lok) {
-                var lLat = parseFloat(lok.latitude);
-                var lLng = parseFloat(lok.longitude);
-                if (Math.abs(lLat - currentTargetLat) > 0.00001 || Math.abs(lLng - currentTargetLng) > 0.00001) {
-                    var m = L.marker([lLat, lLng], { icon: grayIcon });
-                    m.bindPopup('<b>' + lok.nama_lokasi + '</b><br>Radius: ' + lok.radius_meter + 'm<br><small class="text-muted">Pilih di dropdown jika ingin absen di titik ini</small>');
-                    otherMarkersGroup.addLayer(m);
-                }
-            });
-
-            otherMarkersGroup.addTo(leafletMap);
-        }
-
-        function initLeafletMap() {
+        function initPresensiMapInstance() {
             var mapEl = document.getElementById('leafletMap');
-            if (!mapEl || leafletMap || typeof L === 'undefined') return;
+            if (!mapEl || presensiMap || typeof window.createPresensiMap === 'undefined') return;
 
             updateTargetFromDropdown();
 
-            mapEl.style.display = 'block';
+            presensiMap = window.createPresensiMap({
+                elementId: 'leafletMap',
+                targetLat: currentTargetLat,
+                targetLng: currentTargetLng,
+                targetRadius: currentTargetRadius,
+                targetNama: currentTargetNama,
+                targetAlamat: currentTargetAlamat,
+                lokasiList: allLokasiPoints,
+                onDistanceUpdate: function(state) {
+                    var badge = document.getElementById('geofenceBadge');
+                    var radarCard = document.getElementById('proximityRadarCard');
+                    var radarDot = document.getElementById('radarStatusDot');
+                    var radarTitle = document.getElementById('radarTitle');
+                    var radarSub = document.getElementById('radarSub');
+                    var btnMaps = document.getElementById('btnPetunjukArah');
 
-            leafletMap = L.map('leafletMap').setView([currentTargetLat, currentTargetLng], 17);
+                    if (badge) {
+                        badge.style.display = 'block';
+                        if (state.isWithin) {
+                            badge.style.background = 'rgba(22, 163, 74, 0.12)';
+                            badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
+                            badge.style.color = '#15803d';
+                            badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Di Dalam Area ' + state.targetNama + '</b> (' + Math.round(state.distance) + ' m)</span>';
+                        } else {
+                            badge.style.background = 'rgba(220, 38, 38, 0.12)';
+                            badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
+                            badge.style.color = '#b91c1c';
+                            badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Di Luar Radius ' + state.targetNama + '</b> (' + Math.round(state.distance) + ' m, maks ' + state.targetRadius + ' m)</span>';
+                        }
+                    }
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(leafletMap);
+                    if (radarCard) {
+                        radarCard.classList.remove('d-none');
+                        if (state.isWithin) {
+                            radarCard.className = 'proximityRadarCard radar-in-zone';
+                            if (radarDot) radarDot.className = 'radarStatusDot dot-green';
+                            if (radarTitle) radarTitle.textContent = 'Posisi Terverifikasi di Area ' + state.targetNama;
+                            if (radarSub) radarSub.textContent = 'Jarak: ' + Math.round(state.distance) + ' meter dari titik pusat (Radius: ' + state.targetRadius + 'm).';
+                            if (btnMaps) btnMaps.classList.add('d-none');
+                        } else {
+                            radarCard.className = 'proximityRadarCard radar-out-zone';
+                            if (radarDot) radarDot.className = 'radarStatusDot dot-red';
+                            var selisih = Math.round(state.distance - state.targetRadius);
+                            if (radarTitle) radarTitle.textContent = 'Di Luar Batas Presensi (' + Math.round(state.distance) + ' m)';
+                            if (radarSub) radarSub.textContent = 'Mendekatlah sekitar ' + selisih + ' meter lagi ke area ' + state.targetNama + '.';
+                            if (btnMaps) {
+                                btnMaps.href = 'https://www.google.com/maps/dir/?api=1&origin=' + state.userLat + ',' + state.userLng + '&destination=' + state.targetLat + ',' + state.targetLng;
+                                btnMaps.classList.remove('d-none');
+                            }
+                        }
+                    }
 
-            var redIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
-                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                iconSize: [25, 41],
-                iconAnchor: [12, 41],
-                popupAnchor: [1, -34],
-                shadowSize: [41, 41]
+                    if (state.zoneChanged && window.showAppToast) {
+                        window.showAppToast({
+                            type: state.isWithin ? 'success' : 'warning',
+                            title: state.isWithin ? 'Memasuki Area ' + state.targetNama : 'Keluar Dari Area ' + state.targetNama,
+                            message: state.isWithin ? 'Anda berada dalam jangkauan presensi (' + Math.round(state.distance) + 'm).' : 'Anda berada ' + Math.round(state.distance) + 'm dari titik pusat.',
+                            duration: 3500
+                        });
+                    }
+                }
             });
-
-            sekolahMarker = L.marker([currentTargetLat, currentTargetLng], { icon: redIcon }).addTo(leafletMap);
-            sekolahMarker.bindPopup('<b>' + currentTargetNama + '</b><br>Titik Lokasi Absen (Batas Maksimal: ' + currentTargetRadius + ' meter)');
-
-            geofenceCircle = L.circle([currentTargetLat, currentTargetLng], {
-                color: '#0284c7',
-                fillColor: '#38bdf8',
-                fillOpacity: 0.25,
-                radius: currentTargetRadius
-            }).addTo(leafletMap);
-
-            renderOtherMarkers();
         }
 
-        function setMapFromLatLng(lat, lng) {
+        function setMapFromLatLng(lat, lng, accuracy = null) {
             lastUserLat = lat;
             lastUserLng = lng;
+            lastUserAccuracy = accuracy;
 
             var lokasiEl = document.getElementById('lokasi');
             var ph = document.getElementById('mapPlaceholder');
-            var badge = document.getElementById('geofenceBadge');
-            var radarCard = document.getElementById('proximityRadarCard');
-            var radarDot = document.getElementById('radarStatusDot');
-            var radarTitle = document.getElementById('radarTitle');
-            var radarSub = document.getElementById('radarSub');
-            var btnMaps = document.getElementById('btnPetunjukArah');
 
             if (lokasiEl) {
                 lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
             }
 
-            initLeafletMap();
+            initPresensiMapInstance();
 
             if (ph) ph.classList.add('hidden');
 
-            if (leafletMap) {
-                var dist = haversineDistance(lat, lng, currentTargetLat, currentTargetLng);
-                var distFormatted = dist.toFixed(1);
-                var isWithin = dist <= currentTargetRadius;
-
-                var blueIcon = L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-blue.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                });
-
-                if (userMarker) {
-                    userMarker.setLatLng([lat, lng]);
-                } else {
-                    userMarker = L.marker([lat, lng], { icon: blueIcon }).addTo(leafletMap);
-                }
-                userMarker.bindPopup('<b>Lokasi Anda</b><br>Jarak ke ' + currentTargetNama + ': ' + distFormatted + ' meter');
-
-                // Track Line Polyline
-                if (trackPolyline) {
-                    trackPolyline.setLatLngs([[lat, lng], [currentTargetLat, currentTargetLng]]);
-                } else {
-                    trackPolyline = L.polyline([[lat, lng], [currentTargetLat, currentTargetLng]], {
-                        color: isWithin ? '#10b981' : (dist > 200 ? '#ef4444' : '#f59e0b'),
-                        weight: 3.5,
-                        dashArray: isWithin ? null : '8, 8',
-                        opacity: isWithin ? 0.4 : 0.85
-                    }).addTo(leafletMap);
-                }
-
-                if (isWithin) {
-                    trackPolyline.setStyle({ color: '#10b981', dashArray: null, opacity: 0.35 });
-                } else {
-                    trackPolyline.setStyle({
-                        color: dist > 200 ? '#ef4444' : '#f59e0b',
-                        dashArray: '8, 8',
-                        opacity: 0.85
-                    });
-                }
-
-                var bounds = L.latLngBounds([[currentTargetLat, currentTargetLng], [lat, lng]]);
-                leafletMap.fitBounds(bounds, { padding: [35, 35] });
-
-                if (badge) {
-                    badge.style.display = 'block';
-                    if (isWithin) {
-                        geofenceCircle.setStyle({ color: '#16a34a', fillColor: '#4ade80', fillOpacity: 0.3 });
-                        badge.style.background = 'rgba(22, 163, 74, 0.12)';
-                        badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
-                        badge.style.color = '#15803d';
-                        badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Di Dalam Area ' + currentTargetNama + '</b> (' + Math.round(dist) + ' m)</span>';
-                    } else {
-                        geofenceCircle.setStyle({ color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.3 });
-                        badge.style.background = 'rgba(220, 38, 38, 0.12)';
-                        badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
-                        badge.style.color = '#b91c1c';
-                        badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Di Luar Radius ' + currentTargetNama + '</b> (' + Math.round(dist) + ' m, maks ' + currentTargetRadius + ' m)</span>';
-                    }
-                }
-
-                // Proximity Radar Update
-                if (radarCard) {
-                    radarCard.classList.remove('d-none');
-                    if (isWithin) {
-                        radarCard.className = 'proximityRadarCard radar-in-zone';
-                        if (radarDot) radarDot.className = 'radarStatusDot dot-green';
-                        if (radarTitle) radarTitle.textContent = 'Posisi Terverifikasi di Area ' + currentTargetNama;
-                        if (radarSub) radarSub.textContent = 'Jarak: ' + Math.round(dist) + ' meter dari titik pusat (Radius: ' + currentTargetRadius + 'm).';
-                        if (btnMaps) btnMaps.classList.add('d-none');
-                    } else {
-                        radarCard.className = 'proximityRadarCard radar-out-zone';
-                        if (radarDot) radarDot.className = 'radarStatusDot dot-red';
-                        var selisih = Math.round(dist - currentTargetRadius);
-                        if (radarTitle) radarTitle.textContent = 'Di Luar Batas Presensi (' + Math.round(dist) + ' m)';
-                        if (radarSub) radarSub.textContent = 'Mendekatlah sekitar ' + selisih + ' meter lagi ke area ' + currentTargetNama + '.';
-                        if (btnMaps) {
-                            btnMaps.href = 'https://www.google.com/maps/dir/?api=1&origin=' + lat + ',' + lng + '&destination=' + currentTargetLat + ',' + currentTargetLng;
-                            btnMaps.classList.remove('d-none');
-                        }
-                    }
-                }
-
-                if (lastWithinZone !== null && lastWithinZone !== isWithin) {
-                    if (window.showAppToast) {
-                        window.showAppToast({
-                            type: isWithin ? 'success' : 'warning',
-                            title: isWithin ? 'Memasuki Area ' + currentTargetNama : 'Keluar Dari Area ' + currentTargetNama,
-                            message: isWithin ? 'Anda berada dalam jangkauan presensi (' + Math.round(dist) + 'm).' : 'Anda berada ' + Math.round(dist) + 'm dari titik pusat.',
-                            duration: 3500
-                        });
-                    }
-                }
-                lastWithinZone = isWithin;
+            if (presensiMap) {
+                presensiMap.updateUserLocation(lat, lng, accuracy);
             }
         }
+
 
         function refreshLocation(isManual) {
             if (!navigator.geolocation) return;
@@ -887,7 +764,7 @@
                     mockEl.value = isMock ? '1' : '0';
                 }
 
-                setMapFromLatLng(lat, lng);
+                setMapFromLatLng(lat, lng, accuracy);
 
                 if (isManual && window.showAppToast) {
                     window.showAppToast({
@@ -936,7 +813,7 @@
             if (!navigator.geolocation || watchPositionId !== null) return;
             watchPositionId = navigator.geolocation.watchPosition(function (pos) {
                 if (!isLiveTracking) return;
-                setMapFromLatLng(pos.coords.latitude, pos.coords.longitude);
+                setMapFromLatLng(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
             }, function () {}, {
                 enableHighAccuracy: true,
                 timeout: 10000,

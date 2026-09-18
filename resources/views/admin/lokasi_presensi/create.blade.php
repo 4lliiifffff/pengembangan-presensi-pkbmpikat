@@ -3,8 +3,6 @@
 @section('title', 'Tambah Titik Lokasi Presensi — Admin')
 
 @section('content')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <div class="laporanPageWrapper">
     {{-- ── Header Card ── --}}
@@ -152,16 +150,21 @@
         let currentRadius = parseInt(inputRadius.value) || {{ $defaultRadius }};
 
         const map = L.map('pickerMap').setView([currentLat, currentLng], 16);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
+        if (window.setupLeafletTileTheme) {
+            window.setupLeafletTileTheme(map, 'pickerMap');
+        } else {
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+        }
 
         // Marker Titik yang dapat di-drag
-        const marker = L.marker([currentLat, currentLng], {
-            draggable: true
-        }).addTo(map);
+        const markerOptions = { draggable: true };
+        if (typeof window.createPinIcon === 'function') {
+            markerOptions.icon = window.createPinIcon('target');
+        }
+        const marker = L.marker([currentLat, currentLng], markerOptions).addTo(map);
         marker.bindPopup('<b>Titik Lokasi Presensi</b><br>Geser untuk mengubah koordinat').openPopup();
 
         // Lingkaran Radius Geofence

@@ -50,6 +50,13 @@
   - **Pemilih Lokasi Interaktif di Kamera Presensi:** Dropdown dinamis `lokasi_presensi_id` pada halaman presensi Tutor, Karyawan, dan Magang.
   - **Validasi Radius Matematis Haversine:** `GeofencingService::checkSelectedLokasiRadius()` memvalidasi posisi GPS pengguna secara presisi terhadap titik lokasi yang dipilih. Jika di luar radius titik tersebut, presensi otomatis ditolak dengan pesan peringatan jarak riil.
   - **Automated Testing Suite:** 8 skenario pengujian komprehensif di `tests/Feature/LokasiPresensiTest.php`.
+* 🟢 **Modernisasi Infrastruktur Peta Leaflet (Aset Lokal, Dark Mode Tile CartoDB & Modul JS Bersama):** [SELESAI]
+  - **Eliminasi CDN Eksternal:** Menghapus seluruh dependensi CDN `unpkg.com` dan gambar remote GitHub. Menginstall `leaflet` via NPM dan mem-bundle CSS serta JS langsung ke pipeline Vite aplikasi (`resources/js/app.js`).
+  - **Resolusi Path Default Marker Icon & Aset Lokal Fallback:** Mengatasi bug HTTP 500 pada `marker-shadow.png` & `marker-icon-2x.png` saat Leaflet memanggil subpath rute (seperti `/admin/lokasi-presensi/marker-shadow.png`) akibat auto-detection bundler. Menyediakan aset statis di `public/images/leaflet/`, mengkonfigurasi `L.Icon.Default.mergeOptions(...)` dengan Vite image imports, meniadakan prototype `_getIconUrl`, dan menyematkan `createPinIcon('target')` di seluruh view admin master lokasi presensi (`create`, `edit`, `index`).
+  - **Auto Dark Mode Tile Switching:** Integrasi tile layer CartoDB Dark Matter saat mode gelap (`[data-theme="dark"]`) aktif dan OpenStreetMap standar saat mode terang via `MutationObserver` secara real-time tanpa refresh.
+  - **Konsolidasi Modul Bersama (`resources/js/leaflet-presensi.js`):** Menggantikan 100+ baris duplikasi kode Leaflet di 4 view kamera presensi berbeda (`siswa`, `tutor`, `magang`, `karyawan`) dengan satu modul terpadu `window.createPresensiMap`.
+  - **Marker Pin SVG Lokal & Retina-Ready:** Menggantikan ikon remote dengan `L.divIcon` inline SVG (Target merah ber-drop shadow, User biru dengan efek animasi pulse ring, dan Alternatif abu-abu).
+  - **Dark Mode Map Controls Styling:** Penataan CSS khusus pada `.leaflet-container`, zoom control, attribution bar, dan popups agar harmonis dengan tema gelap.
 * 🟢 **Kalkulasi Radius Lokasi Sekolah (Rumus Haversine), Live Tracking & Interactive Peta Leaflet:** [SELESAI] 
   - Membuat service class `App\Services\GeofencingService` dengan fungsi `calculateDistance()` menggunakan **Rumus Haversine** dan helper `getGoogleMapsDirectionsUrl()`.
   - Menambahkan titik koordinat sekolah PKBM Pikat (`sekolah_lat`, `sekolah_lng`) dan toleransi radius (`radius_meter` = 100m) pada file konfigurasi `config/lokasi.php` dan file environment `.env`.
