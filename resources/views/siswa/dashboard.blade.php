@@ -49,24 +49,31 @@
             {{-- ── STATUS PRESENSI HARI INI (SINGLE CHECK-IN) ── --}}
             @php
                 $isHadir = ($todayStatus === 'selesai' && $todayPresensi);
+                $isTerlambat = ($isHadir && $todayPresensi?->isTerlambat());
                 $statusClass = $isHadir ? 'selesai' : 'belum';
-                $statusIcon = $isHadir ? 'checkmark-circle-outline' : 'radio-button-off-outline';
-                $statusText = $isHadir ? 'Sudah Hadir di PKBM Hari Ini' : 'Belum Melakukan Absensi Hari Ini';
+                $statusIcon = $isHadir ? ($isTerlambat ? 'alert-circle-outline' : 'checkmark-circle-outline') : 'radio-button-off-outline';
+                $statusText = $isHadir ? ($isTerlambat ? 'Hadir di PKBM (Terlambat ' . $todayPresensi->menit_keterlambatan . ' mnt)' : 'Sudah Hadir di PKBM Hari Ini') : 'Belum Melakukan Absensi Hari Ini';
                 $jamMasukToday = $todayPresensi?->jam_masuk ? substr((string) $todayPresensi->jam_masuk, 0, 5) . ' WIB' : 'Belum Absen';
                 $lokasiMasukToday = $todayPresensi?->lokasiPresensi?->nama_lokasi ?? ($isHadir ? 'Gedung Utama PKBM Pikat' : '—');
             @endphp
 
-            <div class="todayCard {{ $statusClass }}">
-                <div class="todayIcon {{ $statusClass }}">
+            <div class="todayCard {{ $statusClass }}" style="{{ $isTerlambat ? 'border-color: #f59e0b;' : '' }}">
+                <div class="todayIcon {{ $statusClass }}" style="{{ $isTerlambat ? 'background: #fef3c7; color: #d97706;' : '' }}">
                     <ion-icon name="{{ $statusIcon }}"></ion-icon>
                 </div>
                 <div class="todayBody">
-                    <div class="todayStatusLabel {{ $statusClass }}">{{ $statusText }}</div>
+                    <div class="todayStatusLabel {{ $statusClass }}" style="{{ $isTerlambat ? 'color: #b45309;' : '' }}">{{ $statusText }}</div>
                     <div class="todayTimeRow">
                         <div class="todayTimeChip">
                             <span class="todayTimeVal">{{ $jamMasukToday }}</span>
                             <span class="todayTimeLbl">Jam Kedatangan</span>
                         </div>
+                        @if($isTerlambat)
+                            <div class="todayTimeChip">
+                                <span class="todayTimeVal text-warning font-bold">+{{ $todayPresensi->menit_keterlambatan }} Mnt</span>
+                                <span class="todayTimeLbl text-warning">Keterlambatan</span>
+                            </div>
+                        @endif
                         <div class="todayTimeChip">
                             <span class="todayTimeVal" title="{{ $lokasiMasukToday }}">{{ \Illuminate\Support\Str::limit($lokasiMasukToday, 20) }}</span>
                             <span class="todayTimeLbl">Lokasi Belajar</span>

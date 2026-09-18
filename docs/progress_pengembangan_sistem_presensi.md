@@ -234,7 +234,99 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Admin Management Panel:** Controller `Admin\JadwalRutinController.php` dengan halaman `index`, `create`, `edit` di `resources/views/admin/jadwal_rutin/`, modal cepat generator kalender, dan tautan di drawer navigasi admin.
     - **Penanganan Reschedule Fleksibel:** Perubahan jadwal kesepakatan tutor-siswa dilakukan pada instance `jadwal_sesis` tanpa merusak pola master berulang minggu berikutnya.
     - **Smart Presensi Time-Gating Siswa:** Proteksi form presensi masuk siswa di `SiswaPresensiController` (kamera & tombol absen terkunci jika bukan hari KBM atau sebelum H-30 menit jam mulai sesi), dilengkapi kartu status dan *live countdown timer* JavaScript pada view `resources/views/siswa/presensi_foto.blade.php`.
+    - **Database Seeder Otomatis:** Seeder `JadwalRutinSeeder.php` yang terdaftar pada `DatabaseSeeder.php` untuk menginisialisasi pola master mingguan siswa-tutor dan menghasilkan 30 sesi kalender siap pakai untuk 4 minggu ke depan tanpa menyentuh data presensi.
     - **Testing Suite:** `tests/Feature/JadwalRutinAndPresensiGatingTest.php` (7 test cases) lolos 100%. Total 132 tests (546 assertions) PASSED.
+
+#### 4.7 Perbaikan Perhitungan Kehadiran Siswa (Anti Double-Counting Distinct Days)
+- 🟢 **Penyelarasan Statistik Kehadiran Siswa (Dashboard & Profil)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Masalah:** Sebelumnya, saat murid melakukan absen mandiri (`presensi_mandiri_siswas`) dan tutor mencatat sesi kelas (`presensis`) di hari yang sama, total hadir dihitung dengan penjumlahan aritmatika sederhana ($1 + 1 = 2$).
+    - **Penyelesaian Backend (`SiswaDashboardController`):** Menghitung total hadir bulanan (`$totalHadirBulanIni`) dan total keseluruhan di profil (`$totalHariHadir`) menggunakan penggabungan tanggal unik (`DISTINCT` dates via `pluck('tgl_presensi')->unique()`). Jika pada tanggal yang sama murid absen mandiri dan tutor mengabsen sesi, sistem menghitungnya tepat sebagai 1 Hari Hadir.
+    - **Penyelarasan UI (`dashboard.blade.php` & `profil.blade.php`):** Dashboard tetap menampilkan transparansi rincian ("Absen Mandiri", "Sesi Kelas", dan "Total Hadir" berbasis hari aktif unik), sedangkan profil menampilkan rincian "Hari Hadir", "Absen Mandiri", dan "Sesi Kelas".
+    - **Automated Testing:** Penambahan feature test `test_dashboard_attendance_counts_unique_days_preventing_double_count` di `tests/Feature/SiswaRoleAndPresensiTest.php`. Total suite lulus 133 tests (554 assertions).
+
+#### 4.8 Perbaikan Countdown Timer Absen Pulang (Eliminasi Desimal Microsecond)
+- 🟢 **Standardisasi Integer Sanitization pada Countdown Timer Multi-Role**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Masalah:** Perhitungan selisih detik (`$jamMulaiDt->diffInSeconds($nowDt, false)`) pada Carbon dapat mengembalikan angka bertipe `float` dengan presisi microsecond (misal `3324.038773...`). Saat dioperasikan dengan modulo JavaScript (`totalSec % 60`), JavaScript menghasilkan sisa bagi desimal panjang (`24.03877300000022`), sehingga teks countdown menampilkan `55:24.03877300000022`.
+    - **Penyelesaian Backend & Blade:** Melakukan *explicit integer casting* `(int)` pada kalkulasi `$diffDetik` dan `$sisaDetik` di `PresensiFotoController`, `TutorDashboardController`, serta Blade views.
+    - **Penyelesaian JavaScript Timer:** Menggunakan `Math.floor(totalSec)` dan `Math.floor(totalSec % 60)` di script browser timer pada halaman presensi Tutor, Magang, Karyawan, serta dashboard Tutor sehingga hitungan mundur selalu bulat dan mulus berformat `MM:SS`.
+
+#### 4.9 Perbaikan Siklus Status Sesi KBM & Eliminasi Lock-Out Presensi Siswa
+- 🟢 **Eliminasi Lock-Out Presensi Mandiri Siswa Pasca-Check-In Tutor**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Masalah:** Ketika tutor melakukan presensi masuk (clock in), controller tutor sebelumnya langsung meng-update `jadwal_sesis.status` menjadi `'selesai'` (prematur). Di sisi siswa, `SiswaPresensiController::store()` dan blade `siswa.jadwal` menggunakan filter kaku `where('status', 'terjadwal')`. Akibatnya, saat siswa ingin melakukan presensi mandiri, query gagal menemukan sesi dan memblokir siswa dengan peringatan *"Presensi tidak dapat dilakukan karena Anda tidak memiliki jadwal KBM yang aktif hari ini."*
+    - **Perbaikan Transisi Status Sesi Tutor (`Tutor\PresensiFotoController`):**
+      - Saat tutor absen masuk (`mode === 'mulai'`), status `jadwal_sesis` di-update menjadi `'berlangsung'`.
+      - Saat tutor absen pulang (`mode === 'selesai'`), status `jadwal_sesis` di-update menjadi `'selesai'`.
+    - **Perbaikan Validasi Presensi Siswa (`SiswaPresensiController`):**
+      - Pengecekan `$todaySesi` pada method `store()` diselaraskan dengan method `foto()`, yaitu mencari sesi dengan `where('status', '!=', 'dibatalkan')` dan memprioritaskan sesi yang belum diabsen mandiri oleh siswa (`presensi_siswa_id IS NULL` atau `status_kehadiran_siswa != 'hadir'`).
+      - Auto-link sesi ke `presensi_mandiri_siswas` diperbarui dengan `where('status', '!=', 'dibatalkan')`.
+    - **Penyelarasan Tampilan Jadwal Siswa (`resources/views/siswa/jadwal.blade.php`):**
+      - Menambahkan badge status `'Sedang Berlangsung'` (badge layanan DL) saat `status === 'berlangsung'`.
+      - Tombol *"Absen Masuk Sekarang"* tetap dapat diakses oleh siswa selama sesi hari ini berstatus bukan `'dibatalkan'` dan siswa belum melakukan presensi mandiri.
+    - **Pengujian Otomatis:**
+      - Feature test baru `test_siswa_can_presensi_mandiri_even_if_tutor_already_clocked_in_session` di `tests/Feature/SiswaRoleAndPresensiTest.php`.
+      - Pembaruan skenario transisi dua tahap pada `test_presensi_masuk_auto_links_and_completes_jadwal_sesi` di `tests/Feature/JadwalSesiPenggantiTest.php`.
+      - Seluruh suite pengujian aplikasi (134 tests, 562 assertions) lulus 100%.
+
+#### 4.10 Penanda Keterlambatan Presensi Mandiri Siswa (Batas Waktu Toleransi KBM)
+- 🟢 **Evaluasi Batas Toleransi, Pencatatan Keterlambatan & Tampilan Status Siswa**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Database Migration:** Migrasi `2026_09_18_000002_add_status_kehadiran_to_presensi_mandiri_siswas_table.php` menambahkan kolom `status_kehadiran` (`tepat_waktu`, `terlambat`, `lebih_awal`) dan `menit_keterlambatan` pada tabel `presensi_mandiri_siswas`.
+    - **Model `PresensiMandiriSiswa`:** Menambahkan `$fillable`, casting integer `menit_keterlambatan`, helper `isTerlambat(): bool`, dan accessor `status_kehadiran_label`.
+    - **Evaluasi Dinamis di Controller (`SiswaPresensiController`):**
+      - Pada `foto()`, sistem mengevaluasi `$todaySesi` terhadap jam saat ini (`$now`) dengan batas toleransi 30 menit (`$todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30)`). Menghasilkan array `$sesiEval` yang dikirim ke view.
+      - Pada `store()`, sistem menghitung status keterlambatan aktual saat data disimpan, mencatat `status_kehadiran` dan `menit_keterlambatan`, serta mengirimkan flash message notifikasi dan Web Push spesifik (misal: *"Anda tercatat terlambat 61 menit dari jadwal KBM (09:00 WIB)"*).
+    - **Penyelarasan Tampilan UI Siswa:**
+      - Di halaman kamera `siswa/presensi_foto.blade.php`: Menampilkan card info jadwal KBM (jam sesi, target masuk, batas toleransi) dengan badge status real-time (`Tepat Waktu` / `Terlambat (+XX mnt)`), teks alert peringatan jika lewat toleransi, serta pembaruan kartu hasil presensi.
+      - Di dashboard siswa `siswa/dashboard.blade.php`: Kartu kehadiran hari ini (`.todayCard`) otomatis menampilkan border/ikon warning dan chip keterlambatan `+XX Mnt`.
+      - Di riwayat siswa `siswa/riwayat.blade.php`: Menampilkan badge `Terlambat (+XX mnt)` di samping status Hadir.
+    - **Pengujian Otomatis:**
+      - Feature test `test_siswa_presensi_evaluates_late_when_exceeding_tolerance_limit` di `tests/Feature/SiswaRoleAndPresensiTest.php`.
+      - Seluruh test suite (135 tests, 572 assertions) lulus 100%.
+
+#### 4.11 Modernisasi & Penyelarasan Style Halaman Absen Siswa (Design System & Responsivitas Mobile)
+- 🟢 **Standardisasi Kartu Pasca-Presensi Mandiri, Time-Gating, & Modal Bukti Foto Siswa**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Kebutuhan:** Tampilan halaman presensi siswa setelah melakukan absen masuk sebelumnya masih menggunakan komponen kaku/tabel sederhana yang kurang konsisten dengan layout modern halaman lain (`.data-mobile-card`, `.statusBanner`, `.dmc-grid`, dsb.) dan kurang optimal di layar perangkat mobile.
+    - **Penyelarasan Kartu Bukti Presensi (`resources/views/siswa/presensi_foto.blade.php`):**
+      - Menggunakan `.statusBanner.done` (tepat waktu) dan `.statusBanner.running` (terlambat) dengan ikon status selaras.
+      - Membungkus detail bukti presensi mandiri ke dalam `.data-mobile-card` lengkap dengan header tanggal, badge kehadiran (`Hadir (Tepat Waktu)` / `Terlambat (+XX mnt)` / `Lebih Awal`), dan card profil snapshot selfie siswa.
+      - Menampilkan grid informasi rapi (`.dmc-grid` & `.dmc-field`): Jam Kedatangan, Status Kehadiran, Titik Lokasi Belajar, Integritas GPS, serta detail Sesi KBM Terkait (mata pelajaran & tutor pengampu).
+      - Menyelaraskan tombol aksi responsif (`.dmc-footer` & `.dmc-actions`) menuju Dashboard, Jadwal Mingguan, dan Riwayat Presensi.
+    - **Penyelarasan Kartu Time-Gated (`no_schedule` & `too_early`):**
+      - Merestrukturisasi tampilan saat jadwal belum tiba atau tidak ada KBM ke dalam `.statusBanner` dan `.data-mobile-card` yang rapi di layar ponsel dengan tipografi harmonis dan tombol aksi terstandarisasi.
+    - **Modal Pratinjau Foto Bukti Presensi (`#buktiPhotoModal`):**
+      - Menambahkan modal preview foto snapshot selfie presensi yang dapat diklik langsung dari foto avatar untuk memperbesar gambar secara jernih dan responsif.
+    - **Standarisasi CSS Design System (`resources/css/app.css`):**
+      - Menambahkan kelas tombol sekunder terstandarisasi `.profileBtnSecondary` yang adaptif baik pada Light Mode maupun Dark Mode (`[data-theme="dark"]`).
+    - **Pengujian & QA:**
+      - Seluruh suite pengujian automated feature tests (135 tests, 572 assertions) lulus 100%. Formatter Laravel Pint lolos tanpa error.
+
+#### 4.12 Penyederhanaan Database Seeder Khusus Akun Pengguna (Account-Only Seeding)
+- 🟢 **Standardisasi Seeder Default (`DatabaseSeeder`) Terisolasi Khusus Akun Pengguna**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Kebutuhan:** Sebelumnya, eksekusi `php artisan db:seed` secara otomatis men-generate data master, jadwal operasional, dan puluhan sesi dummy kalender (`JadwalSeeder`, `JadwalRutinSeeder`, `KategoriTutorialSeeder`, dll.). Dibutuhkan alur seeding default yang bersih, ringan, dan hanya sebatas inisialisasi akun pengguna untuk seluruh role.
+    - **Penyelarasan `DatabaseSeeder` (`database/seeders/DatabaseSeeder.php`):**
+      - Membatasi panggilan seeder utama hanya pada 4 seeder akun:
+        1. `AdminSeeder::class` (Akun Admin utama).
+        2. `UserRoleSeeder::class` (Akun Admin operasional, Tutor pengajar, dan Kepala Sekolah).
+        3. `MagangSeeder::class` (Akun Mahasiswa Magang/PKL).
+        4. `SiswaUserSeeder::class` (Akun Siswa presensi mandiri).
+      - Menghapus pemanggilan seeder jadwal, master tarif, dan generator sesi dari run default `DatabaseSeeder`, namun tetap mempertahankan file-file seeder tersebut secara independen di `database/seeders/` untuk kebutuhan manual testing bila diperlukan.
+    - **Penyempurnaan `SiswaUserSeeder`:**
+      - Menambahkan fallback mandiri (`self-contained`) untuk memastikan relasi kelas default dan data profil siswa otomatis terbentuk tanpa bergantung pada dummy seeder eksternal.
+      - Menyelaraskan query kolom sesuai struktur migrasi aktif (`no_absen` tanpa kolom usang `nis` dan `alamat`).
+    - **Verifikasi:**
+      - Perintah `php artisan db:seed` sukses mengeksekusi pembuatan seluruh akun pengguna (Admin, Kepsek, Tutor, Magang, Siswa) dengan bersih dan cepat.
+      - Seluruh test suite (135 tests, 572 assertions) tetap lulus 100%.
 
 ---
 

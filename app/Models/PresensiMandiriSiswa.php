@@ -26,6 +26,8 @@ class PresensiMandiriSiswa extends Model
         'lokasi_akurasi',
         'is_mocked',
         'status',
+        'status_kehadiran',
+        'menit_keterlambatan',
     ];
 
     protected function casts(): array
@@ -33,7 +35,28 @@ class PresensiMandiriSiswa extends Model
         return [
             'lokasi_akurasi' => 'float',
             'is_mocked' => 'boolean',
+            'menit_keterlambatan' => 'integer',
         ];
+    }
+
+    /**
+     * Cek apakah presensi tercatat terlambat melebihi batas toleransi.
+     */
+    public function isTerlambat(): bool
+    {
+        return $this->status_kehadiran === 'terlambat';
+    }
+
+    /**
+     * Label status kehadiran spesifik (Tepat Waktu / Terlambat XX Menit / Lebih Awal).
+     */
+    public function getStatusKehadiranLabelAttribute(): string
+    {
+        return match ($this->status_kehadiran) {
+            'terlambat' => 'Terlambat (+'.$this->menit_keterlambatan.' mnt)',
+            'lebih_awal' => 'Lebih Awal',
+            default => 'Tepat Waktu',
+        };
     }
 
     /** Relasi ke Siswa. */

@@ -44,140 +44,258 @@
             @php
                 $jamMasuk = substr((string) $todayPresensi->jam_masuk, 0, 5);
                 $lokasiNama = $todayPresensi->lokasiPresensi?->nama_lokasi ?? 'PKBM Pikat';
+                $isLate = $todayPresensi->isTerlambat();
             @endphp
 
-            <div class="statusBanner ready mb-4 bg-success-light">
-                <div>
-                    <div class="statusTitle text-success">Presensi Hari Ini Sudah Tercatat</div>
-                    <div class="statusSub">Kehadiran Anda berhasil dicatat pada pukul {{ $jamMasuk }} WIB</div>
+            <div class="statusBanner {{ $isLate ? 'running' : 'done' }} mb-4">
+                <div class="statusIcon {{ $isLate ? 'warn' : 'green' }}">
+                    <ion-icon name="{{ $isLate ? 'alert-circle' : 'checkmark-circle' }}"></ion-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="statusTitle {{ $isLate ? 'text-warning' : 'text-success' }}">
+                        {{ $isLate ? 'Presensi Masuk Tercatat Terlambat' : 'Presensi Masuk Hari Ini Berhasil' }}
+                    </div>
+                    <div class="statusSub">
+                        Kehadiran Anda berhasil diverifikasi pada pukul <strong>{{ $jamMasuk }} WIB</strong>
+                        @if($isLate)
+                            <span class="text-warning font-semibold">(Terlambat {{ $todayPresensi->menit_keterlambatan }} menit dari jadwal KBM)</span>
+                        @else
+                            <span class="text-success font-semibold">(Tepat Waktu)</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
-            <div class="card mb-4 text-center p-4">
-                <div class="d-flex justify-content-center mb-3">
-                    @if ($todayPresensi->foto_masuk_url)
-                        <img src="{{ $todayPresensi->foto_masuk_url }}" alt="Foto Presensi Masuk" class="rounded-2xl border shadow-sm" style="width: 140px; height: 140px; object-fit: cover;">
-                    @else
-                        <div class="avatar-lg bg-success-light text-success font-extrabold rounded-2xl d-flex align-items-center justify-content-center" style="width: 100px; height: 100px; font-size: 2rem;">
-                            ✓
+            {{-- Kartu Bukti Kehadiran Siswa --}}
+            <div class="data-mobile-card mb-4">
+                <div class="dmc-header">
+                    <div class="d-flex items-center gap-2">
+                        <div class="avatar-sm rounded-full bg-primary-light text-primary d-flex align-items-center justify-content-center font-bold" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                            <ion-icon name="shield-checkmark-outline"></ion-icon>
+                        </div>
+                        <div>
+                            <h4 class="dmc-title">Bukti Presensi Mandiri</h4>
+                            <div class="dmc-subtitle">{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}</div>
+                        </div>
+                    </div>
+                    <div>
+                        @if($isLate)
+                            <span class="app-badge badge-layanan-dl">Terlambat (+{{ $todayPresensi->menit_keterlambatan }} mnt)</span>
+                        @elseif($todayPresensi->status_kehadiran === 'lebih_awal')
+                            <span class="app-badge badge-layanan-komunitas">Lebih Awal</span>
+                        @else
+                            <span class="app-badge badge-status-aktif">Hadir (Tepat Waktu)</span>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- User Profile & Selfie Snapshot Card --}}
+                <div class="d-flex items-center gap-3 p-3 rounded-xl mb-3" style="background: var(--card-alt, #f8fafc); border: 1px solid var(--border, #f1f5f9);">
+                    <div class="pos-relative flex-shrink-0">
+                        @if ($todayPresensi->foto_masuk_url)
+                            <img src="{{ $todayPresensi->foto_masuk_url }}" 
+                                 onclick="openBuktiPhotoModal('{{ $todayPresensi->foto_masuk_url }}', 'Foto Presensi: {{ $displayName }}')"
+                                 alt="Foto Presensi Masuk" 
+                                 class="rounded-xl object-cover cursor-pointer shadow-sm" 
+                                 style="width: 72px; height: 72px; object-fit: cover; border: 2px solid var(--card, #fff);" 
+                                 title="Klik untuk memperbesar">
+                            <span class="pos-absolute bottom-0 right-0 bg-success text-white rounded-full p-0.5 d-flex align-items-center justify-content-center shadow" style="width: 20px; height: 20px; font-size: 11px; transform: translate(25%, 25%);">
+                                <ion-icon name="checkmark-outline"></ion-icon>
+                            </span>
+                        @else
+                            <div class="avatar-lg bg-success-light text-success font-extrabold rounded-xl d-flex align-items-center justify-content-center shadow-sm" style="width: 72px; height: 72px; font-size: 1.8rem;">
+                                ✓
+                            </div>
+                        @endif
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <h4 class="font-extrabold text-base text-dark mb-0.5 truncate">{{ $displayName }}</h4>
+                        <div class="text-xs text-muted font-semibold mb-1">
+                            {{ $siswa?->kelas?->nama_kelas ?? 'Kelas Siswa' }} &bull; No. Absen: <strong>{{ $siswa?->no_absen ?? '—' }}</strong>
+                        </div>
+                        <div class="text-xs text-muted">
+                            NISN/NIK: <span class="font-mono font-semibold text-dark">{{ $siswa?->nisn ?? ($user->nik ?? '—') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Detail Grid Informasi Presensi --}}
+                <div class="dmc-grid">
+                    <div class="dmc-field">
+                        <div class="dmc-label">Jam Kedatangan</div>
+                        <div class="dmc-value text-primary font-extrabold">
+                            {{ $jamMasuk }} WIB
+                        </div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Status Kehadiran</div>
+                        <div class="dmc-value">
+                            @if($isLate)
+                                <span class="text-warning font-bold">Terlambat (+{{ $todayPresensi->menit_keterlambatan }} mnt)</span>
+                            @elseif($todayPresensi->status_kehadiran === 'lebih_awal')
+                                <span class="text-info font-bold">Lebih Awal</span>
+                            @else
+                                <span class="text-success font-bold">Tepat Waktu</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Titik Lokasi Belajar</div>
+                        <div class="dmc-value" title="{{ $lokasiNama }}">
+                            {{ \Illuminate\Support\Str::limit($lokasiNama, 25) }}
+                        </div>
+                    </div>
+
+                    <div class="dmc-field">
+                        <div class="dmc-label">Integritas Lokasi GPS</div>
+                        <div class="dmc-value text-muted font-semibold text-xs">
+                            @if($todayPresensi->lokasi_akurasi)
+                                &plusmn;{{ round($todayPresensi->lokasi_akurasi) }}m (Sinyal Valid)
+                            @else
+                                Valid (Radius Sekolah)
+                            @endif
+                        </div>
+                    </div>
+
+                    @if($todaySesi)
+                        <div class="dmc-field full pt-2 mt-1 border-t-base">
+                            <div class="dmc-label">Sesi KBM Terkait Hari Ini</div>
+                            <div class="d-flex items-center justify-between flex-wrap gap-1 mt-0.5">
+                                <span class="font-bold text-dark text-xs">
+                                    {{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}
+                                    ({{ $todaySesi->jam_masuk_formatted }} - {{ $todaySesi->jam_pulang_formatted }} WIB)
+                                </span>
+                                <span class="text-xs text-muted font-semibold">
+                                    Tutor: <strong>{{ $todaySesi->tutor->nama_lengkap ?? 'Tutor Pembimbing' }}</strong>
+                                </span>
+                            </div>
                         </div>
                     @endif
                 </div>
-                <h3 class="font-extrabold text-lg text-dark mb-1">{{ $displayName }}</h3>
-                <div class="text-sm font-semibold text-success mb-3">
-                    <ion-icon name="checkmark-circle" style="vertical-align: -2px; font-size: 1.1rem;"></ion-icon> Status: Hadir
-                </div>
 
-                <div class="bg-light p-3 rounded-xl mb-4 text-left d-inline-block w-full" style="max-width: 380px;">
-                    <div class="d-flex justify-content-between text-sm py-1 border-b">
-                        <span class="text-muted">Tanggal:</span>
-                        <span class="font-bold text-dark">{{ \Carbon\Carbon::parse($today)->translatedFormat('d F Y') }}</span>
+                {{-- Action Buttons --}}
+                <div class="dmc-footer">
+                    <div class="dmc-actions flex-wrap gap-2">
+                        <a href="{{ route('siswa.dashboard') }}" class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
+                            <ion-icon name="home-outline"></ion-icon> Dashboard
+                        </a>
+                        <a href="{{ route('siswa.jadwal') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                            <ion-icon name="calendar-outline"></ion-icon> Jadwal
+                        </a>
+                        <a href="{{ route('siswa.riwayat') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                            <ion-icon name="time-outline"></ion-icon> Riwayat
+                        </a>
                     </div>
-                    <div class="d-flex justify-content-between text-sm py-1 border-b">
-                        <span class="text-muted">Jam Masuk:</span>
-                        <span class="font-bold text-dark">{{ $jamMasuk }} WIB</span>
-                    </div>
-                    <div class="d-flex justify-content-between text-sm py-1">
-                        <span class="text-muted">Lokasi Belajar:</span>
-                        <span class="font-bold text-dark">{{ $lokasiNama }}</span>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-2 justify-content-center flex-wrap">
-                    <a href="{{ route('siswa.dashboard') }}" class="btn btn-primary px-4 py-2 font-bold rounded-xl">
-                        Kembali ke Dashboard
-                    </a>
-                    <a href="{{ route('siswa.riwayat') }}" class="btn btn-light px-4 py-2 font-bold rounded-xl">
-                        Riwayat Presensi
-                    </a>
                 </div>
             </div>
 
         {{-- ── TIME-GATED: TIDAK BISA ABSEN (BELUM WAKTUNYA ATAU TIDAK ADA JADWAL) ── --}}
         @elseif (! $canCheckIn)
             @if ($gatingReason === 'no_schedule')
-                <div class="statusBanner mb-4" style="background: #fef2f2; border-left: 4px solid #ef4444;">
-                    <div>
+                <div class="statusBanner mb-4" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22);">
+                    <div class="statusIcon warn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                    </div>
+                    <div class="flex-1 min-w-0">
                         <div class="statusTitle" style="color: #b91c1c;">Tidak Ada Jadwal Belajar Hari Ini</div>
-                        <div class="statusSub" style="color: #6b7280;">Presensi masuk hanya dapat dilakukan pada hari dan jam KBM yang telah ditentukan.</div>
+                        <div class="statusSub" style="color: #64748b;">Presensi mandiri hanya dapat dilakukan saat jadwal KBM aktif.</div>
                     </div>
                 </div>
 
-                <div class="card mb-4 text-center p-4">
+                <div class="data-mobile-card mb-4 text-center p-4">
                     <div class="d-flex justify-content-center mb-3">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
+                        <div class="avatar-lg bg-danger-light text-danger rounded-2xl d-flex align-items-center justify-content-center" style="width: 72px; height: 72px; font-size: 2.2rem;">
                             <ion-icon name="calendar-outline"></ion-icon>
                         </div>
                     </div>
-                    <h3 class="font-extrabold text-lg text-dark mb-1">Hari Ini Tidak Ada KBM</h3>
-                    <p class="text-sm text-muted mb-4" style="max-width: 380px; margin-left: auto; margin-right: auto;">
-                        Anda tidak memiliki jadwal sesi belajar yang aktif untuk hari ini ({{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}). Silakan periksa menu Jadwal Belajar untuk melihat agenda mingguan Anda.
+                    <h3 class="font-extrabold text-base text-dark mb-1">Hari Ini Tidak Ada KBM</h3>
+                    <p class="text-xs text-muted mb-4 max-w-sm mx-auto" style="line-height: 1.5;">
+                        Anda tidak memiliki jadwal sesi belajar yang aktif untuk hari ini (<strong>{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}</strong>). Silakan periksa kalender belajar untuk melihat agenda mingguan Anda.
                     </p>
 
-                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        <a href="{{ route('siswa.jadwal') }}" class="btn btn-primary px-4 py-2 font-bold rounded-xl" style="display: inline-flex; align-items: center; gap: 6px;">
-                            <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal Mingguan
-                        </a>
-                        <a href="{{ route('siswa.dashboard') }}" class="btn btn-light px-4 py-2 font-bold rounded-xl">
-                            Kembali ke Dashboard
-                        </a>
+                    <div class="dmc-footer pt-3 border-t-base">
+                        <div class="dmc-actions flex-wrap gap-2">
+                            <a href="{{ route('siswa.jadwal') }}" class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
+                                <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal Mingguan
+                            </a>
+                            <a href="{{ route('siswa.dashboard') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                                <ion-icon name="home-outline"></ion-icon> Dashboard
+                            </a>
+                        </div>
                     </div>
                 </div>
 
             @elseif ($gatingReason === 'too_early')
-                <div class="statusBanner mb-4" style="background: #fffbeb; border-left: 4px solid #f59e0b;">
-                    <div>
-                        <div class="statusTitle" style="color: #b45309;">Presensi Belum Dibuka (Terkunci)</div>
-                        <div class="statusSub" style="color: #6b7280;">Absensi mandiri dibuka mulai 30 menit sebelum sesi KBM dimulai.</div>
+                <div class="statusBanner running mb-4">
+                    <div class="statusIcon warn">
+                        <ion-icon name="lock-closed-outline"></ion-icon>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="statusTitle text-warning">Presensi Belum Dibuka (Terkunci)</div>
+                        <div class="statusSub">Absensi mandiri dibuka mulai 30 menit sebelum sesi KBM dimulai.</div>
                     </div>
                 </div>
 
-                <div class="card mb-4 text-center p-4">
-                    <div class="d-flex justify-content-center mb-3">
-                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 2.5rem;">
-                            <ion-icon name="lock-closed-outline"></ion-icon>
+                <div class="data-mobile-card mb-4 text-center p-4">
+                    <div class="d-flex justify-content-center mb-2">
+                        <div class="avatar-lg bg-warning-light text-warning rounded-2xl d-flex align-items-center justify-content-center" style="width: 68px; height: 68px; font-size: 2rem;">
+                            <ion-icon name="time-outline"></ion-icon>
                         </div>
                     </div>
-                    <h3 class="font-extrabold text-lg text-dark mb-1">Jadwal Sesi KBM Hari Ini</h3>
-                    <div class="badge badge-warning mb-3" style="font-size: 0.82rem; padding: 4px 12px;">
-                        Terkunci Hingga Pukul {{ $waktuBukaStr }} WIB
+                    <h3 class="font-extrabold text-base text-dark mb-1">Jadwal Sesi KBM Hari Ini</h3>
+                    <div class="mb-3">
+                        <span class="app-badge badge-layanan-dl font-bold text-xs py-1 px-3">
+                            Terkunci Hingga Pukul {{ $waktuBukaStr }} WIB
+                        </span>
                     </div>
 
-                    <div class="bg-light p-3 rounded-xl mb-4 text-left d-inline-block w-full" style="max-width: 400px;">
-                        <div class="d-flex justify-content-between text-sm py-1 border-b">
-                            <span class="text-muted">Tutor Pengampu:</span>
-                            <span class="font-bold text-dark">{{ $todaySesi->tutor->nama_lengkap ?? 'Tutor Pembimbing' }}</span>
+                    <div class="dmc-grid text-left mb-3">
+                        <div class="dmc-field">
+                            <div class="dmc-label">Tutor Pengampu</div>
+                            <div class="dmc-value font-bold text-dark">
+                                {{ $todaySesi->tutor->nama_lengkap ?? 'Tutor Pembimbing' }}
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between text-sm py-1 border-b">
-                            <span class="text-muted">Mata Pelajaran:</span>
-                            <span class="font-bold text-dark">{{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}</span>
+                        <div class="dmc-field">
+                            <div class="dmc-label">Mata Pelajaran</div>
+                            <div class="dmc-value font-bold text-primary">
+                                {{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between text-sm py-1 border-b">
-                            <span class="text-muted">Jam KBM:</span>
-                            <span class="font-bold text-dark">{{ $todaySesi->jam_masuk_formatted }} - {{ $todaySesi->jam_pulang_formatted }} WIB</span>
+                        <div class="dmc-field">
+                            <div class="dmc-label">Jam Sesi KBM</div>
+                            <div class="dmc-value text-dark font-extrabold">
+                                {{ $todaySesi->jam_masuk_formatted }} - {{ $todaySesi->jam_pulang_formatted }} WIB
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between text-sm py-1">
-                            <span class="text-muted">Waktu Buka Absen:</span>
-                            <span class="font-bold text-success">{{ $waktuBukaStr }} WIB (H-30 Menit)</span>
+                        <div class="dmc-field">
+                            <div class="dmc-label">Waktu Buka Presensi</div>
+                            <div class="dmc-value text-success font-extrabold">
+                                {{ $waktuBukaStr }} WIB (H-30 Mnt)
+                            </div>
                         </div>
                     </div>
 
                     {{-- Countdown Timer Box --}}
-                    <div style="background: #1e293b; color: white; border-radius: 12px; padding: 1rem; max-width: 360px; margin: 0 auto 1.5rem auto;">
-                        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 4px;">Waktu Menuju Buka Presensi</div>
-                        <div id="countdownClock" style="font-size: 1.75rem; font-weight: 800; letter-spacing: 0.05em; font-family: monospace; color: #38bdf8;">
+                    <div class="countdownCard mb-3 p-3">
+                        <div class="countdownLabel">Waktu Menuju Buka Presensi</div>
+                        <div class="countdownTime" id="countdownClock" style="font-size: 2rem; color: #0284c7;">
                             -- : -- : --
                         </div>
-                        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">Halaman akan otomatis memuat ulang saat jam absen tiba.</div>
+                        <div class="countdownSub mt-1 text-xs">Halaman akan otomatis memuat ulang saat jam absen tiba.</div>
                     </div>
 
-                    <div class="d-flex gap-2 justify-content-center flex-wrap">
-                        <a href="{{ route('siswa.dashboard') }}" class="btn btn-light px-4 py-2 font-bold rounded-xl">
-                            Kembali ke Dashboard
-                        </a>
-                        <a href="{{ route('siswa.jadwal') }}" class="btn btn-secondary px-4 py-2 font-bold rounded-xl">
-                            Lihat Jadwal
-                        </a>
+                    <div class="dmc-footer pt-3 border-t-base">
+                        <div class="dmc-actions flex-wrap gap-2">
+                            <a href="{{ route('siswa.dashboard') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                                <ion-icon name="home-outline"></ion-icon> Dashboard
+                            </a>
+                            <a href="{{ route('siswa.jadwal') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                                <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -216,10 +334,44 @@
 
         {{-- ── WAKTU ABSEN TERBUKA (NORMAL FORM) ── --}}
         @else
-            <div class="statusBanner ready mb-4">
+            @if(isset($sesiEval))
+                <div class="card mb-4 p-4 border-base bg-card-alt rounded-xl">
+                    <div class="d-flex items-center justify-between flex-wrap gap-2">
+                        <div>
+                            <div class="text-xs font-bold text-primary text-uppercase tracking-wider">
+                                Jadwal KBM: {{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }} ({{ $sesiEval['jam_masuk_target'] }} - {{ $sesiEval['jam_pulang_target'] }} WIB)
+                            </div>
+                            <div class="text-xs text-muted mt-1">
+                                Target Masuk: <b>{{ $sesiEval['jam_masuk_target'] }} WIB</b> &bull; Batas Toleransi: <b>{{ $sesiEval['batas_toleransi'] }} WIB</b> ({{ $sesiEval['tolerance_minutes'] }} mnt)
+                            </div>
+                        </div>
+                        <div>
+                            @if($sesiEval['status_kehadiran'] === 'tepat_waktu')
+                                <span class="badge bg-success-light text-success font-bold text-xs py-1 px-3 rounded-full">Tepat Waktu</span>
+                            @elseif($sesiEval['status_kehadiran'] === 'lebih_awal')
+                                <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-3 rounded-full">Lebih Awal</span>
+                            @else
+                                <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-3 rounded-full">Terlambat (+{{ $sesiEval['menit_keterlambatan'] }} mnt)</span>
+                            @endif
+                        </div>
+                    </div>
+                    @if($sesiEval['is_terlambat'])
+                        <div class="mt-2 text-xs text-warning font-semibold">
+                            <ion-icon name="alert-circle-outline" style="vertical-align: -2px;"></ion-icon>
+                            Anda melewati batas waktu toleransi ({{ $sesiEval['batas_toleransi'] }} WIB). Presensi tetap dapat dilakukan dan tercatat terlambat.
+                        </div>
+                    @endif
+                </div>
+            @endif
+
+            <div class="statusBanner {{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'mb-4' : 'ready mb-4' }}" style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'background: #fffbeb; border-left: 4px solid #f59e0b;' : '' }}">
                 <div>
-                    <div class="statusTitle">Presensi KBM Masuk Dibuka</div>
-                    <div class="statusSub">Silakan ambil foto kehadiran Anda di lokasi sekolah</div>
+                    <div class="statusTitle" style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'color: #b45309;' : '' }}">
+                        {{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'Presensi Masuk (Melebihi Toleransi)' : 'Presensi KBM Masuk Dibuka' }}
+                    </div>
+                    <div class="statusSub" style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'color: #78350f;' : '' }}">
+                        {{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'Anda tercatat terlambat ' . $sesiEval['menit_keterlambatan'] . ' menit. Ambil foto selfie untuk mencatat kehadiran.' : 'Silakan ambil foto kehadiran Anda di lokasi sekolah' }}
+                    </div>
                 </div>
             </div>
 
@@ -365,6 +517,19 @@
         @endif
 
     </div>{{-- #mainContent --}}
+
+    {{-- ── Modal Bukti Foto Presensi ── --}}
+    <div class="modal-overlay" id="buktiPhotoModal" onclick="if(event.target===this)closeBuktiPhotoModal()">
+        <div class="modal-box">
+            <div class="modal-header">
+                <span id="buktiPhotoModalTitle" class="font-extrabold text-dark">Foto Presensi</span>
+                <button type="button" class="modal-close" onclick="closeBuktiPhotoModal()" aria-label="Tutup">&times;</button>
+            </div>
+            <div class="modal-body p-0 text-center" style="background: #000;">
+                <img id="buktiPhotoModalImg" src="" alt="Foto Presensi" style="width: 100%; max-height: 75vh; object-fit: contain; display: block; margin: 0 auto;">
+            </div>
+        </div>
+    </div>
 
     <script>
         function showGateError(msg) {
@@ -938,6 +1103,20 @@
             if (btnBuka) btnBuka.style.display = 'block';
             if (camRow) camRow.classList.add('d-none');
             if (camBar) camBar.classList.add('d-none');
+        }
+
+        function openBuktiPhotoModal(src, title) {
+            const modal = document.getElementById('buktiPhotoModal');
+            const img = document.getElementById('buktiPhotoModalImg');
+            const titleEl = document.getElementById('buktiPhotoModalTitle');
+            if (img) img.src = src;
+            if (titleEl && title) titleEl.textContent = title;
+            if (modal) modal.classList.add('active');
+        }
+
+        function closeBuktiPhotoModal() {
+            const modal = document.getElementById('buktiPhotoModal');
+            if (modal) modal.classList.remove('active');
         }
     </script>
 @endsection

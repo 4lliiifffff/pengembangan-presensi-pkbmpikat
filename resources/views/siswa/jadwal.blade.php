@@ -193,6 +193,8 @@
                                             <div>
                                                 @if($isHadirSesi)
                                                     <span class="app-badge badge-status-aktif">Hadir</span>
+                                                @elseif($sesi->status === 'berlangsung')
+                                                    <span class="app-badge badge-layanan-dl">Sedang Berlangsung</span>
                                                 @elseif($sesi->status === 'selesai')
                                                     <span class="app-badge badge-status-aktif">Selesai</span>
                                                 @elseif($sesi->status === 'dibatalkan')
@@ -237,7 +239,7 @@
                                             </div>
                                         @endif
 
-                                        @if($isToday && !$isSudahAbsenHariIni && $sesi->status === 'terjadwal')
+                                        @if($isToday && !$isSudahAbsenHariIni && $sesi->status !== 'dibatalkan')
                                             <div class="dmc-actions mt-3">
                                                 <a href="{{ route('siswa.presensi.foto') }}" class="profileBtnPrimary text-xs py-1.5 px-3 w-full justify-center">
                                                     <ion-icon name="camera-outline"></ion-icon> Absen Masuk Sekarang

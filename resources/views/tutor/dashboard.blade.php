@@ -226,9 +226,9 @@
                 (function() {
                     const cdEl = document.getElementById('dashCountdown');
                     if (!cdEl) return;
-                    let sisa = {{ $sisaDetikPulang }};
+                    let sisa = Math.floor({{ (int) $sisaDetikPulang }});
                     const pad = n => String(n).padStart(2, '0');
-                    const fmt = s => pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+                    const fmt = s => pad(Math.floor(s / 60)) + ':' + pad(Math.floor(s % 60));
                     const iv = setInterval(() => {
                         sisa--;
                         if (sisa <= 0) {

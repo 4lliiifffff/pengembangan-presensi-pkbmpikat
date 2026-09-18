@@ -45,14 +45,18 @@
     </div>
 
     {{-- Stats Kehadiran --}}
-    <div class="profileStatsGrid">
+    <div class="profileStatsGrid" style="max-width: 420px;">
+        <div class="profileStatItem">
+            <div class="profileStatLabel">Hari Hadir</div>
+            <div class="profileStatValue primary">{{ $totalHariHadir ?? 0 }} Hari</div>
+        </div>
         <div class="profileStatItem">
             <div class="profileStatLabel">Absen Mandiri</div>
-            <div class="profileStatValue primary">{{ $totalHadirMandiri ?? 0 }} Kali</div>
+            <div class="profileStatValue">{{ $totalHadirMandiri ?? 0 }} Kali</div>
         </div>
         <div class="profileStatItem">
             <div class="profileStatLabel">Sesi Kelas</div>
-            <div class="profileStatValue primary">{{ $totalHadirKelas ?? 0 }} Sesi</div>
+            <div class="profileStatValue">{{ $totalHadirKelas ?? 0 }} Sesi</div>
         </div>
     </div>
 </div>

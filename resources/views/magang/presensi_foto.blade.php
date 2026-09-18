@@ -25,8 +25,8 @@
             try {
                 $jamMulaiDt = \Carbon\Carbon::parse($today . ' ' . $activeSesi->jam_mulai, 'Asia/Jakarta');
                 $nowDt = \Carbon\Carbon::now('Asia/Jakarta');
-                $diffDetik = $jamMulaiDt->diffInSeconds($nowDt, false);
-                $sisaDetik = max(0, 3600 - $diffDetik);
+                $diffDetik = (int) $jamMulaiDt->diffInSeconds($nowDt, false);
+                $sisaDetik = (int) max(0, 3600 - $diffDetik);
                 $bisaPulang = $diffDetik >= 3600;
                 $sudahLewat8Jam = $diffDetik >= 28800;
             } catch (\Throwable) {
@@ -74,8 +74,8 @@
             {{-- Countdown atau siap pulang --}}
             @if (!$bisaPulang)
                 @php
-                    $menit = floor($sisaDetik / 60);
-                    $detik = $sisaDetik % 60;
+                    $menit = (int) floor($sisaDetik / 60);
+                    $detik = (int) ($sisaDetik % 60);
                     $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
                 @endphp
                 <div class="countdownCard">
@@ -457,9 +457,9 @@
 
             var cdEl = document.getElementById('countdown');
             @if ($activeSesi && !$bisaPulang)
-                var sisaDetik = {{ $sisaDetik }};
+                var sisaDetik = {{ (int) $sisaDetik }};
                 if (cdEl && sisaDetik > 0) {
-                    var totalSec = sisaDetik;
+                    var totalSec = Math.floor(sisaDetik);
                     var cdInterval = setInterval(function() {
                         totalSec--;
                         if (totalSec <= 0) {
@@ -469,7 +469,7 @@
                             return;
                         }
                         var m = Math.floor(totalSec / 60);
-                        var s = totalSec % 60;
+                        var s = Math.floor(totalSec % 60);
                         cdEl.textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
                     }, 1000);
                 }

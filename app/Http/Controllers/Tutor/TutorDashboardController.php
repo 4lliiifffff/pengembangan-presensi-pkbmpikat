@@ -120,7 +120,7 @@ class TutorDashboardController extends Controller
                     $jamMulaiDt = Carbon::parse($today.' '.$activeSesi->jam_mulai, $tz);
                     $diffDetik = (int) $jamMulaiDt->diffInSeconds($now, false);
                     // max(0, ...) memastikan tidak negatif jika sudah lewat 1 jam
-                    $sisaDetikPulang = max(0, 3600 - $diffDetik);
+                    $sisaDetikPulang = (int) max(0, 3600 - $diffDetik);
                 } catch (\Throwable) {
                     // Abaikan error parsing (misal: format jam tidak valid)
                 }

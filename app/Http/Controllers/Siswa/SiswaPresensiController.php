@@ -47,12 +47,18 @@ class SiswaPresensiController extends Controller
             ->first();
 
         // Cek Jadwal Sesi KBM Hari Ini untuk Smart Time-Gating
-        $todaySesi = JadwalSesi::with(['tutor', 'kategoriTutorial'])
+        $todaySesiQuery = JadwalSesi::with(['tutor', 'kategoriTutorial'])
             ->where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
-            ->whereIn('status', ['terjadwal', 'selesai'])
+            ->where('status', '!=', 'dibatalkan');
+
+        $todaySesi = (clone $todaySesiQuery)
+            ->where(function ($q) {
+                $q->whereNull('presensi_siswa_id')
+                    ->orWhere('status_kehadiran_siswa', '!=', 'hadir');
+            })
             ->orderBy('jam_masuk_rencana')
-            ->first();
+            ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
 
         $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
             || JadwalSesi::where('siswa_id', $siswa->id)->exists();
@@ -62,6 +68,7 @@ class SiswaPresensiController extends Controller
         $gatingMessage = null;
         $waktuBukaStr = null;
 
+        $sesiEval = null;
         if (! $todayPresensi) {
             if ($hasConfiguredSchedule && ! $todaySesi) {
                 $canCheckIn = false;
@@ -82,6 +89,47 @@ class SiswaPresensiController extends Controller
             }
         }
 
+        if ($todaySesi) {
+            $jamMasukStr = substr((string) $todaySesi->jam_masuk_rencana, 0, 5);
+            $jamMasukCarbon = Carbon::createFromFormat('Y-m-d H:i', $today.' '.$jamMasukStr, 'Asia/Jakarta');
+            $waktuBuka = $jamMasukCarbon->copy()->subMinutes(30);
+            $waktuBukaStr = $waktuBuka->format('H:i');
+            $now = Carbon::now('Asia/Jakarta');
+
+            $toleranceMinutes = (int) ($todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+            $batasToleransi = $jamMasukCarbon->copy()->addMinutes($toleranceMinutes);
+
+            // Evaluasi keterlambatan (jika sudah presensi gunakan jam masuk, jika belum gunakan waktu saat ini)
+            $waktuCek = $todayPresensi ? Carbon::parse($today.' '.$todayPresensi->jam_masuk, 'Asia/Jakarta') : $now;
+            $menitKeterlambatan = 0;
+            $statusKehadiran = 'tepat_waktu';
+            $pesanStatus = "Presensi masuk tepat waktu ({$jamMasukStr} WIB).";
+
+            if ($waktuCek->lt($jamMasukCarbon)) {
+                $statusKehadiran = 'lebih_awal';
+                $pesanStatus = "Presensi masuk lebih awal dari jadwal KBM ({$jamMasukStr} WIB).";
+            } elseif ($waktuCek->gt($batasToleransi)) {
+                $statusKehadiran = 'terlambat';
+                $menitKeterlambatan = (int) $jamMasukCarbon->diffInMinutes($waktuCek, false);
+                if ($menitKeterlambatan < 0) {
+                    $menitKeterlambatan = 0;
+                }
+                $pesanStatus = "Presensi masuk tercatat terlambat {$menitKeterlambatan} menit dari jadwal KBM ({$jamMasukStr} WIB).";
+            }
+
+            $sesiEval = [
+                'jam_masuk_target' => $jamMasukStr,
+                'jam_pulang_target' => substr((string) $todaySesi->jam_pulang_rencana, 0, 5),
+                'batas_awal' => $waktuBukaStr,
+                'batas_toleransi' => $batasToleransi->format('H:i'),
+                'tolerance_minutes' => $toleranceMinutes,
+                'status_kehadiran' => $statusKehadiran,
+                'menit_keterlambatan' => $menitKeterlambatan,
+                'is_terlambat' => ($statusKehadiran === 'terlambat'),
+                'pesan' => $pesanStatus,
+            ];
+        }
+
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
         $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
@@ -94,6 +142,7 @@ class SiswaPresensiController extends Controller
             'todayPresensi' => $todayPresensi,
             'alreadyCheckedIn' => (bool) $todayPresensi,
             'todaySesi' => $todaySesi,
+            'sesiEval' => $sesiEval,
             'canCheckIn' => $canCheckIn,
             'gatingReason' => $gatingReason,
             'gatingMessage' => $gatingMessage,
@@ -135,11 +184,17 @@ class SiswaPresensiController extends Controller
         }
 
         // ── Smart Time-Gating Check ──────────────────────────────────────
-        $todaySesi = JadwalSesi::where('siswa_id', $siswa->id)
+        $todaySesiQuery = JadwalSesi::where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
-            ->where('status', 'terjadwal')
+            ->where('status', '!=', 'dibatalkan');
+
+        $todaySesi = (clone $todaySesiQuery)
+            ->where(function ($q) {
+                $q->whereNull('presensi_siswa_id')
+                    ->orWhere('status_kehadiran_siswa', '!=', 'hadir');
+            })
             ->orderBy('jam_masuk_rencana')
-            ->first();
+            ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
 
         $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
             || JadwalSesi::where('siswa_id', $siswa->id)->exists();
@@ -198,6 +253,32 @@ class SiswaPresensiController extends Controller
         $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
         $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
+        // Hitung evaluasi keterlambatan berdasarkan sesi aktif hari ini
+        $statusKehadiran = 'tepat_waktu';
+        $menitKeterlambatan = 0;
+        $pesanKehadiran = 'tepat waktu';
+
+        if ($todaySesi) {
+            $jamMasukStr = substr((string) $todaySesi->jam_masuk_rencana, 0, 5);
+            $jamMasukCarbon = Carbon::createFromFormat('Y-m-d H:i', $today.' '.$jamMasukStr, 'Asia/Jakarta');
+            $toleranceMinutes = (int) ($todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+            $batasToleransi = $jamMasukCarbon->copy()->addMinutes($toleranceMinutes);
+
+            if ($now->lt($jamMasukCarbon)) {
+                $statusKehadiran = 'lebih_awal';
+                $pesanKehadiran = 'lebih awal dari jadwal sesi ('.$jamMasukStr.' WIB)';
+            } elseif ($now->gt($batasToleransi)) {
+                $statusKehadiran = 'terlambat';
+                $menitKeterlambatan = (int) $jamMasukCarbon->diffInMinutes($now, false);
+                if ($menitKeterlambatan < 0) {
+                    $menitKeterlambatan = 0;
+                }
+                $pesanKehadiran = "terlambat {$menitKeterlambatan} menit dari jadwal KBM ({$jamMasukStr} WIB)";
+            } else {
+                $pesanKehadiran = "tepat waktu ({$jamMasukStr} WIB)";
+            }
+        }
+
         $presensi = PresensiMandiriSiswa::create([
             'siswa_id' => $siswa->id,
             'lokasi_presensi_id' => $lokasiPresensiId,
@@ -208,21 +289,24 @@ class SiswaPresensiController extends Controller
             'lokasi_akurasi' => $accuracy,
             'is_mocked' => $isMocked,
             'status' => 'hadir',
+            'status_kehadiran' => $statusKehadiran,
+            'menit_keterlambatan' => $menitKeterlambatan,
         ]);
 
         // Auto-link ke Jadwal Sesi hari ini jika ada
         JadwalSesi::where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
-            ->where('status', 'terjadwal')
+            ->where('status', '!=', 'dibatalkan')
             ->update([
                 'status_kehadiran_siswa' => 'hadir',
                 'presensi_siswa_id' => $presensi->id,
             ]);
 
         // Web Push Notification Konfirmasi ke HP Siswa jika ada subscription
+        $pushKet = ($statusKehadiran === 'terlambat') ? ' (Terlambat '.$menitKeterlambatan.' menit)' : '';
         $this->webPushService->sendToUser($user, [
             'title' => '📸 Presensi Masuk Berhasil',
-            'body' => 'Kehadiran siswa berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar di PKBM Pikat!',
+            'body' => 'Kehadiran siswa berhasil dicatat pada pukul '.$waktuServer.$pushKet.'. Selamat belajar di PKBM Pikat!',
             'url' => route('siswa.presensi'),
         ]);
 
@@ -249,8 +333,13 @@ class SiswaPresensiController extends Controller
             Log::warning('Gagal kirim webpush kehadiran siswa ke tutor: '.$e->getMessage());
         }
 
+        $msgType = ($statusKehadiran === 'terlambat') ? 'warning' : 'success';
+        $msgText = ($statusKehadiran === 'terlambat')
+            ? "Presensi masuk berhasil dicatat pada pukul {$waktuServer}. Anda tercatat {$pesanKehadiran}."
+            : "Presensi masuk berhasil dicatat {$pesanKehadiran} pada pukul {$waktuServer}. Selamat belajar!";
+
         return redirect()
             ->route('siswa.dashboard')
-            ->with('success', 'Presensi masuk berhasil dicatat pada pukul '.$waktuServer.'. Selamat belajar!');
+            ->with($msgType, $msgText);
     }
 }

@@ -106,6 +106,9 @@
   - Kartu sesi aktif terintegrasi langsung pada preview kamera presensi tutor (`tutor/presensi_foto.blade.php`), dengan auto-link & auto-complete sesi saat presensi dikirim.
 * 🟢 **Penyelarasan Bottom Navigation Bar & Drawer:** [SELESAI]
   - Item ke-4 Bottom Nav Tutor langsung mengarah ke `route('tutor.jadwal-sesi.index')`, dengan drawer "Lainnya" yang menyediakan pintasan lengkap ke Agenda PKBM, Slip Honor, Pengajuan Izin, Lupa Lapor, dan Profil.
+* 🟢 **Integer Sanitization Countdown Timer Absen Pulang (Eliminasi Desimal Microsecond):** [SELESAI]
+  - Mengonversi nilai selisih waktu `diffInSeconds` secara eksplisit menjadi integer di PHP dan Blade, serta menggunakan `Math.floor` pada modulo detik di JavaScript browser.
+  - Memastikan tampilan waktu tunggu pulang di halaman tutor, magang, karyawan, dan dashboard selalu bersih dan akurat berformat `MM:SS` (mencegah teks desimal panjang `55:24.038773...`).
 
 ### 4.2 Arsitektur Penuh Role Siswa & Modul Jadwal Belajar (Self-Attendance & Learning Schedule)
 * 🟢 **Pondasi Kolom Kehadiran & Akun Siswa:** [SELESAI]
@@ -139,6 +142,24 @@
   - Form presensi masuk hanya terbuka mulai **30 menit sebelum sesi dimulai** (`gatingReason = 'too_early'`).
   - Tampilan UI interaktif dilengkapi kartu informasi sesi, tutor pengampu, dan *live countdown timer* JavaScript yang otomatis me-refresh halaman saat jam buka tiba.
   - Server-side validation pada `SiswaPresensiController::store()` menolak upaya manipulasi check-in di luar jadwal.
+* 🟢 **Perhitungan Kehadiran Akumulatif Siswa Anti Double-Counting (Distinct Active Days):** [SELESAI]
+  - Perhitungan total hadir bulanan (`$totalHadirBulanIni`) dan riwayat profil (`$totalHariHadir`) menggunakan integrasi tanggal unik antara absensi mandiri siswa (`presensi_mandiri_siswas`) dan sesi KBM bersama tutor (`presensis`).
+  - Menghilangkan anomali terhitung ganda (2 kali) saat siswa dan tutor sama-sama melakukan presensi pada hari yang sama.
+* 🟢 **Perbaikan Siklus Status Sesi KBM & Eliminasi Lock-Out Presensi Mandiri Siswa:** [SELESAI]
+  - Memperbaiki transisi status sesi KBM: saat tutor absen masuk, status sesi menjadi `'berlangsung'`, dan baru menjadi `'selesai'` saat tutor absen pulang.
+  - Memperluas query pencarian jadwal di `SiswaPresensiController::store()` dan tombol absen di `siswa.jadwal` menjadi `where('status', '!=', 'dibatalkan')`, sehingga murid tetap dapat melakukan presensi mandiri secara mulus meskipun sesi KBM telah dimulai oleh tutornya.
+* 🟢 **Penanda Keterlambatan Presensi Mandiri Siswa (Batas Waktu Toleransi KBM):** [SELESAI]
+  - Menambahkan kolom `status_kehadiran` (`tepat_waktu`, `terlambat`, `lebih_awal`) dan `menit_keterlambatan` pada tabel `presensi_mandiri_siswas`.
+  - Evaluasi batas toleransi (30 menit setelah jam mulai sesi) pada formulir kamera siswa, dengan chip jadwal KBM, batas toleransi, dan badge status keterlambatan real-time.
+  - Kartu kehadiran hari ini di dashboard dan daftar riwayat presensi siswa menampilkan status dan menit keterlambatan (*"Terlambat +XX Mnt"*).
+
+* 🟢 **Modernisasi & Penyelarasan UI Kartu Presensi Mandiri Siswa (`siswa.presensi.foto`):** [SELESAI]
+  - Standarisasi kartu pasca-presensi mandiri siswa (`alreadyCheckedIn`) menggunakan token design system terpadu (`.data-mobile-card`, `.statusBanner`, `.dmc-grid`, `.dmc-field`, `.dmc-footer`).
+  - Snapshot profil siswa dengan preview foto selfie yang dapat diklik untuk memperbesar gambar via `#buktiPhotoModal`.
+  - Penyelarasan tata letak responsif pada kartu kondisi time-gating (`no_schedule` dan `too_early`) serta penambahan kelas tombol sekunder `.profileBtnSecondary` di CSS utama.
+* 🟢 **Penyederhanaan Database Seeder Khusus Akun Pengguna (`DatabaseSeeder`):** [SELESAI]
+  - Konfigurasi run default `DatabaseSeeder` difokuskan murni pada inisialisasi akun pengguna seluruh peran (`AdminSeeder`, `UserRoleSeeder`, `MagangSeeder`, `SiswaUserSeeder`).
+  - Mengeliminasi pembuatan otomatis jadwal operasional, data master, dan generator sesi kalender dummy saat `php artisan db:seed` dijalankan, menjaga database tetap bersih dan ringan.
 
 ---
 

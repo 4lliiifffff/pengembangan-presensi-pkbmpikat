@@ -68,7 +68,22 @@ class SiswaDashboardController extends Controller
             ->whereYear('tgl_presensi', $currentYear)
             ->count();
 
-        $totalHadirBulanIni = $hadirBulanIni + $hadirSesiKelas;
+        // Hitung hari unik kehadiran (mencegah double-counting jika siswa absen mandiri dan tutor mengabsen di hari yang sama)
+        $datesMandiri = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+            ->whereMonth('tgl_presensi', $currentMonth)
+            ->whereYear('tgl_presensi', $currentYear)
+            ->where('status', 'hadir')
+            ->pluck('tgl_presensi')
+            ->map(fn ($d) => is_object($d) ? $d->format('Y-m-d') : substr((string) $d, 0, 10));
+
+        $datesKelas = Presensi::where('siswa_id', $siswa->id)
+            ->where('status', 'hadir')
+            ->whereMonth('tgl_presensi', $currentMonth)
+            ->whereYear('tgl_presensi', $currentYear)
+            ->pluck('tgl_presensi')
+            ->map(fn ($d) => is_object($d) ? $d->format('Y-m-d') : substr((string) $d, 0, 10));
+
+        $totalHadirBulanIni = $datesMandiri->merge($datesKelas)->unique()->count();
 
         // Riwayat 5 presensi mandiri terakhir
         $recentPresensi = PresensiMandiriSiswa::with('lokasiPresensi')
@@ -237,7 +252,19 @@ class SiswaDashboardController extends Controller
             ->where('status', 'hadir')
             ->count();
 
-        return view('siswa.profil', compact('user', 'siswa', 'totalHadirMandiri', 'totalHadirKelas'));
+        $datesMandiri = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+            ->where('status', 'hadir')
+            ->pluck('tgl_presensi')
+            ->map(fn ($d) => is_object($d) ? $d->format('Y-m-d') : substr((string) $d, 0, 10));
+
+        $datesKelas = Presensi::where('siswa_id', $siswa->id)
+            ->where('status', 'hadir')
+            ->pluck('tgl_presensi')
+            ->map(fn ($d) => is_object($d) ? $d->format('Y-m-d') : substr((string) $d, 0, 10));
+
+        $totalHariHadir = $datesMandiri->merge($datesKelas)->unique()->count();
+
+        return view('siswa.profil', compact('user', 'siswa', 'totalHadirMandiri', 'totalHadirKelas', 'totalHariHadir'));
     }
 
     /**

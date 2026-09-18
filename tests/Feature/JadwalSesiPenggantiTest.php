@@ -180,6 +180,24 @@ class JadwalSesiPenggantiTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_sesis', [
             'id' => $sesi->id,
+            'status' => 'berlangsung',
+        ]);
+
+        // Saat tutor absen pulang setelah minimal 1 jam (mode = selesai)
+        Carbon::setTestNow(now()->addHours(2));
+
+        $pulangPayload = [
+            'mode' => 'selesai',
+            'siswa_id' => [$this->siswa->id],
+            'foto' => UploadedFile::fake()->image('selfie_pulang.jpg'),
+            'lokasi' => '-7.8011945,110.364917',
+        ];
+
+        $pulangResponse = $this->actingAs($this->tutorUser)->post(route('tutor.presensi.store'), $pulangPayload);
+        $pulangResponse->assertRedirect();
+
+        $this->assertDatabaseHas('jadwal_sesis', [
+            'id' => $sesi->id,
             'status' => 'selesai',
         ]);
     }

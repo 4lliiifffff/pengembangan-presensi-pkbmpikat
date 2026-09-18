@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\JadwalSesi;
 use App\Models\JenjangPaket;
 use App\Models\kelas;
+use App\Models\LokasiPresensi;
+use App\Models\Presensi;
 use App\Models\PresensiMandiriSiswa;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -28,6 +30,12 @@ class SiswaRoleAndPresensiTest extends TestCase
         Config::set('lokasi.sekolah_lat', -7.8011945);
         Config::set('lokasi.sekolah_lng', 110.364917);
         Config::set('lokasi.radius_meter', 100);
+
+        LokasiPresensi::query()->update([
+            'latitude' => -7.8011945,
+            'longitude' => 110.364917,
+            'radius_meter' => 100,
+        ]);
     }
 
     protected function tearDown(): void
@@ -44,8 +52,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -68,11 +76,12 @@ class SiswaRoleAndPresensiTest extends TestCase
 
     public function test_siswa_can_login_with_sw001_variation_or_no_absen(): void
     {
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
-        $siswa = Siswa::create([
+        $siswa = Siswa::firstOrCreate([
             'no_absen' => '001',
+        ], [
             'nama_siswa' => 'Ahmad Rizky Pratama',
             'nama_wali' => 'Bambang',
             'no_hp' => '081234567890',
@@ -80,6 +89,10 @@ class SiswaRoleAndPresensiTest extends TestCase
             'status_siswa' => 'aktif',
             'is_abk' => false,
         ]);
+
+        if ($siswa->user) {
+            $siswa->user->update(['password' => bcrypt('password123')]);
+        }
 
         $testVariations = ['0001', 'sw0001', 'SW0001', '001', 'sw001', 'SW001', '1', 'SW1', 'siswa001@pkbmpikat.com'];
 
@@ -100,8 +113,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST02',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_b', 'nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket B - Kelas 7', 'jenjang_paket_id' => $jp->id, 'tingkat' => '7']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 7'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '7']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -130,8 +143,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST03',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_a', 'nama_jenjang' => 'Paket A', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'jenjang_paket_id' => $jp->id, 'tingkat' => '1']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_a'], ['nama_jenjang' => 'Paket A', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket A - Kelas 1'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '1']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -162,8 +175,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST04',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -204,8 +217,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST05',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -242,8 +255,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST06',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -293,8 +306,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST06B',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -349,6 +362,163 @@ class SiswaRoleAndPresensiTest extends TestCase
         $this->assertNotNull($jadwalSesi->presensi_siswa_id);
     }
 
+    public function test_siswa_can_presensi_mandiri_even_if_tutor_already_clocked_in_session(): void
+    {
+        $tutorUser = User::factory()->create([
+            'role' => 'tutor',
+            'nik' => 'TUTORTEST06B',
+        ]);
+        $tutor = Tutor::create([
+            'user_id' => $tutorUser->id,
+            'nik' => 'TUTORTEST06B',
+            'email' => 'tutortest06b@pkbmpikat.com',
+            'no_hp' => '081234567890',
+            'nama_lengkap' => 'Tutor Pendamping B',
+            'is_active' => true,
+        ]);
+
+        $siswaUser = User::factory()->create([
+            'role' => 'siswa',
+            'nik' => 'SWTEST06B',
+        ]);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+        $siswa = Siswa::create([
+            'user_id' => $siswaUser->id,
+            'no_absen' => 'SW06B',
+            'nama_siswa' => 'Fahri Siswa Test B',
+            'nama_wali' => 'Wali Fahri B',
+            'no_hp' => '081234567890',
+            'kelas_id' => $kls->id,
+            'jenjang_paket_id' => $jp->id,
+            'tutor_id' => $tutor->id,
+            'is_active' => true,
+        ]);
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+        Carbon::setTestNow(Carbon::parse($today.' 09:15:00', 'Asia/Jakarta'));
+
+        // Tutor sudah absen masuk terlebih dahulu -> status sesi menjadi 'berlangsung'
+        $jadwalSesi = JadwalSesi::create([
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswa->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '09:00:00',
+            'jam_pulang_rencana' => '11:00:00',
+            'durasi_jam' => 2.0,
+            'jenis_sesi' => 'reguler',
+            'status' => 'berlangsung',
+            'status_kehadiran_siswa' => 'belum_presensi',
+        ]);
+
+        $this->actingAs($siswaUser);
+
+        // Akses halaman foto presensi harus tetap bisa (canCheckIn = true)
+        $viewResponse = $this->get(route('siswa.presensi.foto'));
+        $viewResponse->assertOk();
+        $viewResponse->assertViewHas('canCheckIn', true);
+
+        // Siswa melakukan presensi mandiri
+        $foto = UploadedFile::fake()->image('selfie_masuk_siswa_after_tutor.jpg', 640, 480);
+
+        $response = $this->post(route('siswa.presensi.store'), [
+            'mode' => 'mulai',
+            'lokasi' => '-7.8011945,110.364917',
+            'foto' => $foto,
+        ]);
+
+        $response->assertRedirect(route('siswa.dashboard'));
+        $jadwalSesi->refresh();
+
+        $this->assertEquals('hadir', $jadwalSesi->status_kehadiran_siswa);
+        $this->assertNotNull($jadwalSesi->presensi_siswa_id);
+    }
+
+    public function test_siswa_presensi_evaluates_late_when_exceeding_tolerance_limit(): void
+    {
+        $siswaUser = User::factory()->create([
+            'role' => 'siswa',
+            'nik' => 'SWLATE01',
+        ]);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 9'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '9']);
+        $siswa = Siswa::create([
+            'user_id' => $siswaUser->id,
+            'no_absen' => 'SWLATE',
+            'nama_siswa' => 'Dimas Siswa Late Test',
+            'nama_wali' => 'Wali Dimas',
+            'no_hp' => '081234567890',
+            'kelas_id' => $kls->id,
+            'jenjang_paket_id' => $jp->id,
+            'is_active' => true,
+        ]);
+
+        $tutorUser = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $tutorUser->id,
+            'nik' => 'TTLATE01',
+            'email' => 'tutorlate@pkbmpikat.com',
+            'nama_lengkap' => 'Tutor Late Test',
+            'no_hp' => '081234567890',
+            'is_active' => true,
+        ]);
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        // Jadwal KBM jam 09:00 - 11:00
+        $jadwalSesi = JadwalSesi::create([
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswa->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '09:00:00',
+            'jam_pulang_rencana' => '11:00:00',
+            'durasi_jam' => 2.0,
+            'jenis_sesi' => 'reguler',
+            'status' => 'terjadwal',
+            'status_kehadiran_siswa' => 'belum_presensi',
+        ]);
+
+        // Simulasikan jam 10:01 WIB (lewat dari batas toleransi 09:30 WIB)
+        Carbon::setTestNow(Carbon::parse($today.' 10:01:00', 'Asia/Jakarta'));
+
+        $this->actingAs($siswaUser);
+
+        $viewResponse = $this->get(route('siswa.presensi.foto'));
+        $viewResponse->assertOk();
+        $viewResponse->assertViewHas('sesiEval', function ($eval) {
+            return $eval['status_kehadiran'] === 'terlambat'
+                && $eval['menit_keterlambatan'] === 61
+                && $eval['is_terlambat'] === true
+                && $eval['batas_toleransi'] === '09:30';
+        });
+
+        // Siswa melakukan presensi
+        $foto = UploadedFile::fake()->image('selfie_terlambat.jpg', 640, 480);
+        $response = $this->post(route('siswa.presensi.store'), [
+            'mode' => 'mulai',
+            'lokasi' => '-7.8011945,110.364917',
+            'foto' => $foto,
+        ]);
+
+        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertSessionHas('warning');
+
+        $this->assertDatabaseHas('presensi_mandiri_siswas', [
+            'siswa_id' => $siswa->id,
+            'status_kehadiran' => 'terlambat',
+            'menit_keterlambatan' => 61,
+        ]);
+
+        // Dashboard & Riwayat menampilkan penanda terlambat
+        $dashboardResponse = $this->get(route('siswa.dashboard'));
+        $dashboardResponse->assertOk();
+        $dashboardResponse->assertSee('Terlambat 61 mnt');
+
+        $riwayatResponse = $this->get(route('siswa.riwayat'));
+        $riwayatResponse->assertOk();
+        $riwayatResponse->assertSee('Terlambat (+61 mnt)');
+    }
+
     public function test_siswa_can_view_riwayat_and_profil(): void
     {
         $siswaUser = User::factory()->create([
@@ -356,8 +526,8 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST07',
         ]);
 
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -383,8 +553,8 @@ class SiswaRoleAndPresensiTest extends TestCase
 
     public function test_creating_siswa_automatically_creates_and_links_user_account(): void
     {
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW999',
@@ -407,8 +577,8 @@ class SiswaRoleAndPresensiTest extends TestCase
 
     public function test_updating_and_deleting_siswa_synchronizes_user_account(): void
     {
-        $jp = JenjangPaket::create(['kode' => 'paket_b', 'nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket B - Kelas 8', 'jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW888',
@@ -443,8 +613,8 @@ class SiswaRoleAndPresensiTest extends TestCase
     public function test_admin_can_reset_siswa_account_password(): void
     {
         $admin = User::factory()->create(['role' => 'admin']);
-        $jp = JenjangPaket::create(['kode' => 'paket_a', 'nama_jenjang' => 'Paket A', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket A - Kelas 5', 'jenjang_paket_id' => $jp->id, 'tingkat' => '5']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_a'], ['nama_jenjang' => 'Paket A', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket A - Kelas 5'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '5']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW777',
@@ -474,8 +644,8 @@ class SiswaRoleAndPresensiTest extends TestCase
 
     public function test_siswa_can_view_jadwal_page_with_calendar_and_sessions(): void
     {
-        $jp = JenjangPaket::create(['kode' => 'paket_c', 'nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::create(['nama_kelas' => 'Paket C - Kelas 12', 'jenjang_paket_id' => $jp->id, 'tingkat' => '12']);
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 12'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '12']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW999',
@@ -521,5 +691,77 @@ class SiswaRoleAndPresensiTest extends TestCase
         $response->assertSee('Tutor Matematika Hebat');
         $response->assertSee('09:00');
         $response->assertSee('11:00');
+    }
+
+    public function test_dashboard_attendance_counts_unique_days_preventing_double_count(): void
+    {
+        $siswaUser = User::factory()->create([
+            'role' => 'siswa',
+            'nik' => 'SWUNIQUE01',
+        ]);
+
+        $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
+        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+
+        $siswa = Siswa::create([
+            'user_id' => $siswaUser->id,
+            'no_absen' => 'SWU01',
+            'nama_siswa' => 'Siswa Anti Double Count',
+            'nama_wali' => 'Wali Siswa',
+            'kelas_id' => $kls->id,
+            'is_abk' => false,
+            'no_hp' => '081299990001',
+            'status' => 'aktif',
+            'status_siswa' => 'aktif',
+        ]);
+
+        $tutorUser = User::factory()->create(['role' => 'tutor']);
+        $tutor = Tutor::create([
+            'user_id' => $tutorUser->id,
+            'nama_lengkap' => 'Tutor Pendamping',
+            'email' => 'tutor_pendamping@pkbmpikat.com',
+            'nik' => 'NIKTP01',
+            'no_hp' => '081299887711',
+            'status' => 'aktif',
+        ]);
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        // 1. Siswa absen mandiri hari ini
+        PresensiMandiriSiswa::create([
+            'siswa_id' => $siswa->id,
+            'tgl_presensi' => $today,
+            'jam_masuk' => '08:00:00',
+            'status' => 'hadir',
+        ]);
+
+        // 2. Tutor mengabsen siswa di hari yang sama (sesi kelas)
+        Presensi::create([
+            'tutor_id' => $tutor->id,
+            'siswa_id' => $siswa->id,
+            'tgl_presensi' => $today,
+            'jam_mulai' => '08:30:00',
+            'jam_selesai' => '10:30:00',
+            'status' => 'hadir',
+            'moda_pembelajaran' => 'sekolah',
+        ]);
+
+        $this->actingAs($siswaUser);
+
+        $response = $this->get(route('siswa.dashboard'));
+        $response->assertStatus(200);
+
+        // View data assertions:
+        // Absen mandiri = 1, Sesi kelas = 1, Total Hadir = 1 (bukan 2!)
+        $response->assertViewHas('hadirBulanIni', 1);
+        $response->assertViewHas('hadirSesiKelas', 1);
+        $response->assertViewHas('totalHadirBulanIni', 1);
+
+        // Profil view check
+        $profilRes = $this->get(route('siswa.profil'));
+        $profilRes->assertStatus(200);
+        $profilRes->assertViewHas('totalHadirMandiri', 1);
+        $profilRes->assertViewHas('totalHadirKelas', 1);
+        $profilRes->assertViewHas('totalHariHadir', 1);
     }
 }

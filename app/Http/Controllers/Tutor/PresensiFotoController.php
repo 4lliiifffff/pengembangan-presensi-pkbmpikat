@@ -306,7 +306,7 @@ class PresensiFotoController extends Controller
 
                 if ($jadwalSesi) {
                     $jadwalSesi->update([
-                        'status' => 'selesai',
+                        'status' => 'berlangsung',
                         'presensi_id' => $presensi->id,
                     ]);
                 }
@@ -396,6 +396,12 @@ class PresensiFotoController extends Controller
             $presensi->lokasi_akurasi = $accuracy;
             $presensi->is_mocked = $isMocked;
             $presensi->save();
+
+            if ($presensi->jadwal_sesi_id) {
+                JadwalSesi::where('id', $presensi->jadwal_sesi_id)->update(['status' => 'selesai']);
+            } else {
+                JadwalSesi::where('presensi_id', $presensi->id)->update(['status' => 'selesai']);
+            }
         }
 
         // Kirim konfirmasi Web Push Notification ke Tutor

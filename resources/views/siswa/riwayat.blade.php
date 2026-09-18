@@ -83,9 +83,20 @@
                         <div class="riwayatDateTitle">{{ $hari }}</div>
                         <div class="riwayatDateSub">Lokasi Belajar: <strong>{{ $lokasiNama }}</strong></div>
                     </div>
-                    <span class="riwayatStatusBadge hadir">
-                        {{ $statusLabel }}
-                    </span>
+                    <div>
+                        <span class="riwayatStatusBadge hadir">
+                            {{ $statusLabel }}
+                        </span>
+                        @if($p->isTerlambat())
+                            <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-2 rounded-full ml-1" style="font-size: 0.72rem;">
+                                Terlambat (+{{ $p->menit_keterlambatan }} mnt)
+                            </span>
+                        @elseif($p->status_kehadiran === 'lebih_awal')
+                            <span class="badge bg-info-light text-info font-bold text-xs py-1 px-2 rounded-full ml-1" style="font-size: 0.72rem;">
+                                Lebih Awal
+                            </span>
+                        @endif
+                    </div>
                 </div>
 
                 <div class="riwayatTimeGrid">
