@@ -282,6 +282,7 @@
 ### 9.1 Autentikasi & Arsitektur Role Siswa
 * 🟢 **Normalisasi Identifier & Fleksibilitas Login Siswa:** [SELESAI] `AuthWebController` mendukung login menggunakan variasi format: Nomor Absen (`001`, `01`, `1`), format prefix (`sw001`, `SW001`, `SW0001`), NIK resmi (`SW202601`), maupun Email (`siswa@pkbmpikat.com`, `siswa001@pkbmpikat.com`).
 * 🟢 **Desain Kotak Notifikasi Login (`login-alert`):** [SELESAI] Komponen visual `.login-alert`, `.login-alert-danger`, `.login-alert-warning`, dan `.login-alert-success` dengan animasi `fadeInSlide` di `app.css` untuk memastikan setiap pesan kesalahan/peringatan terlihat jelas.
+* 🟢 **Fitur Quick Login Pengujian Multi-Role (Dev & Testing Mode):** [SELESAI] Panel pengujian cepat di halaman login (`auth.login`) untuk 5 peran sistem (`admin`, `kepala_sekolah`, `tutor`, `magang`, `siswa`) dengan 2 opsi interaksi (Masuk Langsung 1-klik via POST/GET `/quick-login` dan fitur Salin Kredensial ke form dengan animasi *pulse highlight*). Dilengkapi *Quick Role Switcher* interaktif (ikon ⚡ di topbar) saat login dalam lingkungan pengujian, proteksi environment, serta auto-provisioning fallback user dan profil siswa.
 
 ### 9.2 Presensi Mandiri Harian Siswa (Single Check-In / Kedatangan)
 * 🟢 **Tabel `presensi_mandiri_siswas` & Model:** [SELESAI] Struktur tabel pencatatan kehadiran mandiri siswa lengkap dengan koordinat GPS, foto masuk/pulang, akurasi sinyal, anti-mocking, dan status kehadiran.
@@ -303,9 +304,9 @@
 ---
 
 ## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)
-
+ 
 * 🟢 **Standardisasi Penulisan Kode (Laravel Pint):** [SELESAI] `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
-* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **119 Feature & Unit Tests** lulus 100% (**499 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, dan siswa mandiri single check-in.
+* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **149 Feature & Unit Tests** lulus 100% (**697 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, siswa mandiri single check-in, dan modul Quick Login multi-role.
 * 🟢 **Vite Production Assets:** [SELESAI] Kompilasi CSS & JS (`npm run build`) berjalan bersih tanpa error.
 
 ---

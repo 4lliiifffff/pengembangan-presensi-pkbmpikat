@@ -563,6 +563,16 @@ pie title Status Fitur & Pengkondisian Sistem
       - Mendukung berbagai variasi input username: `sw001`, `SW001`, `SW0001`, `001`, `01`, `1`, `siswa@pkbmpikat.com`, `siswa001@pkbmpikat.com`, maupun NIK `SW202601`.
     - **Desain Notifikasi Alert Login (`login.blade.php` & `app.css`)**:
       - Komponen visual alert `.login-alert` dengan warna kontras, border lembut, icon, dan animasi `fadeInSlide` agar pesan peringatan atau kesalahan selalu terlihat jelas oleh pengguna.
+    - **Fitur Quick Login Pengujian Multi-Role (Testing & Dev Mode)**:
+      - **Panel Pengujian di Halaman Login (`auth.login`)**: Penambahan kartu demo untuk 5 role (`admin`, `kepala_sekolah`, `tutor`, `magang`, `siswa`) dengan skema warna khas (Indigo, Amber, Emerald, Cyan, Purple).
+      - **Dua Opsi Interaksi Cepat**:
+        1. **Masuk Langsung (1-Klik)**: Tombol `⚡ Masuk` yang langsung mengirimkan request ke `route('login.quick')`, melakukan autentikasi otomatis, meregenerasi sesi, dan mengalihkan langsung ke dashboard role tujuan.
+        2. **Isi Form Otomatis (`fillLoginForm`)**: Tombol `Isi` yang menyalin username dan password ke field form dengan efek visual *pulse highlight* (`.input-highlight-pulse`) serta auto-scroll pada perangkat mobile.
+      - **Akses Rute GET Cepat (`/quick-login/{role}`)**: Memungkinkan tester dan developer berpindah role secara instan langsung melalui URL bar browser tanpa klik.
+      - **Quick Role Switcher di Topbar (`navigasi_atas.blade.php`)**: Menu dropdown ringkas berikon ⚡ pada navigasi atas saat pengguna sudah login di mode dev/testing, memungkinkan perpindahan akun antar peran dalam 1-klik tanpa perlu logout terlebih dahulu.
+      - **Resiliensi & Auto-Provisioning**: Helper `resolveQuickLoginUser` dan `createFallbackQuickLoginUser` memastikan akun fallback dan data relasional (Tutor, Siswa, Kelas, Magang, Kepsek, Admin) otomatis dibuat jika database belum di-seed, sehingga pengujian tidak pernah terhambat.
+      - **Proteksi Lingkungan**: Rute dibatasi hanya untuk lingkungan `local`, `testing`, atau saat `APP_DEBUG=true`.
+      - **Automated Test Suite (`QuickLoginTest.php`)**: 6 pengujian komprehensif (78 assertions) mencakup pengujian POST, GET, peralihan role dinamis saat login, fallback auto-provisioning, validasi role, dan rendering panel login.
 
 #### 9.2 Presensi Mandiri Harian Siswa (Single Check-In / Kedatangan)
 - 🟢 **Tabel `presensi_mandiri_siswas` & Engine Absensi Siswa**
@@ -631,6 +641,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 19 | **Standardisasi Styling Tombol Ekspor & Impor Agenda (`/jadwal`)** | UI/UX Consistency | Memperbarui tombol Export Excel (`btn-action-success`), Import Agenda (`btn-action-info`), Tambah Agenda (`profileBtnPrimary`), serta tombol modal import dan download template agar selaras dengan modul Karyawan dan Siswa. | 🟢 Selesai |
 | 20 | **Desentralisasi Jadwal Rutin Tutor & Reschedule Terstruktur (Opsi 2)** | Schedule & Reschedule | Admin tidak wajib buat jadwal; Tutor dapat membuat pola rutin mingguan (fleksibel `berlaku_sampai`) atau sesi sekali lewat modal terpadu 2-in-1, mengelola pola rutin sendiri, serta reschedule sesi via Opsi 2 (sesi lama dibatalkan dengan alasan, sesi baru dibuat bertipe pengganti dengan Web Push ke siswa). | 🟢 Selesai |
 | 21 | **Penyelarasan Style & Integrasi Lintas-Modul Halaman Jadwal & Jadwal-Sesi** | UI/UX & Integration | Menyatukan tab navigasi sub-menu (`.calendarNavTabsContainer`), lebar kontainer (`max-w-4xl`), grid kalender multi-dot (sesi biru + agenda amber), banner pengumuman PKBM di jadwal sesi, ringkasan sesi murid di agenda PKBM, dan sub-tab di panel Admin. | 🟢 Selesai |
+| 22 | **Fitur Quick Login & Role Switcher Multi-Role Pengujian** | Developer & QA Experience | Panel demo login 5 role di `auth/login` (1-klik instan & auto-fill credentials), rute GET cepat `/quick-login/{role}`, floating/topbar *Quick Role Switcher* ⚡, dan auto-provisioning fallback user/siswa. | 🟢 Selesai |
 
 ---
 

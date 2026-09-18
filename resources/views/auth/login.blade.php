@@ -173,6 +173,165 @@
                     </button>
                 </form>
 
+                {{-- ── Panel Pengujian: Quick Login Multi-Role (Testing & Dev Mode) ── --}}
+                @if(app()->environment('local', 'testing') || config('app.debug') || env('APP_QUICK_LOGIN', false))
+                    <div class="login-quick-section" id="quickLoginSection">
+                        <div class="login-quick-divider">
+                            <span>AKSES PENGUJIAN CEPAT (DEMO ROLE)</span>
+                        </div>
+
+                        <div class="login-quick-header-row">
+                            <div class="login-quick-badge">
+                                <ion-icon name="flash"></ion-icon>
+                                <span>Mode Pengujian</span>
+                            </div>
+                            <div class="login-quick-subtitle">Masuk instan 1-klik atau salin kredensial untuk setiap role:</div>
+                        </div>
+
+                        <div class="login-quick-grid">
+                            {{-- 1. Admin --}}
+                            <div class="quick-role-card role-admin" data-role="admin">
+                                <div class="qrc-top">
+                                    <div class="qrc-badge-icon">
+                                        <ion-icon name="shield-checkmark-outline"></ion-icon>
+                                    </div>
+                                    <div class="qrc-info">
+                                        <div class="qrc-tag">ADMINISTRATOR</div>
+                                        <div class="qrc-name">Admin Presensi</div>
+                                        <div class="qrc-account">admin@pkbmpikat.com</div>
+                                    </div>
+                                </div>
+                                <div class="qrc-btn-group">
+                                    <form action="{{ route('login.quick') }}" method="POST" class="w-100">
+                                        @csrf
+                                        <input type="hidden" name="role" value="admin">
+                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Administrator">
+                                            <ion-icon name="flash"></ion-icon>
+                                            <span>Masuk</span>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('admin@pkbmpikat.com', 'password123', 'Admin')" title="Isi form dengan akun Admin">
+                                        <ion-icon name="create-outline"></ion-icon>
+                                        <span>Isi</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- 2. Kepala Sekolah --}}
+                            <div class="quick-role-card role-kepsek" data-role="kepala_sekolah">
+                                <div class="qrc-top">
+                                    <div class="qrc-badge-icon">
+                                        <ion-icon name="ribbon-outline"></ion-icon>
+                                    </div>
+                                    <div class="qrc-info">
+                                        <div class="qrc-tag">KEPALA SEKOLAH</div>
+                                        <div class="qrc-name">Dr. H. Ahmad Dahlan</div>
+                                        <div class="qrc-account">kepsek@pkbmpikat.com</div>
+                                    </div>
+                                </div>
+                                <div class="qrc-btn-group">
+                                    <form action="{{ route('login.quick') }}" method="POST" class="w-100">
+                                        @csrf
+                                        <input type="hidden" name="role" value="kepala_sekolah">
+                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Kepala Sekolah">
+                                            <ion-icon name="flash"></ion-icon>
+                                            <span>Masuk</span>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('kepsek@pkbmpikat.com', 'password123', 'Kepala Sekolah')" title="Isi form dengan akun Kepala Sekolah">
+                                        <ion-icon name="create-outline"></ion-icon>
+                                        <span>Isi</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- 3. Tutor --}}
+                            <div class="quick-role-card role-tutor" data-role="tutor">
+                                <div class="qrc-top">
+                                    <div class="qrc-badge-icon">
+                                        <ion-icon name="school-outline"></ion-icon>
+                                    </div>
+                                    <div class="qrc-info">
+                                        <div class="qrc-tag">TUTOR / GURU</div>
+                                        <div class="qrc-name">Budi Santoso, S.Pd</div>
+                                        <div class="qrc-account">tutor@pkbmpikat.com</div>
+                                    </div>
+                                </div>
+                                <div class="qrc-btn-group">
+                                    <form action="{{ route('login.quick') }}" method="POST" class="w-100">
+                                        @csrf
+                                        <input type="hidden" name="role" value="tutor">
+                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Tutor">
+                                            <ion-icon name="flash"></ion-icon>
+                                            <span>Masuk</span>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('tutor@pkbmpikat.com', 'password123', 'Tutor')" title="Isi form dengan akun Tutor">
+                                        <ion-icon name="create-outline"></ion-icon>
+                                        <span>Isi</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- 4. Magang --}}
+                            <div class="quick-role-card role-magang" data-role="magang">
+                                <div class="qrc-top">
+                                    <div class="qrc-badge-icon">
+                                        <ion-icon name="id-card-outline"></ion-icon>
+                                    </div>
+                                    <div class="qrc-info">
+                                        <div class="qrc-tag">MAHASISWA MAGANG</div>
+                                        <div class="qrc-name">Rizky Pratama</div>
+                                        <div class="qrc-account">magang@pkbmpikat.com</div>
+                                    </div>
+                                </div>
+                                <div class="qrc-btn-group">
+                                    <form action="{{ route('login.quick') }}" method="POST" class="w-100">
+                                        @csrf
+                                        <input type="hidden" name="role" value="magang">
+                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Mahasiswa Magang">
+                                            <ion-icon name="flash"></ion-icon>
+                                            <span>Masuk</span>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('magang@pkbmpikat.com', 'password123', 'Magang')" title="Isi form dengan akun Magang">
+                                        <ion-icon name="create-outline"></ion-icon>
+                                        <span>Isi</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- 5. Siswa --}}
+                            <div class="quick-role-card role-siswa" data-role="siswa">
+                                <div class="qrc-top">
+                                    <div class="qrc-badge-icon">
+                                        <ion-icon name="book-outline"></ion-icon>
+                                    </div>
+                                    <div class="qrc-info">
+                                        <div class="qrc-tag">SISWA HOMESCHOOLING</div>
+                                        <div class="qrc-name">Ahmad Rizky (001)</div>
+                                        <div class="qrc-account">siswa001@pkbmpikat.com</div>
+                                    </div>
+                                </div>
+                                <div class="qrc-btn-group">
+                                    <form action="{{ route('login.quick') }}" method="POST" class="w-100">
+                                        @csrf
+                                        <input type="hidden" name="role" value="siswa">
+                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Siswa">
+                                            <ion-icon name="flash"></ion-icon>
+                                            <span>Masuk</span>
+                                        </button>
+                                    </form>
+                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('siswa001@pkbmpikat.com', 'password123', 'Siswa')" title="Isi form dengan akun Siswa">
+                                        <ion-icon name="create-outline"></ion-icon>
+                                        <span>Isi</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
             </div>
         </div>
 
@@ -260,6 +419,35 @@
                     }, 300);
                 });
             });
+
+            // ── 6. Helper Isi Form Pengujian Cepat (Quick Fill) ──
+            window.fillLoginForm = function(username, password, roleLabel) {
+                if (usernameInput) {
+                    usernameInput.value = username;
+                    usernameInput.classList.remove('input-highlight-pulse');
+                    void usernameInput.offsetWidth; // Force reflow
+                    usernameInput.classList.add('input-highlight-pulse');
+                }
+                if (passwordInput) {
+                    passwordInput.value = password;
+                    passwordInput.classList.remove('input-highlight-pulse');
+                    void passwordInput.offsetWidth; // Force reflow
+                    passwordInput.classList.add('input-highlight-pulse');
+                }
+
+                if (window.AppNotification && typeof window.AppNotification.toast === 'function') {
+                    window.AppNotification.toast({
+                        type: 'info',
+                        message: 'Akun ' + roleLabel + ' dimasukkan ke form login.',
+                        duration: 2500
+                    });
+                }
+
+                // Scroll perlahan ke atas jika di mobile
+                if (usernameInput && window.innerWidth < 768) {
+                    usernameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            };
         })();
     </script>
 

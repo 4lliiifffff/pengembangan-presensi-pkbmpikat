@@ -83,6 +83,10 @@ Route::post('/login', [AuthWebController::class, 'process'])
     ->middleware('throttle:login')
     ->name('login.process');
 
+// Quick Login Pengujian & Pengembangan (Dev / Testing)
+Route::post('/quick-login', [AuthWebController::class, 'quickLogin'])->name('login.quick');
+Route::get('/quick-login/{role}', [AuthWebController::class, 'quickLoginGet'])->name('login.quick.get');
+
 Route::middleware('auth')->prefix('profil')->name('profil.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');
     Route::patch('/update', [ProfileController::class, 'update'])->name('update');

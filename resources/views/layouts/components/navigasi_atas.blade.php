@@ -30,6 +30,71 @@
                     <ion-icon name="grid-outline"></ion-icon>
                 </a>
             @endif
+            @if(app()->environment('local', 'testing') || config('app.debug') || env('APP_QUICK_LOGIN', false))
+                <div class="quick-switcher-wrap" style="position: relative;">
+                    <button class="iconBtn quick-switch-trigger" type="button" id="quickRoleSwitcherBtn" aria-label="Ganti Role Cepat (Dev)" title="Ganti Role Cepat (Dev / Testing)">
+                        <ion-icon name="flash" style="color: #f59e0b;"></ion-icon>
+                    </button>
+                    <div class="quick-switcher-dropdown" id="quickRoleSwitcherMenu">
+                        <div class="qsd-header">
+                            <ion-icon name="flash-outline"></ion-icon>
+                            <span>Ganti Role Pengujian</span>
+                        </div>
+                        <a href="{{ route('login.quick.get', ['role' => 'admin']) }}" class="qsd-item {{ auth()->check() && auth()->user()->role === 'admin' ? 'active' : '' }}">
+                            <span class="qsd-badge admin"><ion-icon name="shield-checkmark-outline"></ion-icon></span>
+                            <span class="qsd-meta">
+                                <span class="qsd-role">Admin</span>
+                                <span class="qsd-name">Admin Presensi</span>
+                            </span>
+                        </a>
+                        <a href="{{ route('login.quick.get', ['role' => 'kepala_sekolah']) }}" class="qsd-item {{ auth()->check() && auth()->user()->role === 'kepala_sekolah' ? 'active' : '' }}">
+                            <span class="qsd-badge kepsek"><ion-icon name="ribbon-outline"></ion-icon></span>
+                            <span class="qsd-meta">
+                                <span class="qsd-role">Kepsek</span>
+                                <span class="qsd-name">Dr. H. Ahmad Dahlan</span>
+                            </span>
+                        </a>
+                        <a href="{{ route('login.quick.get', ['role' => 'tutor']) }}" class="qsd-item {{ auth()->check() && auth()->user()->role === 'tutor' ? 'active' : '' }}">
+                            <span class="qsd-badge tutor"><ion-icon name="school-outline"></ion-icon></span>
+                            <span class="qsd-meta">
+                                <span class="qsd-role">Tutor</span>
+                                <span class="qsd-name">Budi Santoso</span>
+                            </span>
+                        </a>
+                        <a href="{{ route('login.quick.get', ['role' => 'magang']) }}" class="qsd-item {{ auth()->check() && auth()->user()->role === 'magang' ? 'active' : '' }}">
+                            <span class="qsd-badge magang"><ion-icon name="id-card-outline"></ion-icon></span>
+                            <span class="qsd-meta">
+                                <span class="qsd-role">Magang</span>
+                                <span class="qsd-name">Rizky Pratama</span>
+                            </span>
+                        </a>
+                        <a href="{{ route('login.quick.get', ['role' => 'siswa']) }}" class="qsd-item {{ auth()->check() && auth()->user()->role === 'siswa' ? 'active' : '' }}">
+                            <span class="qsd-badge siswa"><ion-icon name="book-outline"></ion-icon></span>
+                            <span class="qsd-meta">
+                                <span class="qsd-role">Siswa</span>
+                                <span class="qsd-name">Ahmad Rizky (001)</span>
+                            </span>
+                        </a>
+                    </div>
+                </div>
+                <script>
+                    (function() {
+                        const btn = document.getElementById('quickRoleSwitcherBtn');
+                        const menu = document.getElementById('quickRoleSwitcherMenu');
+                        if (btn && menu) {
+                            btn.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                menu.classList.toggle('open');
+                            });
+                            document.addEventListener('click', function(e) {
+                                if (!menu.contains(e.target) && e.target !== btn) {
+                                    menu.classList.remove('open');
+                                }
+                            });
+                        }
+                    })();
+                </script>
+            @endif
             <button class="iconBtn" type="button" aria-label="Tema" id="themeToggleBtn" title="Ganti Tema">
                 <ion-icon name="moon-outline" id="themeToggleIcon"></ion-icon>
             </button>

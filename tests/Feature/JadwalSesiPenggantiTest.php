@@ -147,10 +147,12 @@ class JadwalSesiPenggantiTest extends TestCase
 
     public function test_presensi_masuk_auto_links_and_completes_jadwal_sesi(): void
     {
+        Carbon::setTestNow(Carbon::parse('2026-09-18 14:00:00', 'Asia/Jakarta'));
+
         $sesi = JadwalSesi::create([
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
-            'tanggal_rencana' => now()->toDateString(),
+            'tanggal_rencana' => '2026-09-18',
             'jam_masuk_rencana' => '14:00:00',
             'jam_pulang_rencana' => '16:00:00',
             'durasi_jam' => 2.00,
@@ -183,8 +185,8 @@ class JadwalSesiPenggantiTest extends TestCase
             'status' => 'berlangsung',
         ]);
 
-        // Saat tutor absen pulang setelah minimal 1 jam (mode = selesai)
-        Carbon::setTestNow(now()->addHours(2));
+        // Saat tutor absen pulang setelah minimal 1 jam (mode = selesai) pada hari yang sama
+        Carbon::setTestNow(Carbon::parse('2026-09-18 16:05:00', 'Asia/Jakarta'));
 
         $pulangPayload = [
             'mode' => 'selesai',
@@ -200,5 +202,7 @@ class JadwalSesiPenggantiTest extends TestCase
             'id' => $sesi->id,
             'status' => 'selesai',
         ]);
+
+        Carbon::setTestNow();
     }
 }

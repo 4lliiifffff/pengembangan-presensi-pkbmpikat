@@ -11283,6 +11283,443 @@ body.app-modal-open {
     }
 }
 
+/* ==========================================
+   QUICK LOGIN & ROLE SWITCHER (TESTING & DEV)
+   ========================================== */
+.login-quick-section {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px dashed var(--border);
+    animation: fadeIn 0.3s ease;
+}
+
+.login-quick-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 12px;
+    position: relative;
+}
+.login-quick-divider span {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--card);
+    padding: 0 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.login-quick-header-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+.login-quick-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(245, 158, 11, 0.15);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+[data-theme="dark"] .login-quick-badge {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.4);
+}
+.login-quick-subtitle {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.login-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 10px;
+}
+@media (max-width: 480px) {
+    .login-quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.quick-role-card {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--card-alt, #f8fafc);
+    padding: 11px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+[data-theme="dark"] .quick-role-card {
+    background: rgba(255, 255, 255, 0.03);
+}
+.quick-role-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.qrc-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+}
+.qrc-badge-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    flex-shrink: 0;
+}
+.qrc-info {
+    min-width: 0;
+    flex: 1;
+}
+.qrc-tag {
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+.qrc-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
+}
+.qrc-account {
+    font-size: 10.5px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Specific Role Color Themes */
+/* Admin */
+.quick-role-card.role-admin {
+    border-left: 3.5px solid #4f46e5;
+}
+.quick-role-card.role-admin .qrc-badge-icon {
+    background: rgba(79, 70, 229, 0.12);
+    color: #4f46e5;
+}
+.quick-role-card.role-admin .qrc-tag {
+    color: #4f46e5;
+}
+.quick-role-card.role-admin:hover {
+    border-color: #4f46e5;
+}
+[data-theme="dark"] .quick-role-card.role-admin .qrc-badge-icon {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+}
+[data-theme="dark"] .quick-role-card.role-admin .qrc-tag {
+    color: #818cf8;
+}
+
+/* Kepsek */
+.quick-role-card.role-kepsek {
+    border-left: 3.5px solid #d97706;
+}
+.quick-role-card.role-kepsek .qrc-badge-icon {
+    background: rgba(217, 119, 6, 0.12);
+    color: #d97706;
+}
+.quick-role-card.role-kepsek .qrc-tag {
+    color: #d97706;
+}
+.quick-role-card.role-kepsek:hover {
+    border-color: #d97706;
+}
+[data-theme="dark"] .quick-role-card.role-kepsek .qrc-badge-icon {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fcd34d;
+}
+[data-theme="dark"] .quick-role-card.role-kepsek .qrc-tag {
+    color: #fbbf24;
+}
+
+/* Tutor */
+.quick-role-card.role-tutor {
+    border-left: 3.5px solid #059669;
+}
+.quick-role-card.role-tutor .qrc-badge-icon {
+    background: rgba(5, 150, 105, 0.12);
+    color: #059669;
+}
+.quick-role-card.role-tutor .qrc-tag {
+    color: #059669;
+}
+.quick-role-card.role-tutor:hover {
+    border-color: #059669;
+}
+[data-theme="dark"] .quick-role-card.role-tutor .qrc-badge-icon {
+    background: rgba(16, 185, 129, 0.2);
+    color: #6ee7b7;
+}
+[data-theme="dark"] .quick-role-card.role-tutor .qrc-tag {
+    color: #34d399;
+}
+
+/* Magang */
+.quick-role-card.role-magang {
+    border-left: 3.5px solid #0891b2;
+}
+.quick-role-card.role-magang .qrc-badge-icon {
+    background: rgba(8, 145, 178, 0.12);
+    color: #0891b2;
+}
+.quick-role-card.role-magang .qrc-tag {
+    color: #0891b2;
+}
+.quick-role-card.role-magang:hover {
+    border-color: #0891b2;
+}
+[data-theme="dark"] .quick-role-card.role-magang .qrc-badge-icon {
+    background: rgba(6, 182, 212, 0.2);
+    color: #67e8f9;
+}
+[data-theme="dark"] .quick-role-card.role-magang .qrc-tag {
+    color: #22d3ee;
+}
+
+/* Siswa */
+.quick-role-card.role-siswa {
+    border-left: 3.5px solid #7c3aed;
+}
+.quick-role-card.role-siswa .qrc-badge-icon {
+    background: rgba(124, 58, 237, 0.12);
+    color: #7c3aed;
+}
+.quick-role-card.role-siswa .qrc-tag {
+    color: #7c3aed;
+}
+.quick-role-card.role-siswa:hover {
+    border-color: #7c3aed;
+}
+[data-theme="dark"] .quick-role-card.role-siswa .qrc-badge-icon {
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+}
+[data-theme="dark"] .quick-role-card.role-siswa .qrc-tag {
+    color: #a78bfa;
+}
+
+/* Card Button Group */
+.qrc-btn-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+.qrc-btn-instant {
+    width: 100%;
+    min-height: 30px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    border: none;
+    cursor: pointer;
+    background: var(--blue-gradient);
+    color: #ffffff !important;
+    transition: all 0.15s ease;
+}
+.qrc-btn-instant:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+.quick-role-card.role-admin .qrc-btn-instant {
+    background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+}
+.quick-role-card.role-kepsek .qrc-btn-instant {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+}
+.quick-role-card.role-tutor .qrc-btn-instant {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+.quick-role-card.role-magang .qrc-btn-instant {
+    background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+}
+.quick-role-card.role-siswa .qrc-btn-instant {
+    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+}
+
+.qrc-btn-fill {
+    min-height: 30px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+.qrc-btn-fill:hover {
+    background: var(--card-alt);
+    border-color: var(--muted);
+}
+
+/* Input Pulse Animation on Auto-Fill */
+@keyframes inputPulseHighlight {
+    0% {
+        box-shadow: 0 0 0 0 rgba(11, 94, 215, 0.4);
+        border-color: var(--blue);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(11, 94, 215, 0.15);
+        border-color: var(--blue2);
+        background-color: rgba(11, 94, 215, 0.05);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(11, 94, 215, 0);
+        border-color: var(--border);
+    }
+}
+.input-highlight-pulse {
+    animation: inputPulseHighlight 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ==========================================
+   TOPBAR QUICK ROLE SWITCHER DROPDOWN
+   ========================================== */
+.quick-switcher-wrap {
+    position: relative;
+}
+.quick-switcher-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 220px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    z-index: 1050;
+    backdrop-filter: blur(12px);
+    animation: fadeIn 0.15s ease;
+}
+.quick-switcher-dropdown.open {
+    display: flex;
+}
+.qsd-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    font-size: 10.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #d97706;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 4px;
+}
+.qsd-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 9px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.15s ease;
+}
+.qsd-item:hover {
+    background: var(--card-alt, #f1f5f9);
+}
+.qsd-item.active {
+    background: rgba(11, 94, 215, 0.1);
+    font-weight: 700;
+}
+.qsd-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.qsd-badge.admin {
+    background: rgba(79, 70, 229, 0.15);
+    color: #4f46e5;
+}
+.qsd-badge.kepsek {
+    background: rgba(217, 119, 6, 0.15);
+    color: #d97706;
+}
+.qsd-badge.tutor {
+    background: rgba(5, 150, 105, 0.15);
+    color: #059669;
+}
+.qsd-badge.magang {
+    background: rgba(8, 145, 178, 0.15);
+    color: #0891b2;
+}
+.qsd-badge.siswa {
+    background: rgba(124, 58, 237, 0.15);
+    color: #7c3aed;
+}
+.qsd-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+.qsd-role {
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+.qsd-name {
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
 
 
 

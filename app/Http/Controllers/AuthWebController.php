@@ -2,12 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
+use App\Models\kelas;
+use App\Models\Kepala_Sekolah;
+use App\Models\Magang;
 use App\Models\Siswa;
+use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -205,5 +212,244 @@ class AuthWebController extends Controller
 
         // Redirect ke halaman utama (halaman login)
         return redirect('/');
+    }
+
+    /**
+     * Quick Login untuk keperluan pengujian dan demonstrasi (Local / Testing / Debug mode).
+     * Memungkinkan developer dan tester masuk instan ke akun peran tertentu.
+     */
+    public function quickLogin(Request $request): RedirectResponse
+    {
+        if (! app()->environment('local', 'testing') && ! config('app.debug') && ! env('APP_QUICK_LOGIN', false)) {
+            abort(403, 'Akses Quick Login hanya diperbolehkan pada lingkungan pengembangan atau pengujian.');
+        }
+
+        $validated = $request->validate([
+            'role' => ['required', 'string', 'in:admin,kepala_sekolah,tutor,magang,siswa'],
+        ]);
+
+        $role = (string) $validated['role'];
+        $user = $this->resolveQuickLoginUser($role);
+
+        Auth::login($user, true);
+        $request->session()->regenerate();
+
+        RateLimiter::clear(strtolower((string) $user->nik).'|'.$request->ip());
+        RateLimiter::clear(strtolower((string) $user->email).'|'.$request->ip());
+
+        return $this->getDashboardRedirectForRole($role, $user);
+    }
+
+    /**
+     * Quick Login via GET rute langsung (/quick-login/{role}) untuk kenyamanan pengujian URL cepat.
+     */
+    public function quickLoginGet(Request $request, string $role): RedirectResponse
+    {
+        if (! app()->environment('local', 'testing') && ! config('app.debug') && ! env('APP_QUICK_LOGIN', false)) {
+            abort(403, 'Akses Quick Login hanya diperbolehkan pada lingkungan pengembangan atau pengujian.');
+        }
+
+        if (! in_array($role, ['admin', 'kepala_sekolah', 'tutor', 'magang', 'siswa'], true)) {
+            return redirect()->route('login')->with('warning', "Role pengujian '{$role}' tidak valid.");
+        }
+
+        $user = $this->resolveQuickLoginUser($role);
+
+        Auth::login($user, true);
+        $request->session()->regenerate();
+
+        RateLimiter::clear(strtolower((string) $user->nik).'|'.$request->ip());
+        RateLimiter::clear(strtolower((string) $user->email).'|'.$request->ip());
+
+        return $this->getDashboardRedirectForRole($role, $user);
+    }
+
+    /**
+     * Mencari akun pengguna representatif untuk role tertentu, dengan fallback otomatis jika database kosong.
+     */
+    protected function resolveQuickLoginUser(string $role): User
+    {
+        $user = User::where('role', $role)
+            ->where('is_active', 1)
+            ->oldest('id')
+            ->first();
+
+        if (! $user) {
+            $user = User::where('role', $role)->oldest('id')->first();
+        }
+
+        if (! $user) {
+            $user = $this->createFallbackQuickLoginUser($role);
+        }
+
+        if (! $user->is_active) {
+            $user->update(['is_active' => 1]);
+        }
+
+        // Khusus role siswa, pastikan data siswa terhubung agar dashboard siswa tidak mengalihkan ke logout
+        if ($role === 'siswa' && class_exists(Siswa::class) && Schema::hasTable('siswas')) {
+            if (! $user->siswa) {
+                $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
+                if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
+                    $k = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'tingkat' => '10']);
+                    $kelasId = $k->id;
+                }
+                Siswa::firstOrCreate(['user_id' => $user->id], [
+                    'no_absen' => '001',
+                    'nama_siswa' => $user->nama_lengkap,
+                    'kelas_id' => $kelasId,
+                    'status_siswa' => 'aktif',
+                    'no_hp' => $user->no_hp ?? '081234567001',
+                    'nama_wali' => 'Bambang Pratama',
+                ]);
+            }
+        }
+
+        return $user;
+    }
+
+    /**
+     * Membuat akun pengujian darurat jika seeder belum dijalankan sama sekali.
+     */
+    protected function createFallbackQuickLoginUser(string $role): User
+    {
+        $passwordHash = Hash::make('password123');
+
+        switch ($role) {
+            case 'admin':
+                $user = User::create([
+                    'nik' => '12345',
+                    'nama_lengkap' => 'Admin Presensi PKBM',
+                    'email' => 'admin@pkbmpikat.com',
+                    'password' => $passwordHash,
+                    'role' => 'admin',
+                    'is_active' => 1,
+                ]);
+                if (class_exists(Admin::class) && Schema::hasTable('admins')) {
+                    Admin::firstOrCreate(['user_id' => $user->id], [
+                        'nik' => $user->nik,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'email' => $user->email,
+                    ]);
+                }
+
+                return $user;
+
+            case 'kepala_sekolah':
+                $user = User::create([
+                    'nik' => '99001',
+                    'nama_lengkap' => 'Dr. H. Ahmad Dahlan, M.Pd',
+                    'email' => 'kepsek@pkbmpikat.com',
+                    'password' => $passwordHash,
+                    'role' => 'kepala_sekolah',
+                    'is_active' => 1,
+                ]);
+                if (class_exists(Kepala_Sekolah::class) && Schema::hasTable('kepala__sekolahs')) {
+                    Kepala_Sekolah::firstOrCreate(['user_id' => $user->id], [
+                        'nik' => $user->nik,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'email' => $user->email,
+                    ]);
+                }
+
+                return $user;
+
+            case 'tutor':
+                $user = User::create([
+                    'nik' => '10001',
+                    'nama_lengkap' => 'Budi Santoso, S.Pd',
+                    'email' => 'tutor@pkbmpikat.com',
+                    'password' => $passwordHash,
+                    'role' => 'tutor',
+                    'is_active' => 1,
+                ]);
+                if (class_exists(Tutor::class) && Schema::hasTable('tutors')) {
+                    Tutor::firstOrCreate(['user_id' => $user->id], [
+                        'nik' => $user->nik,
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'jabatan' => 'Tutor Pembelajaran',
+                        'email' => $user->email,
+                    ]);
+                }
+
+                return $user;
+
+            case 'magang':
+                $user = User::create([
+                    'nik' => 'MG202601',
+                    'nama_lengkap' => 'Rizky Pratama (Mahasiswa PKL)',
+                    'email' => 'magang@pkbmpikat.com',
+                    'password' => $passwordHash,
+                    'role' => 'magang',
+                    'is_active' => 1,
+                ]);
+                if (class_exists(Magang::class) && Schema::hasTable('magangs')) {
+                    Magang::firstOrCreate(['user_id' => $user->id], [
+                        'nim_nisn' => '22050974001',
+                        'nama_lengkap' => $user->nama_lengkap,
+                        'asal_instansi' => 'UNESA',
+                        'jurusan_prodi' => 'Pendidikan Luar Sekolah',
+                    ]);
+                }
+
+                return $user;
+
+            case 'siswa':
+                $user = User::create([
+                    'nik' => 'SW0001',
+                    'nama_lengkap' => 'Ahmad Rizky Pratama',
+                    'email' => 'siswa001@pkbmpikat.com',
+                    'password' => $passwordHash,
+                    'role' => 'siswa',
+                    'no_hp' => '081234567001',
+                    'is_active' => 1,
+                ]);
+                $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
+                if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
+                    $k = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'tingkat' => '10']);
+                    $kelasId = $k->id;
+                }
+                if (class_exists(Siswa::class) && Schema::hasTable('siswas')) {
+                    Siswa::firstOrCreate(['user_id' => $user->id], [
+                        'no_absen' => '001',
+                        'nama_siswa' => $user->nama_lengkap,
+                        'kelas_id' => $kelasId,
+                        'status_siswa' => 'aktif',
+                        'no_hp' => '081234567001',
+                        'nama_wali' => 'Bambang Pratama',
+                    ]);
+                }
+
+                return $user;
+
+            default:
+                abort(404, "Role pengujian {$role} tidak dikenali.");
+        }
+    }
+
+    /**
+     * Menghasilkan pengalihan rute dashboard yang sesuai dengan peran pengguna.
+     */
+    protected function getDashboardRedirectForRole(string $role, User $user): RedirectResponse
+    {
+        $roleLabels = [
+            'admin' => 'Administrator Presensi',
+            'kepala_sekolah' => 'Kepala Sekolah',
+            'tutor' => 'Tutor / Pendidik',
+            'magang' => 'Mahasiswa Magang (PKL)',
+            'siswa' => 'Siswa Homeschooling',
+        ];
+
+        $roleLabel = $roleLabels[$role] ?? ucfirst($role);
+        $message = "⚡ Login Cepat Pengujian: Anda masuk sebagai {$user->nama_lengkap} ({$roleLabel}).";
+
+        return match ($role) {
+            'admin' => redirect()->route('admin.dashboard')->with('success', $message),
+            'kepala_sekolah' => redirect()->route('kepsek.dashboard')->with('success', $message),
+            'tutor' => redirect()->route('tutor.dashboard')->with('success', $message),
+            'magang' => redirect()->route('magang.dashboard')->with('success', $message),
+            'siswa' => redirect()->route('siswa.dashboard')->with('success', $message),
+            default => redirect('/')->with('success', $message),
+        };
     }
 }
