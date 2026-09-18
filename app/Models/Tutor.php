@@ -113,4 +113,29 @@ class Tutor extends Model
     {
         return $this->hasMany(JadwalRutin::class);
     }
+
+    /**
+     * Accessor: Mengembalikan URL foto profil tutor dengan fallback ke akun user.
+     */
+    public function getFotoUrlAttribute(): ?string
+    {
+        $foto = $this->foto ?? $this->user?->foto;
+        if (! $foto) {
+            return null;
+        }
+
+        if (str_starts_with($foto, 'http://') || str_starts_with($foto, 'https://')) {
+            return $foto;
+        }
+
+        if (str_starts_with($foto, 'storage/')) {
+            return asset($foto);
+        }
+
+        if (file_exists(public_path($foto))) {
+            return asset($foto);
+        }
+
+        return asset('storage/'.ltrim($foto, '/'));
+    }
 }

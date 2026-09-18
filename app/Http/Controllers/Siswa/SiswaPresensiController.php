@@ -254,7 +254,7 @@ class SiswaPresensiController extends Controller
             return back()->with('warning', $geofenceCheck['message']);
         }
 
-        $dir = 'uploads/presensi_siswa/'.$siswa->id.'/'.$today;
+        $dir = 'presensi_siswa/'.$siswa->id.'/'.$today;
         $file = $request->file('foto');
         $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();
         $path = Storage::disk('public')->putFileAs($dir, $file, $filename);

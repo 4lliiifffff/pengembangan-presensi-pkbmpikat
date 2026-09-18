@@ -131,7 +131,7 @@
                             $detail = $m->magang;
                             $tglMulai = $detail?->tgl_mulai ? \Carbon\Carbon::parse($detail->tgl_mulai)->translatedFormat('d M Y') : '-';
                             $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->translatedFormat('d M Y') : '-';
-                            $avatarUrl = $m->foto ? (str_starts_with($m->foto, 'uploads/') ? asset($m->foto) : asset('storage/' . $m->foto)) : null;
+                            $avatarUrl = $m->foto_url;
                             $displayName = $m->nama_lengkap ?? $m->name;
                         @endphp
                         <tr>
@@ -224,7 +224,7 @@
                 $detail = $m->magang;
                 $tglMulai = $detail?->tgl_mulai ? \Carbon\Carbon::parse($detail->tgl_mulai)->translatedFormat('d M Y') : '-';
                 $tglSelesai = $detail?->tgl_selesai ? \Carbon\Carbon::parse($detail->tgl_selesai)->translatedFormat('d M Y') : '-';
-                $avatarUrl = $m->foto ? (str_starts_with($m->foto, 'uploads/') ? asset($m->foto) : asset('storage/' . $m->foto)) : null;
+                $avatarUrl = $m->foto_url;
                 $displayName = $m->nama_lengkap ?? $m->name;
             @endphp
             <div class="data-mobile-card">

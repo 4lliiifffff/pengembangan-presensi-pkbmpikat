@@ -191,7 +191,7 @@
                             <td>
                                 <div class="font-bold text-sm text-primary">{{ $masuk }} WIB</div>
                                 @if($p->foto_mulai)
-                                    <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $displayName }}')" class="table-phone-link mt-1">
+                                    <a href="javascript:void(0)" onclick="openPreviewModal('{{ $p->foto_mulai_url }}', 'Foto Masuk: {{ $displayName }}')" class="table-phone-link mt-1">
                                         <ion-icon name="image-outline"></ion-icon>
                                         <span>Lihat Foto</span>
                                     </a>
@@ -202,7 +202,7 @@
                                     {{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}
                                 </div>
                                 @if($p->foto_selesai)
-                                    <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $displayName }}')" class="table-phone-link text-success mt-1">
+                                    <a href="javascript:void(0)" onclick="openPreviewModal('{{ $p->foto_selesai_url }}', 'Foto Pulang: {{ $displayName }}')" class="table-phone-link text-success mt-1">
                                         <ion-icon name="image-outline"></ion-icon>
                                         <span>Lihat Foto</span>
                                     </a>
@@ -293,7 +293,7 @@
                         <div class="dmc-label">Jam Masuk</div>
                         <div class="dmc-value text-primary font-bold">{{ $masuk }} WIB</div>
                         @if($p->foto_mulai)
-                            <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $displayName }}')" class="table-phone-link mt-1">
+                            <a href="javascript:void(0)" onclick="openPreviewModal('{{ $p->foto_mulai_url }}', 'Foto Masuk: {{ $displayName }}')" class="table-phone-link mt-1">
                                 <ion-icon name="image-outline"></ion-icon>
                                 <span>Foto Masuk</span>
                             </a>
@@ -306,7 +306,7 @@
                             {{ $pulang }} {{ $p->jam_selesai ? 'WIB' : '' }}
                         </div>
                         @if($p->foto_selesai)
-                            <a href="javascript:void(0)" onclick="openPreviewModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $displayName }}')" class="table-phone-link text-success mt-1">
+                            <a href="javascript:void(0)" onclick="openPreviewModal('{{ $p->foto_selesai_url }}', 'Foto Pulang: {{ $displayName }}')" class="table-phone-link text-success mt-1">
                                 <ion-icon name="image-outline"></ion-icon>
                                 <span>Foto Pulang</span>
                             </a>

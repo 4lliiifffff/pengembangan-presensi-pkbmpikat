@@ -6,9 +6,7 @@
 @php
     $user = Auth::user();
     $initial = strtoupper(substr($user->nama_lengkap ?? $user->name ?? 'K', 0, 1));
-    $fotoUrl = $user->foto
-        ? (str_starts_with($user->foto, 'uploads/') ? asset($user->foto) : asset('storage/' . $user->foto))
-        : null;
+    $fotoUrl = $user->foto_url;
 @endphp
 
 {{-- ── HERO PROFILE HEADER ── --}}

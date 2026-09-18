@@ -6,7 +6,7 @@
 @php
     $detail = $magang->magang;
     $displayName = $magang->nama_lengkap ?? $magang->name;
-    $avatarUrl = $magang->foto ? (str_starts_with($magang->foto, 'uploads/') ? asset($magang->foto) : asset('storage/' . $magang->foto)) : null;
+    $avatarUrl = $magang->foto_url;
 @endphp
 
 <div class="laporanPageWrapper">

@@ -112,7 +112,7 @@
                         <div class="flex-items-center gap-2">
                             <span class="riwayatTimeVal text-primary">{{ $masuk }} WIB</span>
                             @if($p->foto_mulai)
-                                <img src="{{ asset($p->foto_mulai) }}" onclick="openRiwayatModal('{{ asset($p->foto_mulai) }}', 'Foto Masuk: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Masuk" title="Klik untuk perbesar">
+                                <img src="{{ $p->foto_mulai_url }}" onclick="openRiwayatModal('{{ $p->foto_mulai_url }}', 'Foto Masuk: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Masuk" title="Klik untuk perbesar">
                             @endif
                         </div>
                     </div>
@@ -122,7 +122,7 @@
                         <div class="flex-items-center gap-2">
                             <span  class="riwayatTimeVal {{ $p->jam_selesai ? 'text-success' : 'text-muted' }}">{{ $keluar }} {{ $p->jam_selesai ? 'WIB' : '' }}</span>
                             @if($p->foto_selesai)
-                                <img src="{{ asset($p->foto_selesai) }}" onclick="openRiwayatModal('{{ asset($p->foto_selesai) }}', 'Foto Pulang: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Pulang" title="Klik untuk perbesar">
+                                <img src="{{ $p->foto_selesai_url }}" onclick="openRiwayatModal('{{ $p->foto_selesai_url }}', 'Foto Pulang: {{ $hari }}')" class="riwayatPhotoThumb" alt="Foto Pulang" title="Klik untuk perbesar">
                             @endif
                         </div>
                     </div>

@@ -75,6 +75,12 @@
 * 🟢 **PWA (Progressive Web App) & Offline Mode:** [SELESAI] Web App Manifest (`manifest.json`), Service Worker (`sw.js`), dan penyimpanan lokal `IndexedDB` (`PikatPresensiOfflineDB`) untuk pencatatan presensi saat offline.
 * 🟢 **Pengajuan Izin & Sakit Mandiri oleh Tutor:** [SELESAI] Modul pengajuan izin dan sakit digital oleh Tutor lengkap dengan upload surat keterangan/dokumen pendukung serta alur verifikasi Kepala Sekolah.
 * 🟢 **Modul Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL):** [SELESAI] Role khusus `magang` dengan alur absensi Clock-In & Clock-Out berbasis foto selfie dan verifikasi geofence radius 100m PKBM Pikat.
+* 🟢 **Standardisasi Arsitektur Upload & Eliminasi Redundansi Folder Storage:** [SELESAI]
+  - **Eliminasi Prefix Redundan `uploads/`:** Menghapus penulisan prefix `'uploads/'` pada pemanggilan `Storage::disk('public')->putFileAs()` di seluruh controller (`PresensiFotoController`, `SiswaPresensiController`, `MagangPresensiController`, `KaryawanPresensiController`, `ProfileController`, `Admin\KaryawanController`, `Admin\MagangController`).
+  - **Konsolidasi Direktori Fisik Storage:** Memindahkan seluruh berkas foto dari `storage/app/public/uploads/*` langsung ke root folder modul masing-masing (`storage/app/public/foto_karyawan/`, `presensi/`, `presensi_karyawan/`, `presensi_siswa/`, `profiles/`) dan menghapus direktori `uploads/` yang redundan.
+  - **Re-linking Symlink Publik:** Menyambungkan ulang link `public/storage` ke `storage/app/public` secara presisi via `storage:link`.
+  - **Standardisasi Eloquent Accessor:** Mengintegrasikan accessor cerdas (`foto_mulai_url`, `foto_selesai_url`, `foto_url`) pada model `User`, `Tutor`, `Presensi`, `PresensiKaryawan`, `PresensiMandiriSiswa`, `Magang`.
+  - **Migrasi Pemanggilan di Blade:** Menggantikan seluruh pemanggilan raw `asset($p->foto_mulai)` menjadi method accessor aman di seluruh file Blade antarmuka Tutor, Magang, Kepala Sekolah, dan Admin.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---

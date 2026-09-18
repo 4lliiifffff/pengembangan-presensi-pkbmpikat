@@ -86,7 +86,7 @@ class MagangController extends Controller
             if ($request->hasFile('foto')) {
                 $file = $request->file('foto');
                 $filename = 'foto_magang_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-                $fotoPath = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+                $fotoPath = Storage::disk('public')->putFileAs('foto_karyawan', $file, $filename);
             }
 
             $user = User::create([
@@ -171,7 +171,7 @@ class MagangController extends Controller
             if ($request->hasFile('foto')) {
                 $file = $request->file('foto');
                 $filename = 'foto_magang_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-                $userData['foto'] = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+                $userData['foto'] = Storage::disk('public')->putFileAs('foto_karyawan', $file, $filename);
             }
 
             $magang->update($userData);

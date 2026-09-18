@@ -57,7 +57,7 @@ class KaryawanPresensiController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
         $waktuServer = $now->format('H:i:s');
-        $dir = 'uploads/presensi_karyawan/'.$user->id.'/'.$today;
+        $dir = 'presensi_karyawan/'.$user->id.'/'.$today;
 
         $activeSesi = PresensiKaryawan::where('user_id', $user->id)
             ->whereDate('tgl_presensi', $today)

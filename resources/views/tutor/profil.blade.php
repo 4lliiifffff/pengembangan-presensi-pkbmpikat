@@ -6,9 +6,7 @@
     $user = Auth::user();
     $tutor = $user->tutor;
     $initial = strtoupper(substr($user->nama_lengkap ?? $user->name ?? 'T', 0, 1));
-    $fotoUrl = $user->foto
-        ? (str_starts_with($user->foto, 'uploads/') ? asset($user->foto) : asset('storage/' . $user->foto))
-        : null;
+    $fotoUrl = $user->foto_url;
 @endphp
 
 @push('topbar')

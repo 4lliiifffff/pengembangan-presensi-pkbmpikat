@@ -117,7 +117,7 @@ class KaryawanController extends Controller
         if ($request->hasFile('foto') && Schema::hasColumn('users', 'foto')) {
             $file = $request->file('foto');
             $filename = 'foto_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-            $path = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+            $path = Storage::disk('public')->putFileAs('foto_karyawan', $file, $filename);
             $data['foto'] = $path;
         }
 
@@ -174,7 +174,7 @@ class KaryawanController extends Controller
             }
             $file = $request->file('foto');
             $filename = 'foto_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-            $path = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+            $path = Storage::disk('public')->putFileAs('foto_karyawan', $file, $filename);
             $payload['foto'] = $path;
         }
 

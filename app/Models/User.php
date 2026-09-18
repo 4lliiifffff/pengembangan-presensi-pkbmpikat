@@ -35,7 +35,7 @@ class User extends Authenticatable
         'password',     // Password (akan di-hash otomatis oleh cast 'hashed')
         'role',         // Peran: 'admin', 'tutor', 'kepala_sekolah'
         'no_hp',        // Nomor handphone (opsional)
-        'foto',         // Path foto profil (relatif dari public/, misal: 'uploads/foto_karyawan/...')
+        'foto',         // Path foto profil (relatif dari storage/app/public/, misal: 'foto_karyawan/...')
         'is_active',    // Status akun: 1=aktif, 0=nonaktif
     ];
 

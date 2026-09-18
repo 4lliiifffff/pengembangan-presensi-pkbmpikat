@@ -314,17 +314,17 @@
                             <td>
                                 <div class="fotoStack">
                                     @if ($presensi->foto_mulai)
-                                        <img src="{{ asset($presensi->foto_mulai) }}" class="fotoThumbnail cursor-pointer"
+                                        <img src="{{ $presensi->foto_mulai_url }}" class="fotoThumbnail cursor-pointer"
                                             title="Foto Mulai"
-                                            onclick="openPhotoModal('{{ asset($presensi->foto_mulai) }}', 'Foto Masuk — {{ $tutorName }}')">
+                                            onclick="openPhotoModal('{{ $presensi->foto_mulai_url }}', 'Foto Masuk — {{ $tutorName }}')">
                                     @else
                                         <div class="fotoPlaceholder" title="Belum ada foto masuk">M -</div>
                                     @endif
 
                                     @if ($presensi->foto_selesai)
-                                        <img src="{{ asset($presensi->foto_selesai) }}" class="fotoThumbnail cursor-pointer"
+                                        <img src="{{ $presensi->foto_selesai_url }}" class="fotoThumbnail cursor-pointer"
                                             title="Foto Selesai"
-                                            onclick="openPhotoModal('{{ asset($presensi->foto_selesai) }}', 'Foto Pulang — {{ $tutorName }}')">
+                                            onclick="openPhotoModal('{{ $presensi->foto_selesai_url }}', 'Foto Pulang — {{ $tutorName }}')">
                                     @else
                                         <div class="fotoPlaceholder" title="Belum ada foto selesai">S -</div>
                                     @endif
@@ -406,12 +406,12 @@
                         <span class="dmc-label mb-0">Foto:</span>
                         <div class="fotoStack">
                             @if ($presensi->foto_mulai)
-                                <img src="{{ asset($presensi->foto_mulai) }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
-                                    onclick="openPhotoModal('{{ asset($presensi->foto_mulai) }}', 'Foto Masuk — {{ $tutorName }}')">
+                                <img src="{{ $presensi->foto_mulai_url }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
+                                    onclick="openPhotoModal('{{ $presensi->foto_mulai_url }}', 'Foto Masuk — {{ $tutorName }}')">
                             @endif
                             @if ($presensi->foto_selesai)
-                                <img src="{{ asset($presensi->foto_selesai) }}" class="fotoThumbnail cursor-pointer" title="Foto Selesai"
-                                    onclick="openPhotoModal('{{ asset($presensi->foto_selesai) }}', 'Foto Selesai — {{ $tutorName }}')">
+                                <img src="{{ $presensi->foto_selesai_url }}" class="fotoThumbnail cursor-pointer" title="Foto Selesai"
+                                    onclick="openPhotoModal('{{ $presensi->foto_selesai_url }}', 'Foto Selesai — {{ $tutorName }}')">
                             @endif
                         </div>
                     </div>
@@ -499,17 +499,17 @@
                                 <td>
                                     <div class="fotoStack">
                                         @if ($kp->foto_mulai)
-                                            <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail cursor-pointer"
+                                            <img src="{{ $kp->foto_mulai_url }}" class="fotoThumbnail cursor-pointer"
                                                 title="Foto Mulai"
-                                                onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')">
+                                                onclick="openPhotoModal('{{ $kp->foto_mulai_url }}', 'Foto Masuk — {{ $kpName }}')">
                                         @else
                                             <div class="fotoPlaceholder">M -</div>
                                         @endif
 
                                         @if ($kp->foto_selesai)
-                                            <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail cursor-pointer"
+                                            <img src="{{ $kp->foto_selesai_url }}" class="fotoThumbnail cursor-pointer"
                                                 title="Foto Selesai"
-                                                onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Pulang — {{ $kpName }}')">
+                                                onclick="openPhotoModal('{{ $kp->foto_selesai_url }}', 'Foto Pulang — {{ $kpName }}')">
                                         @else
                                             <div class="fotoPlaceholder">S -</div>
                                         @endif
@@ -580,12 +580,12 @@
                             <span class="dmc-label mb-0">Foto:</span>
                             <div class="fotoStack">
                                 @if ($kp->foto_mulai)
-                                    <img src="{{ asset($kp->foto_mulai) }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
-                                        onclick="openPhotoModal('{{ asset($kp->foto_mulai) }}', 'Foto Masuk — {{ $kpName }}')">
+                                    <img src="{{ $kp->foto_mulai_url }}" class="fotoThumbnail cursor-pointer" title="Foto Mulai"
+                                        onclick="openPhotoModal('{{ $kp->foto_mulai_url }}', 'Foto Masuk — {{ $kpName }}')">
                                 @endif
                                 @if ($kp->foto_selesai)
-                                    <img src="{{ asset($kp->foto_selesai) }}" class="fotoThumbnail cursor-pointer" title="Foto Selesai"
-                                        onclick="openPhotoModal('{{ asset($kp->foto_selesai) }}', 'Foto Selesai — {{ $kpName }}')">
+                                    <img src="{{ $kp->foto_selesai_url }}" class="fotoThumbnail cursor-pointer" title="Foto Selesai"
+                                        onclick="openPhotoModal('{{ $kp->foto_selesai_url }}', 'Foto Selesai — {{ $kpName }}')">
                                 @endif
                             </div>
                         </div>

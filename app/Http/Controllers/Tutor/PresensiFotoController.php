@@ -203,8 +203,8 @@ class PresensiFotoController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
 
-        // Path direktori penyimpanan foto: uploads/presensi/{tutor_id}/{tanggal}/
-        $dir = 'uploads/presensi/'.$tutor->id.'/'.$today;
+        // Path direktori penyimpanan foto: presensi/{tutor_id}/{tanggal}/
+        $dir = 'presensi/'.$tutor->id.'/'.$today;
         $hasPresensiTutorId = Schema::hasColumn('presensis', 'tutor_id');
 
         // ─────────────────────────────────────────────

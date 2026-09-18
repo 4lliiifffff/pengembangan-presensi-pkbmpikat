@@ -7,9 +7,7 @@
     $siswa = $user->siswa;
     $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
     $initial = strtoupper(substr($displayName, 0, 1));
-    $fotoUrl = $user->foto
-        ? (str_starts_with($user->foto, 'uploads/') ? asset($user->foto) : asset('storage/' . $user->foto))
-        : null;
+    $fotoUrl = $user->foto_url;
 @endphp
 
 @push('topbar')

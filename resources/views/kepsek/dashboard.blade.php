@@ -151,8 +151,8 @@
                                         </div>
                                         
                                         <div class="kpiAvatar">
-                                            @if ($tutor->foto ?? null)
-                                                <img src="{{ asset($tutor->foto) }}" alt="Avatar" class="w-full h-full object-cover" />
+                                            @if ($tutor->foto_url ?? null)
+                                                <img src="{{ $tutor->foto_url }}" alt="Avatar" class="w-full h-full object-cover" />
                                             @else
                                                 {{ $initial }}
                                             @endif
@@ -209,8 +209,8 @@
                                 <div class="activityRow mb-2">
                                     <div class="activityLeft">
                                         <div class="activityAvatar">
-                                            @if ($item->tutor->foto ?? null)
-                                                <img src="{{ asset($item->tutor->foto) }}" alt="Avatar"
+                                            @if ($item->tutor?->foto_url ?? null)
+                                                <img src="{{ $item->tutor->foto_url }}" alt="Avatar"
                                                     class="w-full h-full object-cover" />
                                             @else
                                                 {{ $initial }}

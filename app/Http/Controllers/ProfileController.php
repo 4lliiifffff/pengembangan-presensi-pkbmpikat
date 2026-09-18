@@ -78,7 +78,7 @@ class ProfileController extends Controller
             // Simpan foto menggunakan Laravel Storage disk 'public'
             $file = $request->file('foto');
             $filename = 'foto_'.time().'_'.uniqid().'.'.$file->getClientOriginalExtension();
-            $path = Storage::disk('public')->putFileAs('uploads/foto_karyawan', $file, $filename);
+            $path = Storage::disk('public')->putFileAs('foto_karyawan', $file, $filename);
             $data['foto'] = $path;
         }
 

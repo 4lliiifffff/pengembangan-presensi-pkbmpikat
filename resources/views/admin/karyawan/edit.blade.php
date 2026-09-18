@@ -76,9 +76,7 @@
                 <label class="filterFieldLabel">Foto Profil</label>
                 @if ($karyawan->foto)
                     @php
-                        $fotoEditUrl = str_starts_with($karyawan->foto, 'uploads/')
-                            ? asset($karyawan->foto)
-                            : asset('storage/' . $karyawan->foto);
+                        $fotoEditUrl = $karyawan->foto_url;
                     @endphp
                     <div class="d-flex items-center gap-3 mb-3">
                         <img src="{{ $fotoEditUrl }}" alt="Foto {{ $karyawan->nama_lengkap }}"

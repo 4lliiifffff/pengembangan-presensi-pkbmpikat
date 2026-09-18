@@ -97,7 +97,7 @@ class MagangPresensiController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $today = $now->toDateString();
         $waktuServer = $now->format('H:i:s');
-        $dir = 'uploads/presensi_magang/'.$user->id.'/'.$today;
+        $dir = 'presensi_magang/'.$user->id.'/'.$today;
 
         $existingSesi = PresensiKaryawan::where('user_id', $user->id)
             ->whereDate('tgl_presensi', $today)
