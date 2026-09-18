@@ -161,6 +161,11 @@
   - Konfigurasi run default `DatabaseSeeder` difokuskan murni pada inisialisasi akun pengguna seluruh peran (`AdminSeeder`, `UserRoleSeeder`, `MagangSeeder`, `SiswaUserSeeder`).
   - Mengeliminasi pembuatan otomatis jadwal operasional, data master, dan generator sesi kalender dummy saat `php artisan db:seed` dijalankan, menjaga database tetap bersih dan ringan.
 
+* 🟢 **Modernisasi Antarmuka Login Autentikasi (`auth.login`):** [SELESAI]
+  - Redesain halaman login dengan arsitektur mobile-first (kartu fluid ringkas di layar ponsel) dan split card 2-kolom elegan di desktop/tablet.
+  - Penambahan fitur toggle show/hide password, input visual icon, checkbox "Ingat Saya", tombol switch Dark/Light Mode instan, serta proteksi submit loading state.
+  - Integrasi notifikasi single floating popup toast global terpadu (`app-notifications.js`), mengeliminasi alert box redundan di dalam form login.
+
 ---
 
 ## 5. MASTER DATA RELASIONAL & AKADEMIK (ACADEMIC LIFECYCLE)

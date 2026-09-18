@@ -328,6 +328,26 @@ pie title Status Fitur & Pengkondisian Sistem
       - Perintah `php artisan db:seed` sukses mengeksekusi pembuatan seluruh akun pengguna (Admin, Kepsek, Tutor, Magang, Siswa) dengan bersih dan cepat.
       - Seluruh test suite (135 tests, 572 assertions) tetap lulus 100%.
 
+#### 4.13 Modernisasi Antarmuka Login Autentikasi (Responsive Mobile & Design System)
+- 🟢 **Redesain Antarmuka Login Autentikasi Multi-Peran**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Kebutuhan:** Tampilan login sebelumnya menggunakan layout ilustrasi lawas yang memakan ruang vertikal terlalu besar pada layar ponsel, tidak memiliki toggle password (show/hide), tidak mendukung preferensi Dark Mode, dan belum mengadopsi komponen design system modern PKBM Pikat.
+    - **Arsitektur Responsive (Mobile-First & Desktop Split Card):**
+      - **Mobile (< 768px):** Tampilan kartu fluid di tengah dengan header kompak memuat logo resmi sekolah (`Logo.jpeg`), judul sistem presensi, dan form yang ramah jempol (*thumb-friendly*) tanpa scrolling yang melelahkan.
+      - **Desktop/Tablet (>= 768px):** Tampilan split card modern (lebar 920px); sisi kiri memuat panel showcase brand bergradien biru signature PKBM Pikat dengan sorotan fitur (Geofencing GPS, Kalender Sesi Real-time, Rekapitulasi Presensi & Payroll), dan sisi kanan memuat formulir kredensial akun.
+    - **Fitur Interaktivitas & UX Formulir:**
+      - **Toggle Show/Hide Password:** Ikon mata interaktif (`ion-icon name="eye-outline"` / `eye-off-outline`) untuk memudahkan pengecekan pengetikan kata sandi di ponsel.
+      - **Input Icons:** Ikon pembantu visual (`person-outline` dan `lock-closed-outline`) dengan efek fokus bercahaya (`glow shadow`).
+      - **Opsi Remember Me & Bantuan:** Checkbox modern "Ingat Saya" untuk menjaga sesi login tetap aktif, serta tautan bantuan WhatsApp Admin resmi.
+      - **Integrasi Single Popup Toast (Anti-Redundan):** Notifikasi pesan error/warning/success dialihkan 100% ke sistem floating popup toast global (`.app-toast-container` via meta flash session) yang konsisten di seluruh aplikasi, sekaligus mengeliminasi banner alert inline redundan di dalam form login agar antarmuka tetap bersih dan tidak bertumpuk ganda.
+      - **State Loading & Anti Double-Click:** Animasi teks "Memverifikasi..." dan penonaktifan tombol submit saat proses autentikasi berlangsung.
+      - **Theme Switcher Instant:** Tombol toggle mode gelap/terang di sudut kanan atas yang otomatis tersimpan di `localStorage`.
+    - **Penyelarasan CSS (`resources/css/app.css`):**
+      - Menggunakan token CSS variabel `--font-sans` (Inter), `--blue`, `--blue2`, `--blue-gradient`, `--radius-xl`, serta ambient glow background blur yang menawan dan ringan.
+    - **Verifikasi:**
+      - Seluruh test suite (135 tests, 572 assertions) lulus 100%. Formatter Laravel Pint lolos rapi. Production bundle Vite terkompilasi bersih.
+
 ---
 
 ### 5. Master Data Relasional & Siklus Siswa (Academic Lifecycle)
