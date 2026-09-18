@@ -361,4 +361,60 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         // Sesuai SK: Distance Learning 1,5 jam ABK = Rp 130.000
         $this->assertEquals(130000.00, $presensi->nominal_honor_snapshot);
     }
+
+    public function test_admin_can_create_custom_dynamic_jenis_layanan_and_delete_protection(): void
+    {
+        // 1. Admin bisa membuat kategori dengan jenis layanan baru/kustom (misal: 'vokasi')
+        $createResponse = $this->actingAs($this->admin)->post(route('admin.kategori-tutorial.store'), [
+            'nama_kategori' => 'Kursus Vokasi Desain Grafis',
+            'jenis_layanan' => 'Vokasi Kreatif', // Title case yang akan dinormalisasi
+            'durasi_jam' => 3.0,
+            'nominal_honor' => 125000,
+            'is_abk' => 0,
+            'is_gabungan' => 0,
+            'is_aktif' => 1,
+            'urutan' => 99,
+        ]);
+
+        $createResponse->assertRedirect(route('admin.kategori-tutorial.index'));
+        $kategoriVokasi = KategoriTutorial::where('nama_kategori', 'Kursus Vokasi Desain Grafis')->first();
+        $this->assertNotNull($kategoriVokasi);
+        $this->assertEquals('vokasi kreatif', $kategoriVokasi->jenis_layanan);
+        $this->assertEquals('Vokasi Kreatif', $kategoriVokasi->jenis_layanan_label);
+        $this->assertEquals('badge-layanan-custom', $kategoriVokasi->jenis_layanan_badge_class);
+
+        // 2. Kategori baru yang belum dipakai sama sekali bisa dihapus permanen
+        $deleteResponse = $this->actingAs($this->admin)->delete(route('admin.kategori-tutorial.destroy', $kategoriVokasi));
+        $deleteResponse->assertRedirect(route('admin.kategori-tutorial.index'));
+        $this->assertDatabaseMissing('kategori_tutorials', ['id' => $kategoriVokasi->id]);
+
+        // 3. Kategori yang sudah memiliki relasi (misal presensi) tidak bisa dihapus permanen, melainkan di-nonaktifkan
+        $kategoriAktif = KategoriTutorial::first();
+        $dummySiswa = Siswa::create([
+            'no_absen' => 'SISWA-DEL-PROT',
+            'nama_siswa' => 'Siswa Proteksi Hapus',
+            'no_hp' => '081234567800',
+            'nama_wali' => 'Wali Proteksi',
+            'kelas_id' => $this->kelas->id,
+            'tutor_id' => $this->tutor->id,
+        ]);
+
+        Presensi::create([
+            'tutor_id' => $this->tutor->id,
+            'siswa_id' => $dummySiswa->id,
+            'tgl_presensi' => now()->toDateString(),
+            'jam_mulai' => '08:00:00',
+            'status' => 'hadir',
+            'kategori_tutorial_id' => $kategoriAktif->id,
+            'nominal_honor_snapshot' => $kategoriAktif->nominal_honor,
+        ]);
+
+        $safeDeleteResponse = $this->actingAs($this->admin)->delete(route('admin.kategori-tutorial.destroy', $kategoriAktif));
+        $safeDeleteResponse->assertRedirect(route('admin.kategori-tutorial.index'));
+        // Data tetap ada di database namun is_aktif menjadi false
+        $this->assertDatabaseHas('kategori_tutorials', [
+            'id' => $kategoriAktif->id,
+            'is_aktif' => false,
+        ]);
+    }
 }

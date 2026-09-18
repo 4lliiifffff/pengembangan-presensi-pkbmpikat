@@ -46,8 +46,8 @@
                                 </td>
                                 <td class="p-3">
                                     <div class="d-flex items-center gap-1">
-                                        <span class="app-badge {{ $k->jenis_layanan === 'dl' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }}">
-                                            {{ $k->jenis_layanan === 'dl' ? 'Distance Learning (DL)' : 'Tutorial Komunitas' }}
+                                        <span class="app-badge {{ $k->jenis_layanan_badge_class }}">
+                                            {{ $k->jenis_layanan_label }}
                                         </span>
                                         <span class="font-bold text-dark text-sm">{{ $k->durasi_jam }} Jam</span>
                                     </div>
@@ -140,8 +140,8 @@
                     <div class="dmc-field">
                         <div class="dmc-label">Layanan &amp; Durasi</div>
                         <div class="dmc-value">
-                            <span class="app-badge {{ $k->jenis_layanan === 'dl' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }}">
-                                {{ $k->jenis_layanan === 'dl' ? 'DL' : 'Komunitas' }}
+                            <span class="app-badge {{ $k->jenis_layanan_badge_class }}">
+                                {{ $k->jenis_layanan_label }}
                             </span>
                             <span class="font-bold text-dark text-xs ml-1">{{ $k->durasi_jam }} Jam</span>
                         </div>

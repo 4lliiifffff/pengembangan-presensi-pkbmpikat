@@ -157,8 +157,11 @@
                         <td  class="font-semibold white-space-nowrap text-dark">
                             {{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}
                         </td>
-                        <td >
+                        <td>
                             <strong class="text-dark">{{ $row['nama_siswa'] }}</strong>
+                            <div class="text-xs font-semibold {{ ($row['is_sesuai_sk'] ?? true) ? 'text-muted' : 'text-warning' }}">
+                                {{ $row['kategori_nama'] ?? 'Tutorial KBM' }}
+                            </div>
                         </td>
                         <td class="text-muted text-sm white-space-nowrap">
                             {{ $row['jam_mulai'] }} s/d {{ $row['jam_selesai'] }}
@@ -166,8 +169,8 @@
                         <td class="text-center font-bold text-primary">
                             {{ $row['durasi_jam'] }} Jam
                         </td>
-                        <td >
-                            <span  class="text-xs rounded-sm font-bold badge-code">
+                        <td>
+                            <span class="text-xs rounded-sm font-bold badge-code">
                                 {{ $row['moda_label'] }}
                             </span>
                         </td>
@@ -176,7 +179,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr >
+                    <tr>
                         <td colspan="6" class="text-center p-4 text-muted">Belum ada log sesi mengajar terverifikasi.</td>
                     </tr>
                     @endforelse
@@ -192,6 +195,9 @@
                         <div>
                             <div class="ses-date">{{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}</div>
                             <div class="font-bold text-dark text-sm mt-1">{{ $row['nama_siswa'] }}</div>
+                            <div class="text-xs font-semibold {{ ($row['is_sesuai_sk'] ?? true) ? 'text-muted' : 'text-warning' }} mt-0.5">
+                                {{ $row['kategori_nama'] ?? 'Tutorial KBM' }}
+                            </div>
                         </div>
                         <div class="ses-subtotal">{{ $row['formatted_subtotal'] }}</div>
                     </div>

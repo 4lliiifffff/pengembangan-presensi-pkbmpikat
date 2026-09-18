@@ -27,8 +27,13 @@ class KategoriTutorialController extends Controller
     public function create()
     {
         $nextUrutan = (KategoriTutorial::max('urutan') ?? 0) + 1;
+        $existingJenisLayanan = KategoriTutorial::whereNotNull('jenis_layanan')
+            ->distinct()
+            ->pluck('jenis_layanan')
+            ->filter()
+            ->values();
 
-        return view('admin.kategori_tutorial.create', compact('nextUrutan'));
+        return view('admin.kategori_tutorial.create', compact('nextUrutan', 'existingJenisLayanan'));
     }
 
     /**
@@ -38,7 +43,7 @@ class KategoriTutorialController extends Controller
     {
         $validated = $request->validate([
             'nama_kategori' => ['required', 'string', 'max:150'],
-            'jenis_layanan' => ['required', 'in:komunitas,dl,lainnya'],
+            'jenis_layanan' => ['required', 'string', 'max:50'],
             'durasi_jam' => ['required', 'numeric', 'min:0.5', 'max:12'],
             'nominal_honor' => ['required', 'numeric', 'min:0'],
             'is_abk' => ['nullable', 'boolean'],
@@ -47,6 +52,7 @@ class KategoriTutorialController extends Controller
             'urutan' => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $validated['jenis_layanan'] = strtolower(trim($validated['jenis_layanan']));
         $validated['is_abk'] = $request->boolean('is_abk');
         $validated['is_gabungan'] = $request->boolean('is_gabungan');
         $validated['is_aktif'] = $request->boolean('is_aktif', true);
@@ -72,9 +78,14 @@ class KategoriTutorialController extends Controller
      */
     public function edit(KategoriTutorial $kategoriTutorial)
     {
-        $kategoriTutorial->loadCount('presensis');
+        $kategoriTutorial->loadCount(['presensis', 'jadwalSesis', 'jadwalRutins']);
+        $existingJenisLayanan = KategoriTutorial::whereNotNull('jenis_layanan')
+            ->distinct()
+            ->pluck('jenis_layanan')
+            ->filter()
+            ->values();
 
-        return view('admin.kategori_tutorial.edit', compact('kategoriTutorial'));
+        return view('admin.kategori_tutorial.edit', compact('kategoriTutorial', 'existingJenisLayanan'));
     }
 
     /**
@@ -84,7 +95,7 @@ class KategoriTutorialController extends Controller
     {
         $validated = $request->validate([
             'nama_kategori' => ['required', 'string', 'max:150'],
-            'jenis_layanan' => ['required', 'in:komunitas,dl,lainnya'],
+            'jenis_layanan' => ['required', 'string', 'max:50'],
             'durasi_jam' => ['required', 'numeric', 'min:0.5', 'max:12'],
             'nominal_honor' => ['required', 'numeric', 'min:0'],
             'is_abk' => ['nullable', 'boolean'],
@@ -93,6 +104,7 @@ class KategoriTutorialController extends Controller
             'urutan' => ['nullable', 'integer', 'min:0'],
         ]);
 
+        $validated['jenis_layanan'] = strtolower(trim($validated['jenis_layanan']));
         $validated['is_abk'] = $request->boolean('is_abk');
         $validated['is_gabungan'] = $request->boolean('is_gabungan');
         $validated['is_aktif'] = $request->boolean('is_aktif');
@@ -106,24 +118,40 @@ class KategoriTutorialController extends Controller
     }
 
     /**
-     * Hapus kategori tutorial (hanya jika belum berelasi dengan presensi).
+     * Hapus kategori tutorial (dengan proteksi integritas data relasi).
      */
     public function destroy(KategoriTutorial $kategoriTutorial)
     {
-        if ($kategoriTutorial->presensis()->exists()) {
-            // Jika ada riwayat, cukup nonaktifkan saja untuk menjaga integritas data
+        $hasPresensis = $kategoriTutorial->presensis()->exists();
+        $hasJadwalSesis = $kategoriTutorial->jadwalSesis()->exists();
+        $hasJadwalRutins = $kategoriTutorial->jadwalRutins()->exists();
+
+        if ($hasPresensis || $hasJadwalSesis || $hasJadwalRutins) {
+            // Jika ada riwayat, nonaktifkan untuk melindungi data historis
             $kategoriTutorial->update(['is_aktif' => false]);
+
+            $alasan = [];
+            if ($hasPresensis) {
+                $alasan[] = 'riwayat presensi';
+            }
+            if ($hasJadwalSesis) {
+                $alasan[] = 'jadwal sesi';
+            }
+            if ($hasJadwalRutins) {
+                $alasan[] = 'jadwal rutin';
+            }
+            $alasanStr = implode(' dan ', $alasan);
 
             return redirect()
                 ->route('admin.kategori-tutorial.index')
-                ->with('warning', 'Kategori memiliki riwayat presensi, status otomatis diubah menjadi Non-Aktif.');
+                ->with('warning', "Kategori tidak dihapus permanen karena terikat dengan {$alasanStr}. Status otomatis diubah menjadi Non-Aktif.");
         }
 
         $kategoriTutorial->delete();
 
         return redirect()
             ->route('admin.kategori-tutorial.index')
-            ->with('success', 'Kategori tutorial berhasil dihapus.');
+            ->with('success', 'Kategori tutorial berhasil dihapus permanen.');
     }
 
     /**

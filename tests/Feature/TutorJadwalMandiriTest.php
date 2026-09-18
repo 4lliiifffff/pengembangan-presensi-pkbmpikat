@@ -260,4 +260,32 @@ class TutorJadwalMandiriTest extends TestCase
         $destroyResp->assertRedirect();
         $this->assertDatabaseMissing('jadwal_rutins', ['id' => $rutin->id]);
     }
+
+    public function test_tutor_can_create_custom_duration_session_with_non_sk_tagging(): void
+    {
+        $date = Carbon::today('Asia/Jakarta')->addDays(3)->toDateString();
+
+        // Jadwal dengan durasi 1.25 jam (09:00 - 10:15) yang tidak ada di SK
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.store'), [
+            'is_recurring' => '0',
+            'siswa_id' => $this->siswa->id,
+            'kategori_tutorial_id' => '',
+            'tanggal_rencana' => $date,
+            'jam_masuk_rencana' => '09:00',
+            'jam_pulang_rencana' => '10:15',
+            'jenis_sesi' => 'reguler',
+            'catatan' => 'Bimbingan intensif persiapan lomba',
+        ]);
+
+        $response->assertRedirect();
+
+        $sesi = JadwalSesi::where('tutor_id', $this->tutor->id)
+            ->whereDate('tanggal_rencana', $date)
+            ->first();
+
+        $this->assertNotNull($sesi);
+        $this->assertEquals(1.25, (float) $sesi->durasi_jam);
+        $this->assertNull($sesi->kategori_tutorial_id);
+        $this->assertStringContainsString('[Jadwal Khusus: Durasi 1.25 Jam di luar SK]', $sesi->catatan);
+    }
 }

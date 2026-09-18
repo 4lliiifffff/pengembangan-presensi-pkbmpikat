@@ -96,7 +96,13 @@ class SiswaPresensiController extends Controller
             $waktuBukaStr = $waktuBuka->format('H:i');
             $now = Carbon::now('Asia/Jakarta');
 
-            $toleranceMinutes = (int) ($todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+            $defaultTolerance = (int) ($todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+            $durasiSesiMenit = (float) $todaySesi->durasi_jam * 60;
+            // Jika durasi sesi < 90 menit, gunakan toleransi proporsional 30% (lantai min. 10 menit)
+            $toleranceMinutes = ($durasiSesiMenit < 90)
+                ? min($defaultTolerance, max(10, (int) round($durasiSesiMenit * 0.3)))
+                : $defaultTolerance;
+
             $batasToleransi = $jamMasukCarbon->copy()->addMinutes($toleranceMinutes);
 
             // Evaluasi keterlambatan (jika sudah presensi gunakan jam masuk, jika belum gunakan waktu saat ini)
@@ -260,8 +266,12 @@ class SiswaPresensiController extends Controller
 
         if ($todaySesi) {
             $jamMasukStr = substr((string) $todaySesi->jam_masuk_rencana, 0, 5);
-            $jamMasukCarbon = Carbon::createFromFormat('Y-m-d H:i', $today.' '.$jamMasukStr, 'Asia/Jakarta');
-            $toleranceMinutes = (int) ($todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+            $defaultTolerance = (int) ($todaySesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
+            $durasiSesiMenit = (float) $todaySesi->durasi_jam * 60;
+            $toleranceMinutes = ($durasiSesiMenit < 90)
+                ? min($defaultTolerance, max(10, (int) round($durasiSesiMenit * 0.3)))
+                : $defaultTolerance;
+
             $batasToleransi = $jamMasukCarbon->copy()->addMinutes($toleranceMinutes);
 
             if ($now->lt($jamMasukCarbon)) {

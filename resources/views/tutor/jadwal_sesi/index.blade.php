@@ -812,47 +812,58 @@
                         </div>
                     </div>
 
+                    {{-- Kategori SK --}}
+                    <div class="form-field-wrapper mb-3">
+                        <label class="filterFieldLabel">Kategori Tutorial SK <span class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
+                        <select name="kategori_tutorial_id" id="modalKategoriTutorial" onchange="kategoriUniversalChange()"
+                            class="filterSelect">
+                            <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
+                            @foreach($kategoriTutorials as $kat)
+                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" data-nominal="{{ $kat->nominal_honor }}">
+                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull; {{ $kat->formatted_nominal_honor }})
+                                </option>
+                            @endforeach
+                            <option value="custom">-- Durasi Khusus (Belum Diatur SK) --</option>
+                        </select>
+                    </div>
+
                     {{-- Jam Belajar & Durasi (Dipakai kedua mode) --}}
                     <div class="p-3 bg-card-alt rounded-xl border-base mb-3">
                         <div class="text-xs font-bold uppercase tracking-wider text-muted mb-2">
-                            <ion-icon name="time-outline"></ion-icon> Jam Belajar &amp; Durasi
+                            <ion-icon name="time-outline"></ion-icon> Jam Belajar &amp; Durasi KBM
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
                                 <input type="time" name="jam_masuk" id="modalJamMasukRutin" value="10:00"
-                                    onchange="hitungDurasiUniversal()" class="profileInput d-none">
+                                    onchange="hitungDurasiUniversal(true)" class="profileInput d-none">
                                 <input type="time" name="jam_masuk_rencana" id="modalJamMasukSingle" value="10:00"
-                                    onchange="hitungDurasiUniversal()" class="profileInput" required>
+                                    onchange="hitungDurasiUniversal(true)" class="profileInput" required>
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
                                 <input type="time" name="jam_pulang" id="modalJamPulangRutin" value="12:00"
-                                    onchange="hitungDurasiUniversal()" class="profileInput d-none">
+                                    onchange="hitungDurasiUniversal(false)" class="profileInput d-none">
                                 <input type="time" name="jam_pulang_rencana" id="modalJamPulangSingle" value="12:00"
-                                    onchange="hitungDurasiUniversal()" class="profileInput" required>
+                                    onchange="hitungDurasiUniversal(false)" class="profileInput" required>
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Durasi (Jam)</label>
                                 <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam"
-                                    id="modalDurasiUniversal" value="2.00" class="profileInput">
+                                    id="modalDurasiUniversal" value="2.00" class="profileInput" readonly style="background: var(--card);">
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Kategori SK --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Kategori Tutorial SK (Opsional)</label>
-                        <select name="kategori_tutorial_id" id="modalKategoriTutorial" onchange="kategoriUniversalChange()"
-                            class="filterSelect">
-                            <option value="">-- Sesuaikan Durasi SK Otomatis --</option>
-                            @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}">
-                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }}j &bull;
-                                    {{ $kat->formatted_nominal_honor }})
-                                </option>
-                            @endforeach
-                        </select>
+                        {{-- Alert Callout Interaktif Jika Durasi Non-SK --}}
+                        <div id="boxWarningNonSk" class="mt-3 p-3 rounded-xl d-none" style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.25);">
+                            <div class="d-flex items-start gap-2">
+                                <ion-icon name="alert-circle-outline" style="font-size: 20px; color: #d97706; flex-shrink: 0; margin-top: 1px;"></ion-icon>
+                                <div class="text-xs" style="color: var(--text); line-height: 1.5;">
+                                    <strong style="color: #d97706;">Durasi Non-SK (<span id="labelDurasiNonSk">0</span> Jam):</strong>
+                                    Durasi ini belum terdaftar dalam SK Tarif Resmi PKBM. Sesi ini akan ditandai untuk verifikasi Admin/Kepsek, dan kompensasi honorarium akan mengikuti tarif flat default SK terdekat (Rp 75.000,-). Hubungi Admin jika memerlukan SK tarif khusus.
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-field-wrapper mb-3" id="boxAlasanSingle">
@@ -1050,31 +1061,86 @@
             }
         }
 
+        const activeSkDurasiList = [
+            @foreach($kategoriTutorials as $kat)
+                { id: {{ $kat->id }}, durasi: {{ (float) $kat->durasi_jam }} },
+            @endforeach
+        ];
+
         function kategoriUniversalChange() {
             const sel = document.getElementById('modalKategoriTutorial');
             const durasiInput = document.getElementById('modalDurasiUniversal');
             const opt = sel.selectedOptions[0];
-            if (opt && opt.dataset.durasi) {
-                durasiInput.value = parseFloat(opt.dataset.durasi).toFixed(2);
+            const warnBox = document.getElementById('boxWarningNonSk');
+
+            if (opt && opt.dataset && opt.dataset.durasi) {
+                const dur = parseFloat(opt.dataset.durasi);
+                durasiInput.value = dur.toFixed(2);
+                if (warnBox) warnBox.classList.add('d-none');
+
+                // Otomatis hitung Jam Selesai = Jam Mulai + Durasi SK
+                let m = isRecurringMode ? document.getElementById('modalJamMasukRutin').value : document.getElementById('modalJamMasukSingle').value;
+                if (m) {
+                    const [h, min] = m.split(':').map(Number);
+                    const totalMenitMulai = h * 60 + min;
+                    const totalMenitSelesai = totalMenitMulai + Math.round(dur * 60);
+                    const hSelesai = Math.floor((totalMenitSelesai % (24 * 60)) / 60);
+                    const minSelesai = totalMenitSelesai % 60;
+                    const pStr = String(hSelesai).padStart(2, '0') + ':' + String(minSelesai).padStart(2, '0');
+                    if (isRecurringMode) {
+                        document.getElementById('modalJamPulangRutin').value = pStr;
+                    } else {
+                        document.getElementById('modalJamPulangSingle').value = pStr;
+                    }
+                }
+            } else if (sel.value === 'custom') {
+                hitungDurasiUniversal(false);
             } else {
-                hitungDurasiUniversal();
+                hitungDurasiUniversal(false);
             }
         }
 
-        function hitungDurasiUniversal() {
+        function hitungDurasiUniversal(isMulaiChanged = false) {
+            const selKat = document.getElementById('modalKategoriTutorial');
+            const opt = selKat ? selKat.selectedOptions[0] : null;
+
+            // Jika kategori SK tertentu dipilih (bukan custom) dan jam mulai berubah, otomatis sesuaikan jam selesai
+            if (isMulaiChanged && opt && opt.dataset && opt.dataset.durasi) {
+                kategoriUniversalChange();
+                return;
+            }
+
             let m = isRecurringMode ? document.getElementById('modalJamMasukRutin').value : document.getElementById('modalJamMasukSingle').value;
             let p = isRecurringMode ? document.getElementById('modalJamPulangRutin').value : document.getElementById('modalJamPulangSingle').value;
             const d = document.getElementById('modalDurasiUniversal');
-            const selKat = document.getElementById('modalKategoriTutorial');
-
-            if (selKat && selKat.value) return;
+            const warnBox = document.getElementById('boxWarningNonSk');
+            const labelDurasi = document.getElementById('labelDurasiNonSk');
 
             if (m && p) {
                 const [h1, m1] = m.split(':').map(Number);
                 const [h2, m2] = p.split(':').map(Number);
                 let diff = (h2 * 60 + m2) - (h1 * 60 + m1);
                 if (diff < 0) diff += 24 * 60;
-                d.value = (diff / 60).toFixed(2);
+                const durasiJam = (diff / 60);
+                d.value = durasiJam.toFixed(2);
+
+                // Cek apakah durasi ini cocok dengan salah satu kategori SK
+                const matchedSk = activeSkDurasiList.find(item => Math.abs(item.durasi - durasiJam) < 0.01);
+                if (matchedSk) {
+                    if (selKat && selKat.value !== String(matchedSk.id)) {
+                        selKat.value = String(matchedSk.id);
+                    }
+                    if (warnBox) warnBox.classList.add('d-none');
+                } else {
+                    // Durasi Non-SK
+                    if (selKat && selKat.value !== 'custom') {
+                        selKat.value = 'custom';
+                    }
+                    if (warnBox) {
+                        warnBox.classList.remove('d-none');
+                        if (labelDurasi) labelDurasi.textContent = durasiJam.toFixed(2);
+                    }
+                }
             }
         }
 

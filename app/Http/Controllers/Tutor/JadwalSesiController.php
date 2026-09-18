@@ -167,17 +167,36 @@ class JadwalSesiController extends Controller
                 'berlaku_sampai.after_or_equal' => 'Tanggal selesai harus sama atau setelah tanggal mulai.',
             ]);
 
+            // Hitung durasi jam aktual dari selisih jam
+            $t1 = Carbon::createFromFormat('H:i', $validated['jam_masuk']);
+            $t2 = Carbon::createFromFormat('H:i', $validated['jam_pulang']);
+            $diffMenit = $t1->diffInMinutes($t2);
+            $durasiHitung = round($diffMenit / 60, 2);
+
+            // Cek kesesuaian dengan SK resmi
+            $katSk = null;
             if (! empty($validated['kategori_tutorial_id'])) {
-                $kat = KategoriTutorial::find($validated['kategori_tutorial_id']);
-                if ($kat) {
-                    $validated['durasi_jam'] = (float) $kat->durasi_jam;
-                }
+                $katSk = KategoriTutorial::find($validated['kategori_tutorial_id']);
             }
 
-            if (empty($validated['durasi_jam'])) {
-                $t1 = Carbon::createFromFormat('H:i', $validated['jam_masuk']);
-                $t2 = Carbon::createFromFormat('H:i', $validated['jam_pulang']);
-                $validated['durasi_jam'] = round($t1->diffInMinutes($t2) / 60, 2);
+            if ($katSk && abs((float) $katSk->durasi_jam - $durasiHitung) < 0.05) {
+                $validated['durasi_jam'] = (float) $katSk->durasi_jam;
+                $validated['kategori_tutorial_id'] = $katSk->id;
+            } else {
+                // Cari apakah ada SK lain yang pas dengan durasi ini
+                $katCocok = KategoriTutorial::active()->where('durasi_jam', $durasiHitung)->first();
+                if ($katCocok) {
+                    $validated['durasi_jam'] = (float) $katCocok->durasi_jam;
+                    $validated['kategori_tutorial_id'] = $katCocok->id;
+                } else {
+                    // Durasi di luar SK
+                    $validated['durasi_jam'] = $durasiHitung;
+                    $validated['kategori_tutorial_id'] = null;
+                    $tagKhusus = "[Jadwal Khusus: Durasi {$durasiHitung} Jam di luar SK]";
+                    $validated['keterangan'] = ! empty($validated['keterangan'])
+                        ? $tagKhusus.' '.$validated['keterangan']
+                        : $tagKhusus;
+                }
             }
 
             $jadwalKerja = JadwalKerja::active()
@@ -229,17 +248,36 @@ class JadwalSesiController extends Controller
             'jam_pulang_rencana.after' => 'Jam selesai harus lebih akhir dari jam mulai.',
         ]);
 
+        // Hitung durasi jam aktual dari selisih jam
+        $t1 = Carbon::createFromFormat('H:i', $validated['jam_masuk_rencana']);
+        $t2 = Carbon::createFromFormat('H:i', $validated['jam_pulang_rencana']);
+        $diffMenit = $t1->diffInMinutes($t2);
+        $durasiHitung = round($diffMenit / 60, 2);
+
+        // Cek kesesuaian dengan SK resmi
+        $katSk = null;
         if (! empty($validated['kategori_tutorial_id'])) {
-            $kat = KategoriTutorial::find($validated['kategori_tutorial_id']);
-            if ($kat) {
-                $validated['durasi_jam'] = (float) $kat->durasi_jam;
-            }
+            $katSk = KategoriTutorial::find($validated['kategori_tutorial_id']);
         }
 
-        if (empty($validated['durasi_jam'])) {
-            $t1 = Carbon::createFromFormat('H:i', $validated['jam_masuk_rencana']);
-            $t2 = Carbon::createFromFormat('H:i', $validated['jam_pulang_rencana']);
-            $validated['durasi_jam'] = round($t1->diffInMinutes($t2) / 60, 2);
+        if ($katSk && abs((float) $katSk->durasi_jam - $durasiHitung) < 0.05) {
+            $validated['durasi_jam'] = (float) $katSk->durasi_jam;
+            $validated['kategori_tutorial_id'] = $katSk->id;
+        } else {
+            // Cari apakah ada SK lain yang pas dengan durasi ini
+            $katCocok = KategoriTutorial::active()->where('durasi_jam', $durasiHitung)->first();
+            if ($katCocok) {
+                $validated['durasi_jam'] = (float) $katCocok->durasi_jam;
+                $validated['kategori_tutorial_id'] = $katCocok->id;
+            } else {
+                // Durasi di luar SK
+                $validated['durasi_jam'] = $durasiHitung;
+                $validated['kategori_tutorial_id'] = null;
+                $tagKhusus = "[Jadwal Khusus: Durasi {$durasiHitung} Jam di luar SK]";
+                $validated['catatan'] = ! empty($validated['catatan'])
+                    ? $tagKhusus.' '.$validated['catatan']
+                    : $tagKhusus;
+            }
         }
 
         $jadwalKerja = JadwalKerja::active()

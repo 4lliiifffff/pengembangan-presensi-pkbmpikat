@@ -8504,6 +8504,7 @@ body.app-modal-open {
 .badge-layanan-dl       { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
 .badge-layanan-komunitas{ background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .badge-layanan-gabungan { background: #fdf2f8; color: #9d174d; border: 1px solid #fbcfe8; }
+.badge-layanan-custom   { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
 
 .badge-hari-senin   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
 .badge-hari-selasa  { background: #fdf4ff; color: #a21caf; border: 1px solid #f0abfc; }
@@ -8512,6 +8513,11 @@ body.app-modal-open {
 .badge-hari-jumat   { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
 .badge-hari-sabtu   { background: #fff1f2; color: #be123c; border: 1px solid #fecdd3; }
 .badge-hari-minggu  { background: #fef2f2; color: #b91c1c; border: 1px solid #fca5a5; }
+
+[data-theme="dark"] .badge-layanan-dl       { background: rgba(3, 105, 161, 0.25); color: #7dd3fc; border-color: rgba(56, 189, 248, 0.35); }
+[data-theme="dark"] .badge-layanan-komunitas{ background: rgba(21, 128, 61, 0.25); color: #86efac; border-color: rgba(34, 197, 94, 0.35); }
+[data-theme="dark"] .badge-layanan-gabungan { background: rgba(157, 23, 77, 0.25); color: #f472b6; border-color: rgba(236, 72, 153, 0.35); }
+[data-theme="dark"] .badge-layanan-custom   { background: rgba(109, 40, 217, 0.25); color: #c4b5fd; border-color: rgba(168, 85, 247, 0.35); }
 
 [data-theme="dark"] .badge-hari-senin   { background: rgba(30, 58, 138, 0.4); color: #93c5fd; border-color: rgba(59, 130, 246, 0.3); }
 [data-theme="dark"] .badge-hari-selasa  { background: rgba(112, 26, 117, 0.4); color: #f0abfc; border-color: rgba(217, 70, 239, 0.3); }

@@ -279,6 +279,12 @@ class PresensiFotoController extends Controller
                 $siswa = Siswa::find($sId);
                 $honorInfo = $payrollService->resolveHonorSesi($moda, $durasiPilihan, $siswa, $isGabungan);
 
+                // Jika sesi terikat jadwal sesi terjadwal yang memiliki kategori tutorial khusus, warisi kategori tersebut
+                if ($jadwalSesi && $jadwalSesi->kategori_tutorial_id && $jadwalSesi->kategoriTutorial) {
+                    $honorInfo['kategori_tutorial_id'] = $jadwalSesi->kategori_tutorial_id;
+                    $honorInfo['nominal_honor'] = (float) $jadwalSesi->kategoriTutorial->nominal_honor;
+                }
+
                 $presensi = new Presensi;
                 if ($hasPresensiTutorId) {
                     $presensi->tutor_id = $tutor->id;
@@ -361,20 +367,24 @@ class PresensiFotoController extends Controller
                 }
             }
 
-            // Validasi durasi minimal: harus sudah lewat 1 jam
-
+            // Validasi durasi minimal presensi pulang (proporsional terhadap durasi rencana sesi)
             $jamMulai = Carbon::parse($today.' '.$presensi->jam_mulai, 'Asia/Jakarta');
             if ($jamMulai->greaterThan($now)) {
                 $jamMulai->subDay();
             }
             $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
 
-            if ($detikJalan < 3600) {
-                $sisaDetik = max(0, 3600 - $detikJalan);
-                $sisaMenit = $sisaDetik / 60;
-                $sisaLabel = number_format($sisaMenit, 2, ':', '');
+            $durasiRencanaJam = (float) ($presensi->durasi_pilihan ?: ($presensi->jadwalSesi?->durasi_jam ?: 2.0));
+            $durasiRencanaDetik = (int) round($durasiRencanaJam * 3600);
+            // Minimal 70% dari durasi rencana KBM, dengan plafon atas 3600 detik (1 jam) dan lantai minimal 900 detik (15 menit)
+            $minDetikWajib = min(3600, max(900, (int) round($durasiRencanaDetik * 0.7)));
 
-                return back()->with('warning', "Tunggu {$sisaLabel} menit lagi. Presensi pulang harus berjarak minimal 1 jam setelah masuk.");
+            if ($detikJalan < $minDetikWajib) {
+                $sisaDetik = max(0, $minDetikWajib - $detikJalan);
+                $sisaMenit = (int) ceil($sisaDetik / 60);
+                $minMenitLabel = (int) round($minDetikWajib / 60);
+
+                return back()->with('warning', "Tunggu {$sisaMenit} menit lagi. Presensi pulang untuk sesi ini ({$durasiRencanaJam} Jam) harus berjarak minimal {$minMenitLabel} menit setelah presensi masuk.");
             }
 
             // Validasi durasi maksimal: jika sudah lebih dari 2 jam, tetap izinkan tapi catat

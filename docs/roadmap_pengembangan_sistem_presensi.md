@@ -92,6 +92,11 @@
     - 6. Tutorial Distance Learning / DL ABK (Durasi 1,5 Jam) = **Rp 130.000,-** / pertemuan
   - Status **Anak Berkebutuhan Khusus (ABK)** dikunci di data master Siswa (`siswas.is_abk`).
   - **Dynamic Resolver & Snapshot Finansial:** `PayrollService::resolveHonorSesi()` otomatis mencocokkan moda, durasi, status ABK, dan status gabungan $\rightarrow$ mengunci nilai `nominal_honor_snapshot` pada `presensis` agar data historis payroll tidak terpengaruh perubahan tarif di masa depan.
+  - **Dinamisasi Jenis Layanan & Proteksi Relasi Menyeluruh (Admin Lifecycle):**
+    - Mengeliminasi batasan enum/hardcoded kaku pada `jenis_layanan` di form tambah/edit Admin (`admin/kategori-tutorial`). Admin kini bebas mendefinisikan jenis layanan baru (misal: *Homeschooling*, *Kursus Vokasi*, *Bimbingan Intensif*, dll.) dilengkapi fitur auto-saran (*datalist*) dan *Quick Tag Pills*.
+    - **Penyelarasan Style & Responsivitas Mobile Form (`create` & `edit`):** Menyelaraskan antarmuka form pembuatan dan pengeditan kategori SK dengan Design System terpadu PKBM Pikat. Mengadopsi label `.filterFieldLabel` yang konsisten, deskripsi `.field-help-text`, pembungkus `.form-field-wrapper`, kartu saklar `.checkbox-toggle-card`, kotak edukasi `.info-callout-box`, serta tombol aksi footer `.form-action-footer` (`.btnOutline` dan `.profileBtnPrimary`) yang bertransformasi menjadi *full-width* vertikal pada smartphone tanpa *horizontal overflow*.
+    - **Proteksi Integritas Relasi Berlapis (Dual-Layer Protection):** Penghapusan kategori layanan dilindungi dari kesalahan manual admin. Jika kategori terikat dengan `presensis`, `jadwal_sesis`, atau `jadwal_rutins`, sistem otomatis mengalihkan aksi menjadi **Non-Aktif** (`is_aktif = false`) sehingga arsip historis dan slip gaji masa lampau tidak terhapus, namun kategori langsung hilang dari pilihan pembuatan sesi baru ke depan.
+    - **Pewarisan Kategori Presensi:** Sesi terjadwal yang mengikat kategori SK khusus langsung mewariskan ID dan tarif honor ke lembar absensi dan rekap payroll tutor tanpa terhambat pemetaan moda tatap muka/daring.
   - **Total Refactoring & Drop Kolom Legacy `tarif_per_jam`:** Menghilangkan seluruh jejak kolom manual `tarif_per_jam` pada tabel `siswas` demi standarisasi 100% berbasis SK.
 
 ### 3.2 Slip Gaji Digital & Generasi Laporan Keuangan
@@ -169,6 +174,12 @@
   - Integrasi detail tanggal: menampilkan banner peringatan agenda sekolah (`.agendaNoticeBox`) pada kalender sesi belajar, serta ringkasan sesi murid (`.sesiSummaryBox`) pada kalender agenda sekolah.
   - Parameter URL `?open_modal=1` otomatis membuka modal buat jadwal belajar saat tutor beralih dari halaman agenda.
   - Tab navigasi terpadu serupa juga diterapkan pada panel Admin antara *Kalender Agenda Sekolah* (`admin.jadwal.index`) dan *Master Jadwal Rutin Siswa* (`admin.jadwal-rutin.index`).
+  - **Penyelarasan & Harmonisasi Logika Sesi Durasi Non-SK (4-Role Harmonization):**
+    - **Tutor:** Pilihan fleksibel durasi belajar di luar SK (misal 1, 1.25, 4 jam) dengan *Smart SK Binding* pada modal penjadwalan (pilih SK otomatis isi jam pulang). Jika tutor mengubah jam pulang menjadi durasi non-SK, sistem menampilkan *Live Warning Callout* (`#boxWarningNonSk`) yang menginformasikan bahwa durasi tidak ada di SK, honor akan menggunakan tarif flat default SK, dan sesi ditandai secara otomatis untuk verifikasi Admin/Kepsek.
+    - **Proteksi Clock-Out Adaptif Tutor:** Mengeliminasi jebakan *lockout* statis 1 jam (3600 detik). Tutor sesi singkat ($\le 60$ menit) kini dapat absen pulang setelah melewati ambang proporsional `min(3600, max(900, round(durasi_detik * 0.7)))` (misal sesi 30 menit sudah bisa pulang di menit ke-21) tanpa kehilangan waktu bimbingan.
+    - **Siswa (Toleransi Keterlambatan Proporsional):** Pada sesi berdurasi $< 90$ menit, batas toleransi keterlambatan presensi mandiri disesuaikan secara dinamis `min(defaultTolerance, max(10, round(durasi_menit * 0.3)))` sehingga pada sesi kilat 30 menit siswa yang baru hadir di menit ke-25 tidak keliru tercatat *"Tepat Waktu"*.
+    - **Admin (Visibilitas & Curricular Audit):** Otomatis menyematkan penanda transparan `[Jadwal Khusus: Durasi X Jam di luar SK]` pada catatan sesi atau master pola rutin tutor untuk kemudahan verifikasi dan audit kurikulum.
+    - **Kepala Sekolah (Transparansi Finansial & Payroll):** Sesi dengan durasi non-SK dilaporkan secara jujur dan transparan pada rincian rekap payroll (`Tutorial Non-SK (Aktual Xj - Flat Default SK)`) lengkap dengan badge oranye penanda pada tabel desktop dan kartu mobile rincian payroll.
   - **Web Push Notifikasi Instan:** Siswa otomatis menerima notifikasi Web Push setiap kali jadwal baru ditetapkan atau di-reschedule oleh tutornya.
 * 🟢 **Smart Presensi Time-Gating Masuk Siswa:** [SELESAI]
   - Form kamera presensi siswa terkunci jika tidak ada sesi KBM yang dijadwalkan hari ini (`gatingReason = 'no_schedule'`).

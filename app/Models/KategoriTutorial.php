@@ -61,6 +61,52 @@ class KategoriTutorial extends Model
     }
 
     /**
+     * Relasi ke jadwal sesi yang terhubung.
+     */
+    public function jadwalSesis(): HasMany
+    {
+        return $this->hasMany(JadwalSesi::class, 'kategori_tutorial_id');
+    }
+
+    /**
+     * Relasi ke jadwal rutin berulang yang terhubung.
+     */
+    public function jadwalRutins(): HasMany
+    {
+        return $this->hasMany(JadwalRutin::class, 'kategori_tutorial_id');
+    }
+
+    /**
+     * Accessor label manusiawi untuk jenis layanan dinamis.
+     */
+    public function getJenisLayananLabelAttribute(): string
+    {
+        $map = [
+            'komunitas' => 'Tutorial Komunitas',
+            'dl' => 'Distance Learning (DL)',
+            'lainnya' => 'Lainnya',
+        ];
+
+        if (isset($map[$this->jenis_layanan])) {
+            return $map[$this->jenis_layanan];
+        }
+
+        return ucwords(str_replace(['_', '-'], ' ', (string) $this->jenis_layanan));
+    }
+
+    /**
+     * Accessor kelas badge CSS untuk jenis layanan.
+     */
+    public function getJenisLayananBadgeClassAttribute(): string
+    {
+        return match ($this->jenis_layanan) {
+            'komunitas' => 'badge-layanan-komunitas',
+            'dl' => 'badge-layanan-dl',
+            default => 'badge-layanan-custom',
+        };
+    }
+
+    /**
      * Accessor format nominal rupiah.
      */
     public function getFormattedNominalHonorAttribute(): string

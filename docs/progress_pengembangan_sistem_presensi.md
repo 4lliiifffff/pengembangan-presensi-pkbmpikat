@@ -179,6 +179,23 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Tampilan slip gaji web dan PDF (`slip_pdf.blade.php`), rekapitulasi anggaran bulanan admin, dan broadcast pengumuman payroll via Web Push Notification.
 
+#### 3.4 Dinamisasi Jenis Layanan & Proteksi Relasi Menyeluruh (Admin Lifecycle)
+- 🟢 **Konfigurasi Jenis Layanan Dinamis & Perlindungan Relasi Berlapis**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Validasi Dinamis Tanpa Batas:** Mengganti validasi kaku `in:komunitas,dl,lainnya` di `KategoriTutorialController` menjadi string fleksibel (`max:50`) dengan sanitasi otomatis. Admin bebas mendaftarkan jenis layanan baru (misal: *Homeschooling*, *Kursus Vokasi*, *Bimbingan Intensif*, dsb.).
+    - **Penyelarasan Style & Responsivitas Mobile Form (`create.blade.php` & `edit.blade.php`):**
+      - Mengadopsi struktur tata letak terstandarisasi: `.form-card-container`, `.form-grid-responsive`, `.form-field-wrapper`, dan `.field-help-text`.
+      - Menggunakan label modern `.filterFieldLabel` dengan kontras tinggi di mode terang maupun mode gelap.
+      - Antarmuka dinamis dilengkapi `<datalist id="listJenisLayanan">` dan tombol tag rekomendasi cepat (*Quick Tag Pills*).
+      - Saklar status aktif, klasifikasi ABK, dan rombel gabungan diselaraskan menggunakan komponen `.checkbox-toggle-card` dengan area klik ramah jempol.
+      - Menambahkan banner informatif `.info-callout-box` di halaman edit (menampilkan metrik penggunaan sesi, jadwal sesi, dan jadwal rutin) dan halaman create (edukasi penguncian tarif snapshot finansial).
+      - Menyelaraskan tombol aksi footer `.form-action-footer` (`.btnOutline` dan `.profileBtnPrimary`) dengan penataan *full-width* responsif pada breakpoint ponsel ($\le 640$px).
+    - **Proteksi Integritas Relasi Berlapis (Dual-Layer Protection):** Penghapusan kategori layanan yang telah memiliki keterikatan dengan `presensis`, `jadwal_sesis`, atau `jadwal_rutins` secara otomatis dicegah dari penghapusan fisik dan dialihkan menjadi status **Non-Aktif** (`is_aktif = false`). Kategori seketika hilang dari formulir pembuatan jadwal baru, namun seluruh arsip riwayat presensi dan slip gaji masa lalu tetap aman 100%. Kategori yang belum pernah dipakai tetap dapat dihapus permanen.
+    - **Pewarisan Kategori Langsung ke Presensi:** `PresensiFotoController` memprioritaskan kategori SK yang melekat pada sesi terjadwal (`jadwalSesi->kategori_tutorial_id`) saat tutor absen masuk, sehingga layanan baru apa pun langsung terhitung akurat pada payroll.
+    - **Design System Badge:** Penambahan kelas CSS `.badge-layanan-custom` dan accessor model `$kategori->jenis_layanan_badge_class` serta `$kategori->jenis_layanan_label`.
+    - **Testing Suite:** Feature test `test_admin_can_create_custom_dynamic_jenis_layanan_and_delete_protection` lulus di `DynamicKategoriTutorialPayrollTest.php`.
+
 ---
 
 ### 4. Penjadwalan Sesi Belajar & Sesi Pengganti (*Make-Up Class / Reschedule*)
@@ -402,6 +419,31 @@ pie title Status Fitur & Pengkondisian Sistem
       - Menggunakan token CSS variabel `--font-sans` (Inter), `--blue`, `--blue2`, `--blue-gradient`, `--radius-xl`, serta ambient glow background blur yang menawan dan ringan.
     - **Verifikasi:**
       - Seluruh test suite (135 tests, 572 assertions) lulus 100%. Formatter Laravel Pint lolos rapi. Production bundle Vite terkompilasi bersih.
+
+#### 4.14 Harmonisasi Logika Sesi Durasi Non-SK (4-Role Harmonization: Tutor, Siswa, Admin, Kepsek)
+- 🟢 **Penyelarasan & Proteksi Menyeluruh Sesi KBM di Luar Durasi SK**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang Masalah:** SK Kepala PKBM Pikat mengatur durasi resmi tutorial 1.5 jam, 2 jam, dan 3 jam dengan nominal honor flat per pertemuan. Namun di lapangan, tutor kerap membuat jadwal dengan durasi khusus (misal 1 jam, 1.25 jam, atau 4 jam) yang tidak terdapat di master SK. Kondisi ini sebelumnya berpotensi menimbulkan cacat logika: jebakan lockout 1 jam absen pulang tutor pada sesi kilat, ketidaksesuaian toleransi keterlambatan siswa, ketiadaan visibilitas di admin, serta anomali pelaporan payroll kepsek.
+    - **Peran Tutor (Fleksibilitas Terbimbing & Smart SK Binding):**
+      - Modal Buat Jadwal Belajar (`tutor/jadwal_sesi/index.blade.php`) dilengkapi dropdown kategori SK di atas input waktu.
+      - Memilih kategori SK otomatis menghitung dan mengisi `jam_pulang` sesuai durasi resmi.
+      - Jika tutor mengubah jam pulang menjadi durasi non-SK (misal 1 jam 15 menit), sistem menampilkan *Live Warning Callout* (`#boxWarningNonSk`) yang menginformasikan bahwa durasi tidak ada di SK, sesi ditandai secara khusus, dan kompensasi menggunakan tarif flat default SK.
+    - **Proteksi Clock-Out Adaptif Tutor (`PresensiFotoController`):**
+      - Mengganti pembatasan statis 3600 detik (1 jam) dengan ambang batas adaptif: `min(3600, max(900, (int) round($durasiRencanaDetik * 0.7)))`.
+      - Pada sesi berdurasi singkat ($\le 60$ menit), tutor dapat melakukan presensi pulang setelah memenuhi 70% durasi belajar (minimal 15 menit). Misalnya, sesi 30 menit dapat clock-out di menit ke-21 tanpa terblokir.
+    - **Peran Siswa (Toleransi Keterlambatan Proporsional di `SiswaPresensiController`):**
+      - Untuk sesi singkat ($< 90$ menit), batas toleransi keterlambatan presensi mandiri disesuaikan dinamis menjadi: `min(defaultTolerance, max(10, (int) round($durasiMenit * 0.3)))`.
+      - Mencegah siswa pada sesi kilat 30 menit yang baru hadir di menit ke-25 keliru tercatat sebagai *"Tepat Waktu"*.
+    - **Peran Admin (Transparansi Kurikulum & Audit Trail):**
+      - Pada `JadwalSesiController`, jika sesi berdurasi di luar SK, controller otomatis menyematkan tag penanda transparan `[Jadwal Khusus: Durasi X Jam di luar SK]` pada kolom catatan sesi maupun keterangan master pola rutin.
+      - Menjaga integritas data tanpa memutus fleksibilitas tutor.
+    - **Peran Kepala Sekolah (Transparansi Finansial & Audit Payroll):**
+      - Pada `PayrollService`, sesi berdurasi di luar SK diberi label transparan: `Tutorial Non-SK (Aktual X.Xj - Flat Default SK)` dengan snapshot honor default.
+      - Pada view rincian payroll (`admin/payroll/show.blade.php`), sesi non-SK ditandai dengan badge oranye `Non-SK` pada tabel desktop dan kartu mobile sehingga Kepala Sekolah memiliki transparansi finansial penuh tanpa keraguan audit.
+    - **Testing & Verifikasi:**
+      - Feature test baru `test_tutor_can_create_custom_duration_session_with_non_sk_tagging` ditambahkan pada `tests/Feature/TutorJadwalMandiriTest.php`.
+      - Seluruh test suite (142 tests, 607 assertions) lulus 100%. Kompilasi Vite asset dan linter Laravel Pint lolos rapi.
 
 ---
 

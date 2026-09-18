@@ -100,8 +100,19 @@ class PayrollService
             $totalJamMengajar += $durasiJam;
             $totalHonorarium += $subtotalHonor;
 
-            // Tentukan label kategori untuk rincian
-            $kategoriNama = $p->kategoriTutorial ? $p->kategoriTutorial->nama_kategori : ($p->nominal_honor_snapshot !== null ? 'Tutorial Sesuai SK' : 'Tutorial Reguler (Per Jam)');
+            // Tentukan label kategori transparan untuk rincian slip honor
+            $durasiSk = $p->kategoriTutorial ? (float) $p->kategoriTutorial->durasi_jam : null;
+            $isDurasiSesuaiSk = $durasiSk !== null && abs($durasiSk - $durasiJam) < 0.1;
+
+            if ($p->kategoriTutorial) {
+                if ($isDurasiSesuaiSk) {
+                    $kategoriNama = $p->kategoriTutorial->nama_kategori." ({$durasiSk} Jam)";
+                } else {
+                    $kategoriNama = $p->kategoriTutorial->nama_kategori." (Aktual {$durasiJam}j - Flat SK {$durasiSk}j)";
+                }
+            } else {
+                $kategoriNama = "Tutorial Non-SK (Aktual {$durasiJam}j - Flat Default SK)";
+            }
 
             if (! isset($siswaSummary[$siswaId])) {
                 $siswaSummary[$siswaId] = [
@@ -128,6 +139,8 @@ class PayrollService
                 'jam_selesai' => $p->jam_selesai,
                 'durasi_jam' => $durasiJam,
                 'durasi_pilihan' => $p->durasi_pilihan ?? $durasiJam,
+                'durasi_sk' => $durasiSk,
+                'is_sesuai_sk' => $isDurasiSesuaiSk,
                 'nama_siswa' => $namaSiswa,
                 'is_abk' => $isAbk,
                 'kategori_nama' => $kategoriNama,
