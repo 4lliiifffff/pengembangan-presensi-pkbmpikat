@@ -14,7 +14,7 @@ class TutorTemplateExport implements FromArray, WithEvents, WithHeadings
         return [
             [
                 '1234567890123456',
-                'Budi Santoso, S.Pd.',
+                'Abdul Dudul, S.Kom.',
                 'budi.santoso@gmail.com',
                 '081234567890',
                 'tutor',

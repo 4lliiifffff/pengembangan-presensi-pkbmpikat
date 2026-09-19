@@ -42,7 +42,7 @@
             <div class="form-grid-responsive mb-4">
                 <div class="form-field-wrapper">
                     <label class="filterFieldLabel">Nama Lengkap <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required placeholder="Contoh: Ahmad Fauzi Pratama" />
+                    <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" required placeholder="Contoh: Alif" />
                 </div>
 
                 <div class="form-field-wrapper">
@@ -88,7 +88,7 @@
 
                 <div class="form-field-wrapper">
                     <label class="filterFieldLabel">Dosen / Guru Pembimbing</label>
-                    <input class="profileInput" type="text" name="pembimbing_lapangan" value="{{ old('pembimbing_lapangan') }}" placeholder="Contoh: Dr. Hendra Santoso, M.Pd" />
+                    <input class="profileInput" type="text" name="pembimbing_lapangan" value="{{ old('pembimbing_lapangan') }}" placeholder="Contoh: Muhamad Alif Nur Rohman, M.Kom" />
                 </div>
 
                 <div class="form-field-wrapper">

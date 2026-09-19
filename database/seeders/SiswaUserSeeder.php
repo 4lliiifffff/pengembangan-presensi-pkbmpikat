@@ -27,16 +27,20 @@ class SiswaUserSeeder extends Seeder
             $defaultKelasId = $defaultKelas->id;
         }
 
-        // 1. Akun Siswa 1: Ahmad Rizky Pratama (no_absen 001)
+        // 1. Akun Siswa 1: Zeldi (no_absen 001)
         $siswa1 = Siswa::where('no_absen', '001')->first() ?? Siswa::first();
         if (! $siswa1) {
             $siswa1 = Siswa::create([
                 'no_absen' => '001',
-                'nama_siswa' => 'Ahmad Rizky Pratama',
+                'nama_siswa' => 'Zeldi',
                 'no_hp' => '081234567001',
                 'nama_wali' => 'Bambang Pratama',
                 'kelas_id' => $defaultKelasId,
                 'status_siswa' => 'aktif',
+            ]);
+        } else {
+            $siswa1->update([
+                'nama_siswa' => 'Zeldi',
             ]);
         }
 

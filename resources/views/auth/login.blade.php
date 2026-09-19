@@ -197,7 +197,7 @@
                                     </div>
                                     <div class="qrc-info">
                                         <div class="qrc-tag">ADMINISTRATOR</div>
-                                        <div class="qrc-name">Admin Presensi</div>
+                                        <div class="qrc-name">Kak Tasya</div>
                                         <div class="qrc-account">admin@pkbmpikat.com</div>
                                     </div>
                                 </div>
@@ -225,7 +225,7 @@
                                     </div>
                                     <div class="qrc-info">
                                         <div class="qrc-tag">KEPALA SEKOLAH</div>
-                                        <div class="qrc-name">Dr. H. Ahmad Dahlan</div>
+                                        <div class="qrc-name">Bu Dara</div>
                                         <div class="qrc-account">kepsek@pkbmpikat.com</div>
                                     </div>
                                 </div>
@@ -253,7 +253,7 @@
                                     </div>
                                     <div class="qrc-info">
                                         <div class="qrc-tag">TUTOR / GURU</div>
-                                        <div class="qrc-name">Budi Santoso, S.Pd</div>
+                                        <div class="qrc-name">Kak Tari</div>
                                         <div class="qrc-account">tutor@pkbmpikat.com</div>
                                     </div>
                                 </div>
@@ -281,7 +281,7 @@
                                     </div>
                                     <div class="qrc-info">
                                         <div class="qrc-tag">MAHASISWA MAGANG</div>
-                                        <div class="qrc-name">Rizky Pratama</div>
+                                        <div class="qrc-name">Alif</div>
                                         <div class="qrc-account">magang@pkbmpikat.com</div>
                                     </div>
                                 </div>
@@ -309,7 +309,7 @@
                                     </div>
                                     <div class="qrc-info">
                                         <div class="qrc-tag">SISWA HOMESCHOOLING</div>
-                                        <div class="qrc-name">Ahmad Rizky (001)</div>
+                                        <div class="qrc-name">Zeldi (001)</div>
                                         <div class="qrc-account">siswa001@pkbmpikat.com</div>
                                     </div>
                                 </div>

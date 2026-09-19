@@ -13,7 +13,7 @@ use Illuminate\Validation\Rule;
 
 class KaryawanPresensiController extends Controller
 {
-    public function index(ShiftPresensiService $shiftService)
+    public function index(ShiftPresensiService $shiftService, GeofencingService $geofencingService)
     {
         $user = auth()->user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
@@ -32,6 +32,7 @@ class KaryawanPresensiController extends Controller
 
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $shiftEval = $shiftService->evaluateCheckIn();
+        $isBypassRadius = $geofencingService->isExemptFromRadius($user);
 
         return view('karyawan.presensi_foto', [
             'user' => $user,
@@ -40,6 +41,7 @@ class KaryawanPresensiController extends Controller
             'completedSessions' => $completedSessions,
             'lokasiPresensis' => $lokasiPresensis,
             'shiftEval' => $shiftEval,
+            'isBypassRadius' => $isBypassRadius,
         ]);
     }
 
@@ -52,6 +54,8 @@ class KaryawanPresensiController extends Controller
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'foto' => ['required', 'image', 'max:5120'],
             'lokasi' => ['nullable', 'string', 'max:255'],
+            'lokasi_akurasi' => ['nullable', 'numeric'],
+            'is_mock_location' => ['nullable', 'boolean'],
         ]);
 
         $now = Carbon::now('Asia/Jakarta');
@@ -71,9 +75,19 @@ class KaryawanPresensiController extends Controller
                 return back()->with('warning', 'Presensi masuk masih berjalan. Silahkan absen pulang dulu.');
             }
 
-            // Validasi Geofencing berdasarkan titik lokasi yang dipilih
+            $isBypassRadius = $geofencingService->isExemptFromRadius($user);
+
+            // Validasi Geofencing berdasarkan titik lokasi yang dipilih (Admin & Kepsek bebas radius untuk rapat/keperluan dinas)
             $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
-            $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
+            $geofenceCheck = $geofencingService->checkSelectedLokasiRadius(
+                $validated['lokasi'] ?? null,
+                $lokasiPresensiId,
+                null,
+                null,
+                null,
+                $isBypassRadius
+            );
+
             if (! $geofenceCheck['is_valid']) {
                 return back()->with('warning', $geofenceCheck['message']);
             }
@@ -97,7 +111,10 @@ class KaryawanPresensiController extends Controller
                 'menit_keterlambatan' => $shiftEval['menit_keterlambatan'],
             ]);
 
-            $successMsg = 'Presensi masuk berhasil disimpan. '.$shiftEval['pesan'];
+            $catatanBypass = ($isBypassRadius && ($geofenceCheck['distance'] > $geofenceCheck['max_radius'] || empty($validated['lokasi'])))
+                ? ' (Mode Bebas Radius / Rapat Dinas Luar)'
+                : '';
+            $successMsg = 'Presensi masuk berhasil disimpan'.$catatanBypass.'. '.$shiftEval['pesan'];
 
             return redirect()
                 ->route(auth()->user()->role === 'admin' ? 'admin.dashboard' : 'kepsek.dashboard')

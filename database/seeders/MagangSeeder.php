@@ -19,7 +19,7 @@ class MagangSeeder extends Seeder
             [
                 'email' => 'magang@pkbmpikat.com',
                 'nik' => 'MG202601',
-                'nama_lengkap' => 'Rizky Pratama (Mahasiswa PKL)',
+                'nama_lengkap' => 'Alif',
                 'nim_nisn' => '22050974001',
                 'asal_instansi' => 'Universitas Negeri Surabaya (UNESA)',
                 'jurusan_prodi' => 'S1 Pendidikan Luar Sekolah',

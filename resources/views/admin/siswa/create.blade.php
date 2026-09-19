@@ -41,7 +41,7 @@
 
                 <div class="form-field-wrapper">
                     <label class="filterFieldLabel">NAMA LENGKAP SISWA <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="nama_siswa" value="{{ old('nama_siswa') }}" placeholder="Contoh: Ahmad Dahlan" required />
+                    <input class="profileInput" type="text" name="nama_siswa" value="{{ old('nama_siswa') }}" placeholder="Contoh: Zeldi" required />
                 </div>
 
                 <div class="form-field-wrapper">

@@ -20,7 +20,7 @@ class UserRoleSeeder extends Seeder
         $admins = [
             [
                 'nik' => '12345',
-                'nama_lengkap' => 'Admin Presensi PKBM',
+                'nama_lengkap' => 'Kak Tasya',
                 'email' => 'admin@pkbmpikat.com',
                 'no_hp' => '081234567890',
             ],
@@ -62,7 +62,7 @@ class UserRoleSeeder extends Seeder
         $tutors = [
             [
                 'nik' => '10001',
-                'nama_lengkap' => 'Budi Santoso, S.Pd',
+                'nama_lengkap' => 'Kak Tari',
                 'email' => 'tutor@pkbmpikat.com',
                 'jabatan' => 'Tutor Matematika & IPA',
                 'alamat' => 'Jl. Pikat No. 123, Surabaya',
@@ -118,7 +118,7 @@ class UserRoleSeeder extends Seeder
         $kepsekUser = User::updateOrCreate(
             ['nik' => '99001'],
             [
-                'nama_lengkap' => 'Dr. H. Ahmad Dahlan, M.Pd',
+                'nama_lengkap' => 'Bu Dara',
                 'email' => 'kepsek@pkbmpikat.com',
                 'password' => $passwordHash,
                 'role' => 'kepala_sekolah',

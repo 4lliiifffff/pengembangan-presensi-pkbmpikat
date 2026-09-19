@@ -48,6 +48,7 @@
         };
         // Nomor WA admin dari env (aman dipakai di @php, bukan langsung di HTML)
         $adminWa = config('app.admin_wa', '6281234567890');
+        $isBypassRadius = $isBypassRadius ?? in_array($user?->role, ['admin', 'kepala_sekolah'], true);
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -70,6 +71,23 @@
 
     {{-- ══════════════════ MAIN CONTENT ══════════════════ --}}
     <div class="pagePad" id="mainContent">
+
+        {{-- ── Banner Notifikasi Fleksibilitas Bebas Radius (Admin & Kepala Sekolah) ── --}}
+        @if ($isBypassRadius)
+            <div class="card mb-3 p-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+                <div class="d-flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 d-flex items-center justify-center flex-shrink-0">
+                        <ion-icon name="briefcase-outline" class="text-xl"></ion-icon>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="text-xs font-bold text-blue-900 dark:text-blue-200">Akses Fleksibel (Bebas Radius) Aktif</div>
+                        <div class="text-xs text-blue-700/90 dark:text-blue-300/90 mt-0.5">
+                            Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas rapat luar atau keperluan dinas mendesak.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- ── RIWAYAT SESI SELESAI HARI INI ── --}}
         @if ($completedSessions->count() > 0)
@@ -306,8 +324,13 @@
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen Karyawan --}}
                     <div class="mb-3" id="boxPilihLokasi">
-                        <label class="d-block text-sm font-semibold text-muted mb-2">
-                            Pilih Lokasi Kerja / Cabang <span class="text-danger">*</span>
+                        <label class="d-flex items-center justify-between text-sm font-semibold text-muted mb-2">
+                            <span>Pilih Lokasi Kerja / Cabang <span class="text-danger">*</span></span>
+                            @if ($isBypassRadius)
+                                <span class="badge bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs px-2 py-0.5 rounded-full font-bold">
+                                    Bebas Radius
+                                </span>
+                            @endif
                         </label>
                         <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="select w-full">
                             @forelse($lokasiPresensis as $lok)
@@ -615,6 +638,8 @@
             }
         }
 
+        const IS_BYPASS_RADIUS = @json($isBypassRadius);
+
         function initPresensiMapInstance() {
             var mapEl = document.getElementById('leafletMap');
             if (!mapEl || presensiMap || typeof window.createPresensiMap === 'undefined') return;
@@ -645,6 +670,11 @@
                             badge.style.border = '1px solid rgba(22, 163, 74, 0.35)';
                             badge.style.color = '#15803d';
                             badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Di Dalam Area ' + state.targetNama + '</b> (' + Math.round(state.distance) + ' m)</span>';
+                        } else if (IS_BYPASS_RADIUS) {
+                            badge.style.background = 'rgba(37, 99, 235, 0.12)';
+                            badge.style.border = '1px solid rgba(37, 99, 235, 0.35)';
+                            badge.style.color = '#2563eb';
+                            badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Bebas Radius Aktif</b> (' + Math.round(state.distance) + ' m dari ' + state.targetNama + ') &bull; Dinas Luar / Rapat</span>';
                         } else {
                             badge.style.background = 'rgba(220, 38, 38, 0.12)';
                             badge.style.border = '1px solid rgba(220, 38, 38, 0.35)';
@@ -666,6 +696,14 @@
                             if (state.zoneChanged && navigator.vibrate) {
                                 navigator.vibrate([100, 50, 100]);
                             }
+                        } else if (IS_BYPASS_RADIUS) {
+                            radarDot.className = 'radarStatusDot pulse-blue';
+                            radarTitle.textContent = 'Mode Bebas Radius: Jarak ' + Math.round(state.distance) + ' m dari ' + state.targetNama;
+                            radarSub.textContent = 'Presensi di luar radius diizinkan khusus Admin & Kepala Sekolah untuk dinas luar / rapat.';
+                            if (btnMaps) {
+                                btnMaps.style.display = 'inline-flex';
+                                btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + state.targetLat + ',' + state.targetLng + '&origin=' + state.userLat + ',' + state.userLng;
+                            }
                         } else {
                             if (state.distance > 200) {
                                 radarDot.className = 'radarStatusDot pulse-red';
@@ -685,12 +723,28 @@
                     }
 
                     if (state.zoneChanged && window.showAppToast) {
-                        window.showAppToast({
-                            type: state.isWithin ? 'success' : 'warning',
-                            title: state.isWithin ? 'Memasuki Area ' + state.targetNama : 'Keluar Dari Area ' + state.targetNama,
-                            message: state.isWithin ? 'Anda berada dalam jangkauan presensi (' + Math.round(state.distance) + 'm).' : 'Anda berada ' + Math.round(state.distance) + 'm dari titik pusat.',
-                            duration: 3500
-                        });
+                        if (state.isWithin) {
+                            window.showAppToast({
+                                type: 'success',
+                                title: 'Memasuki Area ' + state.targetNama,
+                                message: 'Anda berada dalam jangkauan presensi (' + Math.round(state.distance) + 'm).',
+                                duration: 3500
+                            });
+                        } else if (IS_BYPASS_RADIUS) {
+                            window.showAppToast({
+                                type: 'info',
+                                title: 'Mode Bebas Radius Aktif',
+                                message: 'Anda berada di luar radius (' + Math.round(state.distance) + 'm), presensi tetap diizinkan untuk tugas dinas.',
+                                duration: 3500
+                            });
+                        } else {
+                            window.showAppToast({
+                                type: 'warning',
+                                title: 'Keluar Dari Area ' + state.targetNama,
+                                message: 'Anda berada ' + Math.round(state.distance) + 'm dari titik pusat.',
+                                duration: 3500
+                            });
+                        }
                     }
 
                     if (hint) {

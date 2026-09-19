@@ -37,7 +37,7 @@
             <div class="form-grid-responsive">
                 <div class="form-field-wrapper">
                     <label class="filterFieldLabel">Nama Lengkap <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" placeholder="Contoh: Budi Santoso, S.Pd." required />
+                    <input class="profileInput" type="text" name="nama_lengkap" value="{{ old('nama_lengkap') }}" placeholder="Contoh: Kak Tari" required />
                 </div>
 
                 <div class="form-field-wrapper">

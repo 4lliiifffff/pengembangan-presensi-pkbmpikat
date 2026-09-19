@@ -208,4 +208,67 @@ class GeofencingTest extends TestCase
         $address = $service->reverseGeocode(-7.8011945, 110.364917);
         $this->assertEquals('PKBM Pikat, Umbulharjo, Yogyakarta', $address);
     }
+
+    public function test_geofencing_service_identifies_exempt_roles(): void
+    {
+        $service = app(GeofencingService::class);
+
+        $this->assertTrue($service->isExemptFromRadius('admin'));
+        $this->assertTrue($service->isExemptFromRadius('kepala_sekolah'));
+        $this->assertFalse($service->isExemptFromRadius('tutor'));
+        $this->assertFalse($service->isExemptFromRadius('magang'));
+        $this->assertFalse($service->isExemptFromRadius('siswa'));
+    }
+
+    public function test_admin_presensi_bypasses_geofence_radius_for_external_meetings(): void
+    {
+        $adminUser = User::factory()->create([
+            'role' => 'admin',
+            'nama_lengkap' => 'Admin Rapat Luar',
+        ]);
+
+        // Lokasi koordinat di luar radius sekolah (~50km di luar kota)
+        $lokasiLuarKota = '-7.550000,110.820000';
+
+        $response = $this->actingAs($adminUser)->post(route('admin.presensi.store'), [
+            'mode' => 'mulai',
+            'lokasi' => $lokasiLuarKota,
+            'foto' => UploadedFile::fake()->image('admin_selfie.jpg'),
+        ]);
+
+        $response->assertRedirect(route('admin.dashboard'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('presensi_karyawans', [
+            'user_id' => $adminUser->id,
+            'lokasi_mulai' => $lokasiLuarKota,
+            'status' => 'hadir',
+        ]);
+    }
+
+    public function test_kepsek_presensi_bypasses_geofence_radius_for_urgent_duties(): void
+    {
+        $kepsekUser = User::factory()->create([
+            'role' => 'kepala_sekolah',
+            'nama_lengkap' => 'Kepsek Dinas Luar',
+        ]);
+
+        // Lokasi koordinat di luar radius sekolah (~20km)
+        $lokasiLuarRadius = '-7.650000,110.450000';
+
+        $response = $this->actingAs($kepsekUser)->post(route('kepsek.presensi.store'), [
+            'mode' => 'mulai',
+            'lokasi' => $lokasiLuarRadius,
+            'foto' => UploadedFile::fake()->image('kepsek_selfie.jpg'),
+        ]);
+
+        $response->assertRedirect(route('kepsek.dashboard'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('presensi_karyawans', [
+            'user_id' => $kepsekUser->id,
+            'lokasi_mulai' => $lokasiLuarRadius,
+            'status' => 'hadir',
+        ]);
+    }
 }

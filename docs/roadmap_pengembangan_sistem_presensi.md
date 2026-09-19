@@ -81,6 +81,9 @@
   - **Re-linking Symlink Publik:** Menyambungkan ulang link `public/storage` ke `storage/app/public` secara presisi via `storage:link`.
   - **Standardisasi Eloquent Accessor:** Mengintegrasikan accessor cerdas (`foto_mulai_url`, `foto_selesai_url`, `foto_url`) pada model `User`, `Tutor`, `Presensi`, `PresensiKaryawan`, `PresensiMandiriSiswa`, `Magang`.
   - **Migrasi Pemanggilan di Blade:** Menggantikan seluruh pemanggilan raw `asset($p->foto_mulai)` menjadi method accessor aman di seluruh file Blade antarmuka Tutor, Magang, Kepala Sekolah, dan Admin.
+* 🟢 **Standardisasi 5 Persona Akun Demo & Quick Login Pengujian:** [SELESAI]
+  - Menyelaraskan nama 5 persona utama di database seeder dan seluruh antarmuka pengujian: **Admin (Kak Tasya)**, **Kepala Sekolah (Bu Dara)**, **Tutor (Kak Tari)**, **Mahasiswa Magang (Alif)**, dan **Murid (Zeldi)**.
+  - Memperbarui kartu login demo `auth/login`, floating quick switcher `navigasi_atas`, controller fallback provisioning `AuthWebController`, placeholder create form, dan test assertions.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---
@@ -278,6 +281,7 @@
 * 🟢 **Standardisasi & Kelengkapan Varian Warna KPI Card (`.kpi-card`):** [SELESAI] Melengkapi style `resources/css/app.css` untuk varian warna kartu KPI yang sebelumnya belum terdefinisi (`.cyan`, `.purple`, `.rose`, `.orange`, `.teal`, `.slate`), menyelaraskan gradient aksen `::before`, latar ikon `.kpi-icon-wrap`, angka metrik `.kpi-val`, serta optimasi kontras tema gelap (`[data-theme="dark"]`).
 * 🟢 **Kelengkapan Style Komponen Tabel, Empty State & Utility (`app.css`):** [SELESAI] Melengkapi definisi kelas state kosong tabel (`.tableEmptyState`, `.table-empty-state`, `.tableEmptyIcon`, `.table-empty-icon`, `.tableEmptyTitle`, `.table-empty-title`, `.tableEmptyDesc`, `.table-empty-desc`) dengan Dark Mode, selaras `.filterActionsGroup`, komponen baris user tabel desktop & kartu mobile (`.table-user-*`, `.dmc-*`), animasi `@keyframes spin` (`.spinIcon`), `.radarInfo`, dan `.activeBody`.
 * 🟢 **Standardisasi & Desain Responsif Modal Import Excel:** [SELESAI] Memperbarui dan menyelaraskan antarmuka modal impor berkas spreadsheet Excel/CSV di seluruh modul Admin (`admin/siswa`, `admin/karyawan`, `admin/jadwal`, `admin/laporan`) dengan banner panduan unduh template (`.import-template-banner`), area dropzone interaktif, kartu pratinjau berkas terpilih (`.file-selected-card`) beserta info ukuran/status siap unggah dan tombol hapus, validasi ukuran maks 5MB di sisi klien, penutup klik-luar (*backdrop click-to-close*), dukungan Dark Mode optimal, serta tata letak tombol aksi bertingkat yang 100% responsif di layar mobile tanpa *horizontal scroll*.
+* 🟢 **Kebijakan Fleksibilitas Bebas Radius Presensi untuk Admin & Kepala Sekolah:** [SELESAI] Mengecualikan peran `admin` dan `kepala_sekolah` dari batasan radius geofencing sekolah/titik cabang (`GeofencingService::isExemptFromRadius()`). Mengizinkan kehadiran saat ada rapat di dinas/instansi luar atau keperluan mendesak, dengan koordinat GPS tetap tercatat sebagai bukti kehadiran, feedback visual peta responsif (`Bebas Radius Aktif &bull; Tugas Dinas/Rapat`, radar dot `pulse-blue`), banner edukatif peran, serta catatan otomatis pada notifikasi sukses dashboard.
 
 
 

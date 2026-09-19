@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\LokasiPresensi;
+use App\Models\User;
 use Illuminate\Support\Facades\Http;
 
 class GeofencingService
@@ -72,6 +73,17 @@ class GeofencingService
     }
 
     /**
+     * Menentukan apakah suatu peran (role) dikecualikan dari batasan radius presensi.
+     * Admin dan Kepala Sekolah memiliki fleksibilitas presensi di luar radius untuk rapat dinas luar atau keperluan mendesak.
+     */
+    public function isExemptFromRadius(User|string|null $role): bool
+    {
+        $roleName = $role instanceof User ? $role->role : $role;
+
+        return in_array($roleName, ['admin', 'kepala_sekolah'], true);
+    }
+
+    /**
      * Memeriksa apakah lokasi presensi berada dalam radius toleransi titik lokasi yang dipilih.
      *
      * @param  string|null  $lokasi  String koordinat "lat,lng" dari user
@@ -79,14 +91,16 @@ class GeofencingService
      * @param  float|null  $fallbackLat  Fallback Latitude jika ID tidak ditemukan / null
      * @param  float|null  $fallbackLng  Fallback Longitude jika ID tidak ditemukan / null
      * @param  float|null  $fallbackRadius  Fallback radius meter
-     * @return array{is_valid: bool, distance: float, max_radius: float, lokasi_presensi: LokasiPresensi|null, message: string|null}
+     * @param  bool  $bypassRadius  Flag apakah pengecekan radius dilewati (misal: Admin / Kepala Sekolah)
+     * @return array{is_valid: bool, distance: float, max_radius: float, lokasi_presensi: LokasiPresensi|null, message: string|null, is_bypassed: bool}
      */
     public function checkSelectedLokasiRadius(
         ?string $lokasi,
         ?int $lokasiPresensiId = null,
         ?float $fallbackLat = null,
         ?float $fallbackLng = null,
-        ?float $fallbackRadius = null
+        ?float $fallbackRadius = null,
+        bool $bypassRadius = false
     ): array {
         $lokasiModel = $lokasiPresensiId ? LokasiPresensi::find($lokasiPresensiId) : null;
 
@@ -103,12 +117,24 @@ class GeofencingService
         $coords = $this->parseCoordinates($lokasi);
 
         if (! $coords) {
+            if ($bypassRadius) {
+                return [
+                    'is_valid' => true,
+                    'distance' => 0.0,
+                    'max_radius' => $maxRadius,
+                    'lokasi_presensi' => $lokasiModel,
+                    'message' => null,
+                    'is_bypassed' => true,
+                ];
+            }
+
             return [
                 'is_valid' => false,
                 'distance' => 0.0,
                 'max_radius' => $maxRadius,
                 'lokasi_presensi' => $lokasiModel,
                 'message' => 'Koordinat lokasi GPS tidak valid atau tidak terdeteksi. Aktifkan GPS pada perangkat Anda.',
+                'is_bypassed' => false,
             ];
         }
 
@@ -119,7 +145,7 @@ class GeofencingService
             $targetLng
         );
 
-        $isValid = $distance <= $maxRadius;
+        $isValid = $bypassRadius || ($distance <= $maxRadius);
         $formattedDistance = round($distance, 1);
 
         $message = $isValid
@@ -132,6 +158,7 @@ class GeofencingService
             'max_radius' => $maxRadius,
             'lokasi_presensi' => $lokasiModel,
             'message' => $message,
+            'is_bypassed' => $bypassRadius,
         ];
     }
 
@@ -142,13 +169,15 @@ class GeofencingService
      * @param  float|null  $targetLat  Latitude pusat geofence (default: dari config lokasi.sekolah_lat)
      * @param  float|null  $targetLng  Longitude pusat geofence (default: dari config lokasi.sekolah_lng)
      * @param  float|null  $maxRadius  Radius maksimal meter (default: dari config lokasi.radius_meter)
-     * @return array{is_valid: bool, distance: float, max_radius: float, message: string|null}
+     * @param  bool  $bypassRadius  Flag apakah pengecekan radius dilewati (misal: Admin / Kepala Sekolah)
+     * @return array{is_valid: bool, distance: float, max_radius: float, message: string|null, is_bypassed: bool}
      */
     public function checkSekolahRadius(
         ?string $lokasi,
         ?float $targetLat = null,
         ?float $targetLng = null,
-        ?float $maxRadius = null
+        ?float $maxRadius = null,
+        bool $bypassRadius = false
     ): array {
         $targetLat ??= (float) config('lokasi.sekolah_lat', -7.8011945);
         $targetLng ??= (float) config('lokasi.sekolah_lng', 110.364917);
@@ -157,11 +186,22 @@ class GeofencingService
         $coords = $this->parseCoordinates($lokasi);
 
         if (! $coords) {
+            if ($bypassRadius) {
+                return [
+                    'is_valid' => true,
+                    'distance' => 0.0,
+                    'max_radius' => $maxRadius,
+                    'message' => null,
+                    'is_bypassed' => true,
+                ];
+            }
+
             return [
                 'is_valid' => false,
                 'distance' => 0.0,
                 'max_radius' => $maxRadius,
                 'message' => 'Koordinat lokasi GPS tidak valid atau tidak terdeteksi. Aktifkan GPS pada perangkat Anda.',
+                'is_bypassed' => false,
             ];
         }
 
@@ -172,7 +212,7 @@ class GeofencingService
             $targetLng
         );
 
-        $isValid = $distance <= $maxRadius;
+        $isValid = $bypassRadius || ($distance <= $maxRadius);
         $formattedDistance = round($distance, 1);
 
         $message = $isValid
@@ -184,6 +224,7 @@ class GeofencingService
             'distance' => $distance,
             'max_radius' => $maxRadius,
             'message' => $message,
+            'is_bypassed' => $bypassRadius,
         ];
     }
 

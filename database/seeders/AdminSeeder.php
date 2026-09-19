@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
         User::updateOrCreate(
             ['nik' => '12345'],
             [
-                'nama_lengkap' => 'Admin',
+                'nama_lengkap' => 'Kak Tasya',
                 'password' => Hash::make('admin123'),
                 'role' => 'admin',
                 'no_hp' => '-',

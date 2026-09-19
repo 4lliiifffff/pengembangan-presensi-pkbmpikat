@@ -319,7 +319,7 @@ class AuthWebController extends Controller
             case 'admin':
                 $user = User::create([
                     'nik' => '12345',
-                    'nama_lengkap' => 'Admin Presensi PKBM',
+                    'nama_lengkap' => 'Kak Tasya',
                     'email' => 'admin@pkbmpikat.com',
                     'password' => $passwordHash,
                     'role' => 'admin',
@@ -338,7 +338,7 @@ class AuthWebController extends Controller
             case 'kepala_sekolah':
                 $user = User::create([
                     'nik' => '99001',
-                    'nama_lengkap' => 'Dr. H. Ahmad Dahlan, M.Pd',
+                    'nama_lengkap' => 'Bu Dara',
                     'email' => 'kepsek@pkbmpikat.com',
                     'password' => $passwordHash,
                     'role' => 'kepala_sekolah',
@@ -357,7 +357,7 @@ class AuthWebController extends Controller
             case 'tutor':
                 $user = User::create([
                     'nik' => '10001',
-                    'nama_lengkap' => 'Budi Santoso, S.Pd',
+                    'nama_lengkap' => 'Kak Tari',
                     'email' => 'tutor@pkbmpikat.com',
                     'password' => $passwordHash,
                     'role' => 'tutor',
@@ -377,7 +377,7 @@ class AuthWebController extends Controller
             case 'magang':
                 $user = User::create([
                     'nik' => 'MG202601',
-                    'nama_lengkap' => 'Rizky Pratama (Mahasiswa PKL)',
+                    'nama_lengkap' => 'Alif',
                     'email' => 'magang@pkbmpikat.com',
                     'password' => $passwordHash,
                     'role' => 'magang',
@@ -397,7 +397,7 @@ class AuthWebController extends Controller
             case 'siswa':
                 $user = User::create([
                     'nik' => 'SW0001',
-                    'nama_lengkap' => 'Ahmad Rizky Pratama',
+                    'nama_lengkap' => 'Zeldi',
                     'email' => 'siswa001@pkbmpikat.com',
                     'password' => $passwordHash,
                     'role' => 'siswa',
@@ -441,7 +441,7 @@ class AuthWebController extends Controller
         ];
 
         $roleLabel = $roleLabels[$role] ?? ucfirst($role);
-        $message = "⚡ Login Cepat Pengujian: Anda masuk sebagai {$user->nama_lengkap} ({$roleLabel}).";
+        $message = "Login Cepat Pengujian: Anda masuk sebagai {$user->nama_lengkap} ({$roleLabel}).";
 
         return match ($role) {
             'admin' => redirect()->route('admin.dashboard')->with('success', $message),

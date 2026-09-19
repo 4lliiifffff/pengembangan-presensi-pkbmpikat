@@ -118,10 +118,10 @@ class QuickLoginTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Mode Pengujian');
         $response->assertSee('quickLoginSection');
-        $response->assertSee('Admin Presensi');
-        $response->assertSee('Dr. H. Ahmad Dahlan');
-        $response->assertSee('Budi Santoso, S.Pd');
-        $response->assertSee('Rizky Pratama');
-        $response->assertSee('Ahmad Rizky (001)');
+        $response->assertSee('Kak Tasya');
+        $response->assertSee('Bu Dara');
+        $response->assertSee('Kak Tari');
+        $response->assertSee('Alif');
+        $response->assertSee('Zeldi (001)');
     }
 }

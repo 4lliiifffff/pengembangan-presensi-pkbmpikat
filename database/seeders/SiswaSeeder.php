@@ -55,7 +55,7 @@ class SiswaSeeder extends Seeder
             // Paket C - Kelas 10 (Single Rombel Skenario 1)
             [
                 'no_absen' => '001',
-                'nama_siswa' => 'Ahmad Rizky Pratama',
+                'nama_siswa' => 'Zeldi',
                 'is_abk' => false,
                 'no_hp' => '081234567001',
                 'nama_wali' => 'Bambang Pratama',
