@@ -70,6 +70,12 @@
                             <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Pola Rutin
                         </button>
                     @else
+                        <a href="{{ route('tutor.jadwal-sesi.export', ['tanggal' => $selectedDate->toDateString()]) }}" class="profileBtnPrimary btn-action-success" title="Ekspor Jadwal Bulan Ini ke Excel">
+                            <ion-icon name="download-outline" class="icon-sm"></ion-icon> Export Excel
+                        </a>
+                        <button type="button" onclick="bukaModalImportJadwal()" class="profileBtnPrimary btn-action-info" title="Import Jadwal KBM dari Berkas Excel">
+                            <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> Import Excel
+                        </button>
                         <button type="button" onclick="bukaModalJadwalBaru(false)" class="profileBtnPrimary">
                             <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Buat Jadwal Belajar
                         </button>
@@ -1252,6 +1258,156 @@
         if (urlParams.get('open_modal') === '1' || urlParams.get('open_modal') === 'rutin') {
             bukaModalJadwalBaru(urlParams.get('open_modal') === 'rutin');
         }
+
+        // ── Handler Modal Import Excel ──
+        function bukaModalImportJadwal() {
+            const modal = document.getElementById('importJadwalModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function tutupModalImportJadwal() {
+            const modal = document.getElementById('importJadwalModal');
+            if (modal) {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        function handleExcelFileSelected(input, feedbackId) {
+            const feedback = document.getElementById(feedbackId);
+            if (!feedback) return;
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const sizeKb = Math.round(file.size / 1024);
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+                const sizeText = sizeKb > 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+
+                if (file.size > 5 * 1024 * 1024) {
+                    feedback.style.display = 'block';
+                    feedback.innerHTML = `
+                        <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
+                            <div class="fsc-info">
+                                <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
+                                <div class="fsc-details">
+                                    <div class="fsc-name">${file.name}</div>
+                                    <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
+                                </div>
+                            </div>
+                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>`;
+                    input.value = '';
+                    return;
+                }
+
+                feedback.style.display = 'block';
+                feedback.innerHTML = `
+                    <div class="file-selected-card">
+                        <div class="fsc-info">
+                            <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
+                            <div class="fsc-details">
+                                <div class="fsc-name">${file.name}</div>
+                                <div class="fsc-meta">
+                                    <span class="fsc-size">${sizeText}</span>
+                                    <span class="fsc-status-badge">Siap diunggah</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus berkas">
+                            <ion-icon name="close-circle-outline"></ion-icon>
+                        </button>
+                    </div>`;
+            }
+        }
+
+        function clearSelectedExcel(inputId, feedbackId) {
+            const input = document.getElementById(inputId);
+            const feedback = document.getElementById(feedbackId);
+            if (input) input.value = '';
+            if (feedback) {
+                feedback.innerHTML = '';
+                feedback.style.display = 'none';
+            }
+        }
     </script>
+
+    {{-- ── MODAL IMPORT JADWAL SESI EXCEL ── --}}
+    <div id="importJadwalModal" class="app-modal-backdrop" style="display: none;" onclick="if(event.target===this) tutupModalImportJadwal()">
+        <div class="app-modal-card">
+            <div class="app-modal-header">
+                <div class="app-modal-header-left">
+                    <div class="app-modal-badge-icon">
+                        <ion-icon name="calendar-outline"></ion-icon>
+                    </div>
+                    <div>
+                        <h3 class="app-modal-title m-0">Import Jadwal Sesi Mengajar</h3>
+                        <div class="text-xs text-muted">Format Spreadsheet Excel / CSV</div>
+                    </div>
+                </div>
+                <button type="button" onclick="tutupModalImportJadwal()" class="app-modal-close" title="Tutup">&times;</button>
+            </div>
+
+            <p class="app-modal-desc">
+                Unggah berkas jadwal KBM yang diekspor dari sistem lain (untuk satu bulan atau lebih). Sesi yang diimpor otomatis masuk ke kalender, terhubung ke kamera presensi, dan <b>tetap bisa di-reschedule</b> kapan saja.
+            </p>
+
+            <div class="import-template-banner">
+                <div class="import-template-info">
+                    <div class="import-template-icon">
+                        <ion-icon name="cloud-download-outline"></ion-icon>
+                    </div>
+                    <div class="import-template-texts">
+                        <div class="import-template-title">Gunakan Template Format Excel</div>
+                        <div class="import-template-desc">Unduh format resmi untuk memastikan data tanggal, jam, dan siswa terbaca tepat.</div>
+                    </div>
+                </div>
+                <a href="{{ route('tutor.jadwal-sesi.template') }}" class="btn-download-template" title="Download Template Jadwal Sesi">
+                    <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
+                </a>
+            </div>
+
+            <form method="POST" action="{{ route('tutor.jadwal-sesi.import') }}" enctype="multipart/form-data">
+                @csrf
+                <div class="form-field-wrapper mb-3">
+                    <label class="form-field-label">Pilih Berkas Excel / CSV Jadwal:</label>
+                    <div class="fileUploadBox">
+                        <input type="file" name="file_excel" id="jadwalSesiFileInput" accept=".xlsx,.xls,.csv" required onchange="handleExcelFileSelected(this, 'jadwalSesiFileFeedback')">
+                        <div class="fileUploadIcon">
+                            <ion-icon name="cloud-upload-outline"></ion-icon>
+                        </div>
+                        <div class="fileUploadText">Pilih atau seret berkas Excel ke sini</div>
+                        <div class="fileUploadSubtext">
+                            <span class="fileUploadInfoPill">Format: .XLSX, .XLS, .CSV</span>
+                            <span class="fileUploadInfoPill">Maks: 5 MB</span>
+                        </div>
+                    </div>
+                    <div id="jadwalSesiFileFeedback" class="fileUploadFeedback"></div>
+                </div>
+
+                <div class="p-3 mb-3 rounded-xl border border-blue bg-blue-subtle text-xs" style="color: var(--blue);">
+                    <div class="d-flex items-center gap-1 font-semibold mb-1">
+                        <ion-icon name="information-circle-outline" style="font-size: 16px;"></ion-icon>
+                        <span>Petunjuk Fleksibilitas Reschedule & Presensi</span>
+                    </div>
+                    <ul class="m-0 ps-3">
+                        <li>Jadwal KBM 1 bulan atau lebih akan tercatat dengan status <b>Terjadwal</b>.</li>
+                        <li>Sesi otomatis muncul di halaman presensi kamera saat tanggal sesi tiba.</li>
+                        <li>Jika jadwal berubah, Anda dapat melakukan <b>Reschedule</b> langsung dari tombol di kalender.</li>
+                    </ul>
+                </div>
+
+                <div class="app-modal-footer">
+                    <button type="button" onclick="tutupModalImportJadwal()" class="btnOutline w-auto">Batal</button>
+                    <button type="submit" class="profileBtnPrimary w-auto">
+                        <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor Jadwal
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
 @endsection

@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Tutor;
 
+use App\Exports\JadwalSesiExport;
+use App\Exports\JadwalSesiTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
+use App\Imports\JadwalSesiImport;
 use App\Models\Jadwal;
 use App\Models\JadwalKerja;
 use App\Models\JadwalRutin;
@@ -17,6 +20,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
+use Maatwebsite\Excel\Facades\Excel;
 
 class JadwalSesiController extends Controller
 {
@@ -493,5 +497,78 @@ class JadwalSesiController extends Controller
         $jadwalRutin->delete();
 
         return redirect()->back()->with('success', 'Master jadwal rutin mingguan berhasil dihapus.');
+    }
+
+    /**
+     * Import jadwal sesi mengajar tutor dari berkas Excel.
+     */
+    public function importExcel(Request $request): RedirectResponse
+    {
+        $tutor = $this->resolveTutor();
+        if (! $tutor) {
+            return redirect()->route('tutor.dashboard')->with('warning', 'Data profil tutor belum terhubung.');
+        }
+
+        $request->validate([
+            'file_excel' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+        ], [
+            'file_excel.required' => 'Pilih berkas Excel terlebih dahulu.',
+            'file_excel.mimes' => 'Format berkas harus berupa .xlsx, .xls, atau .csv.',
+            'file_excel.max' => 'Ukuran berkas maksimal adalah 5 MB.',
+        ]);
+
+        $import = new JadwalSesiImport($tutor->id);
+
+        try {
+            Excel::import($import, $request->file('file_excel'));
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('warning', 'Gagal memproses berkas Excel: '.$e->getMessage());
+        }
+
+        $msg = "Import selesai! {$import->importedCount} sesi berhasil ditambahkan";
+        if ($import->updatedCount > 0) {
+            $msg .= ", {$import->updatedCount} sesi diperbarui";
+        }
+        if ($import->skippedCount > 0) {
+            $msg .= ", {$import->skippedCount} baris dilewati";
+        }
+        $msg .= '.';
+
+        if (! empty($import->importErrors)) {
+            $previewErrors = array_slice($import->importErrors, 0, 3);
+            $msg .= ' Catatan: '.implode('; ', $previewErrors);
+            if (count($import->importErrors) > 3) {
+                $msg .= ' (dan '.(count($import->importErrors) - 3).' catatan lainnya)';
+            }
+        }
+
+        return redirect()->back()->with('success', $msg);
+    }
+
+    /**
+     * Unduh berkas template Excel jadwal sesi mengajar tutor.
+     */
+    public function downloadTemplate()
+    {
+        return Excel::download(new JadwalSesiTemplateExport, 'template_jadwal_sesi_tutor.xlsx');
+    }
+
+    /**
+     * Ekspor jadwal sesi mengajar tutor ke berkas Excel.
+     */
+    public function exportExcel(Request $request)
+    {
+        $tutor = $this->resolveTutor();
+        if (! $tutor) {
+            return redirect()->route('tutor.dashboard')->with('warning', 'Data profil tutor belum terhubung.');
+        }
+
+        $selectedDate = Carbon::parse($request->get('tanggal', Carbon::now('Asia/Jakarta')->toDateString()));
+        $bulan = (int) $selectedDate->format('m');
+        $tahun = (int) $selectedDate->format('Y');
+
+        $filename = 'jadwal_sesi_'.strtolower(str_replace(' ', '_', $tutor->nama_lengkap)).'_'.$selectedDate->format('Y_m').'.xlsx';
+
+        return Excel::download(new JadwalSesiExport($tutor->id, $bulan, $tahun), $filename);
     }
 }

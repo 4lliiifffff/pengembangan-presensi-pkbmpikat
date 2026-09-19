@@ -200,6 +200,9 @@ Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->grou
     Route::post('/jadwal-sesi/{jadwalSesi}/reschedule', [JadwalSesiController::class, 'reschedule'])->name('jadwal-sesi.reschedule');
     Route::patch('/jadwal-rutin/{jadwalRutin}/toggle-status', [JadwalSesiController::class, 'toggleStatusRutin'])->name('jadwal-rutin.toggleStatus');
     Route::delete('/jadwal-rutin/{jadwalRutin}', [JadwalSesiController::class, 'destroyRutin'])->name('jadwal-rutin.destroy');
+    Route::post('/jadwal-sesi/import', [JadwalSesiController::class, 'importExcel'])->name('jadwal-sesi.import');
+    Route::get('/jadwal-sesi/template', [JadwalSesiController::class, 'downloadTemplate'])->name('jadwal-sesi.template');
+    Route::get('/jadwal-sesi/export', [JadwalSesiController::class, 'exportExcel'])->name('jadwal-sesi.export');
     Route::resource('jadwal-sesi', JadwalSesiController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::get('/presensi', [PresensiFotoController::class, 'index'])->name('presensi');
     Route::post('/presensi', [PresensiFotoController::class, 'store'])->name('presensi.store');
