@@ -7,6 +7,7 @@ use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
 use App\Models\Jadwal;
 use App\Models\Presensi;
 use App\Models\Tutor;
+use App\Services\ShiftPresensiService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -63,7 +64,7 @@ class TutorDashboardController extends Controller
      *
      * @return View
      */
-    public function index()
+    public function index(ShiftPresensiService $shiftService)
     {
         $tutor = $this->resolveTutor();
 
@@ -73,6 +74,7 @@ class TutorDashboardController extends Controller
         $todayPresensi = null;
         $todayStatus = 'belum_mulai'; // Status default: belum ada presensi hari ini
         $sisaDetikPulang = 0;            // 0 = tidak ada hitungan mundur
+        $checkOutEligibility = null;
 
         if ($tutor) {
             $tz = 'Asia/Jakarta'; // Timezone WIB untuk konsistensi
@@ -98,6 +100,7 @@ class TutorDashboardController extends Controller
             // paling relevan untuk ditampilkan di kartu status dashboard
 
             $allTodayPresensi = Presensi::query()
+                ->with(['siswa', 'jadwalSesi'])
                 ->where('tutor_id', $tutor->id)
                 ->whereDate('tgl_presensi', $today)
                 ->orderByDesc('id')
@@ -114,16 +117,9 @@ class TutorDashboardController extends Controller
                 $todayPresensi = $activeSesi;
                 $todayStatus = 'proses';
 
-                // Hitung countdown: berapa detik lagi tutor bisa absen pulang
-                // (minimal 1 jam = 3600 detik dari jam mulai)
-                try {
-                    $jamMulaiDt = Carbon::parse($today.' '.$activeSesi->jam_mulai, $tz);
-                    $diffDetik = (int) $jamMulaiDt->diffInSeconds($now, false);
-                    // max(0, ...) memastikan tidak negatif jika sudah lewat 1 jam
-                    $sisaDetikPulang = (int) max(0, 3600 - $diffDetik);
-                } catch (\Throwable) {
-                    // Abaikan error parsing (misal: format jam tidak valid)
-                }
+                // Hitung countdown menggunakan Model Hibrida Cerdas
+                $checkOutEligibility = $shiftService->calculateCheckOutEligibility($activeSesi, $now);
+                $sisaDetikPulang = (int) $checkOutEligibility['sisa_detik'];
 
             } elseif ($doneSesi) {
                 // Tidak ada sesi berjalan, tapi ada yang sudah selesai
@@ -140,6 +136,7 @@ class TutorDashboardController extends Controller
             'todayPresensi' => $todayPresensi,
             'todayStatus' => $todayStatus,
             'sisaDetikPulang' => $sisaDetikPulang, // Digunakan oleh JavaScript countdown di view
+            'checkOutEligibility' => $checkOutEligibility, // Info detail waktu buka kepulangan
         ]);
     }
 

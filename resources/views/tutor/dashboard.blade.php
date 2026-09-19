@@ -86,7 +86,12 @@
                         <div class="todayCountdown">
                             <ion-icon name="timer-outline"></ion-icon>
                             @if ($sisaDetikPulang > 0)
-                                Selesai dalam: <strong id="dashCountdown">{{ gmdate('i:s', $sisaDetikPulang) }}</strong>
+                                @php
+                                    $mSisa = (int) floor($sisaDetikPulang / 60);
+                                    $sSisa = (int) ($sisaDetikPulang % 60);
+                                    $labelCountdown = sprintf('%02d:%02d', $mSisa, $sSisa);
+                                @endphp
+                                Selesai dalam: <strong id="dashCountdown">{{ $labelCountdown }}</strong>
                             @else
                                 <span class="text-success font-bold">Sudah bisa presensi selesai</span>
                             @endif

@@ -107,7 +107,7 @@ class PresensiFotoController extends Controller
         }
 
         // Ambil semua presensi hari ini (diurutkan terbaru di atas)
-        $allPresensiToday = $presensiQuery->with('siswa')->orderByDesc('id')->get();
+        $allPresensiToday = $presensiQuery->with(['siswa', 'jadwalSesi'])->orderByDesc('id')->get();
 
         // Untuk dropdown: ambil record terbaru per siswa (untuk menampilkan status siswa)
         // groupBy siswa_id → map ke item pertama (terbaru) di setiap grup
@@ -115,6 +115,11 @@ class PresensiFotoController extends Controller
 
         $activeSessions = $allPresensiToday->filter(fn ($p) => $p->foto_mulai && ! $p->foto_selesai)->values();
         $globalActiveSesi = $activeSessions->first();
+
+        // Hitung kelayakan absen pulang sesi aktif dengan Model Hibrida Cerdas
+        $checkOutEligibility = $globalActiveSesi
+            ? $shiftService->calculateCheckOutEligibility($globalActiveSesi)
+            : null;
 
         // Ambil semua sesi yang sudah selesai hari ini (untuk ditampilkan sebagai riwayat)
         $completedSessions = $allPresensiToday->filter(fn ($p) => $p->foto_mulai && $p->foto_selesai)->values();
@@ -141,6 +146,7 @@ class PresensiFotoController extends Controller
             'lokasiPresensis' => $lokasiPresensis,     // Daftar titik lokasi aktif yang dapat dipilih
             'presensiToday' => $presensiToday,       // Status presensi per siswa (untuk badge dropdown)
             'globalActiveSesi' => $globalActiveSesi,   // Sesi yang masih berjalan pertama (null jika tidak ada)
+            'checkOutEligibility' => $checkOutEligibility, // Status & countdown kelayakan pulang model hibrida
             'activeSessions' => $activeSessions,     // Semua sesi yang masih berjalan
             'completedSessions' => $completedSessions,  // Daftar sesi selesai hari ini (riwayat)
             'shiftEval' => $shiftEval,
@@ -367,24 +373,10 @@ class PresensiFotoController extends Controller
                 }
             }
 
-            // Validasi durasi minimal presensi pulang (proporsional terhadap durasi rencana sesi)
-            $jamMulai = Carbon::parse($today.' '.$presensi->jam_mulai, 'Asia/Jakarta');
-            if ($jamMulai->greaterThan($now)) {
-                $jamMulai->subDay();
-            }
-            $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
-
-            $durasiRencanaJam = (float) ($presensi->durasi_pilihan ?: ($presensi->jadwalSesi?->durasi_jam ?: 2.0));
-            $durasiRencanaDetik = (int) round($durasiRencanaJam * 3600);
-            // Minimal 70% dari durasi rencana KBM, dengan plafon atas 3600 detik (1 jam) dan lantai minimal 900 detik (15 menit)
-            $minDetikWajib = min(3600, max(900, (int) round($durasiRencanaDetik * 0.7)));
-
-            if ($detikJalan < $minDetikWajib) {
-                $sisaDetik = max(0, $minDetikWajib - $detikJalan);
-                $sisaMenit = (int) ceil($sisaDetik / 60);
-                $minMenitLabel = (int) round($minDetikWajib / 60);
-
-                return back()->with('warning', "Tunggu {$sisaMenit} menit lagi. Presensi pulang untuk sesi ini ({$durasiRencanaJam} Jam) harus berjarak minimal {$minMenitLabel} menit setelah presensi masuk.");
+            // Validasi kelayakan presensi pulang menggunakan Model Hibrida Cerdas (Opsi 3)
+            $checkOutEval = $shiftService->calculateCheckOutEligibility($presensi, $now);
+            if (! $checkOutEval['bisa_pulang']) {
+                return back()->with('warning', $checkOutEval['pesan']);
             }
 
             // Validasi durasi maksimal: jika sudah lebih dari 2 jam, tetap izinkan tapi catat

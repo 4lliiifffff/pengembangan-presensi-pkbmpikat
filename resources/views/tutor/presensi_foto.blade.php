@@ -16,19 +16,28 @@
         // Sesi AKTIF = sudah absen masuk (foto_mulai ada) tapi BELUM absen pulang (foto_selesai kosong)
         $activeSesi = $globalActiveSesi; // dari controller: foto_mulai ada, foto_selesai null
 
-        // Hitung sisa waktu jika sesi berjalan
+        // Hitung sisa waktu jika sesi berjalan menggunakan Model Hibrida Cerdas
         $sisamenit = 0;
         $sisaDetik = 0;
         $bisaPulang = false;
         $sudahLewat2Jam = false;
         if ($activeSesi) {
             try {
+                if (isset($checkOutEligibility) && is_array($checkOutEligibility)) {
+                    $bisaPulang = (bool) $checkOutEligibility['bisa_pulang'];
+                    $sisaDetik = (int) $checkOutEligibility['sisa_detik'];
+                    $sisamenit = (int) $checkOutEligibility['sisa_menit'];
+                } else {
+                    $shiftService = app(\App\Services\ShiftPresensiService::class);
+                    $checkOutEligibility = $shiftService->calculateCheckOutEligibility($activeSesi);
+                    $bisaPulang = (bool) $checkOutEligibility['bisa_pulang'];
+                    $sisaDetik = (int) $checkOutEligibility['sisa_detik'];
+                    $sisamenit = (int) $checkOutEligibility['sisa_menit'];
+                }
+
                 $jamMulaiDt = \Carbon\Carbon::parse($today . ' ' . $activeSesi->jam_mulai, 'Asia/Jakarta');
                 $nowDt = \Carbon\Carbon::now('Asia/Jakarta');
                 $diffDetik = (int) $jamMulaiDt->diffInSeconds($nowDt, false);
-                $sisaDetik = (int) max(0, 3600 - $diffDetik);
-                $sisamenit = (int) ceil($sisaDetik / 60);
-                $bisaPulang = $diffDetik >= 3600;
                 $sudahLewat2Jam = $diffDetik >= 7200;
             } catch (\Throwable) {
             }
@@ -121,17 +130,27 @@
                     $menit = (int) floor($sisaDetik / 60);
                     $detik = (int) ($sisaDetik % 60);
                     $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
+                    $jamPulangTarget = $checkOutEligibility['jam_pulang_rencana'] ?? null;
+                    $waktuBukaTarget = $checkOutEligibility['target_waktu_buka'] ?? null;
+                    $durasiJamSesi = $checkOutEligibility['durasi_rencana_jam'] ?? 2.0;
+                    $menitWajib = $checkOutEligibility['menit_efektif_wajib'] ?? 96;
                 @endphp
                 <div class="countdownCard">
-                    <div class="countdownLabel">Waktu Tunggu Absen Pulang</div>
+                    <div class="countdownLabel">Waktu Tunggu Absen Pulang (Sesi {{ $durasiJamSesi }} Jam)</div>
                     <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
-                    <div class="countdownSub">Bisa absen pulang setelah minimal 1 jam sesi mengajar</div>
+                    <div class="countdownSub">
+                        @if ($jamPulangTarget)
+                            Target jadwal selesai: <strong>{{ $jamPulangTarget }} WIB</strong> (bisa absen pulang mulai <strong>{{ $waktuBukaTarget }} WIB</strong>)
+                        @else
+                            Bisa absen pulang setelah 80% durasi bimbingan (minimal <strong>{{ $menitWajib }} menit</strong> mengajar)
+                        @endif
+                    </div>
                 </div>
             @else
                 <div class="statusBanner ready mb-4">
                     <div class="flex-1">
                         <div class="statusTitle">Siap Absen Pulang</div>
-                        <div class="statusSub">Waktu minimal 1 jam telah terpenuhi. Silakan lakukan absen pulang.</div>
+                        <div class="statusSub">Waktu sesi bimbingan KBM telah memenuhi syarat kepulangan. Silakan ambil foto absen pulang.</div>
                     </div>
                 </div>
             @endif

@@ -25,11 +25,7 @@
             </div>
         </div>
         <div class="topIcons">
-            @if(isset($dashRoute))
-                <a href="{{ $dashRoute }}" class="iconBtn" aria-label="Dashboard" title="Kembali ke Dashboard">
-                    <ion-icon name="grid-outline"></ion-icon>
-                </a>
-            @endif
+            
             @if(app()->environment('local', 'testing') || config('app.debug') || env('APP_QUICK_LOGIN', false))
                 <div class="quick-switcher-wrap" style="position: relative;">
                     <button class="iconBtn quick-switch-trigger" type="button" id="quickRoleSwitcherBtn" aria-label="Ganti Role Cepat (Dev)" title="Ganti Role Cepat (Dev / Testing)">

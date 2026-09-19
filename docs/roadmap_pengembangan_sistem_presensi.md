@@ -84,6 +84,14 @@
 * 🟢 **Standardisasi 5 Persona Akun Demo & Quick Login Pengujian:** [SELESAI]
   - Menyelaraskan nama 5 persona utama di database seeder dan seluruh antarmuka pengujian: **Admin (Kak Tasya)**, **Kepala Sekolah (Bu Dara)**, **Tutor (Kak Tari)**, **Mahasiswa Magang (Alif)**, dan **Murid (Zeldi)**.
   - Memperbarui kartu login demo `auth/login`, floating quick switcher `navigasi_atas`, controller fallback provisioning `AuthWebController`, placeholder create form, dan test assertions.
+* 🟢 **Model Hibrida Cerdas Kelayakan Absen Pulang Tutor (Smart Check-Out Eligibility - Opsi 3):** [SELESAI]
+  - **Latar Belakang & Eliminasi Batasan Kaku:** Menggantikan aturan warisan (*legacy*) `min(3600 detik)` (1 jam kaku) yang tidak selaras dengan jadwal belajar riil tutor (misal sesi 2 jam bisa pulang di menit ke-60, atau sesi 1 jam dipaksa menunggu hingga menit ke-60).
+  - **Formula Aturan Hibrida Cerdas:** Tombol dan form presensi pulang terbuka seketika salah satu dari 2 kondisi terpenuhi (*earlier of the two*):
+    - **Kondisi A (Target Jadwal Selesai):** Waktu jam server mencapai `jam_pulang_rencana` dari `jadwal_sesis` dikurangi 10 menit toleransi kepulangan wajar (contoh: jadwal 10:00 - 12:00 WIB dibuka mulai 11:50 WIB).
+    - **Kondisi B (Durasi Efektif KBM Terpenuhi):** Tutor telah mengajar minimal 80% dari durasi rencana sesi KBM sejak jam masuk aktual (`jam_mulai`) (contoh: sesi 2 jam = 96 menit; sesi 1.5 jam = 72 menit; sesi 1 jam = 48 menit; dengan floor batas bawah 15 menit).
+  - **Sinkronisasi Terpusat (`ShiftPresensiService::calculateCheckOutEligibility`):** Perhitungan terpusat yang mengembalikan status kelayakan `bisa_pulang`, `sisa_detik`, `sisa_menit`, `target_waktu_buka`, `alasan_buka`, dan pesan interaktif. Diadopsi langsung oleh `PresensiFotoController` (render view & validasi backend `store`), `TutorDashboardController` (widget countdown), dan antarmuka Blade.
+  - **Perbaikan Bug Format Countdown Modulo 60:** Menggantikan `gmdate('i:s')` yang me-reset ke 0 setiap kelipatan 60 menit menjadi `sprintf('%02d:%02d', floor($sec/60), $sec%60)` sehingga durasi di atas 60 menit (misal 96:00) tampil akurat tanpa glitch.
+  - **Automated Feature Test Suite:** Pengujian komprehensif di `tests/Feature/TutorCheckOutEligibilityTest.php` untuk sesi 2 jam, sesi 1 jam, keterlambatan masuk, dan HTTP store gating.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---

@@ -151,6 +151,17 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Modul Presensi Khusus Role Karyawan Magang (Mahasiswa Magang / Siswa PKL)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Tabel `magangs`, alur Clock-In/Clock-Out berbasis foto selfie & geofence 100m, dashboard khusus, monitoring admin, dan ekspor Laporan Rekap Presensi Magang ke PDF.
+- 🟢 **Model Hibrida Cerdas Kelayakan Absen Pulang Tutor (Smart Check-Out Eligibility - Opsi 3)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Mengeliminasi aturan statis `min(3600 detik)` (1 jam kaku) yang tidak adil bagi sesi belajar berdurasi panjang (misal 2 jam atau 3 jam) maupun sesi 1 jam.
+    - Mengimplementasikan `ShiftPresensiService::calculateCheckOutEligibility(Presensi $presensi, ?Carbon $now = null)` berbasis evaluasi hibrida cerdas:
+      - **Kondisi A (Target Selesai Jadwal):** Dibuka pada `jam_pulang_rencana` dikurangi 10 menit toleransi kepulangan wajar.
+      - **Kondisi B (Durasi Efektif KBM):** Dibuka setelah mengajar minimal 80% dari durasi rencana sejak jam masuk aktual (`jam_mulai`).
+      - Gerbang absen pulang terbuka seketika salah satu syarat terpenuhi (*earlier of the two*).
+    - Menyelaraskan seluruh komponen: `PresensiFotoController@index` (passing kelayakan & countdown ke Blade), `PresensiFotoController@store` (validasi backend anti bypass), `TutorDashboardController` (sinkronisasi widget dashboard), `tutor/presensi_foto.blade.php`, dan `tutor/dashboard.blade.php`.
+    - Memperbaiki bug format string countdown `gmdate('i:s')` (glitch modulo 60) menjadi `sprintf('%02d:%02d')`.
+    - Automated Feature Test Suite di `tests/Feature/TutorCheckOutEligibilityTest.php` (4 test cases, lulus 100%).
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.

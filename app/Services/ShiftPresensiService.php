@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\JadwalKerja;
 use App\Models\JadwalSesi;
+use App\Models\Presensi;
 use Carbon\Carbon;
 use Throwable;
 
@@ -247,6 +248,119 @@ class ShiftPresensiService
             'menit_keterlambatan' => $menitKeterlambatan,
             'pesan' => $pesan,
             'is_terlambat' => $isTerlambat,
+        ];
+    }
+
+    /**
+     * Evaluasi kelayakan presensi pulang (Clock-Out) Tutor berdasarkan Model Hibrida Cerdas (Opsi 3):
+     * Kondisi A: Jam server mencapai (jam_pulang_rencana - 10 menit toleransi kepulangan wajar).
+     * ATAU
+     * Kondisi B: Tutor telah mengajar minimal 80% dari durasi rencana sesi KBM sejak jam masuk aktual.
+     *
+     * @return array{
+     *     bisa_pulang: bool,
+     *     sisa_detik: int,
+     *     sisa_menit: int,
+     *     durasi_rencana_jam: float,
+     *     durasi_rencana_menit: int,
+     *     menit_efektif_wajib: int,
+     *     jam_mulai_aktual: string,
+     *     jam_pulang_rencana: string|null,
+     *     target_waktu_buka: string,
+     *     alasan_buka: string,
+     *     pesan: string
+     * }
+     */
+    public function calculateCheckOutEligibility(Presensi $presensi, ?Carbon $now = null): array
+    {
+        $tz = 'Asia/Jakarta';
+        $currentTime = $now ? $now->copy()->setTimezone($tz) : Carbon::now($tz);
+        $today = $currentTime->toDateString();
+
+        $tglPresensi = $presensi->tgl_presensi ? Carbon::parse($presensi->tgl_presensi)->toDateString() : $today;
+        $jamMulaiStr = (string) ($presensi->jam_mulai ?: $currentTime->format('H:i:s'));
+        $jamMulaiAktual = Carbon::parse($tglPresensi.' '.$jamMulaiStr, $tz);
+
+        if ($jamMulaiAktual->greaterThan($currentTime)) {
+            $jamMulaiAktual->subDay();
+        }
+
+        // Ambil JadwalSesi terkait
+        $jadwalSesi = $presensi->jadwalSesi;
+        if (! $jadwalSesi && $presensi->jadwal_sesi_id) {
+            $jadwalSesi = JadwalSesi::find($presensi->jadwal_sesi_id);
+        }
+        if (! $jadwalSesi && $presensi->tutor_id && $presensi->siswa_id) {
+            $jadwalSesi = JadwalSesi::where('tutor_id', $presensi->tutor_id)
+                ->where('siswa_id', $presensi->siswa_id)
+                ->whereDate('tanggal_rencana', $tglPresensi)
+                ->first();
+        }
+
+        // Tentukan durasi rencana dalam jam
+        $durasiRencanaJam = (float) (
+            $jadwalSesi?->durasi_jam
+            ?: ($presensi->durasi_pilihan
+            ?: ($presensi->kategoriTutorial?->durasi_jam ?: 2.0))
+        );
+        $durasiRencanaMenit = (int) max(15, round($durasiRencanaJam * 60));
+
+        // Kondisi B: Target Durasi Efektif (80% durasi, minimal 15 menit)
+        $menitEfektifWajib = (int) max(15, round($durasiRencanaMenit * 0.80));
+        $waktuBukaBerdasarkanDurasi = $jamMulaiAktual->copy()->addMinutes($menitEfektifWajib);
+
+        // Kondisi A: Target Jam Selesai Jadwal (jika ada jam_pulang_rencana, dengan toleransi 10 menit sebelum jadwal usai)
+        $waktuBukaBerdasarkanJadwal = null;
+        $jamPulangRencana = null;
+        if ($jadwalSesi && $jadwalSesi->jam_pulang_rencana) {
+            $jamPulangRencana = substr((string) $jadwalSesi->jam_pulang_rencana, 0, 5);
+            $waktuSelesaiJadwal = Carbon::parse($tglPresensi.' '.$jamPulangRencana.':00', $tz);
+            $waktuBukaBerdasarkanJadwal = $waktuSelesaiJadwal->copy()->subMinutes(10);
+        }
+
+        // Tentukan waktu tercepat (earlier of the two)
+        if ($waktuBukaBerdasarkanJadwal !== null) {
+            if ($waktuBukaBerdasarkanJadwal->lt($waktuBukaBerdasarkanDurasi)) {
+                $earliestUnlock = $waktuBukaBerdasarkanJadwal;
+                $alasanKey = 'jadwal_selesai';
+            } else {
+                $earliestUnlock = $waktuBukaBerdasarkanDurasi;
+                $alasanKey = 'durasi_terpenuhi';
+            }
+        } else {
+            $earliestUnlock = $waktuBukaBerdasarkanDurasi;
+            $alasanKey = 'durasi_terpenuhi';
+        }
+
+        $bisaPulang = $currentTime->gte($earliestUnlock);
+        $sisaDetik = $bisaPulang ? 0 : (int) $currentTime->diffInSeconds($earliestUnlock, false);
+        if ($sisaDetik < 0) {
+            $sisaDetik = 0;
+        }
+        $sisaMenit = (int) ceil($sisaDetik / 60);
+
+        if ($bisaPulang) {
+            $pesan = 'Presensi pulang telah dibuka dan dapat dikirimkan sekarang.';
+        } else {
+            $targetFormat = $earliestUnlock->format('H:i');
+            $detailAlasan = $alasanKey === 'jadwal_selesai'
+                ? "mendekati jam selesai jadwal ({$jamPulangRencana} WIB)"
+                : "memenuhi 80% durasi mengajar ({$menitEfektifWajib} menit)";
+            $pesan = "Tunggu {$sisaMenit} menit lagi (hingga pukul {$targetFormat} WIB). Presensi pulang dibuka saat {$detailAlasan}.";
+        }
+
+        return [
+            'bisa_pulang' => $bisaPulang,
+            'sisa_detik' => $sisaDetik,
+            'sisa_menit' => $sisaMenit,
+            'durasi_rencana_jam' => $durasiRencanaJam,
+            'durasi_rencana_menit' => $durasiRencanaMenit,
+            'menit_efektif_wajib' => $menitEfektifWajib,
+            'jam_mulai_aktual' => $jamMulaiAktual->format('H:i'),
+            'jam_pulang_rencana' => $jamPulangRencana,
+            'target_waktu_buka' => $earliestUnlock->format('H:i'),
+            'alasan_buka' => $alasanKey,
+            'pesan' => $pesan,
         ];
     }
 }
