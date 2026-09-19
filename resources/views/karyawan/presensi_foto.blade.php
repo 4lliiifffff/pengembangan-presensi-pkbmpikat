@@ -89,16 +89,14 @@
 
         {{-- ── Banner Notifikasi Fleksibilitas Bebas Radius (Admin & Kepala Sekolah) ── --}}
         @if ($isBypassRadius && !$activeSesi)
-            <div class="card mb-3 p-3 rounded-xl border-base bg-card-alt">
-                <div class="d-flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center flex-shrink-0 text-lg">
-                        <ion-icon name="briefcase-outline"></ion-icon>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="text-xs font-bold text-dark">Akses Fleksibel (Bebas Radius) Aktif</div>
-                        <div class="text-xs text-muted mt-0.5 leading-normal">
-                            Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas dinas luar atau rapat penting.
-                        </div>
+            <div class="statusBanner flexible mb-3">
+                <div class="statusIcon blue">
+                    <ion-icon name="briefcase-outline"></ion-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="statusTitle">Akses Fleksibel (Bebas Radius) Aktif</div>
+                    <div class="statusSub">
+                        Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas dinas luar atau rapat penting.
                     </div>
                 </div>
             </div>
@@ -150,7 +148,8 @@
                                 Siap Presensi Pulang
                             </span>
                             @if ($isBypassWaktuTunggu)
-                                <span class="badge bg-primary-subtle text-primary font-semibold text-2xs px-2 py-0.5 rounded-full">
+                                <span class="badge-flexible">
+                                    <ion-icon name="flash-outline"></ion-icon>
                                     Akses Fleksibel Kepulangan Aktif
                                 </span>
                             @endif
@@ -376,7 +375,8 @@
                         <label class="d-flex items-center justify-between text-sm font-semibold text-muted mb-2">
                             <span>Pilih Lokasi Kerja / Cabang <span class="text-danger">*</span></span>
                             @if ($isBypassRadius)
-                                <span class="badge bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-xs px-2 py-0.5 rounded-full font-bold">
+                                <span class="badge-flexible">
+                                    <ion-icon name="shield-checkmark-outline"></ion-icon>
                                     Bebas Radius
                                 </span>
                             @endif

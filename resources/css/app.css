@@ -8,6 +8,8 @@
 @source "../**/*.js";
 @source "../**/*.vue";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
 /* ==========================================
    DESIGN SYSTEM TOKENS & VARIABLES
    ========================================== */
@@ -3431,7 +3433,9 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
     background: rgba(22, 163, 74, 0.10);
     border: 1px solid rgba(22, 163, 74, 0.22);
 }
-.statusBanner.ready {
+.statusBanner.ready,
+.statusBanner.flexible,
+.statusBanner.info {
     background: rgba(11, 94, 215, 0.08);
     border: 1px solid rgba(11, 94, 215, 0.20);
 }
@@ -3468,6 +3472,35 @@ input:checked + .toggleSlider:before { transform: translateX(20px); }
     color: var(--muted);
     margin-top: 2px;
     line-height: 1.4;
+}
+
+/* Base Card & Theme-Aware Utilities */
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.bg-card-alt { background: var(--card-alt); }
+.border-base { border: 1px solid var(--border); }
+.border-b-base { border-bottom: 1px solid var(--border); }
+.text-dark { color: var(--text); }
+.text-muted { color: var(--muted); }
+.bg-primary-subtle { background: rgba(11, 94, 215, 0.08); }
+.text-primary { color: var(--blue, #0B5ED7); }
+
+.badge-flexible {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 9999px;
+    background: rgba(11, 94, 215, 0.08);
+    color: var(--blue, #0B5ED7);
+    border: 1px solid rgba(11, 94, 215, 0.20);
+    white-space: nowrap;
 }
 
 .countdownCard {
@@ -6991,6 +7024,28 @@ button, a, input, select, textarea {
 [data-theme="dark"] .kpiRank.bronze { background: rgba(234, 88, 12, 0.20); color: #fdba74; border-color: rgba(234, 88, 12, 0.40); }
 
 [data-theme="dark"] .sir-price { color: #34d399; }
+
+[data-theme="dark"] .statusBanner.ready,
+[data-theme="dark"] .statusBanner.flexible,
+[data-theme="dark"] .statusBanner.info {
+    background: rgba(26, 115, 232, 0.16);
+    border-color: rgba(26, 115, 232, 0.35);
+}
+[data-theme="dark"] .statusIcon.blue {
+    background: rgba(26, 115, 232, 0.20);
+    color: #60a5fa;
+}
+[data-theme="dark"] .badge-flexible {
+    background: rgba(26, 115, 232, 0.20);
+    color: #93c5fd;
+    border-color: rgba(26, 115, 232, 0.38);
+}
+[data-theme="dark"] .bg-primary-subtle {
+    background: rgba(26, 115, 232, 0.18);
+}
+[data-theme="dark"] .text-primary {
+    color: #60a5fa;
+}
 
 /* ==========================================
    MODUL PERSETUJUAN KEPSEK & MONITORING (RESPONSIVE)
