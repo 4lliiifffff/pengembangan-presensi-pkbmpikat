@@ -230,8 +230,12 @@
                             </div>
                         </div>
                     @empty
-                        <div class="emptyState m-0 p-4">
-                            Belum ada riwayat presensi bulan ini.
+                        <div class="tableEmptyState p-4">
+                            <div class="tableEmptyIconWrap indigo" style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
+                                <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
+                            </div>
+                            <div class="tableEmptyTitle" style="font-size: 13.5px;">Belum Ada Riwayat Presensi</div>
+                            <div class="tableEmptyDesc" style="font-size: 11.5px;">Log presensi magang Anda bulan ini akan tampil di sini.</div>
                         </div>
                     @endforelse
                 </div>

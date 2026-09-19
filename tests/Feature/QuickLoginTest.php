@@ -70,6 +70,7 @@ class QuickLoginTest extends TestCase
 
     public function test_quick_login_switches_role_while_already_authenticated(): void
     {
+        User::whereIn('role', ['admin', 'tutor'])->delete();
         $admin = User::factory()->create(['role' => 'admin', 'is_active' => true]);
         $tutor = User::factory()->create(['role' => 'tutor', 'is_active' => true]);
 

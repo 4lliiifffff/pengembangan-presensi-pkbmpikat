@@ -322,8 +322,12 @@
                             </div>
                         </div>
                     @empty
-                        <div class="emptyState m-0 p-4 text-center text-muted text-sm">
-                            Belum ada riwayat absensi mandiri bulan ini.
+                        <div class="tableEmptyState p-4">
+                            <div class="tableEmptyIconWrap" style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
+                                <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
+                            </div>
+                            <div class="tableEmptyTitle" style="font-size: 13.5px;">Belum Ada Riwayat Absensi</div>
+                            <div class="tableEmptyDesc" style="font-size: 11.5px;">Riwayat kehadiran Anda bulan ini akan muncul di sini.</div>
                         </div>
                     @endforelse
                 </div>

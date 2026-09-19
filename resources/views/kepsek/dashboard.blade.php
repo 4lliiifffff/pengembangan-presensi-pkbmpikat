@@ -180,7 +180,13 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="emptyState m-0 p-4">Belum ada data evaluasi KPI Tutor.</div>
+                                <div class="tableEmptyState p-4">
+                                    <div class="tableEmptyIconWrap amber" style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
+                                        <ion-icon name="ribbon-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle" style="font-size: 13.5px;">Belum Ada Evaluasi KPI</div>
+                                    <div class="tableEmptyDesc" style="font-size: 11.5px;">Skor KPI tutor akan dihitung otomatis dari presensi.</div>
+                                </div>
                             @endforelse
                         </div>
                     </div>
@@ -229,7 +235,13 @@
                                     </div>
                                 </div>
                             @empty
-                                <div class="emptyState m-0 p-4">Belum ada data presensi.</div>
+                                <div class="tableEmptyState p-4">
+                                    <div class="tableEmptyIconWrap" style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
+                                        <ion-icon name="pulse-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle" style="font-size: 13.5px;">Belum Ada Aktivitas Presensi</div>
+                                    <div class="tableEmptyDesc" style="font-size: 11.5px;">Aktivitas presensi terbaru tutor akan muncul di sini.</div>
+                                </div>
                             @endforelse
                         </div>
                     </div>

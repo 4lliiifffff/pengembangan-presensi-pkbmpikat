@@ -185,10 +185,15 @@
                         </td>
                     </tr>
                     @empty
-                    <tr >
-                        <td colspan="7" class="text-center text-muted p-4">
-                            <ion-icon name="wallet-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>
-                            Belum ada data presensi/honorarium untuk periode ini.
+                    <tr>
+                        <td colspan="7" class="table-empty-cell">
+                            <div class="tableEmptyState">
+                                <div class="tableEmptyIconWrap emerald">
+                                    <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
+                                </div>
+                                <div class="tableEmptyTitle">Belum Ada Data Honorarium</div>
+                                <div class="tableEmptyDesc">Belum ada rekaman presensi atau perhitungan honorarium untuk periode ini.</div>
+                            </div>
                         </td>
                     </tr>
                     @endforelse
@@ -251,9 +256,12 @@
                 </div>
 
             @empty
-                <div class="text-center table-empty-cell text-muted">
-                    <ion-icon name="wallet-outline" class="icon-2xl d-block mx-auto mb-2 opacity-50"></ion-icon>
-                    Belum ada data honorarium untuk periode ini.
+                <div class="tableEmptyCard">
+                    <div class="tableEmptyIconWrap emerald">
+                        <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
+                    </div>
+                    <div class="tableEmptyTitle">Belum Ada Data Honorarium</div>
+                    <div class="tableEmptyDesc">Belum ada rekaman presensi atau perhitungan honorarium untuk periode ini.</div>
                 </div>
             @endforelse
         </div>

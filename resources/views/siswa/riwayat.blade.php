@@ -125,8 +125,12 @@
             </div>
 
         @empty
-            <div class="empty-state-standard">
-                <div class="empty-title">Tidak ada catatan presensi pada periode ini.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap">
+                    <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Catatan Presensi</div>
+                <div class="tableEmptyDesc">Tidak ada catatan presensi pada periode filter yang dipilih.</div>
             </div>
         @endforelse
     </div>

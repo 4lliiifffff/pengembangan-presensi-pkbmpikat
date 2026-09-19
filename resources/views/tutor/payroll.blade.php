@@ -114,9 +114,12 @@
                 </div>
             </div>
         @empty
-            <div class="empty-state-standard">
-                <ion-icon name="information-circle-outline" class="empty-icon"></ion-icon>
-                <div class="empty-desc">Belum ada rincian jam mengajar tervalidasi bulan ini.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap emerald">
+                    <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Rincian Honorarium</div>
+                <div class="tableEmptyDesc">Belum ada rincian jam mengajar tervalidasi pada bulan ini.</div>
             </div>
         @endforelse
     </div>

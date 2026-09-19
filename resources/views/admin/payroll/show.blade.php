@@ -96,8 +96,16 @@
                         <td class="text-right font-extrabold text-success text-md">{{ $s['formatted_subtotal'] }}</td>
                     </tr>
                     @empty
-                    <tr >
-                        <td colspan="5" class="text-center p-4 text-muted">Belum ada rincian mengajar siswa.</td>
+                    <tr>
+                        <td colspan="5" class="table-empty-cell">
+                            <div class="tableEmptyState">
+                                <div class="tableEmptyIconWrap indigo">
+                                    <ion-icon name="school-outline" class="tableEmptyIcon"></ion-icon>
+                                </div>
+                                <div class="tableEmptyTitle">Belum Ada Rincian Siswa</div>
+                                <div class="tableEmptyDesc">Belum ada rincian pertemuan bimbingan siswa pada periode ini.</div>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -121,7 +129,13 @@
                     </div>
                 </div>
             @empty
-                <div class="text-center p-4 text-muted">Belum ada rincian mengajar siswa.</div>
+                <div class="tableEmptyCard">
+                    <div class="tableEmptyIconWrap indigo">
+                        <ion-icon name="school-outline" class="tableEmptyIcon"></ion-icon>
+                    </div>
+                    <div class="tableEmptyTitle">Belum Ada Rincian Siswa</div>
+                    <div class="tableEmptyDesc">Belum ada rincian pertemuan bimbingan siswa pada periode ini.</div>
+                </div>
             @endforelse
         </div>
     </div>
@@ -180,7 +194,15 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center p-4 text-muted">Belum ada log sesi mengajar terverifikasi.</td>
+                        <td colspan="6" class="table-empty-cell">
+                            <div class="tableEmptyState">
+                                <div class="tableEmptyIconWrap">
+                                    <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
+                                </div>
+                                <div class="tableEmptyTitle">Belum Ada Log Sesi Mengajar</div>
+                                <div class="tableEmptyDesc">Belum ada sesi mengajar yang terverifikasi pada periode honorarium ini.</div>
+                            </div>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -207,7 +229,13 @@
                     </div>
                 </div>
             @empty
-                <div class="text-center p-4 text-muted">Belum ada log sesi mengajar terverifikasi.</div>
+                <div class="tableEmptyCard">
+                    <div class="tableEmptyIconWrap">
+                        <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
+                    </div>
+                    <div class="tableEmptyTitle">Belum Ada Log Sesi Mengajar</div>
+                    <div class="tableEmptyDesc">Belum ada sesi mengajar yang terverifikasi pada periode honorarium ini.</div>
+                </div>
             @endforelse
         </div>
     </div>
