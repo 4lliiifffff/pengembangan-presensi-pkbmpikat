@@ -640,7 +640,20 @@ pie title Status Fitur & Pengkondisian Sistem
     - Didaftarkan secara global di [AppServiceProvider.php](file:///c:/laragon/www/pengembangan-presensi-pikat/app/Providers/AppServiceProvider.php) via `Paginator::defaultView('vendor.pagination.custom')` & `Paginator::defaultSimpleView('vendor.pagination.custom')`.
     - **Dual-Mode Ultra-Responsive UI**: Mode desktop ($\gt 768\text{px}$) dengan pil nomor halaman (*page pills*) elegan + shadow aktif, dan mode mobile / tablet ($\le 768\text{px}$) beralih otomatis ke mode *compact touch navigation* berukuran sentuh nyaman ($\ge 42\text{px}$) dengan *zero horizontal overflow* pada seluruh smartphone.
 
+#### 9.5 Pembatasan Kamera Presensi Selfie (Khusus Kamera Depan & Eliminasi Tombol Flip)
+- 🟢 **Enforcement Kamera Depan & Eliminasi Manipulasi Kamera Belakang**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Untuk menjamin autentisitas presensi wajah (selfie kehadiran), fitur flip kamera yang memungkinkan peralihan ke kamera belakang dibatasi. Pengambilan foto presensi diwajibkan 100% menggunakan kamera depan perangkat.
+    - **Penyelarasan Antarmuka Multi-Role:**
+      - Menghilangkan tombol flip/tukar kamera (`#btnToggleSwitch` / `switchCameraFacing()`) dari toolbar kamera melayang (`#camControlBar`) pada 4 modul presensi foto: Tutor (`resources/views/tutor/presensi_foto.blade.php`), Karyawan/Admin (`resources/views/karyawan/presensi_foto.blade.php`), Mahasiswa Magang (`resources/views/magang/presensi_foto.blade.php`), dan Siswa (`resources/views/siswa/presensi_foto.blade.php`).
+      - Mengunci variabel client-side `currentFacingMode = 'user'` (dan `currentFacing = 'user'` pada siswa) sebagai konstanta.
+      - Memperbarui fungsi `tryCamera()` / `openLiveCamera()` agar meminta video stream dengan constraint spesifik `{ facingMode: { ideal: 'user' } }` dengan fallback aman `{ facingMode: 'user' }` dan `{ video: true }`.
+      - Mempertahankan orientasi cermin selfie (`isMirrored = true`) agar pratinjau kamera tampak alami seperti cermin.
+      - Mengamankan fungsi `switchCameraFacing()` sebagai proteksi fallback yang menampilkan notifikasi informatif bahwa presensi kehadiran dibatasi hanya untuk kamera depan.
+
 ---
+
 
 ### 10. Refactored Codebase, Standardisasi & QA
 
@@ -689,6 +702,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 28 | **Penyelarasan Styling Tema Banner Akses Fleksibel & Binding Dark Mode Tailwind v4** | CSS & Theme Bugfix | Menambahkan direktif `@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));` pada `resources/css/app.css` agar Tailwind CSS v4 tidak menerapkan class `dark:*` berdasarkan preferensi OS (`prefers-color-scheme: dark`) saat web aplikasi berada pada tema terang (`data-theme="light"`). Menstandarisasi banner *Akses Fleksibel (Bebas Radius) Aktif* menggunakan class `.statusBanner.flexible` dan badge `.badge-flexible` dengan variabel warna `var(--text)`, `var(--muted)`, dan `var(--card)` sehingga 100% harmonis dan kontras optimal pada tema terang maupun tema gelap. | 🟢 Selesai |
 | 29 | **Optimalisasi Layout Spacing & Responsivitas Mobile Dashboard Admin** | UI/UX & Responsive | Memperbaiki bug penutupan tag pembungkus `.laporanHeader` yang memicu *nested double-padding* pada mobile, menyelaraskan kartu ringkasan KPI (`.summaryCard` & `.summarySub`), menambahkan pintasan menu cepat operasional Admin (`.adminQuickSection` & `.adminQuickGrid`), memodernisasi grafik mingguan dengan indikator angka real-time (`.barChart`, `.barCount`), serta menerapkan layout adaptif ergonomis pada kartu aktivitas presensi (`.activityRow`) di layar $\le 540$px. | 🟢 Selesai |
 | 30 | **Standardisasi Desain Empty State Tabel & Kartu Mobile (Design System 5 Role)** | UI/UX & Responsive | Harmonisasi gaya visual *empty state* dengan mengadopsi wadah pill badge berkontur lembut (`.tableEmptyIconWrap`, 52px, border-radius 16px, background aksen transparan, tema terang & gelap) menggantikan ikon polos 44px (`.tableEmptyIcon`), menghadirkan komponen `.tableEmptyCard` untuk mobile card list, serta refactoring menyeluruh pada seluruh view tabel/kartu kosong di 5 peran pengguna: **Admin** (`laporan`, `karyawan`, `siswa`, `jadwal_rutin`, `jadwal_kerja`, `lokasi_presensi`, `magang`, `jenjang_paket`, `kategori_tutorial`, `kelas`, `izin`, `payroll`), **Kepala Sekolah** (`presensi`, `pengajuan_izin`, `lupa_lapor`, `laporan`, `dashboard`), **Tutor** (`riwayat`, `payroll`, `dashboard`), **Siswa** (`riwayat`, `dashboard`), dan **Magang** (`riwayat`, `dashboard`) agar 100% konsisten, modern, dan responsif. | 🟢 Selesai |
+| 31 | **Pembatasan Kamera Presensi Selfie (Khusus Kamera Depan & Eliminasi Flip)** | Camera & Security | Membatasi sistem pengambilan foto presensi multi-role (Tutor, Karyawan/Admin, Magang, Siswa) agar secara ketat hanya menggunakan kamera depan (`facingMode: { ideal: 'user' }`), menghapus tombol ganti/tukar kamera dari floating toolbar `#camControlBar`, mengunci orientasi cermin selfie, dan mencegah manipulasi presensi via kamera belakang. | 🟢 Selesai |
 
 ---
 

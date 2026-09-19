@@ -469,9 +469,6 @@
                                 <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
                                     Cermin
                                 </button>
-                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Kamera">
-                                    Tukar Kamera
-                                </button>
                             </div>
                             <div class="camControlGroup">
                                 <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
@@ -833,7 +830,8 @@
         /* ══════════════════ CAMERA STREAM & CAPTURE ══════════════════ */
         let stream = null;
         let isMirror = true;
-        let currentFacing = 'user';
+        // Dibatasi hanya kamera depan untuk presensi kehadiran
+        const currentFacing = 'user';
         let isTorchOn = false;
         let track = null;
 
@@ -852,7 +850,7 @@
 
             const constraints = {
                 video: {
-                    facingMode: currentFacing,
+                    facingMode: { ideal: 'user' },
                     width: { ideal: 1280 },
                     height: { ideal: 720 }
                 },
@@ -895,12 +893,16 @@
         }
 
         function switchCameraFacing() {
-            currentFacing = (currentFacing === 'user') ? 'environment' : 'user';
-            isMirror = (currentFacing === 'user');
-            if (stream) {
-                stream.getTracks().forEach(t => t.stop());
+            // Dibatasi hanya kamera depan untuk presensi selfie / kehadiran
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Kamera Depan',
+                    text: 'Pengambilan foto presensi dibatasi hanya menggunakan kamera depan.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
-            openLiveCamera();
         }
 
         function toggleCameraGrid() {

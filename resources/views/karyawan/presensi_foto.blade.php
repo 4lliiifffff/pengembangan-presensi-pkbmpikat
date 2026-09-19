@@ -278,9 +278,6 @@
                                 <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
                                     Cermin
                                 </button>
-                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Kamera">
-                                    Tukar Kamera
-                                </button>
                             </div>
                             <div class="camControlGroup">
                                 <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
@@ -460,9 +457,6 @@
                             <div class="camControlGroup">
                                 <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
                                     Cermin
-                                </button>
-                                <button type="button" class="camToolBtn" id="btnToggleSwitch" onclick="switchCameraFacing()" title="Tukar Kamera">
-                                    Tukar Kamera
                                 </button>
                             </div>
                             <div class="camControlGroup">
@@ -965,8 +959,8 @@
         }
 
         /* ══════════════════ ADVANCED CAMERA CONTROLS ══════════════════ */
-        let mediaStream = null;
-        let currentFacingMode = 'user'; // 'user' (depan) atau 'environment' (belakang)
+        // Dibatasi hanya kamera depan untuk presensi kehadiran
+        const currentFacingMode = 'user';
         let isMirrored = true;          // default mirror kamera depan
         let isGridActive = false;
         let isTorchOn = false;
@@ -1051,23 +1045,15 @@
         }
 
         function switchCameraFacing() {
-            currentFacingMode = (currentFacingMode === 'user') ? 'environment' : 'user';
-            
-            // Kamera belakang secara alami tidak di-mirror
-            isMirrored = (currentFacingMode === 'user');
-
-            var btnSwitch = document.getElementById('btnToggleSwitch');
-            if (btnSwitch) {
-                if (currentFacingMode === 'environment') {
-                    btnSwitch.classList.add('active');
-                } else {
-                    btnSwitch.classList.remove('active');
-                }
-            }
-
-            if (mediaStream) {
-                stopCameraStream();
-                openLiveCamera();
+            // Dibatasi hanya kamera depan untuk presensi selfie / kehadiran
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Kamera Depan',
+                    text: 'Pengambilan foto presensi dibatasi hanya menggunakan kamera depan.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
         }
 
@@ -1081,11 +1067,16 @@
             var tryCamera = function() {
                 return navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: { ideal: currentFacingMode },
+                        facingMode: { ideal: 'user' },
                         width: { ideal: 1280 },
                         height: { ideal: 720 }
                     },
                     audio: false
+                }).catch(function() {
+                    return navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'user' },
+                        audio: false
+                    });
                 }).catch(function() {
                     return navigator.mediaDevices.getUserMedia({
                         video: true,
