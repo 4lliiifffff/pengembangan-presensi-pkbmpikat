@@ -18,13 +18,15 @@ class KaryawanPresensiController extends Controller
         $user = auth()->user();
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        $activeSesi = PresensiKaryawan::where('user_id', $user->id)
+        $activeSesi = PresensiKaryawan::with('lokasiPresensi')
+            ->where('user_id', $user->id)
             ->whereDate('tgl_presensi', $today)
             ->whereNotNull('foto_mulai')
             ->whereNull('foto_selesai')
             ->first();
 
-        $completedSessions = PresensiKaryawan::where('user_id', $user->id)
+        $completedSessions = PresensiKaryawan::with('lokasiPresensi')
+            ->where('user_id', $user->id)
             ->whereDate('tgl_presensi', $today)
             ->whereNotNull('foto_mulai')
             ->whereNotNull('foto_selesai')
@@ -146,11 +148,16 @@ class KaryawanPresensiController extends Controller
         $filename = 'keluar_'.time().'_'.$file->getClientOriginalName();
         $path = Storage::disk('public')->putFileAs($dir, $file, $filename);
 
-        $activeSesi->update([
+        $updateData = [
             'jam_selesai' => $waktuServer,
             'foto_selesai' => $path,
             'lokasi_selesai' => $validated['lokasi'] ?? null,
-        ]);
+        ];
+        if (! $activeSesi->lokasi_presensi_id && ! empty($validated['lokasi_presensi_id'])) {
+            $updateData['lokasi_presensi_id'] = (int) $validated['lokasi_presensi_id'];
+        }
+
+        $activeSesi->update($updateData);
 
         return redirect()
             ->route(auth()->user()->role === 'admin' ? 'admin.dashboard' : 'kepsek.dashboard')

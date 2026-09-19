@@ -205,13 +205,18 @@ export function initPresensiMap(options) {
         return null;
     }
 
+    mapEl.classList.remove('d-none');
     mapEl.style.display = 'block';
 
-    let currentTargetLat = config.targetLat;
-    let currentTargetLng = config.targetLng;
-    let currentTargetRadius = config.targetRadius;
-    let currentTargetNama = config.targetNama;
-    let currentTargetAlamat = config.targetAlamat;
+    const safeLat = (typeof config.targetLat === 'number' && !isNaN(config.targetLat)) ? config.targetLat : parseFloat(config.targetLat);
+    const safeLng = (typeof config.targetLng === 'number' && !isNaN(config.targetLng)) ? config.targetLng : parseFloat(config.targetLng);
+    const safeRadius = (typeof config.targetRadius === 'number' && !isNaN(config.targetRadius)) ? config.targetRadius : parseInt(config.targetRadius);
+
+    let currentTargetLat = (!isNaN(safeLat)) ? safeLat : -7.8011945;
+    let currentTargetLng = (!isNaN(safeLng)) ? safeLng : 110.364917;
+    let currentTargetRadius = (!isNaN(safeRadius)) ? safeRadius : 100;
+    let currentTargetNama = config.targetNama || 'PKBM Pikat';
+    let currentTargetAlamat = config.targetAlamat || '';
 
     let userLat = null;
     let userLng = null;
@@ -223,6 +228,11 @@ export function initPresensiMap(options) {
         zoomControl: true,
         attributionControl: true
     }).setView([currentTargetLat, currentTargetLng], 17);
+
+    // Pastikan ukuran peta disesuaikan setelah elemen terlihat
+    setTimeout(() => {
+        if (map) map.invalidateSize();
+    }, 150);
 
     // Setup Auto Dark Mode Tile Switching
     const themeController = setupLeafletTileTheme(map, mapEl);
@@ -361,6 +371,11 @@ export function initPresensiMap(options) {
             geofenceCircle.setStyle({ color: '#16a34a', fillColor: '#4ade80', fillOpacity: 0.28 });
         } else {
             geofenceCircle.setStyle({ color: '#dc2626', fillColor: '#f87171', fillOpacity: 0.28 });
+        }
+
+        // Pastikan ukuran container Leaflet valid sebelum fitBounds
+        if (map) {
+            map.invalidateSize();
         }
 
         // Fit Bounds agar kedua titik tampak jelas

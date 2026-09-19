@@ -43,6 +43,14 @@
             }
         }
 
+        $activeLokasi = $activeSesi?->lokasiPresensi;
+        $activeModa = (string) ($activeSesi?->moda_pembelajaran ?? '');
+        $initialTargetLat = (float) ($activeLokasi?->latitude ?? config('lokasi.sekolah_lat', -7.8011945));
+        $initialTargetLng = (float) ($activeLokasi?->longitude ?? config('lokasi.sekolah_lng', 110.364917));
+        $initialTargetRadius = (int) ($activeLokasi?->radius_meter ?? config('lokasi.radius_meter', 100));
+        $initialTargetNama = (string) ($activeLokasi?->nama_lokasi ?? config('lokasi.sekolah_nama', 'PKBM Pikat'));
+        $initialTargetAlamat = (string) ($activeLokasi?->alamat ?? '');
+
         // Mode otomatis: mulai (belum/sudah selesai) atau selesai (sedang berjalan)
         $autoMode = $activeSesi ? 'selesai' : 'mulai';
         $dashRoute = match ($user?->role) {
@@ -117,15 +125,35 @@
                 $jamMasuk = substr((string) $activeSesi->jam_mulai, 0, 5);
             @endphp
 
-            <div class="statusBanner running mb-4">
-                <div class="flex-1">
-                    <div class="statusTitle">Sesi Sedang Berjalan</div>
-                    <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB — Murid: {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</div>
+            @if ($bisaPulang)
+                {{-- Sesi Siap Absen Pulang (Desain Lembut, Kontras Ramah Mata, & Responsif Mobile) --}}
+                <div class="card mb-3 p-3.5 border-base bg-card-alt rounded-2xl">
+                    <div class="d-flex items-center justify-between gap-2 flex-wrap mb-2">
+                        <div class="d-flex items-center gap-2 flex-wrap">
+                            <span class="badge bg-success-light text-success font-bold text-xs px-2.5 py-1 rounded-full d-inline-flex items-center gap-1">
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                Siap Absen Pulang
+                            </span>
+                        </div>
+                        <div class="text-xs font-semibold text-muted">
+                            Masuk: <span class="text-dark font-bold">{{ $jamMasuk }} WIB</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-muted leading-relaxed">
+                        Sesi bimbingan KBM (Murid: <strong class="text-dark">{{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</strong>) telah memenuhi syarat durasi kepulangan. Silakan verifikasi titik lokasi dan ambil foto untuk presensi pulang.
+                    </div>
                 </div>
-            </div>
+            @else
+                <div class="statusBanner running mb-3">
+                    <div class="statusIcon warn">
+                        <ion-icon name="time-outline"></ion-icon>
+                    </div>
+                    <div class="flex-1">
+                        <div class="statusTitle">Sesi Sedang Berjalan</div>
+                        <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB — Murid: {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</div>
+                    </div>
+                </div>
 
-            {{-- Countdown atau siap pulang --}}
-            @if (!$bisaPulang)
                 @php
                     $menit = (int) floor($sisaDetik / 60);
                     $detik = (int) ($sisaDetik % 60);
@@ -135,7 +163,7 @@
                     $durasiJamSesi = $checkOutEligibility['durasi_rencana_jam'] ?? 2.0;
                     $menitWajib = $checkOutEligibility['menit_efektif_wajib'] ?? 96;
                 @endphp
-                <div class="countdownCard">
+                <div class="countdownCard mb-3">
                     <div class="countdownLabel">Waktu Tunggu Absen Pulang (Sesi {{ $durasiJamSesi }} Jam)</div>
                     <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
                     <div class="countdownSub">
@@ -144,13 +172,6 @@
                         @else
                             Bisa absen pulang setelah 80% durasi bimbingan (minimal <strong>{{ $menitWajib }} menit</strong> mengajar)
                         @endif
-                    </div>
-                </div>
-            @else
-                <div class="statusBanner ready mb-4">
-                    <div class="flex-1">
-                        <div class="statusTitle">Siap Absen Pulang</div>
-                        <div class="statusSub">Waktu sesi bimbingan KBM telah memenuhi syarat kepulangan. Silakan ambil foto absen pulang.</div>
                     </div>
                 </div>
             @endif
@@ -170,6 +191,7 @@
                 <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
                     @csrf
                     <input type="hidden" name="mode" value="selesai">
+                    <input type="hidden" name="lokasi_presensi_id" value="{{ $activeSesi->lokasi_presensi_id ?? '' }}">
                     @foreach($activeSessions as $sesi)
                         <input type="hidden" name="siswa_id[]" value="{{ $sesi->siswa_id }}">
                     @endforeach
@@ -790,12 +812,13 @@
         const DEFAULT_GEOFENCE_LNG = {{ config('lokasi.sekolah_lng', 110.364917) }};
         const DEFAULT_GEOFENCE_RADIUS = {{ config('lokasi.radius_meter', 100) }};
         const DEFAULT_GEOFENCE_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
+        const ACTIVE_MODA = @json($activeModa);
 
-        let currentTargetLat = DEFAULT_GEOFENCE_LAT;
-        let currentTargetLng = DEFAULT_GEOFENCE_LNG;
-        let currentTargetRadius = DEFAULT_GEOFENCE_RADIUS;
-        let currentTargetNama = DEFAULT_GEOFENCE_NAMA;
-        let currentTargetAlamat = '';
+        let currentTargetLat = {{ $initialTargetLat }};
+        let currentTargetLng = {{ $initialTargetLng }};
+        let currentTargetRadius = {{ $initialTargetRadius }};
+        let currentTargetNama = @json($initialTargetNama);
+        let currentTargetAlamat = @json($initialTargetAlamat);
 
         let allLokasiPoints = @json($lokasiPresensis ?? []);
 
@@ -821,6 +844,12 @@
                 if (alamatEl) {
                     alamatEl.textContent = currentTargetAlamat ? ('Alamat: ' + currentTargetAlamat) : '';
                 }
+            } else {
+                currentTargetLat = {{ $initialTargetLat }};
+                currentTargetLng = {{ $initialTargetLng }};
+                currentTargetRadius = {{ $initialTargetRadius }};
+                currentTargetNama = @json($initialTargetNama);
+                currentTargetAlamat = @json($initialTargetAlamat);
             }
         }
 
@@ -843,6 +872,9 @@
             var mapEl = document.getElementById('leafletMap');
             if (!mapEl || presensiMap || typeof window.createPresensiMap === 'undefined') return;
 
+            mapEl.classList.remove('d-none');
+            mapEl.style.display = 'block';
+
             updateTargetFromDropdown();
 
             presensiMap = window.createPresensiMap({
@@ -863,7 +895,7 @@
                     var btnMaps = document.getElementById('btnPetunjukArah');
 
                     var selectModa = document.getElementById('selectModa');
-                    var isSekolahModa = !selectModa || selectModa.value === 'sekolah';
+                    var isSekolahModa = selectModa ? (selectModa.value === 'sekolah') : (ACTIVE_MODA ? ACTIVE_MODA === 'sekolah' : true);
 
                     if (badge) {
                         badge.style.display = 'block';
@@ -898,7 +930,12 @@
                             if (lastWithinZone === false && navigator.vibrate) {
                                 navigator.vibrate([100, 50, 100]);
                             }
-                        } else if (isSekolahModa) {
+                        } else if (!isSekolahModa) {
+                            radarDot.className = 'radarStatusDot pulse-blue';
+                            radarTitle.textContent = 'Mode Kunjungan / Daring: Bebas Radius';
+                            radarSub.textContent = 'Titik lokasi GPS Anda berhasil dideteksi dan dicatat (' + Math.round(state.distance) + 'm dari ' + state.targetNama + ').';
+                            if (btnMaps) btnMaps.style.display = 'none';
+                        } else {
                             if (state.distance > 200) {
                                 radarDot.className = 'radarStatusDot pulse-red';
                                 radarTitle.textContent = 'Jarak ke Lokasi: ' + Math.round(state.distance) + ' meter';
@@ -913,21 +950,25 @@
                                 btnMaps.style.display = 'inline-flex';
                                 btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + state.targetLat + ',' + state.targetLng + '&origin=' + state.userLat + ',' + state.userLng;
                             }
-                        } else {
-                            radarDot.className = 'radarStatusDot pulse-green';
-                            radarTitle.textContent = 'Sesi Kunjungan / Daring Aktif';
-                            radarSub.textContent = 'Lokasi Anda tercatat otomatis untuk keperluan laporan sesi.';
-                            if (btnMaps) btnMaps.style.display = 'none';
                         }
                     }
 
-                    if (state.zoneChanged && window.showAppToast) {
-                        window.showAppToast({
-                            type: state.isWithin ? 'success' : 'warning',
-                            title: state.isWithin ? 'Memasuki Area ' + state.targetNama : 'Keluar Dari Area ' + state.targetNama,
-                            message: state.isWithin ? 'Anda berada dalam jangkauan presensi (' + Math.round(state.distance) + 'm).' : 'Anda berada ' + Math.round(state.distance) + 'm dari titik pusat.',
-                            duration: 3500
-                        });
+                    if (lastWithinZone !== null && lastWithinZone !== state.isWithin && window.showAppToast) {
+                        if (state.isWithin) {
+                            window.showAppToast({
+                                type: 'success',
+                                title: 'Memasuki Area ' + state.targetNama,
+                                message: 'Anda berada dalam jangkauan presensi (' + Math.round(state.distance) + 'm).',
+                                duration: 3500
+                            });
+                        } else if (isSekolahModa) {
+                            window.showAppToast({
+                                type: 'warning',
+                                title: 'Keluar Dari Area ' + state.targetNama,
+                                message: 'Anda berada ' + Math.round(state.distance) + 'm dari titik pusat.',
+                                duration: 3500
+                            });
+                        }
                     }
 
                     lastWithinZone = state.isWithin;
@@ -946,14 +987,23 @@
 
             var lokasiEl = document.getElementById('lokasi');
             var ph = document.getElementById('mapPlaceholder');
+            var mapEl = document.getElementById('leafletMap');
 
             if (lokasiEl) {
                 lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
             }
 
+            if (mapEl) {
+                mapEl.classList.remove('d-none');
+                mapEl.style.display = 'block';
+            }
+
             initPresensiMapInstance();
 
-            if (ph) ph.classList.add('hidden');
+            if (ph) {
+                ph.classList.add('hidden');
+                ph.style.display = 'none';
+            }
 
             if (presensiMap) {
                 presensiMap.updateUserLocation(lat, lng, accuracy);

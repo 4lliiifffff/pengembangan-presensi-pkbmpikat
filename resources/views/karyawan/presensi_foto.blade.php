@@ -42,6 +42,13 @@
             }
         }
 
+        $activeLokasi = $activeSesi?->lokasiPresensi;
+        $initialTargetLat = (float) ($activeLokasi?->latitude ?? config('lokasi.sekolah_lat', -7.8011945));
+        $initialTargetLng = (float) ($activeLokasi?->longitude ?? config('lokasi.sekolah_lng', 110.364917));
+        $initialTargetRadius = (int) ($activeLokasi?->radius_meter ?? config('lokasi.radius_meter', 100));
+        $initialTargetNama = (string) ($activeLokasi?->nama_lokasi ?? config('lokasi.sekolah_nama', 'PKBM Pikat'));
+        $initialTargetAlamat = (string) ($activeLokasi?->alamat ?? '');
+
         // Mode otomatis: mulai (belum/sudah selesai) atau selesai (sedang berjalan)
         $autoMode = $activeSesi ? 'selesai' : 'mulai';
         $dashRoute = match ($user?->role) {
@@ -81,16 +88,16 @@
     <div class="pagePad" id="mainContent">
 
         {{-- ── Banner Notifikasi Fleksibilitas Bebas Radius (Admin & Kepala Sekolah) ── --}}
-        @if ($isBypassRadius)
-            <div class="card mb-3 p-3 rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+        @if ($isBypassRadius && !$activeSesi)
+            <div class="card mb-3 p-3 rounded-xl border-base bg-card-alt">
                 <div class="d-flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 d-flex items-center justify-center flex-shrink-0">
-                        <ion-icon name="briefcase-outline" class="text-xl"></ion-icon>
+                    <div class="w-9 h-9 rounded-full bg-primary-subtle text-primary d-flex items-center justify-center flex-shrink-0 text-lg">
+                        <ion-icon name="briefcase-outline"></ion-icon>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="text-xs font-bold text-blue-900 dark:text-blue-200">Akses Fleksibel (Bebas Radius) Aktif</div>
-                        <div class="text-xs text-blue-700/90 dark:text-blue-300/90 mt-0.5">
-                            Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas rapat luar atau keperluan dinas mendesak.
+                        <div class="text-xs font-bold text-dark">Akses Fleksibel (Bebas Radius) Aktif</div>
+                        <div class="text-xs text-muted mt-0.5 leading-normal">
+                            Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas dinas luar atau rapat penting.
                         </div>
                     </div>
                 </div>
@@ -133,58 +140,74 @@
                 $jamMasuk = substr((string) $activeSesi->jam_mulai, 0, 5);
             @endphp
 
-            <div class="statusBanner running">
-                <div>
-                    <div class="statusTitle">Presensi Sedang Berjalan</div>
-                    <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB</div>
+            @if ($bisaPulang)
+                {{-- Sesi Siap Presensi Pulang (Desain Lembut, Kontras Ramah Mata, & Responsif Mobile) --}}
+                <div class="card mb-3 p-3.5 border-base bg-card-alt rounded-2xl">
+                    <div class="d-flex items-center justify-between gap-2 flex-wrap mb-2">
+                        <div class="d-flex items-center gap-2 flex-wrap">
+                            <span class="badge bg-success-light text-success font-bold text-xs px-2.5 py-1 rounded-full d-inline-flex items-center gap-1">
+                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                                Siap Presensi Pulang
+                            </span>
+                            @if ($isBypassWaktuTunggu)
+                                <span class="badge bg-primary-subtle text-primary font-semibold text-2xs px-2 py-0.5 rounded-full">
+                                    Akses Fleksibel Kepulangan Aktif
+                                </span>
+                            @endif
+                        </div>
+                        <div class="text-xs font-semibold text-muted">
+                            Masuk: <span class="text-dark font-bold">{{ $jamMasuk }} WIB</span>
+                        </div>
+                    </div>
+                    <div class="text-xs text-muted leading-relaxed">
+                        @if ($isBypassWaktuTunggu)
+                            Formulir presensi pulang terbuka dan siap dikirimkan kapan saja setelah agenda rapat atau dinas selesai.
+                        @else
+                            Telah memenuhi durasi minimal kerja (≥ 1 jam). Silakan verifikasi titik lokasi dan ambil foto untuk presensi pulang.
+                        @endif
+                    </div>
+                    @if ($isBypassRadius)
+                        <div class="d-flex items-center gap-1.5 mt-2.5 pt-2 border-t border-dashed border-base text-2xs text-muted">
+                            <ion-icon name="shield-checkmark-outline" class="text-primary text-sm flex-shrink-0"></ion-icon>
+                            <span>Mode Bebas Radius aktif untuk mendukung penugasan luar / rapat dinas.</span>
+                        </div>
+                    @endif
                 </div>
-            </div>
-            @if ($isBypassWaktuTunggu)
-                {{-- Akses Fleksibel Admin & Kepala Sekolah --}}
-                <div class="card mb-4 border border-blue-200 dark:border-blue-900/50 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 p-3.5 rounded-xl">
-                    <div class="d-flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 d-flex items-center justify-center flex-shrink-0">
-                            <ion-icon name="flash-outline" class="text-xl"></ion-icon>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-xs font-bold text-blue-900 dark:text-blue-200">Akses Fleksibel Kepulangan Aktif</div>
-                            <div class="text-xs text-blue-700/90 dark:text-blue-300/90 mt-0.5">
-                                Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, formulir presensi pulang terbuka dan dapat dikirimkan kapan saja saat rapat dinas atau agenda kerja selesai.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            @else
-                {{-- Countdown atau siap pulang untuk karyawan umum --}}
-                @if (!$bisaPulang)
-                    @php
-                        $menit = (int) floor($sisaDetik / 60);
-                        $detik = (int) ($sisaDetik % 60);
-                        $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
-                    @endphp
-                    <div class="countdownCard">
-                        <div class="countdownLabel">Bisa presensi pulang dalam</div>
-                        <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
-                        <div class="countdownSub">menit lagi (minimal 1 jam setelah masuk)</div>
-                    </div>
-                @else
-                    <div class="statusBanner ready mb-4">
-                        <div>
-                            <div class="statusTitle">Siap Presensi Pulang</div>
-                            <div class="statusSub">Sudah memenuhi durasi minimal kerja (≥ 1 jam)</div>
-                        </div>
-                    </div>
-                @endif
 
-                {{-- Warning: sudah lebih dari 2 jam (hanya untuk staf non-manajemen) --}}
-                @if ($sudahLewat2Jam)
+                {{-- Warning jika sudah lewat 2 jam untuk staf biasa --}}
+                @if (!$isBypassWaktuTunggu && $sudahLewat2Jam)
                     <div class="statusBanner mb-3 alert-danger-box">
+                        <div class="statusIcon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                            <ion-icon name="alert-circle-outline"></ion-icon>
+                        </div>
                         <div>
                             <div class="statusTitle text-danger">Waktu Kerja Sudah Selesai</div>
                             <div class="statusSub">Segera lakukan presensi pulang sekarang.</div>
                         </div>
                     </div>
                 @endif
+            @else
+                {{-- Masih dalam masa tunggu minimal 1 jam (staf biasa) --}}
+                <div class="statusBanner running mb-3">
+                    <div class="statusIcon warn">
+                        <ion-icon name="time-outline"></ion-icon>
+                    </div>
+                    <div>
+                        <div class="statusTitle">Presensi Sedang Berjalan</div>
+                        <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB</div>
+                    </div>
+                </div>
+
+                @php
+                    $menit = (int) floor($sisaDetik / 60);
+                    $detik = (int) ($sisaDetik % 60);
+                    $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
+                @endphp
+                <div class="countdownCard mb-3">
+                    <div class="countdownLabel">Bisa presensi pulang dalam</div>
+                    <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
+                    <div class="countdownSub">menit lagi (minimal 1 jam setelah masuk)</div>
+                </div>
             @endif
 
             {{-- Form absen PULANG: hanya tampil jika sudah bisa pulang --}}
@@ -192,6 +215,7 @@
             <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
                 @csrf
                 <input type="hidden" name="mode" value="selesai">
+                <input type="hidden" name="lokasi_presensi_id" value="{{ $activeSesi->lokasi_presensi_id ?? '' }}">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
                 <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
@@ -510,7 +534,10 @@
 
         function showMainContent() {
             document.getElementById('permWarning').style.display = 'none';
-            if (document.getElementById('mapBox')) refreshLocation();
+            if (document.getElementById('mapBox')) {
+                refreshLocation(false);
+                startLiveTracking();
+            }
         }
 
         function checkPermissions() {
@@ -592,6 +619,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             checkPermissions();
 
+            if (document.getElementById('mapBox')) {
+                refreshLocation(false);
+                startLiveTracking();
+            }
+
             // ── Countdown timer untuk sesi berjalan yang belum bisa pulang ──
             var cdEl = document.getElementById('countdown');
             @if ($activeSesi && !$bisaPulang)
@@ -621,8 +653,13 @@
         const DEFAULT_GEOFENCE_RADIUS = {{ config('lokasi.radius_meter', 100) }};
         const DEFAULT_GEOFENCE_NAMA = @json(config('lokasi.sekolah_nama', 'PKBM Pikat'));
 
-        let currentTargetLat = DEFAULT_GEOFENCE_LAT;
-            let allLokasiPoints = @json($lokasiPresensis ?? []);
+        let currentTargetLat = {{ $initialTargetLat }};
+        let currentTargetLng = {{ $initialTargetLng }};
+        let currentTargetRadius = {{ $initialTargetRadius }};
+        let currentTargetNama = @json($initialTargetNama);
+        let currentTargetAlamat = @json($initialTargetAlamat);
+
+        let allLokasiPoints = @json($lokasiPresensis ?? []);
 
         let presensiMap = null;
         let watchPositionId = null;
@@ -645,6 +682,12 @@
                 if (alamatEl) {
                     alamatEl.textContent = currentTargetAlamat ? ('Alamat: ' + currentTargetAlamat) : '';
                 }
+            } else {
+                currentTargetLat = {{ $initialTargetLat }};
+                currentTargetLng = {{ $initialTargetLng }};
+                currentTargetRadius = {{ $initialTargetRadius }};
+                currentTargetNama = @json($initialTargetNama);
+                currentTargetAlamat = @json($initialTargetAlamat);
             }
         }
 
@@ -668,6 +711,9 @@
         function initPresensiMapInstance() {
             var mapEl = document.getElementById('leafletMap');
             if (!mapEl || presensiMap || typeof window.createPresensiMap === 'undefined') return;
+
+            mapEl.classList.remove('d-none');
+            mapEl.style.display = 'block';
 
             updateTargetFromDropdown();
 
@@ -786,17 +832,29 @@
 
             var lokasiEl = document.getElementById('lokasi');
             var ph = document.getElementById('mapPlaceholder');
+            var mapEl = document.getElementById('leafletMap');
 
             if (lokasiEl) {
                 lokasiEl.value = lat.toFixed(6) + ',' + lng.toFixed(6);
             }
 
+            if (mapEl) {
+                mapEl.classList.remove('d-none');
+                mapEl.style.display = 'block';
+            }
+
             initPresensiMapInstance();
 
-            if (ph) ph.classList.add('hidden');
+            if (ph) {
+                ph.classList.add('hidden');
+                ph.style.display = 'none';
+            }
 
             if (presensiMap) {
                 presensiMap.updateUserLocation(lat, lng, accuracy);
+                if (typeof presensiMap.invalidateSize === 'function') {
+                    presensiMap.invalidateSize();
+                }
             }
         }
 
@@ -890,6 +948,7 @@
             }
             if (ph) {
                 ph.classList.remove('hidden');
+                ph.style.display = 'flex';
                 ph.textContent = 'Mencari lokasi GPS…';
             }
 
@@ -900,6 +959,8 @@
                         startLiveTracking();
                     }
                 },
+                handleGpsError,
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         }
 
