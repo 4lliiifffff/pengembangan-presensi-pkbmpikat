@@ -288,4 +288,56 @@ class TutorJadwalMandiriTest extends TestCase
         $this->assertNull($sesi->kategori_tutorial_id);
         $this->assertStringContainsString('[Jadwal Khusus: Durasi 1.25 Jam di luar SK]', $sesi->catatan);
     }
+
+    public function test_tutor_can_create_session_when_custom_selected_and_seconds_provided(): void
+    {
+        $date = Carbon::today('Asia/Jakarta')->addDays(4)->toDateString();
+
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.store'), [
+            'is_recurring' => '0',
+            'siswa_id' => $this->siswa->id,
+            'kategori_tutorial_id' => 'custom',
+            'tanggal_rencana' => $date,
+            'jam_masuk_rencana' => '09:00:00',
+            'jam_pulang_rencana' => '10:30:00',
+            'jenis_sesi' => 'reguler',
+            'catatan' => 'Sesi tes durasi kustom dengan string custom',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+
+        $sesi = JadwalSesi::where('tutor_id', $this->tutor->id)
+            ->whereDate('tanggal_rencana', $date)
+            ->first();
+
+        $this->assertNotNull($sesi);
+        $this->assertEquals(1.5, (float) $sesi->durasi_jam);
+        $this->assertNull($sesi->kategori_tutorial_id);
+    }
+
+    public function test_tutor_can_create_recurring_schedule_with_custom_category_and_seconds(): void
+    {
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.store'), [
+            'is_recurring' => '1',
+            'siswa_id' => $this->siswa->id,
+            'kategori_tutorial_id' => 'custom',
+            'hari' => 'rabu',
+            'jam_masuk' => '13:00:00',
+            'jam_pulang' => '14:30:00',
+            'berlaku_mulai' => Carbon::today('Asia/Jakarta')->toDateString(),
+            'keterangan' => 'Pola rutin custom durasi',
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $response->assertRedirect();
+
+        $rutin = JadwalRutin::where('tutor_id', $this->tutor->id)
+            ->where('hari', 'rabu')
+            ->first();
+
+        $this->assertNotNull($rutin);
+        $this->assertEquals(1.5, (float) $rutin->durasi_jam);
+        $this->assertNull($rutin->kategori_tutorial_id);
+    }
 }

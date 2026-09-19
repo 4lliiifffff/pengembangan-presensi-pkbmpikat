@@ -14,6 +14,16 @@ class JadwalRutin extends Model
 
     protected $table = 'jadwal_rutins';
 
+    public const HARI_LABELS = [
+        'senin' => 'Senin',
+        'selasa' => 'Selasa',
+        'rabu' => 'Rabu',
+        'kamis' => 'Kamis',
+        'jumat' => 'Jumat',
+        'sabtu' => 'Sabtu',
+        'minggu' => 'Minggu',
+    ];
+
     protected $fillable = [
         'siswa_id',
         'tutor_id',

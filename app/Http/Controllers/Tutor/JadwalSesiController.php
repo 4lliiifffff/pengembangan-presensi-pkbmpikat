@@ -143,6 +143,25 @@ class JadwalSesiController extends Controller
             return redirect()->route('tutor.dashboard')->with('warning', 'Data profil tutor belum terhubung.');
         }
 
+        // Sanitasi input awal: 'custom' atau kosong dijadikan null
+        $rawKategori = $request->input('kategori_tutorial_id');
+        if ($rawKategori === 'custom' || $rawKategori === '' || $rawKategori === '0') {
+            $request->merge(['kategori_tutorial_id' => null]);
+        }
+
+        // Sanitasi format jam: potong H:i:s menjadi H:i jika ada detik dari browser
+        $jamFields = ['jam_masuk', 'jam_pulang', 'jam_masuk_rencana', 'jam_pulang_rencana'];
+        $normalizedTimes = [];
+        foreach ($jamFields as $field) {
+            if ($request->filled($field)) {
+                $timeVal = trim((string) $request->input($field));
+                $normalizedTimes[$field] = strlen($timeVal) > 5 ? substr($timeVal, 0, 5) : $timeVal;
+            }
+        }
+        if (! empty($normalizedTimes)) {
+            $request->merge($normalizedTimes);
+        }
+
         $isRecurring = $request->boolean('is_recurring');
 
         if ($isRecurring) {
@@ -296,7 +315,7 @@ class JadwalSesiController extends Controller
         try {
             $siswa = Siswa::with('user')->find($validated['siswa_id']);
             if ($siswa?->user) {
-                $katNama = isset($kat) && $kat ? $kat->nama_kategori : 'Tutorial KBM';
+                $katNama = ($katSk ?? $katCocok)?->nama_kategori ?? 'Tutorial KBM';
                 $tglFormatted = Carbon::parse($validated['tanggal_rencana'])->translatedFormat('d F Y');
                 $jamMulai = substr((string) $validated['jam_masuk_rencana'], 0, 5);
 

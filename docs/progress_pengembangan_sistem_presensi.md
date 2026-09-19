@@ -1,6 +1,6 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 17 September 2026  
+**Tanggal Pembaruan:** 19 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
 **Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, & Penjadwalan Sesi Pengganti / Reschedule Future-Proof)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 44
+    "Selesai (Completed)" : 45
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -445,6 +445,29 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Testing & Verifikasi:**
       - Feature test baru `test_tutor_can_create_custom_duration_session_with_non_sk_tagging` ditambahkan pada `tests/Feature/TutorJadwalMandiriTest.php`.
       - Seluruh test suite (142 tests, 607 assertions) lulus 100%. Kompilasi Vite asset dan linter Laravel Pint lolos rapi.
+
+#### 4.15 Perbaikan Komprehensif Penyimpanan Jadwal Belajar Mandiri Tutor & Error Feedback
+- 🟢 **Eliminasi Silent Failure, Sanitasi Input `kategori_tutorial_id = 'custom'`, Normalisasi Waktu & UI Error Alert**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Masalah:**
+      1. Ketika tutor memilih durasi belajar non-SK atau durasi khusus, JavaScript di form modal mengubah dropdown `kategori_tutorial_id` menjadi `'custom'`. Nilai string ini ditolak oleh validasi Laravel `'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id']` karena bukan integer ID tabel `kategori_tutorials`.
+      2. Tampilan `tutor/jadwal_sesi/index.blade.php` tidak memiliki penampil error `$errors->any()` maupun script pembuka modal saat terjadi kegagalan validasi, menyebabkan efek *silent failure* (modal tertutup dan halaman me-reload seolah tombol tidak bekerja).
+      3. Format input jam `date_format:H:i` menolak format waktu peramban yang menyertakan detik (`H:i:s`).
+      4. Bug konstan `JadwalRutin::HARI_LABELS` yang belum didefinisikan memicu exception saat pengiriman Web Push notifikasi jadwal ke siswa.
+    - **Penyelesaian Backend (`JadwalSesiController` & `JadwalRutin`):**
+      - **Pre-Validation Input Sanitization:** Menyaring nilai `kategori_tutorial_id` yang bernilai `'custom'`, `'0'`, atau `''` menjadi `null` sebelum validasi dipanggil, sehingga controller dapat mengeksekusi logika fallback durasi non-SK tanpa tersandung aturan `exists:kategori_tutorials,id`.
+      - **Normalisasi Waktu:** Memotong string waktu `jam_masuk`, `jam_pulang`, `jam_masuk_rencana`, `jam_pulang_rencana` menjadi 5 karakter (`H:i`) jika dikirimkan dengan detik dari browser peramban.
+      - **Definisi `HARI_LABELS` & Resolusi `$katNama`:** Menambahkan array konstanta `HARI_LABELS` pada model `JadwalRutin` dan memperbaiki resolusi nama kategori tutorial pada pesan Web Push siswa.
+    - **Penyelesaian Frontend Blade & JavaScript (`tutor/jadwal_sesi/index.blade.php`):**
+      - Menambahkan penampil error flash banner session dan daftar pesan kesalahan `$errors->all()` di halaman kalender utama dan di dalam bodi modal drawer `#modalJadwalBaru`.
+      - Menambahkan script inisialisasi dan auto-reopen modal jika `@if ($errors->any())` dengan tetap mempertahankan nilai input sebelumnya (`old(...)`) dan mode yang dipilih (Rutin vs Sekali).
+      - Menambahkan toggle atribut `disabled = true/false` pada elemen input mode yang tidak aktif via `setScheduleMode()` sehingga form tidak mengirimkan payload kosong/tumpang tindih.
+    - **Testing & Verifikasi:**
+      - Penambahan dua feature test baru di `tests/Feature/TutorJadwalMandiriTest.php`:
+        1. `test_tutor_can_create_session_when_custom_selected_and_seconds_provided` (Sesi tunggal dengan kategori 'custom' dan jam berekstensi detik).
+        2. `test_tutor_can_create_recurring_schedule_with_custom_category_and_seconds` (Pola rutin dengan kategori 'custom' dan jam berekstensi detik).
+      - Seluruh 9 test cases di `TutorJadwalMandiriTest` (45 assertions) lulus 100%. Linter Laravel Pint lolos rapi.
 
 ---
 

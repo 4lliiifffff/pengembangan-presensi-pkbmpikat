@@ -78,6 +78,42 @@
             </div>
         </div>
 
+        {{-- ── Alert Notifikasi Flash & Error Validasi ── --}}
+        @if (session('success'))
+            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-success bg-success-subtle text-success text-sm d-flex items-center gap-2">
+                <ion-icon name="checkmark-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
+                <span>{{ session('success') }}</span>
+            </div>
+        @endif
+
+        @if (session('warning'))
+            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-warning bg-warning-subtle text-warning text-sm d-flex items-center gap-2">
+                <ion-icon name="warning-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
+                <span>{{ session('warning') }}</span>
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm d-flex items-center gap-2">
+                <ion-icon name="alert-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
+                <span>{{ session('error') }}</span>
+            </div>
+        @endif
+
+        @if ($errors->any())
+            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm">
+                <div class="font-bold d-flex items-center gap-2 mb-1">
+                    <ion-icon name="alert-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
+                    <span>Jadwal gagal disimpan karena kesalahan validasi:</span>
+                </div>
+                <ul class="mb-0 ps-4 text-xs">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- ── Tab Switcher Navigasi Terpadu ── --}}
         <div class="calendarNavTabsContainer">
             <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $selectedDate->toDateString()]) }}"
@@ -725,6 +761,19 @@
             </div>
 
             <div class="navDrawerBody">
+                @if ($errors->any())
+                    <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
+                        <div class="font-bold d-flex items-center gap-1 mb-1">
+                            <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali data jadwal berikut:
+                        </div>
+                        <ul class="mb-0 ps-3">
+                            @foreach ($errors->all() as $err)
+                                <li>{{ $err }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <form method="POST" action="{{ route('tutor.jadwal-sesi.store') }}">
                     @csrf
 
@@ -733,13 +782,13 @@
                         <label
                             class="cursor-pointer flex-1 text-center py-2 px-3 rounded-lg text-xs font-bold transition-all"
                             id="labelModeRutin" onclick="setScheduleMode(true)">
-                            <input type="radio" name="is_recurring" id="radioModeRutin" value="1" class="d-none">
+                            <input type="radio" name="is_recurring" id="radioModeRutin" value="1" class="d-none" {{ old('is_recurring') === '1' ? 'checked' : '' }}>
                             <ion-icon name="repeat-outline"></ion-icon> Ulangi Setiap Minggu (Rutin)
                         </label>
                         <label
                             class="cursor-pointer flex-1 text-center py-2 px-3 rounded-lg text-xs font-bold transition-all"
                             id="labelModeSingle" onclick="setScheduleMode(false)">
-                            <input type="radio" name="is_recurring" id="radioModeSingle" value="0" class="d-none" checked>
+                            <input type="radio" name="is_recurring" id="radioModeSingle" value="0" class="d-none" {{ old('is_recurring', '0') === '0' ? 'checked' : '' }}>
                             <ion-icon name="calendar-outline"></ion-icon> Hanya Tanggal Ini (Sekali)
                         </label>
                     </div>
@@ -750,8 +799,9 @@
                         <select name="siswa_id" class="filterSelect" required>
                             <option value="">-- Pilih Siswa Bimbingan --</option>
                             @foreach($siswas as $s)
-                                <option value="{{ $s->id }}">{{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} -
-                                    {{ $s->nama_kelas_lengkap ?? 'Reguler' }})</option>
+                                <option value="{{ $s->id }}" {{ (string) old('siswa_id') === (string) $s->id ? 'selected' : '' }}>
+                                    {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} - {{ $s->nama_kelas_lengkap ?? 'Reguler' }})
+                                </option>
                             @endforeach
                         </select>
                     </div>
@@ -761,24 +811,24 @@
                         <div class="form-field-wrapper mb-3">
                             <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
                             <select name="hari" id="modalHari" class="filterSelect">
-                                <option value="senin">Setiap Hari Senin</option>
-                                <option value="selasa">Setiap Hari Selasa</option>
-                                <option value="rabu">Setiap Hari Rabu</option>
-                                <option value="kamis">Setiap Hari Kamis</option>
-                                <option value="jumat">Setiap Hari Jumat</option>
-                                <option value="sabtu">Setiap Hari Sabtu</option>
-                                <option value="minggu">Setiap Hari Minggu</option>
+                                <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin</option>
+                                <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa</option>
+                                <option value="rabu" {{ old('hari') === 'rabu' ? 'selected' : '' }}>Setiap Hari Rabu</option>
+                                <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis</option>
+                                <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat</option>
+                                <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
+                                <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu</option>
                             </select>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Berlaku Mulai</label>
-                                <input type="date" name="berlaku_mulai" value="{{ date('Y-m-d') }}" class="profileInput">
+                                <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}" class="profileInput">
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Berlaku Sampai (Bulan/Tanggal Selesai)</label>
-                                <input type="date" name="berlaku_sampai" class="profileInput"
+                                <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}" class="profileInput"
                                     placeholder="Pilih batas tanggal">
                                 <span class="field-help-text">Kosongkan jika terus berlanjut tanpa batas.</span>
                             </div>
@@ -791,9 +841,9 @@
                             <label class="filterFieldLabel">Jenis Sesi <span class="text-danger">*</span></label>
                             <select name="jenis_sesi" id="modalJenisSesi" onchange="toggleTanggalAsli()"
                                 class="filterSelect">
-                                <option value="reguler">Sesi Reguler</option>
-                                <option value="pengganti">Sesi Pengganti (Make-up Class / Reschedule)</option>
-                                <option value="tambahan">Sesi Tambahan / Pengayaan</option>
+                                <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler</option>
+                                <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi Pengganti (Make-up Class / Reschedule)</option>
+                                <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi Tambahan / Pengayaan</option>
                             </select>
                         </div>
 
@@ -801,12 +851,12 @@
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Tanggal Rencana <span class="text-danger">*</span></label>
                                 <input type="date" name="tanggal_rencana" id="modalTanggalRencana"
-                                    value="{{ $selectedDate->format('Y-m-d') }}" class="profileInput">
+                                    value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}" class="profileInput">
                             </div>
 
                             <div class="form-field-wrapper d-none" id="boxTanggalAsli">
                                 <label class="filterFieldLabel">Menggantikan Sesi Tanggal</label>
-                                <input type="date" name="tanggal_asli" class="profileInput">
+                                <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}" class="profileInput">
                                 <span class="field-help-text">Tanggal sesi semula yang dilewati.</span>
                             </div>
                         </div>
@@ -819,11 +869,11 @@
                             class="filterSelect">
                             <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
                             @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" data-nominal="{{ $kat->nominal_honor }}">
+                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" data-nominal="{{ $kat->nominal_honor }}" {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
                                     {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull; {{ $kat->formatted_nominal_honor }})
                                 </option>
                             @endforeach
-                            <option value="custom">-- Durasi Khusus (Belum Diatur SK) --</option>
+                            <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi Khusus (Belum Diatur SK) --</option>
                         </select>
                     </div>
 
@@ -835,22 +885,22 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
-                                <input type="time" name="jam_masuk" id="modalJamMasukRutin" value="10:00"
+                                <input type="time" name="jam_masuk" id="modalJamMasukRutin" value="{{ old('jam_masuk', '10:00') }}"
                                     onchange="hitungDurasiUniversal(true)" class="profileInput d-none">
-                                <input type="time" name="jam_masuk_rencana" id="modalJamMasukSingle" value="10:00"
+                                <input type="time" name="jam_masuk_rencana" id="modalJamMasukSingle" value="{{ old('jam_masuk_rencana', '10:00') }}"
                                     onchange="hitungDurasiUniversal(true)" class="profileInput" required>
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
-                                <input type="time" name="jam_pulang" id="modalJamPulangRutin" value="12:00"
+                                <input type="time" name="jam_pulang" id="modalJamPulangRutin" value="{{ old('jam_pulang', '12:00') }}"
                                     onchange="hitungDurasiUniversal(false)" class="profileInput d-none">
-                                <input type="time" name="jam_pulang_rencana" id="modalJamPulangSingle" value="12:00"
+                                <input type="time" name="jam_pulang_rencana" id="modalJamPulangSingle" value="{{ old('jam_pulang_rencana', '12:00') }}"
                                     onchange="hitungDurasiUniversal(false)" class="profileInput" required>
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Durasi (Jam)</label>
                                 <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam"
-                                    id="modalDurasiUniversal" value="2.00" class="profileInput" readonly style="background: var(--card);">
+                                    id="modalDurasiUniversal" value="{{ old('durasi_jam', '2.00') }}" class="profileInput" readonly style="background: var(--card);">
                             </div>
                         </div>
 
@@ -995,11 +1045,19 @@
                 inPulangRutin.classList.remove('d-none');
                 inMasukRutin.required = true;
                 inPulangRutin.required = true;
+                inMasukRutin.disabled = false;
+                inPulangRutin.disabled = false;
 
                 inMasukSingle.classList.add('d-none');
                 inPulangSingle.classList.add('d-none');
                 inMasukSingle.required = false;
                 inPulangSingle.required = false;
+                inMasukSingle.disabled = true;
+                inPulangSingle.disabled = true;
+
+                // Nonaktifkan field child single, aktifkan field child rutin
+                secRutin.querySelectorAll('input, select, textarea').forEach(el => el.disabled = false);
+                secSingle.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
             } else {
                 radioSingle.checked = true;
                 radioRutin.checked = false;
@@ -1017,11 +1075,19 @@
                 inPulangSingle.classList.remove('d-none');
                 inMasukSingle.required = true;
                 inPulangSingle.required = true;
+                inMasukSingle.disabled = false;
+                inPulangSingle.disabled = false;
 
                 inMasukRutin.classList.add('d-none');
                 inPulangRutin.classList.add('d-none');
                 inMasukRutin.required = false;
                 inPulangRutin.required = false;
+                inMasukRutin.disabled = true;
+                inPulangRutin.disabled = true;
+
+                // Nonaktifkan field child rutin, aktifkan field child single
+                secSingle.querySelectorAll('input, select, textarea').forEach(el => el.disabled = false);
+                secRutin.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
             }
 
             const boxAlasanSingle = document.getElementById('boxAlasanSingle');
@@ -1172,8 +1238,14 @@
             }
         }
 
-        // Default to Single mode initially
-        setScheduleMode(false);
+        // Inisialisasi mode default sesuai old input (jika pernah gagal validasi)
+        const initialRecurring = {{ old('is_recurring', '0') === '1' ? 'true' : 'false' }};
+        setScheduleMode(initialRecurring);
+
+        // Auto-open modal jika ada error validasi
+        @if ($errors->any())
+            bukaModalJadwalBaru(initialRecurring);
+        @endif
 
         // Auto-open modal jika diarahkan dari halaman Agenda PKBM dengan parameter open_modal
         const urlParams = new URLSearchParams(window.location.search);
