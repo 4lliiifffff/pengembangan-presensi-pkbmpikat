@@ -192,17 +192,19 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="table-empty-cell">
-                                    <div class="tableEmptyState">
+                    @empty
+                        <tr>
+                            <td colspan="7" class="table-empty-cell">
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap">
                                         <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
-                                        <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift</div>
-                                        <div class="tableEmptyDesc">Klik tombol "Tambah Shift Baru" untuk menambahkan jadwal kerja atau sesi KBM.</div>
                                     </div>
-                                </td>
-                            </tr>
-                        @endforelse
+                                    <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift</div>
+                                    <div class="tableEmptyDesc">Klik tombol "Tambah Shift Baru" untuk menambahkan jadwal kerja atau sesi KBM.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                     </tbody>
                 </table>
             </div>
@@ -302,8 +304,10 @@
                 </div>
             </div>
         @empty
-            <div class="tableEmptyState p-4 bg-card rounded-xl border-base text-center">
-                <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap">
+                    <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
                 <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift</div>
                 <div class="tableEmptyDesc">Klik tombol "Tambah Shift Baru" untuk menambahkan jadwal kerja atau sesi KBM.</div>
             </div>

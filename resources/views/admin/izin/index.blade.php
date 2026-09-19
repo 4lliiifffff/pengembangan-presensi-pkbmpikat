@@ -138,12 +138,12 @@
                 </div>
             </div>
         @empty
-            <div class="emptyStateCard">
-                <div class="emptyStateIcon">
-                    <ion-icon name="document-text-outline"></ion-icon>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap amber">
+                    <ion-icon name="document-text-outline" class="tableEmptyIcon"></ion-icon>
                 </div>
-                <div class="emptyStateTitle">Belum Ada Riwayat Izin</div>
-                <div class="emptyStateDesc">Daftar izin tutor yang telah dicatat akan tampil di sini secara terstruktur.</div>
+                <div class="tableEmptyTitle">Belum Ada Riwayat Izin</div>
+                <div class="tableEmptyDesc">Daftar izin tutor yang telah dicatat akan tampil di sini secara terstruktur.</div>
             </div>
         @endforelse
     </div>

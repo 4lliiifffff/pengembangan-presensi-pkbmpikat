@@ -419,8 +419,13 @@
                     @empty
                         <tr>
                             <td colspan="8" class="table-empty-cell">
-                                <div class="font-bold text-md mb-1">Belum Ada Akun Pengguna</div>
-                                <div class="text-sm">Tidak ada data akun pada peran atau kriteria pencarian yang dipilih.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap indigo">
+                                        <ion-icon name="people-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Akun Pengguna</div>
+                                    <div class="tableEmptyDesc">Tidak ada data akun pada peran atau kriteria pencarian yang dipilih.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -548,9 +553,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Akun Pengguna</div>
-                <div class="text-sm">Tidak ada data akun pada peran atau kriteria pencarian yang dipilih.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap indigo">
+                    <ion-icon name="people-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Akun Pengguna</div>
+                <div class="tableEmptyDesc">Tidak ada data akun pada peran atau kriteria pencarian yang dipilih.</div>
             </div>
         @endforelse
     </div>

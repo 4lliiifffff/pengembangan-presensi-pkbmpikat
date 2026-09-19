@@ -104,13 +104,19 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="table-empty-cell">
-                                    Belum ada data Master Jenjang Paket. Klik "Tambah Jenjang Baru" untuk mendaftarkan.
-                                </td>
-                            </tr>
-                        @endforelse
+                    @empty
+                        <tr>
+                            <td colspan="7" class="table-empty-cell">
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap indigo">
+                                        <ion-icon name="layers-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Jenjang Paket</div>
+                                    <div class="tableEmptyDesc">Klik tombol "Tambah Jenjang Baru" untuk mendaftarkan program paket kesetaraan.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                     </tbody>
                 </table>
             </div>
@@ -194,9 +200,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Jenjang Paket</div>
-                <div class="text-sm">Klik tombol "Tambah Jenjang Baru" untuk mendaftarkan program paket kesetaraan.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap indigo">
+                    <ion-icon name="layers-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Jenjang Paket</div>
+                <div class="tableEmptyDesc">Klik tombol "Tambah Jenjang Baru" untuk mendaftarkan program paket kesetaraan.</div>
             </div>
         @endforelse
     </div>

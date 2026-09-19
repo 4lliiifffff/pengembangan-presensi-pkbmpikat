@@ -24,15 +24,19 @@
                 </div>
             </div>
         </div>
-        <div class="summaryGrid">
+    </div>
+
+    {{-- ── Summary KPI Cards ── --}}
+    <div class="summaryGrid">
         <div class="summaryCard">
             <div class="summaryTop">
                 <div class="summaryIcon hadir">
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
                 </div>
-                <div class="summaryLabel">HADIR</div>
+                <div class="summaryLabel">HADIR HARI INI</div>
             </div>
             <div class="summaryCount">{{ $counts['hadir'] ?? 0 }}</div>
+            <div class="summarySub">Sesi bimbingan selesai</div>
             <ion-icon class="summaryBigIcon" name="checkmark-circle"></ion-icon>
         </div>
 
@@ -44,10 +48,57 @@
                 <div class="summaryLabel">IZIN / SAKIT</div>
             </div>
             <div class="summaryCount">{{ $counts['izin'] ?? 0 }}</div>
+            <div class="summarySub">Pengajuan hari ini</div>
             <ion-icon class="summaryBigIcon" name="document-text-outline"></ion-icon>
         </div>
     </div>
 
+    {{-- ── Pintasan Menu Cepat Admin ── --}}
+    <div class="adminQuickSection">
+        <div class="sectionCaps">
+            <span class="sectionCapTitle">Pintasan Menu Admin</span>
+        </div>
+        <div class="adminQuickGrid">
+            <a href="{{ route('admin.presensi') }}" class="adminQuickItem">
+                <div class="adminQuickIcon blue">
+                    <ion-icon name="camera-outline"></ion-icon>
+                </div>
+                <div class="adminQuickText">
+                    <span class="adminQuickTitle">Presensi Saya</span>
+                    <span class="adminQuickSub">Bebas Radius</span>
+                </div>
+            </a>
+            <a href="{{ route('admin.karyawan.index') }}" class="adminQuickItem">
+                <div class="adminQuickIcon indigo">
+                    <ion-icon name="people-outline"></ion-icon>
+                </div>
+                <div class="adminQuickText">
+                    <span class="adminQuickTitle">Kelola Akun</span>
+                    <span class="adminQuickSub">Tutor &amp; Siswa</span>
+                </div>
+            </a>
+            <a href="{{ route('admin.jadwal-rutin.index') }}" class="adminQuickItem">
+                <div class="adminQuickIcon amber">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                </div>
+                <div class="adminQuickText">
+                    <span class="adminQuickTitle">Jadwal &amp; Sesi</span>
+                    <span class="adminQuickSub">Pola Rutin KBM</span>
+                </div>
+            </a>
+            <a href="{{ route('admin.laporan.index') }}" class="adminQuickItem">
+                <div class="adminQuickIcon emerald">
+                    <ion-icon name="document-text-outline"></ion-icon>
+                </div>
+                <div class="adminQuickText">
+                    <span class="adminQuickTitle">Rekap Laporan</span>
+                    <span class="adminQuickSub">Detail Presensi</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    {{-- ── Dashboard Grid ── --}}
     <div class="dashboardGrid">
         <div class="dashboardCol">
             {{-- Statistik Mingguan --}}
@@ -74,7 +125,8 @@
                             $dayIndex = array_search($day['label'] ?? '', $dayLabels, true);
                             $isToday = $dayIndex !== false && (int) $dayIndex + 1 === $todayISO;
                         @endphp
-                        <div class="barCol">
+                        <div class="barCol {{ $isToday ? 'today' : '' }}">
+                            <span class="barCount">{{ $count }}</span>
                             <div class="bar {{ $isToday ? 'active' : '' }}" style="height: {{ $height }}px;" title="{{ $count }} Sesi"></div>
                             <div class="barDay">{{ $day['label'] }}</div>
                         </div>
@@ -118,7 +170,7 @@
                                 <div class="min-w-0">
                                     <div class="activityName">{{ $tutorName }}</div>
                                     <div class="activityMeta">
-                                        {{ $siswaName }} {{ $jam ? ' · ' . $jam : '' }}
+                                        {{ $siswaName }}{{ $jam ? ' · ' . $jam . ' WIB' : '' }}
                                     </div>
                                 </div>
                             </div>

@@ -104,7 +104,13 @@
 
             </div>
         @empty
-            <div class="emptyState grid-span-full">Belum ada data kelas yang sesuai kriteria.</div>
+            <div class="tableEmptyCard grid-span-full">
+                <div class="tableEmptyIconWrap indigo">
+                    <ion-icon name="easel-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Data Kelas</div>
+                <div class="tableEmptyDesc">Belum ada data rombel/kelas yang terdaftar atau sesuai dengan kriteria pencarian.</div>
+            </div>
         @endforelse
     </div>
 

@@ -165,9 +165,13 @@
                     @empty
                         <tr>
                             <td colspan="8" class="table-empty-cell">
-                                <ion-icon name="calendar-outline" class="icon-2xl d-block mx-auto mb-2 opacity-40"></ion-icon>
-                                <div class="font-bold text-md mb-1">Belum Ada Data Presensi</div>
-                                <div class="text-sm">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap">
+                                        <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Data Presensi</div>
+                                    <div class="tableEmptyDesc">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -245,9 +249,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Data Presensi</div>
-                <div class="text-sm">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap">
+                    <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Data Presensi</div>
+                <div class="tableEmptyDesc">Tidak ada rekaman aktivitas mengajar pada periode filter yang dipilih.</div>
             </div>
         @endforelse
     </div>

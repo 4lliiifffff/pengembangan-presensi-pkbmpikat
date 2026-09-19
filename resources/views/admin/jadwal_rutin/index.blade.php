@@ -262,8 +262,13 @@
                     @empty
                         <tr>
                             <td colspan="8" class="table-empty-cell">
-                                <div class="font-bold text-md mb-1">Belum Ada Jadwal Rutin KBM</div>
-                                <div class="text-sm text-muted">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap amber">
+                                        <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Jadwal Rutin KBM</div>
+                                    <div class="tableEmptyDesc">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -367,9 +372,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card text-center p-4">
-                <div class="font-bold text-md mb-1">Belum Ada Jadwal Rutin KBM</div>
-                <div class="text-sm text-muted">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap amber">
+                    <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Jadwal Rutin KBM</div>
+                <div class="tableEmptyDesc">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
             </div>
         @endforelse
 

@@ -214,8 +214,13 @@
                     @empty
                         <tr>
                             <td colspan="8" class="table-empty-cell">
-                                <div class="font-bold text-md mb-1">Belum Ada Titik Lokasi</div>
-                                <div class="text-sm">Belum ada titik lokasi presensi yang terdaftar sesuai filter.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap emerald">
+                                        <ion-icon name="location-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Titik Lokasi</div>
+                                    <div class="tableEmptyDesc">Belum ada titik lokasi presensi yang terdaftar sesuai filter.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -310,9 +315,12 @@
                 </div>
             </div>
         @empty
-            <div class="table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Titik Lokasi</div>
-                <div class="text-sm">Belum ada titik lokasi presensi yang terdaftar sesuai filter.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap emerald">
+                    <ion-icon name="location-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Titik Lokasi</div>
+                <div class="tableEmptyDesc">Belum ada titik lokasi presensi yang terdaftar sesuai filter.</div>
             </div>
         @endforelse
 

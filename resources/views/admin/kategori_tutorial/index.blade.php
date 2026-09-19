@@ -99,13 +99,19 @@
                                     </div>
                                 </td>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted p-4">
-                                    Belum ada data kategori tutorial. Silakan klik tombol "Tambah Kategori SK" di atas.
-                                </td>
-                            </tr>
-                        @endforelse
+                    @empty
+                        <tr>
+                            <td colspan="7" class="table-empty-cell">
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap indigo">
+                                        <ion-icon name="ribbon-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Kategori Tutorial</div>
+                                    <div class="tableEmptyDesc">Silakan klik tombol "Tambah Kategori SK" di atas untuk mendaftarkan kategori baru.</div>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
                     </tbody>
                 </table>
             </div>
@@ -191,9 +197,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Kategori Tutorial</div>
-                <div class="text-sm">Silakan klik tombol "Tambah Kategori SK" di atas untuk mendaftarkan kategori baru.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap indigo">
+                    <ion-icon name="ribbon-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Kategori Tutorial</div>
+                <div class="tableEmptyDesc">Silakan klik tombol "Tambah Kategori SK" di atas untuk mendaftarkan kategori baru.</div>
             </div>
         @endforelse
     </div>

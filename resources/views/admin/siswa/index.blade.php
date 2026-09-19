@@ -257,10 +257,15 @@
                             </td>
                         </tr>
                     @empty
-                        <tr >
+                        <tr>
                             <td colspan="9" class="table-empty-cell">
-                                <div class="font-bold text-md mb-1">Belum Ada Data Siswa</div>
-                                <div class="text-sm">Tidak ada data peserta didik pada filter yang dipilih.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap">
+                                        <ion-icon name="school-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Data Siswa</div>
+                                    <div class="tableEmptyDesc">Tidak ada data peserta didik pada filter yang dipilih.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -337,9 +342,12 @@
             </div>
 
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <div class="font-bold text-md mb-1">Belum Ada Data Siswa</div>
-                <div class="text-sm">Tidak ada data peserta didik pada filter yang dipilih.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap">
+                    <ion-icon name="school-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Data Siswa</div>
+                <div class="tableEmptyDesc">Tidak ada data peserta didik pada filter yang dipilih.</div>
             </div>
         @endforelse
     </div>

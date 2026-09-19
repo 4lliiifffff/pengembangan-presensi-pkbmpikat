@@ -206,9 +206,13 @@
                     @empty
                         <tr>
                             <td colspan="8" class="table-empty-cell">
-                                <ion-icon name="briefcase-outline" class="table-empty-icon"></ion-icon>
-                                <div class="table-empty-title">Belum Ada Data Peserta Magang</div>
-                                <div class="table-empty-desc">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap indigo">
+                                        <ion-icon name="briefcase-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Data Peserta Magang</div>
+                                    <div class="tableEmptyDesc">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -305,10 +309,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <ion-icon name="briefcase-outline" class="table-empty-icon"></ion-icon>
-                <div class="font-bold text-md mb-1">Belum Ada Peserta Magang</div>
-                <div class="text-sm">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap indigo">
+                    <ion-icon name="briefcase-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Peserta Magang</div>
+                <div class="tableEmptyDesc">Tidak ada data peserta magang/PKL pada filter yang dipilih.</div>
             </div>
         @endforelse
     </div>

@@ -226,9 +226,13 @@
                     @empty
                         <tr>
                             <td colspan="7" class="table-empty-cell">
-                                <ion-icon name="calendar-outline" class="table-empty-icon"></ion-icon>
-                                <div class="table-empty-title">Belum Ada Riwayat Presensi</div>
-                                <div class="table-empty-desc">Tidak ada riwayat presensi magang pada periode filter ini.</div>
+                                <div class="tableEmptyState">
+                                    <div class="tableEmptyIconWrap">
+                                        <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                                    </div>
+                                    <div class="tableEmptyTitle">Belum Ada Riwayat Presensi</div>
+                                    <div class="tableEmptyDesc">Tidak ada riwayat presensi magang pada periode filter ini.</div>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -325,10 +329,12 @@
                 </div>
             </div>
         @empty
-            <div class="data-mobile-card table-empty-cell">
-                <ion-icon name="calendar-outline" class="table-empty-icon"></ion-icon>
-                <div class="font-bold text-md mb-1">Belum Ada Riwayat Presensi</div>
-                <div class="text-sm">Tidak ada riwayat presensi magang pada periode filter ini.</div>
+            <div class="tableEmptyCard">
+                <div class="tableEmptyIconWrap">
+                    <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
+                </div>
+                <div class="tableEmptyTitle">Belum Ada Riwayat Presensi</div>
+                <div class="tableEmptyDesc">Tidak ada riwayat presensi magang pada periode filter ini.</div>
             </div>
         @endforelse
     </div>
