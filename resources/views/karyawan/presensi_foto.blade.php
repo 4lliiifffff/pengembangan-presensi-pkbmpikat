@@ -15,6 +15,8 @@
     @php
         $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Karyawan'));
         $initial = strtoupper(substr($displayName, 0, 1));
+        $isBypassRadius = $isBypassRadius ?? in_array($user?->role, ['admin', 'kepala_sekolah'], true);
+        $isBypassWaktuTunggu = $isBypassWaktuTunggu ?? in_array($user?->role, ['admin', 'kepala_sekolah'], true);
 
         // Hitung sisa waktu jika sesi berjalan
         $sisamenit = 0;
@@ -31,6 +33,12 @@
                 $bisaPulang = $diffDetik >= 3600;
                 $sudahLewat2Jam = $diffDetik >= 7200;
             } catch (\Throwable) {
+            }
+
+            if ($isBypassWaktuTunggu) {
+                $bisaPulang = true;
+                $sisaDetik = 0;
+                $sisamenit = 0;
             }
         }
 
@@ -131,35 +139,52 @@
                     <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB</div>
                 </div>
             </div>
-            {{-- Countdown atau siap pulang --}}
-            @if (!$bisaPulang)
-                @php
-                    $menit = (int) floor($sisaDetik / 60);
-                    $detik = (int) ($sisaDetik % 60);
-                    $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
-                @endphp
-                <div class="countdownCard">
-                    <div class="countdownLabel">Bisa presensi pulang dalam</div>
-                    <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
-                    <div class="countdownSub">menit lagi (minimal 1 jam setelah masuk)</div>
+            @if ($isBypassWaktuTunggu)
+                {{-- Akses Fleksibel Admin & Kepala Sekolah --}}
+                <div class="card mb-4 border border-blue-200 dark:border-blue-900/50 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/20 p-3.5 rounded-xl">
+                    <div class="d-flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-600 dark:text-blue-300 d-flex items-center justify-center flex-shrink-0">
+                            <ion-icon name="flash-outline" class="text-xl"></ion-icon>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="text-xs font-bold text-blue-900 dark:text-blue-200">Akses Fleksibel Kepulangan Aktif</div>
+                            <div class="text-xs text-blue-700/90 dark:text-blue-300/90 mt-0.5">
+                                Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, formulir presensi pulang terbuka dan dapat dikirimkan kapan saja saat rapat dinas atau agenda kerja selesai.
+                            </div>
+                        </div>
+                    </div>
                 </div>
             @else
-                <div class="statusBanner ready mb-4">
-                    <div>
-                        <div class="statusTitle">Siap Presensi Pulang</div>
-                        <div class="statusSub">Sudah memenuhi durasi minimal kerja (≥ 1 jam)</div>
+                {{-- Countdown atau siap pulang untuk karyawan umum --}}
+                @if (!$bisaPulang)
+                    @php
+                        $menit = (int) floor($sisaDetik / 60);
+                        $detik = (int) ($sisaDetik % 60);
+                        $sisaMenitLabel = sprintf('%02d:%02d', $menit, $detik);
+                    @endphp
+                    <div class="countdownCard">
+                        <div class="countdownLabel">Bisa presensi pulang dalam</div>
+                        <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
+                        <div class="countdownSub">menit lagi (minimal 1 jam setelah masuk)</div>
                     </div>
-                </div>
-            @endif
+                @else
+                    <div class="statusBanner ready mb-4">
+                        <div>
+                            <div class="statusTitle">Siap Presensi Pulang</div>
+                            <div class="statusSub">Sudah memenuhi durasi minimal kerja (≥ 1 jam)</div>
+                        </div>
+                    </div>
+                @endif
 
-            {{-- Warning: sudah lebih dari 2 jam --}}
-            @if ($sudahLewat2Jam)
-                <div class="statusBanner mb-3 alert-danger-box">
-                    <div>
-                        <div class="statusTitle text-danger">Waktu Kerja Sudah Selesai</div>
-                        <div class="statusSub">Segera lakukan presensi pulang sekarang.</div>
+                {{-- Warning: sudah lebih dari 2 jam (hanya untuk staf non-manajemen) --}}
+                @if ($sudahLewat2Jam)
+                    <div class="statusBanner mb-3 alert-danger-box">
+                        <div>
+                            <div class="statusTitle text-danger">Waktu Kerja Sudah Selesai</div>
+                            <div class="statusSub">Segera lakukan presensi pulang sekarang.</div>
+                        </div>
                     </div>
-                </div>
+                @endif
             @endif
 
             {{-- Form absen PULANG: hanya tampil jika sudah bisa pulang --}}
@@ -273,10 +298,10 @@
             </form>
 
             @else
-                {{-- Belum 1 jam: tampilkan info saja, tanpa form --}}
+                {{-- Belum waktu pulang: tampilkan info saja, tanpa form --}}
                 <div class="card text-center p-4 rounded-xl">
                     <div class="text-md font-extrabold text-dark">Tombol Presensi Pulang Terbuka Otomatis</div>
-                    <div class="text-sm text-muted mt-1">Tersisa {{ number_format($sisaDetik / 60, 0) }} menit lagi (minimal 1 jam durasi kerja)</div>
+                    <div class="text-sm text-muted mt-1">Formulir presensi pulang akan terbuka otomatis setelah memenuhi durasi minimal kerja.</div>
                 </div>
             @endif
 

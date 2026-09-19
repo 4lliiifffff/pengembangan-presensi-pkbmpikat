@@ -92,6 +92,10 @@
   - **Sinkronisasi Terpusat (`ShiftPresensiService::calculateCheckOutEligibility`):** Perhitungan terpusat yang mengembalikan status kelayakan `bisa_pulang`, `sisa_detik`, `sisa_menit`, `target_waktu_buka`, `alasan_buka`, dan pesan interaktif. Diadopsi langsung oleh `PresensiFotoController` (render view & validasi backend `store`), `TutorDashboardController` (widget countdown), dan antarmuka Blade.
   - **Perbaikan Bug Format Countdown Modulo 60:** Menggantikan `gmdate('i:s')` yang me-reset ke 0 setiap kelipatan 60 menit menjadi `sprintf('%02d:%02d', floor($sec/60), $sec%60)` sehingga durasi di atas 60 menit (misal 96:00) tampil akurat tanpa glitch.
   - **Automated Feature Test Suite:** Pengujian komprehensif di `tests/Feature/TutorCheckOutEligibilityTest.php` untuk sesi 2 jam, sesi 1 jam, keterlambatan masuk, dan HTTP store gating.
+* 🟢 **Bypass Waktu Tunggu Pulang & Pembersihan UI/UX Manajemen (Admin & Kepala Sekolah - Opsi A):** [SELESAI]
+  - **Peniadaan Waktu Tunggu Minimal 1 Jam di Backend:** Membebaskan role `admin` dan `kepala_sekolah` dari batasan kaku 3600 detik (1 jam) pada `KaryawanPresensiController@store` mode `selesai`. Pimpinan dan administrator kini dapat melakukan presensi pulang sewaktu-waktu sesuai kebutuhan dinas/rapat mendesak.
+  - **Eliminasi Teks Ganda & Countdown Card di View:** Menghapus timer countdown `58:39` dan teks redundan `"minimal 1 jam durasi kerja"` pada `resources/views/karyawan/presensi_foto.blade.php`. Menggantikannya dengan banner penjelas *"Akses Fleksibel Kepulangan Aktif"* serta langsung mengaktifkan formulir foto dan tombol kirim presensi pulang.
+  - **Automated Feature Test Suite:** 3 skenario pengujian komprehensif di `tests/Feature/KaryawanCheckOutBypassTest.php` lulus 100%.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---

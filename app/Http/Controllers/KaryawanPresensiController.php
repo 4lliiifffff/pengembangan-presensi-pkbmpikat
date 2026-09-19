@@ -33,6 +33,7 @@ class KaryawanPresensiController extends Controller
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $shiftEval = $shiftService->evaluateCheckIn();
         $isBypassRadius = $geofencingService->isExemptFromRadius($user);
+        $isBypassWaktuTunggu = in_array($user->role, ['admin', 'kepala_sekolah'], true);
 
         return view('karyawan.presensi_foto', [
             'user' => $user,
@@ -42,6 +43,7 @@ class KaryawanPresensiController extends Controller
             'lokasiPresensis' => $lokasiPresensis,
             'shiftEval' => $shiftEval,
             'isBypassRadius' => $isBypassRadius,
+            'isBypassWaktuTunggu' => $isBypassWaktuTunggu,
         ]);
     }
 
@@ -132,12 +134,12 @@ class KaryawanPresensiController extends Controller
         }
         $detikJalan = (int) $jamMulai->diffInSeconds($now, false);
 
-        if ($detikJalan < 3600) {
+        $isBypassWaktuTunggu = in_array($user->role, ['admin', 'kepala_sekolah'], true);
+        if (! $isBypassWaktuTunggu && $detikJalan < 3600) {
             $sisaDetik = max(0, 3600 - $detikJalan);
-            $sisaMenit = $sisaDetik / 60;
-            $sisaLabel = number_format($sisaMenit, 2, ':', '');
+            $sisaMenit = (int) ceil($sisaDetik / 60);
 
-            return back()->with('warning', "Tunggu {$sisaLabel} menit lagi. Presensi pulang harus berjarak minimal 1 jam setelah masuk.");
+            return back()->with('warning', "Tunggu {$sisaMenit} menit lagi. Presensi pulang harus berjarak minimal 1 jam setelah masuk.");
         }
 
         $file = $request->file('foto');

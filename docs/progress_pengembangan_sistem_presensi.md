@@ -161,7 +161,12 @@ pie title Status Fitur & Pengkondisian Sistem
       - Gerbang absen pulang terbuka seketika salah satu syarat terpenuhi (*earlier of the two*).
     - Menyelaraskan seluruh komponen: `PresensiFotoController@index` (passing kelayakan & countdown ke Blade), `PresensiFotoController@store` (validasi backend anti bypass), `TutorDashboardController` (sinkronisasi widget dashboard), `tutor/presensi_foto.blade.php`, dan `tutor/dashboard.blade.php`.
     - Memperbaiki bug format string countdown `gmdate('i:s')` (glitch modulo 60) menjadi `sprintf('%02d:%02d')`.
-    - Automated Feature Test Suite di `tests/Feature/TutorCheckOutEligibilityTest.php` (4 test cases, lulus 100%).
+- 🟢 **Bypass Waktu Tunggu Pulang & Pembersihan UI/UX Manajemen (Admin & Kepala Sekolah - Opsi A)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Backend Exemption:** Menghapus batasan waktu tunggu minimal 1 jam (3600 detik) di `KaryawanPresensiController@store` mode `selesai` khusus untuk role `admin` dan `kepala_sekolah`. Pimpinan dapat melakukan checkout sewaktu-waktu tanpa terkunci timer.
+    - **Pembersihan Antarmuka:** Menghapus timer countdown `58:39` dan teks redundan `"minimal 1 jam durasi kerja"` pada `resources/views/karyawan/presensi_foto.blade.php`. Menggantikannya dengan kartu status *"Akses Fleksibel Kepulangan Aktif"* serta langsung membuka form foto dan tombol kirim presensi pulang.
+    - **Automated Feature Test:** 3 pengujian komprehensif pada `tests/Feature/KaryawanCheckOutBypassTest.php` lulus 100%.
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
