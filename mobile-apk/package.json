@@ -1,0 +1,22 @@
+{
+  "name": "presensi-pikat-apk",
+  "version": "1.0.0",
+  "description": "APK wrapper untuk Sistem Presensi PKBM Pikat",
+  "scripts": {
+    "sync": "cap sync",
+    "open": "cap open android",
+    "build": "cap build android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/camera": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/geolocation": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "typescript": "^7.0.2"
+  }
+}

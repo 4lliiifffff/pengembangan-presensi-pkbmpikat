@@ -1,0 +1,30 @@
+{
+  "$schema": "https://capacitorjs.com/schema.json",
+  "appId": "com.pkbmpikat.absen",
+  "appName": "Presensi PKBM Pikat",
+  "webDir": "public",
+  "server": {
+    "url": "https://absen.pkbmpikat.com",
+    "cleartext": false,
+    "androidScheme": "https"
+  },
+  "android": {
+    "backgroundColor": "#0B5ED7",
+    "allowMixedContent": false,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#0B5ED7",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    },
+    "StatusBar": {
+      "style": "Light",
+      "backgroundColor": "#0B5ED7"
+    }
+  }
+}

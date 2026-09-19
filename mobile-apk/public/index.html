@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B5ED7" />
+    <title>Presensi PKBM Pikat</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: #0B5ED7;
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        .loader { text-align: center; }
+        .loader p { margin-top: 12px; opacity: 0.8; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <!-- Halaman ini tidak akan pernah tampil karena server.url
+         di capacitor.config.ts langsung redirect ke absen.pkbmpikat.com
+         File ini hanya diperlukan sebagai placeholder webDir Capacitor. -->
+    <div class="loader">
+        <p>Memuat Presensi PKBM Pikat...</p>
+    </div>
+</body>
+</html>
