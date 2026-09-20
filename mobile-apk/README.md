@@ -6,7 +6,7 @@ Folder ini berisi project **Capacitor** untuk membungkus aplikasi web Presensi P
 ## Cara Kerja
 
 APK ini bertindak sebagai WebView shell yang memuat langsung URL produksi.
-Tidak ada bundling kode Laravel — semua tetap berjalan di server.
+Tidak ada bundling kode Laravel - semua tetap berjalan di server.
 
 ## Setup & Build
 

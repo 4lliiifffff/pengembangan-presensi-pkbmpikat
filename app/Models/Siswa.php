@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Model Siswa — Data Murid/Peserta Didik
+ * Model Siswa - Data Murid/Peserta Didik
  */
 #[ObservedBy([SiswaObserver::class])]
 class Siswa extends Model

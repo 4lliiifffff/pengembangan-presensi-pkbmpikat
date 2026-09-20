@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Model User — Pengguna Sistem (Akun Login)
+ * Model User - Pengguna Sistem (Akun Login)
  *
  * Model ini merepresentasikan akun pengguna yang dapat masuk ke dalam sistem.
  * Satu User dapat memiliki satu profil detail berdasarkan perannya (admin/tutor/kepala_sekolah).
@@ -47,7 +47,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'password',      // Tidak boleh tampil di response apapun
-        'remember_token', // Token "ingat saya" — sensitif untuk keamanan sesi
+        'remember_token', // Token "ingat saya" - sensitif untuk keamanan sesi
     ];
 
     /**

@@ -8,7 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" content="#0B5ED7" />
-    <title>Masuk — Smart Presensi PKBM Pikat</title>
+    <title>Masuk - Smart Presensi PKBM Pikat</title>
     <meta name="description" content="Sistem Informasi & Presensi Terpadu PKBM Pintar Berbakat Homeschooling Bandung" />
     <link rel="icon" type="image/jpeg" href="{{ asset('assets/img/Logo.jpeg') }}" />
     <link rel="apple-touch-icon" href="{{ asset('assets/img/Logo.jpeg') }}" />
@@ -49,7 +49,8 @@
     <div class="login-wrapper">
 
         {{-- ── Tombol Switcher Dark/Light Mode ── --}}
-        <button type="button" class="login-theme-toggle" id="themeToggleBtn" aria-label="Ganti Tema" title="Ganti Mode Tampilan">
+        <button type="button" class="login-theme-toggle" id="themeToggleBtn" aria-label="Ganti Tema"
+            title="Ganti Mode Tampilan">
             <ion-icon name="moon-outline" id="themeIcon"></ion-icon>
         </button>
 
@@ -60,7 +61,8 @@
                 <div class="login-brand-header">
                     <img src="{{ asset('assets/img/Logo.jpeg') }}" alt="Logo PKBM Pikat" class="login-brand-logo" />
                     <h1 class="login-brand-title">PKBM Pintar Berbakat</h1>
-                    <p class="login-brand-subtitle">Homeschooling &amp; Pusat Kegiatan Belajar Masyarakat Berbasis Keberbakatan</p>
+                    <p class="login-brand-subtitle">Homeschooling &amp; Pusat Kegiatan Belajar Masyarakat Berbasis
+                        Keberbakatan</p>
                 </div>
 
                 <div class="login-brand-features">
@@ -116,19 +118,9 @@
                             <span class="login-input-icon">
                                 <ion-icon name="person-outline"></ion-icon>
                             </span>
-                            <input 
-                                type="text" 
-                                name="username" 
-                                id="username" 
-                                class="login-input" 
-                                placeholder="Contoh: 12345 atau email@pkbmpikat.com" 
-                                value="{{ old('username') }}" 
-                                autocomplete="username" 
-                                inputmode="text" 
-                                enterkeyhint="next" 
-                                required 
-                                autofocus
-                            />
+                            <input type="text" name="username" id="username" class="login-input"
+                                placeholder="Contoh: 12345 atau email@pkbmpikat.com" value="{{ old('username') }}"
+                                autocomplete="username" inputmode="text" enterkeyhint="next" required autofocus />
                         </div>
                     </div>
 
@@ -139,17 +131,11 @@
                             <span class="login-input-icon">
                                 <ion-icon name="lock-closed-outline"></ion-icon>
                             </span>
-                            <input 
-                                type="password" 
-                                name="password" 
-                                id="password" 
-                                class="login-input login-input-has-toggle" 
-                                placeholder="Masukkan kata sandi akun" 
-                                autocomplete="current-password" 
-                                enterkeyhint="go" 
-                                required
-                            />
-                            <button type="button" class="login-toggle-password" id="togglePasswordBtn" aria-label="Tampilkan Password" title="Tampilkan / Sembunyikan Password">
+                            <input type="password" name="password" id="password"
+                                class="login-input login-input-has-toggle" placeholder="Masukkan kata sandi akun"
+                                autocomplete="current-password" enterkeyhint="go" required />
+                            <button type="button" class="login-toggle-password" id="togglePasswordBtn"
+                                aria-label="Tampilkan Password" title="Tampilkan / Sembunyikan Password">
                                 <ion-icon name="eye-outline" id="togglePasswordIcon"></ion-icon>
                             </button>
                         </div>
@@ -158,10 +144,12 @@
                     {{-- Opsi Remember & Lupa Password --}}
                     <div class="login-options-row">
                         <label class="login-remember-label">
-                            <input type="checkbox" name="remember" id="remember" value="1" class="login-remember-checkbox" {{ old('remember') ? 'checked' : '' }} />
+                            <input type="checkbox" name="remember" id="remember" value="1"
+                                class="login-remember-checkbox" {{ old('remember') ? 'checked' : '' }} />
                             <span>Ingat Saya</span>
                         </label>
-                        <a href="https://wa.me/6285156452939?text=Halo%20Admin%20PKBM%20Pikat,%20saya%20butuh%20bantuan%20kredensial%20akun%20login." target="_blank" rel="noopener noreferrer" class="login-forgot-link">
+                        <a href="https://wa.me/6285156452939?text=Halo%20Admin%20PKBM%20Pikat,%20saya%20butuh%20bantuan%20kredensial%20akun%20login."
+                            target="_blank" rel="noopener noreferrer" class="login-forgot-link">
                             <ion-icon name="logo-whatsapp"></ion-icon>
                             <span>Lupa Password?</span>
                         </a>
@@ -186,7 +174,8 @@
                                 <ion-icon name="flash"></ion-icon>
                                 <span>Mode Pengujian</span>
                             </div>
-                            <div class="login-quick-subtitle">Masuk instan 1-klik atau salin kredensial untuk setiap role:</div>
+                            <div class="login-quick-subtitle">Masuk instan 1-klik atau salin kredensial untuk setiap role:
+                            </div>
                         </div>
 
                         <div class="login-quick-grid">
@@ -206,12 +195,15 @@
                                     <form action="{{ route('login.quick') }}" method="POST" class="w-100">
                                         @csrf
                                         <input type="hidden" name="role" value="admin">
-                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Administrator">
+                                        <button type="submit" class="qrc-btn-instant"
+                                            title="Masuk langsung sebagai Administrator">
                                             <ion-icon name="flash"></ion-icon>
                                             <span>Masuk</span>
                                         </button>
                                     </form>
-                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('admin@pkbmpikat.com', 'password123', 'Admin')" title="Isi form dengan akun Admin">
+                                    <button type="button" class="qrc-btn-fill"
+                                        onclick="fillLoginForm('admin@pkbmpikat.com', 'password123', 'Admin')"
+                                        title="Isi form dengan akun Admin">
                                         <ion-icon name="create-outline"></ion-icon>
                                         <span>Isi</span>
                                     </button>
@@ -234,12 +226,15 @@
                                     <form action="{{ route('login.quick') }}" method="POST" class="w-100">
                                         @csrf
                                         <input type="hidden" name="role" value="kepala_sekolah">
-                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Kepala Sekolah">
+                                        <button type="submit" class="qrc-btn-instant"
+                                            title="Masuk langsung sebagai Kepala Sekolah">
                                             <ion-icon name="flash"></ion-icon>
                                             <span>Masuk</span>
                                         </button>
                                     </form>
-                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('kepsek@pkbmpikat.com', 'password123', 'Kepala Sekolah')" title="Isi form dengan akun Kepala Sekolah">
+                                    <button type="button" class="qrc-btn-fill"
+                                        onclick="fillLoginForm('kepsek@pkbmpikat.com', 'password123', 'Kepala Sekolah')"
+                                        title="Isi form dengan akun Kepala Sekolah">
                                         <ion-icon name="create-outline"></ion-icon>
                                         <span>Isi</span>
                                     </button>
@@ -267,7 +262,9 @@
                                             <span>Masuk</span>
                                         </button>
                                     </form>
-                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('tutor@pkbmpikat.com', 'password123', 'Tutor')" title="Isi form dengan akun Tutor">
+                                    <button type="button" class="qrc-btn-fill"
+                                        onclick="fillLoginForm('tutor@pkbmpikat.com', 'password123', 'Tutor')"
+                                        title="Isi form dengan akun Tutor">
                                         <ion-icon name="create-outline"></ion-icon>
                                         <span>Isi</span>
                                     </button>
@@ -290,12 +287,15 @@
                                     <form action="{{ route('login.quick') }}" method="POST" class="w-100">
                                         @csrf
                                         <input type="hidden" name="role" value="magang">
-                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Mahasiswa Magang">
+                                        <button type="submit" class="qrc-btn-instant"
+                                            title="Masuk langsung sebagai Mahasiswa Magang">
                                             <ion-icon name="flash"></ion-icon>
                                             <span>Masuk</span>
                                         </button>
                                     </form>
-                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('magang@pkbmpikat.com', 'password123', 'Magang')" title="Isi form dengan akun Magang">
+                                    <button type="button" class="qrc-btn-fill"
+                                        onclick="fillLoginForm('magang@pkbmpikat.com', 'password123', 'Magang')"
+                                        title="Isi form dengan akun Magang">
                                         <ion-icon name="create-outline"></ion-icon>
                                         <span>Isi</span>
                                     </button>
@@ -323,7 +323,9 @@
                                             <span>Masuk</span>
                                         </button>
                                     </form>
-                                    <button type="button" class="qrc-btn-fill" onclick="fillLoginForm('siswa001@pkbmpikat.com', 'password123', 'Siswa')" title="Isi form dengan akun Siswa">
+                                    <button type="button" class="qrc-btn-fill"
+                                        onclick="fillLoginForm('siswa001@pkbmpikat.com', 'password123', 'Siswa')"
+                                        title="Isi form dengan akun Siswa">
                                         <ion-icon name="create-outline"></ion-icon>
                                         <span>Isi</span>
                                     </button>
@@ -340,14 +342,14 @@
 
     {{-- Script interaktivitas halaman login --}}
     <script>
-        (function() {
+        (function () {
             // ── 1. Toggle Show / Hide Password ──
             const passwordInput = document.getElementById('password');
             const togglePasswordBtn = document.getElementById('togglePasswordBtn');
             const togglePasswordIcon = document.getElementById('togglePasswordIcon');
 
             if (togglePasswordBtn && passwordInput) {
-                togglePasswordBtn.addEventListener('click', function() {
+                togglePasswordBtn.addEventListener('click', function () {
                     const isPassword = passwordInput.getAttribute('type') === 'password';
                     passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
                     if (togglePasswordIcon) {
@@ -361,7 +363,7 @@
             const loginForm = document.getElementById('loginForm');
 
             if (usernameInput && passwordInput) {
-                usernameInput.addEventListener('keydown', function(e) {
+                usernameInput.addEventListener('keydown', function (e) {
                     if (e.key === 'Enter') {
                         e.preventDefault();
                         passwordInput.focus();
@@ -371,7 +373,7 @@
 
             // ── 3. Submit Loading State & Anti Double-Submit ──
             if (loginForm) {
-                loginForm.addEventListener('submit', function() {
+                loginForm.addEventListener('submit', function () {
                     const btn = document.getElementById('btnSubmitLogin');
                     const text = document.getElementById('btnSubmitText');
                     const icon = document.getElementById('btnSubmitIcon');
@@ -399,7 +401,7 @@
             updateThemeIcon(currentTheme);
 
             if (themeToggleBtn) {
-                themeToggleBtn.addEventListener('click', function() {
+                themeToggleBtn.addEventListener('click', function () {
                     const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
                     const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
                     document.documentElement.setAttribute('data-theme', newTheme);
@@ -410,9 +412,9 @@
 
             // ── 5. Mobile Smooth Scroll saat keyboard virtual muncul ──
             const inputs = document.querySelectorAll('.login-input');
-            inputs.forEach(function(input) {
-                input.addEventListener('focus', function() {
-                    setTimeout(function() {
+            inputs.forEach(function (input) {
+                input.addEventListener('focus', function () {
+                    setTimeout(function () {
                         input.scrollIntoView({
                             behavior: 'smooth',
                             block: 'center'
@@ -422,7 +424,7 @@
             });
 
             // ── 6. Helper Isi Form Pengujian Cepat (Quick Fill) ──
-            window.fillLoginForm = function(username, password, roleLabel) {
+            window.fillLoginForm = function (username, password, roleLabel) {
                 if (usernameInput) {
                     usernameInput.value = username;
                     usernameInput.classList.remove('input-highlight-pulse');

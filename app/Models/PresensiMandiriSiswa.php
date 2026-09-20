@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model PresensiMandiriSiswa — Kehadiran Harian Mandiri Siswa
+ * Model PresensiMandiriSiswa - Kehadiran Harian Mandiri Siswa
  *
  * Mencatat absensi masuk dan pulang siswa di lokasi PKBM / komunitas
  * berdasarkan verifikasi foto selfie dan GPS radius.

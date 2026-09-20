@@ -3,7 +3,7 @@
 namespace App\Models;
 
 /**
- * Class KepalaSekolah — Standarisasi nama model CamelCase PSR untuk entitas Kepala Sekolah.
+ * Class KepalaSekolah - Standarisasi nama model CamelCase PSR untuk entitas Kepala Sekolah.
  */
 class KepalaSekolah extends Kepala_Sekolah
 {

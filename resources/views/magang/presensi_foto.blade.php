@@ -134,7 +134,8 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            Lokasi Presensi Pulang
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi Presensi Pulang</span>
                         </div>
                         <div id="mapBox" class="mapBox pos-relative">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
@@ -168,9 +169,10 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card mb-4">
                         <div class="cardTitle">
-                            Foto Presensi Pulang
+                            <ion-icon name="camera-outline"></ion-icon>
+                            <span>Foto Presensi Pulang</span>
                         </div>
                         <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
@@ -225,7 +227,8 @@
 
                         {{-- Tombol SELESAI --}}
                         <button type="submit" id="btnSubmit" class="captureBtn primary-red mt-4">
-                            Kirim Presensi Pulang
+                            <ion-icon name="log-out-outline" class="text-xl"></ion-icon>
+                            <span>Kirim Presensi Pulang</span>
                         </button>
                     </div>
                 </form>
@@ -283,7 +286,8 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            Lokasi Presensi Masuk
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi Presensi Masuk</span>
                         </div>
 
                         {{-- Dropdown Pemilihan Titik Lokasi Absen Magang --}}
@@ -348,9 +352,10 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card mb-4">
                         <div class="cardTitle">
-                            Foto Presensi Masuk
+                            <ion-icon name="camera-outline"></ion-icon>
+                            <span>Foto Presensi Masuk</span>
                         </div>
                         <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
@@ -405,7 +410,8 @@
 
                         {{-- Tombol MULAI --}}
                         <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
-                            Kirim Presensi Masuk
+                            <ion-icon name="checkmark-circle-outline" class="text-xl"></ion-icon>
+                            <span>Kirim Presensi Masuk</span>
                         </button>
 
                         <div class="presensi-aux-actions">

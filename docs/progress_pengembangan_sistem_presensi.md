@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 47
+    "Selesai (Completed)" : 48
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -25,10 +25,10 @@ pie title Status Fitur & Pengkondisian Sistem
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
 | 6. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
 | 7. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
-| 8. UI/UX Excellence & Responsive Layout | 5 | 5 | 0 | 0 |
+| 8. UI/UX Excellence & Responsive Layout | 6 | 6 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **52** | **46** | **0** | **6** |
+| **TOTAL** | **53** | **47** | **0** | **6** |
 
 ---
 
@@ -706,6 +706,28 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Standardisasi Tombol Izin Perangkat (`#permWarning`):**
       - Memperbarui tombol pada banner peringatan kamera/GPS di 4 modul presensi menjadi tombol aksi jelas `<ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin` dengan styling `.permWarnBtn` yang kontras dan ramah sentuhan mobile.
 
+#### 9.9 Penyempurnaan Spacing, Kerapihan Style & Responsivitas Mobile Seluruh Halaman Presensi Foto
+- 🟢 **Refinement Layout, Card Padding, Typography, Student Picker & Touch Target Presensi**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Sebelumnya, halaman presensi foto (`tutor`, `karyawan`, `magang`, `siswa`) terlihat terlalu padat dan menempel rapat ke batas tepi layar maupun garis batas kartu. Hal ini disebabkan oleh styling global `.card { padding: 0; }` pada `resources/css/app.css` yang membuat form kontrol, peta leaflet, dan kamera membentur 1px border kartu secara langsung. Selain itu, kontainer `.pagePad` memiliki padding sempit 14px tanpa pembatas lebar (`max-width`), daftar siswa bimbingan tutor (`.siswa-item-row`) tidak memiliki aturan styling sehingga teks berhimpitan, dan tinggi daftar terhambat di 180px.
+    - **Penyelarasan Style CSS (`resources/css/app.css`):**
+      - **Isolasi Padding Kartu Presensi (`.pagePad .card`):** Diberikan padding lega 22px 20px (mobile: 18px 15px), margin bawah konsisten 22px (mobile: 18px), border-radius 20px, dan subtle elevation shadow (`box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03)`).
+      - **Responsive Mobile-App Framing (`.pagePad`):** Ditambahkan `max-width: 580px; margin: 0 auto;` dengan padding adaptif (`18px 16px 120px` di mobile dan `26px 20px 120px` di desktop/tablet) agar tampilan terpusat menyerupai aplikasi smartphone yang kokoh dan rapi.
+      - **Tipografi & Aksen Header Kartu (`.cardTitle`):** Diberikan font-size 15.5px, font-weight 800, padding bawah 12px, border pemisah bawah tipis (`border-bottom: 1px solid var(--border)`), serta mengaktifkan ikon Ionicons dengan warna biru primer (dan aksen terang di dark mode).
+      - **Penyelarasan Pemilih Siswa Tutor (`.siswa-item-row` & `#listSiswaItems`):** Item siswa ditata menjadi baris kartu berjarak rapi dengan padding 12px 14px, radius 14px, border 1.5px, hover lift, serta highlight border biru saat dipilih. Batas scroll `#listSiswaItems` diperbesar ke 280px dengan scrollbar tipis kustom 5px.
+      - **Standardisasi Touch Target & Tombol Submit (`.captureBtn`):** Tinggi minimum diseragamkan menjadi 52px dengan radius 16px, font tebal 800, ikon representatif (`checkmark-circle-outline` / `log-out-outline`), serta animasi micro-interaction hover lift.
+      - **Penyelarasan Map Box & Frame Kamera:** Tinggi wadah peta disesuaikan menjadi 240px (desktop 280px), frame kamera selfie dibatasi `max-width: 360px` dengan border radius 20px dan soft shadow.
+    - **Penyelarasan Antarmuka Blade Multi-Role:**
+      - Modul Tutor (`resources/views/tutor/presensi_foto.blade.php`): Penambahan ikon pada setiap judul kartu (`time-outline`, `options-outline`, `location-outline`, `camera-outline`), input pencarian siswa dengan touch target 12px padding, serta ikon pada tombol checkout dan submit masuk.
+      - Modul Karyawan/Admin/Kepsek (`resources/views/karyawan/presensi_foto.blade.php`): Penambahan ikon pada judul kartu Lokasi & Kamera, penambahan class `mb-4` pada kartu kamera, dan ikon pada tombol submit masuk & selesai.
+      - Modul Magang (`resources/views/magang/presensi_foto.blade.php`): Penambahan ikon pada judul kartu Lokasi & Kamera (pada mode masuk maupun selesai), penambahan `mb-4`, dan ikon pada tombol aksi kirim presensi.
+      - Modul Siswa (`resources/views/siswa/presensi_foto.blade.php`): Penambahan ikon pada judul kartu Lokasi & Kamera, penataan margin `mb-4` pada kartu foto, dan ikon pada tombol Kirim Presensi Masuk.
+    - **Verifikasi & QA:**
+      - Kompilasi build aset frontend (`npm run build`) sukses tanpa error.
+      - Linter kode PHP (`vendor/bin/pint --format agent`) lolos 100%.
+      - Seluruh automated feature test presensi (`php artisan test --filter=Presensi`) 76 tests (360 assertions) lulus 100%.
+
 ---
 
 
@@ -761,6 +783,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 33 | **Integrasi Multi-Geofence Titik Lokasi Presensi pada Penjadwalan & Pelacakan Lintas Peran** | Schedule & Geofence | Migrasi `lokasi_presensi_id` pada `jadwals`, `jadwal_rutins`, dan `jadwal_sesis`. Relasi Eloquent, helper `lokasiRingkasan()` dan `lokasiPetaUrl()`, propagasi otomatis pola rutin ke sesi kalender, dukungan ganti titik lokasi saat reschedule tutor, integrasi impor Excel jadwal, pemilih titik presensi resmi pada admin & tutor, serta auto-select & geofence locking presensi mandiri siswa (`targetLokasi`). Dilengkapi 5 unit/feature test komprehensif di `JadwalLokasiTrackingTest` lulus 100%. | 🟢 Selesai |
 | 34 | **Penanganan Presensi Tanpa Clock-Out Lintas Hari (Fault-Tolerant & Actionable Warning Banner)** | Attendance Recovery | Deteksi sesi lampau belum checkout (`$unclosedPastSession`), non-blocking clock-in hari H+1, banner interaktif dengan 1-klik pre-fill Lupa Lapor (tutor) & konfirmasi WhatsApp (karyawan/magang), sinkronisasi status `jadwal_sesis` ke `'selesai'` dan kelayakan payroll otomatis saat disetujui Kepala Sekolah. Dilengkapi 5 automated tests di `UnclosedPresensiHandlingTest` lulus 100%. | 🟢 Selesai |
 | 35 | **Refactoring Penamaan Tabel Database Bahasa Indonesia Baku (Singular & Eliminasi Double Underscore)** | Database Architecture | Refactoring penamaan 15 tabel domain operasional PKBM agar tidak menggunakan akhiran plural `-s` bahasa Inggris (`jadwal_kerjas` $\rightarrow$ `jadwal_kerja`, `siswas` $\rightarrow$ `siswa`, `tutors` $\rightarrow$ `tutor`, `presensis` $\rightarrow$ `presensi`, dll) serta menghilangkan double underscore (`kepala__sekolahs` $\rightarrow$ `kepala_sekolah`), dengan tetap mempertahankan tabel bawaan autentikasi Laravel `users` sesuai preferensi. Seluruh model Eloquent (`$table`), rules validasi controller (`exists:` / `unique:`), pengecekan dinamis `Schema::has...`, seeder, dan 20+ file unit/feature test diselaraskan 100%. | 🟢 Selesai |
+| 36 | **Penyelarasan Spacing & Responsivitas Mobile Halaman Admin Kelas & Form Master Jenjang (`/admin/kelas` & `/admin/jenjang-paket/create`)** | UI/UX & Responsive | Menghilangkan tampilan sesak/rapat pada `/admin/kelas` dan `/admin/jenjang-paket/create`. Menghadirkan toolbar filter responsif `.kelas-toolbar-card` dengan horizontal scroll pill tabs (`.kelas-tabs-wrapper`), search input terintegrasi dengan tombol clear, banner indikator filter aktif, perombakan kartu kelas menjadi `.kelasCardModern` dengan avatar gradien, info chips tingkat & siswa terstruktur, serta form master jenjang (`create` & `edit`) dengan `.form-grid-responsive` 2-kolom, margin antar-elemen lapang, `.form-field-label`, helper text edukatif, toggle status aktif elegan, dan `.form-action-footer` adaptif mobile. | 🟢 Selesai |
 
 ---
 

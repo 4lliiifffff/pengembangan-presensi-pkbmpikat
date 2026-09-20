@@ -4,267 +4,283 @@
     $rolePrefix = auth()->user()->role === 'kepala_sekolah' ? 'kepsek' : 'admin';
 @endphp
 
-@section('title', 'Rekapitulasi Payroll & Honorarium — ' . ($rolePrefix === 'kepsek' ? 'Kepala Sekolah' : 'Admin'))
+@section('title', 'Rekapitulasi Payroll & Honorarium - ' . ($rolePrefix === 'kepsek' ? 'Kepala Sekolah' : 'Admin'))
 
 @section('content')
-<div class="payroll-container">
-    {{-- ── Header Card ── --}}
-    <div class="laporanHeader">
-        <div class="laporanHeaderCard">
-            <div class="laporanHeaderInfo">
-                <div class="laporanHeaderLabel">LAPORAN KEUANGAN &amp; PAYROLL</div>
-                <h1 class="laporanHeaderTitle">Rekapitulasi Penggajian &amp; Honorarium Tutor</h1>
-                <div class="laporanHeaderSub">Periode: {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F') . ' ' . $tahun) }}</div>
-                <p class="laporanHeaderDesc">Kalkulasi honorarium mengajar terverifikasi berbasis Master Tarif SK, durasi sesi KBM, dan anggaran bulanan lembaga.</p>
-            </div>
+    <div class="payroll-container">
+        {{-- ── Header Card ── --}}
+        <div class="laporanHeader">
+            <div class="laporanHeaderCard">
+                <div class="laporanHeaderInfo">
+                    <div class="laporanHeaderLabel">LAPORAN KEUANGAN &amp; PAYROLL</div>
+                    <h1 class="laporanHeaderTitle">Rekapitulasi Penggajian &amp; Honorarium Tutor</h1>
+                    <div class="laporanHeaderSub">Periode:
+                        {{ strtoupper(\Carbon\Carbon::create()->month($bulan)->translatedFormat('F') . ' ' . $tahun) }}
+                    </div>
+                    <p class="laporanHeaderDesc">Kalkulasi honorarium mengajar terverifikasi berbasis Master Tarif SK,
+                        durasi sesi KBM, dan anggaran bulanan lembaga.</p>
+                </div>
 
-            <div class="laporanHeaderActions header-actions-group">
-                <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="btnOutline">
-                    <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
-                </a>
-                <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-success">
-                    <ion-icon name="document-outline"></ion-icon> Export Excel
-                </a>
-                <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}" class="profileBtnPrimary btn-action-primary">
-                    <ion-icon name="document-text-outline"></ion-icon> Export PDF
-                </a>
-                @if($rolePrefix === 'admin')
-                <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple">
-                    <ion-icon name="options-outline"></ion-icon> Master Tarif SK
-                </a>
-                <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}" data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?" data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info" data-confirm-btn="Ya, Kirim Notifikasi" class="payroll-action-form">
-                    @csrf
-                    <input type="hidden" name="bulan" value="{{ $bulan }}">
-                    <input type="hidden" name="tahun" value="{{ $tahun }}">
-                    <button type="submit" class="profileBtnPrimary btn-action-purple-light">
-                        <ion-icon name="notifications-outline"></ion-icon> Umumkan ke Tutor
+                <div class="laporanHeaderActions header-actions-group">
+                    <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
+                        class="btnOutline">
+                        <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
+                    </a>
+                    <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
+                        class="profileBtnPrimary btn-action-success">
+                        <ion-icon name="document-outline"></ion-icon> Export Excel
+                    </a>
+                    <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
+                        class="profileBtnPrimary btn-action-primary">
+                        <ion-icon name="document-text-outline"></ion-icon> Export PDF
+                    </a>
+                    @if($rolePrefix === 'admin')
+                        <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple">
+                            <ion-icon name="options-outline"></ion-icon> Master Tarif SK
+                        </a>
+                        <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}"
+                            data-confirm="Kirim notifikasi pengumuman slip gaji periode ini ke seluruh perangkat tutor yang terdaftar?"
+                            data-confirm-title="Broadcast Slip Gaji" data-confirm-type="info"
+                            data-confirm-btn="Ya, Kirim Notifikasi" class="payroll-action-form">
+                            @csrf
+                            <input type="hidden" name="bulan" value="{{ $bulan }}">
+                            <input type="hidden" name="tahun" value="{{ $tahun }}">
+                            <button type="submit" class="profileBtnPrimary btn-action-purple-light">
+                                <ion-icon name="notifications-outline"></ion-icon> Umumkan ke Tutor
+                            </button>
+                        </form>
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Filter Bar ── --}}
+        <div class="filter-card">
+            <form method="GET" action="{{ route($rolePrefix . '.payroll.index') }}" class="filter-form">
+                <div class="filter-group">
+                    <label class="filter-label">Bulan Penggajian:</label>
+                    <select name="bulan" class="filter-select" onchange="this.form.submit()">
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Tahun Anggaran:</label>
+                    <select name="tahun" class="filter-select" onchange="this.form.submit()">
+                        @foreach($tahunOptions as $y)
+                            <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <button type="submit" class="btnOutline">
+                        <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
-                </form>
-                @endif
-            </div>
+                </div>
+            </form>
         </div>
-    </div>
 
-    {{-- ── Filter Bar ── --}}
-    <div class="filter-card">
-        <form method="GET" action="{{ route($rolePrefix . '.payroll.index') }}" class="filter-form">
-            <div class="filter-group">
-                <label class="filter-label">Bulan Penggajian:</label>
-                <select name="bulan" class="filter-select" onchange="this.form.submit()">
-                    @foreach(range(1, 12) as $m)
-                        <option value="{{ $m }}" {{ $bulan == $m ? 'selected' : '' }}>
-                            {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="filter-group">
-                <label class="filter-label">Tahun Anggaran:</label>
-                <select name="tahun" class="filter-select" onchange="this.form.submit()">
-                    @foreach($tahunOptions as $y)
-                        <option value="{{ $y }}" {{ $tahun == $y ? 'selected' : '' }}>{{ $y }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
-                <button type="submit" class="btnOutline">
-                    <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
-                </button>
-            </div>
-        </form>
-    </div>
-
-    {{-- ── KPI Summary Cards ── --}}
-    <div class="kpi-grid">
-        <div class="kpi-card emerald">
-            <div class="kpi-top">
-                <div class="kpi-label">Total Anggaran Honorarium</div>
-                <div class="kpi-icon-wrap">
-                    <ion-icon name="wallet"></ion-icon>
+        {{-- ── KPI Summary Cards ── --}}
+        <div class="kpi-grid">
+            <div class="kpi-card emerald">
+                <div class="kpi-top">
+                    <div class="kpi-label">Total Anggaran Honorarium</div>
+                    <div class="kpi-icon-wrap">
+                        <ion-icon name="wallet"></ion-icon>
+                    </div>
+                </div>
+                <div>
+                    <div class="kpi-val">{{ $summary['formatted_total_anggaran'] }}</div>
+                    <div class="kpi-sub">Periode {{ $summary['periode_label'] }}</div>
                 </div>
             </div>
-            <div >
-                <div class="kpi-val">{{ $summary['formatted_total_anggaran'] }}</div>
-                <div class="kpi-sub">Periode {{ $summary['periode_label'] }}</div>
-            </div>
-        </div>
 
-        <div class="kpi-card blue">
-            <div class="kpi-top">
-                <div class="kpi-label">Total Jam Mengajar</div>
-                <div class="kpi-icon-wrap">
-                    <ion-icon name="time"></ion-icon>
+            <div class="kpi-card blue">
+                <div class="kpi-top">
+                    <div class="kpi-label">Total Jam Mengajar</div>
+                    <div class="kpi-icon-wrap">
+                        <ion-icon name="time"></ion-icon>
+                    </div>
+                </div>
+                <div>
+                    <div class="kpi-val">{{ $summary['total_jam_global'] }} Jam</div>
+                    <div class="kpi-sub">{{ $summary['total_sesi_global'] }} Total Sesi Terverifikasi</div>
                 </div>
             </div>
-            <div >
-                <div class="kpi-val">{{ $summary['total_jam_global'] }} Jam</div>
-                <div class="kpi-sub">{{ $summary['total_sesi_global'] }} Total Sesi Terverifikasi</div>
-            </div>
-        </div>
 
-        <div class="kpi-card amber">
-            <div class="kpi-top">
-                <div class="kpi-label">Tutor Penerima Honor</div>
-                <div class="kpi-icon-wrap">
-                    <ion-icon name="people"></ion-icon>
+            <div class="kpi-card amber">
+                <div class="kpi-top">
+                    <div class="kpi-label">Tutor Penerima Honor</div>
+                    <div class="kpi-icon-wrap">
+                        <ion-icon name="people"></ion-icon>
+                    </div>
+                </div>
+                <div>
+                    <div class="kpi-val">{{ $summary['total_tutor'] }} Tutor</div>
+                    <div class="kpi-sub">Terdaftar Aktif di PKBM Pikat</div>
                 </div>
             </div>
-            <div >
-                <div class="kpi-val">{{ $summary['total_tutor'] }} Tutor</div>
-                <div class="kpi-sub">Terdaftar Aktif di PKBM Pikat</div>
-            </div>
-        </div>
-    </div>
-
-    {{-- ── Table & Card Container ── --}}
-    <div class="table-container">
-        <div class="table-header-bar">
-            <div class="table-header-title">
-                <ion-icon name="list-outline" class="text-primary"></ion-icon>
-                Daftar Honorarium Tutor — Periode {{ $summary['periode_label'] }}
-            </div>
-            <div class="text-sm font-bold text-muted">
-                Menampilkan {{ count($summary['payrolls']) }} Tutor
-            </div>
         </div>
 
-        {{-- Desktop Table --}}
-        <div class="table-responsive-desktop overflow-x-auto">
-            <table class="modern-table">
-                <thead >
-                    <tr >
-                        <th  class="text-center w-10">No</th>
-                        <th >Nama Tutor &amp; Identitas</th>
-                        <th class="text-center">Sesi Hadir</th>
-                        <th class="text-center">Izin / Sakit</th>
-                        <th class="text-center">Total Jam</th>
-                        <th class="text-right">Total Honorarium</th>
-                        <th  class="text-right min-w-140">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody >
-                    @forelse($summary['payrolls'] as $idx => $p)
-                    <tr >
-                        <td class="text-center text-muted font-bold">{{ $idx + 1 }}</td>
-                        <td >
-                            <strong class="text-dark d-block text-md">{{ $p['tutor']->nama_lengkap }}</strong>
-                            <span class="text-xs text-muted">NIK: {{ $p['tutor']->nik }}</span>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge-chip hadir">{{ $p['total_sesi_hadir'] }} sesi</span>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge-chip izin">{{ $p['total_izin_sakit'] }} hari</span>
-                        </td>
-                        <td class="text-center">
-                            @php
-                                $startDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
-                                $endDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
-                                $logPresensiUrl = $rolePrefix === 'admin'
-                                    ? route('admin.laporan.index', ['tutor_id' => $p['tutor']->id, 'start_date' => $startDateMonth, 'end_date' => $endDateMonth])
-                                    : route('kepsek.laporan', ['tutor_id' => $p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]);
-                            @endphp
-                            <a href="{{ $logPresensiUrl }}" class="badge-chip jam" title="Klik untuk membuka log presensi tutor ini di Laporan">
-                                {{ $p['total_jam'] }} Jam <ion-icon name="open-outline"></ion-icon>
-                            </a>
-                        </td>
-                        <td class="text-right font-extrabold text-success text-md">
-                            {{ $p['formatted_total_honor'] }}
-                        </td>
-                        <td class="text-right">
-                            <div class="d-flex gap-1 justify-end">
-                                <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit btn-table-action" title="Lihat rincian per siswa">
-                                    <ion-icon name="eye-outline"></ion-icon> Detail
-                                </a>
-                                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn btn-emerald-sm btn-table-action" title="Unduh Slip Gaji PDF">
-                                    <ion-icon name="download-outline"></ion-icon> Slip
+        {{-- ── Table & Card Container ── --}}
+        <div class="table-container">
+            <div class="table-header-bar">
+                <div class="table-header-title">
+                    <ion-icon name="list-outline" class="text-primary"></ion-icon>
+                    Daftar Honorarium Tutor - Periode {{ $summary['periode_label'] }}
+                </div>
+                <div class="text-sm font-bold text-muted">
+                    Menampilkan {{ count($summary['payrolls']) }} Tutor
+                </div>
+            </div>
+
+            {{-- Desktop Table --}}
+            <div class="table-responsive-desktop overflow-x-auto">
+                <table class="modern-table">
+                    <thead>
+                        <tr>
+                            <th class="text-center w-10">No</th>
+                            <th>Nama Tutor &amp; Identitas</th>
+                            <th class="text-center">Sesi Hadir</th>
+                            <th class="text-center">Izin / Sakit</th>
+                            <th class="text-center">Total Jam</th>
+                            <th class="text-right">Total Honorarium</th>
+                            <th class="text-right min-w-140">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($summary['payrolls'] as $idx => $p)
+                            <tr>
+                                <td class="text-center text-muted font-bold">{{ $idx + 1 }}</td>
+                                <td>
+                                    <strong class="text-dark d-block text-md">{{ $p['tutor']->nama_lengkap }}</strong>
+                                    <span class="text-xs text-muted">NIK: {{ $p['tutor']->nik }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-chip hadir">{{ $p['total_sesi_hadir'] }} sesi</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-chip izin">{{ $p['total_izin_sakit'] }} hari</span>
+                                </td>
+                                <td class="text-center">
+                                    @php
+                                        $startDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
+                                        $endDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
+                                        $logPresensiUrl = $rolePrefix === 'admin'
+                                            ? route('admin.laporan.index', ['tutor_id' => $p['tutor']->id, 'start_date' => $startDateMonth, 'end_date' => $endDateMonth])
+                                            : route('kepsek.laporan', ['tutor_id' => $p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]);
+                                    @endphp
+                                    <a href="{{ $logPresensiUrl }}" class="badge-chip jam"
+                                        title="Klik untuk membuka log presensi tutor ini di Laporan">
+                                        {{ $p['total_jam'] }} Jam <ion-icon name="open-outline"></ion-icon>
+                                    </a>
+                                </td>
+                                <td class="text-right font-extrabold text-success text-md">
+                                    {{ $p['formatted_total_honor'] }}
+                                </td>
+                                <td class="text-right">
+                                    <div class="d-flex gap-1 justify-end">
+                                        <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                                            class="smallBtn edit btn-table-action" title="Lihat rincian per siswa">
+                                            <ion-icon name="eye-outline"></ion-icon> Detail
+                                        </a>
+                                        <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                                            class="smallBtn btn-emerald-sm btn-table-action" title="Unduh Slip Gaji PDF">
+                                            <ion-icon name="download-outline"></ion-icon> Slip
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="table-empty-cell">
+                                    <div class="tableEmptyState">
+                                        <div class="tableEmptyIconWrap emerald">
+                                            <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
+                                        </div>
+                                        <div class="tableEmptyTitle">Belum Ada Data Honorarium</div>
+                                        <div class="tableEmptyDesc">Belum ada rekaman presensi atau perhitungan honorarium untuk
+                                            periode ini.</div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            {{-- Mobile Cards List --}}
+            <div class="mobile-payroll-list">
+                @forelse($summary['payrolls'] as $idx => $p)
+                    @php
+                        $startDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
+                        $endDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
+                        $logPresensiUrl = $rolePrefix === 'admin'
+                            ? route('admin.laporan.index', ['tutor_id' => $p['tutor']->id, 'start_date' => $startDateMonth, 'end_date' => $endDateMonth])
+                            : route('kepsek.laporan', ['tutor_id' => $p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]);
+                    @endphp
+                    <div class="payroll-mobile-card">
+                        <div class="pmc-header">
+                            <div>
+                                <h4 class="pmc-name">{{ $p['tutor']->nama_lengkap }}</h4>
+                                <div class="pmc-nik">NIK: {{ $p['tutor']->nik }}</div>
+                            </div>
+                            <span class="text-xs font-bold text-muted">#{{ $idx + 1 }}</span>
+                        </div>
+
+                        <div class="pmc-stats">
+                            <div class="pmc-stat-item">
+                                <div class="val text-success">{{ $p['total_sesi_hadir'] }}</div>
+                                <div class="lbl">Hadir</div>
+                            </div>
+                            <div class="pmc-stat-item">
+                                <div class="val text-muted">{{ $p['total_izin_sakit'] }}</div>
+                                <div class="lbl">Izin/Sakit</div>
+                            </div>
+                            <div class="pmc-stat-item">
+                                <a href="{{ $logPresensiUrl }}" class="text-no-decor" title="Lihat log presensi">
+                                    <div class="val d-flex items-center justify-center gap-1 text-primary">
+                                        {{ $p['total_jam'] }} J <ion-icon name="open-outline" class="text-xs"></ion-icon>
+                                    </div>
+                                    <div class="lbl text-primary">Jam</div>
                                 </a>
                             </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="table-empty-cell">
-                            <div class="tableEmptyState">
-                                <div class="tableEmptyIconWrap emerald">
-                                    <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
-                                </div>
-                                <div class="tableEmptyTitle">Belum Ada Data Honorarium</div>
-                                <div class="tableEmptyDesc">Belum ada rekaman presensi atau perhitungan honorarium untuk periode ini.</div>
+                        </div>
+
+                        <div class="pmc-footer">
+                            <div>
+                                <div class="pmc-honor-label">Take-Home Pay</div>
+                                <div class="pmc-honor-val">{{ $p['formatted_total_honor'] }}</div>
                             </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-
-        {{-- Mobile Cards List --}}
-        <div class="mobile-payroll-list">
-            @forelse($summary['payrolls'] as $idx => $p)
-                @php
-                    $startDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->startOfMonth()->toDateString();
-                    $endDateMonth = \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->endOfMonth()->toDateString();
-                    $logPresensiUrl = $rolePrefix === 'admin'
-                        ? route('admin.laporan.index', ['tutor_id' => $p['tutor']->id, 'start_date' => $startDateMonth, 'end_date' => $endDateMonth])
-                        : route('kepsek.laporan', ['tutor_id' => $p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]);
-                @endphp
-                <div class="payroll-mobile-card">
-                    <div class="pmc-header">
-                        <div >
-                            <h4 class="pmc-name">{{ $p['tutor']->nama_lengkap }}</h4>
-                            <div class="pmc-nik">NIK: {{ $p['tutor']->nik }}</div>
-                        </div>
-                        <span class="text-xs font-bold text-muted">#{{ $idx + 1 }}</span>
-                    </div>
-
-                    <div class="pmc-stats">
-                        <div class="pmc-stat-item">
-                            <div class="val text-success">{{ $p['total_sesi_hadir'] }}</div>
-                            <div class="lbl">Hadir</div>
-                        </div>
-                        <div class="pmc-stat-item">
-                            <div class="val text-muted">{{ $p['total_izin_sakit'] }}</div>
-                            <div class="lbl">Izin/Sakit</div>
-                        </div>
-                        <div class="pmc-stat-item">
-                            <a href="{{ $logPresensiUrl }}" class="text-no-decor" title="Lihat log presensi">
-                                <div class="val d-flex items-center justify-center gap-1 text-primary">
-                                    {{ $p['total_jam'] }} J <ion-icon name="open-outline" class="text-xs"></ion-icon>
-                                </div>
-                                <div class="lbl text-primary">Jam</div>
-                            </a>
+                            <div class="d-flex gap-1">
+                                <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                                    class="smallBtn edit btn-table-action">
+                                    <ion-icon name="eye-outline"></ion-icon> Rincian
+                                </a>
+                                <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                                    class="smallBtn btn-emerald-sm btn-table-action">
+                                    <ion-icon name="download-outline"></ion-icon> PDF
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="pmc-footer">
-                        <div >
-                            <div class="pmc-honor-label">Take-Home Pay</div>
-                            <div class="pmc-honor-val">{{ $p['formatted_total_honor'] }}</div>
+                @empty
+                    <div class="tableEmptyCard">
+                        <div class="tableEmptyIconWrap emerald">
+                            <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
                         </div>
-                        <div class="d-flex gap-1">
-                            <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn edit btn-table-action">
-                                <ion-icon name="eye-outline"></ion-icon> Rincian
-                            </a>
-                            <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}" class="smallBtn btn-emerald-sm btn-table-action">
-                                <ion-icon name="download-outline"></ion-icon> PDF
-                            </a>
+                        <div class="tableEmptyTitle">Belum Ada Data Honorarium</div>
+                        <div class="tableEmptyDesc">Belum ada rekaman presensi atau perhitungan honorarium untuk periode ini.
                         </div>
                     </div>
-                </div>
-
-            @empty
-                <div class="tableEmptyCard">
-                    <div class="tableEmptyIconWrap emerald">
-                        <ion-icon name="wallet-outline" class="tableEmptyIcon"></ion-icon>
-                    </div>
-                    <div class="tableEmptyTitle">Belum Ada Data Honorarium</div>
-                    <div class="tableEmptyDesc">Belum ada rekaman presensi atau perhitungan honorarium untuk periode ini.</div>
-                </div>
-            @endforelse
+                @endforelse
+            </div>
         </div>
     </div>
-</div>
 @endsection

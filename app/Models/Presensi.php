@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model Presensi — Representasi Data Kehadiran Tutor
+ * Model Presensi - Representasi Data Kehadiran Tutor
  *
  * Model ini merepresentasikan satu sesi kehadiran (absensi) seorang tutor
  * ketika mengajar seorang siswa. Sistem presensi menggunakan pendekatan
@@ -35,9 +35,9 @@ class Presensi extends Model
             'nominal_honor_snapshot', // Snapshot nominal honor per sesi saat presensi dibuat
             'tgl_presensi',           // Tanggal sesi mengajar berlangsung
             'jam_mulai',              // Jam tutor mulai mengajar (clock-in)
-            'jam_selesai',            // Jam tutor selesai mengajar (clock-out) — null jika masih berjalan
+            'jam_selesai',            // Jam tutor selesai mengajar (clock-out) - null jika masih berjalan
             'foto_mulai',             // Path foto bukti absen masuk
-            'foto_selesai',           // Path foto bukti absen pulang — null jika belum selesai
+            'foto_selesai',           // Path foto bukti absen pulang - null jika belum selesai
             'lokasi_mulai',           // Koordinat GPS / deskripsi lokasi saat masuk (opsional)
             'lokasi_selesai',         // Koordinat GPS / deskripsi lokasi saat pulang (opsional)
             'lokasi_akurasi',         // Akurasi sinyal GPS dalam meter

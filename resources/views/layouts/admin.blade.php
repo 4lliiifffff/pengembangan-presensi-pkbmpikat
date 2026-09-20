@@ -1,6 +1,7 @@
 <!doctype html>
 <html lang="id">
-<head >
+
+<head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -8,12 +9,12 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0B5ED7">
-    <title >@yield('title', 'Smart Presensi — Admin')</title>
+    <title>@yield('title', 'Smart Presensi - Admin')</title>
     <link rel="manifest" href="/manifest.json" />
     <link rel="icon" type="image/jpeg" href="{{ asset('assets/img/Logo.jpeg') }}" />
     <link rel="apple-touch-icon" href="{{ asset('assets/img/Logo.jpeg') }}" />
 
-    <script >
+    <script>
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
     </script>
@@ -35,7 +36,8 @@
     @stack('head')
     @stack('styles')
 </head>
-<body >
+
+<body>
     @include('layouts.components.preloader')
 
     <div id="appCapsule">
@@ -50,7 +52,7 @@
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
     @stack('scripts')
 
-    <script >
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
             const btn = document.getElementById('themeToggleBtn');
             const icon = document.getElementById('themeToggleIcon');
@@ -77,4 +79,5 @@
         });
     </script>
 </body>
+
 </html>

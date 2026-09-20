@@ -357,7 +357,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 ```
 
 ### Catatan Database Khusus
-- Nama tabel `lapor__lapors` menggunakan **double underscore** — ini hasil dari konversi nama class `Lapor_Lapor` oleh Laravel, dan sudah ditangani dengan `$table = 'lapor__lapors'` di model.
+- Nama tabel `lapor__lapors` menggunakan **double underscore** - ini hasil dari konversi nama class `Lapor_Lapor` oleh Laravel, dan sudah ditangani dengan `$table = 'lapor__lapors'` di model.
 - Nama tabel `kepala__sekolahs` juga menggunakan double underscore karena nama model `Kepala_Sekolah`.
 - Tabel `presensis` (bukan `presensi`) adalah bentuk plural Laravel dari `Presensi`.
 
@@ -367,7 +367,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 
 ### 8.1 Masalah Teknis
 
-#### [T1] Deprecation Warning PHP 8.5 — PDO::MYSQL_ATTR_SSL_CA
+#### [T1] Deprecation Warning PHP 8.5 - PDO::MYSQL_ATTR_SSL_CA
 - **Kondisi saat ini:** Setiap kali artisan dijalankan, muncul pesan `PHP Deprecated: Constant PDO::MYSQL_ATTR_SSL_CA is deprecated since 8.5`
 - **Bukti:** Output terminal saat `php artisan key:generate`; lokasi di `config/database.php` baris 61 dan 81
 - **Dampak:** Warning mengganggu output; pada versi PHP berikutnya bisa menjadi Fatal Error; jika digunakan di PHP 8.5+, koneksi database bisa gagal
@@ -377,15 +377,15 @@ lapor__lapors : tutor_id FK, siswa_id FK
 
 #### [T2] Error Log Server Production yang Sangat Panjang
 - **Kondisi saat ini:** File `routes/error_log` berisi 429 baris error PHP Fatal Error dari server production `presensi.pkbmpikat.com` sejak April hingga September 2026
-- **Bukti:** `routes/error_log` — semua error berkaitan `Class "Illuminate\Support\Facades\Route" not found` dan `Class "Illuminate\Support\Facades\Artisan" not found`
-- **Dampak:** Sistem sempat atau masih mengalami kegagalan total di production (error 500) — vendor autoload tidak terpasang dengan benar di server
+- **Bukti:** `routes/error_log` - semua error berkaitan `Class "Illuminate\Support\Facades\Route" not found` dan `Class "Illuminate\Support\Facades\Artisan" not found`
+- **Dampak:** Sistem sempat atau masih mengalami kegagalan total di production (error 500) - vendor autoload tidak terpasang dengan benar di server
 - **Akar masalah:** Di server production, direktori `vendor/` kemungkinan tidak di-upload atau `composer install` tidak dijalankan setelah deploy. Error `Class not found` untuk Laravel Facade adalah tanda klasik `vendor/` tidak ada
 - **Prioritas:** TINGGI (berpotensi sistem tidak berjalan di production)
 - **Solusi:** Pastikan `composer install --no-dev` dijalankan di server production setelah setiap deploy
 
 #### [T3] File Error Log Tersimpan dalam Direktori Source Code
 - **Kondisi saat ini:** File `error_log` ditemukan di: `routes/`, `app/Models/`, `app/Http/Controllers/`, `app/Http/Controllers/Admin/`, `app/Http/Controllers/Tutor/`, `app/Http/Controllers/Kepsek/`, `app/Exports/`, `database/migrations/`, `database/seeders/`
-- **Bukti:** Listing direktori — setiap folder berisi file `error_log`
+- **Bukti:** Listing direktori - setiap folder berisi file `error_log`
 - **Dampak:** File error log berada di dalam source code; jika di-commit ke Git, informasi sensitif (stack trace, path absolut server, nama database) bisa bocor
 - **Akar masalah:** PHP error log di-konfigurasi untuk menulis ke direktori yang sama dengan source code di server production
 - **Prioritas:** TINGGI (keamanan informasi)
@@ -394,7 +394,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 #### [T4] Backward Compatibility Check Berulang di Banyak Tempat
 - **Kondisi saat ini:** `Schema::hasColumn('presensis', 'tutor_id')`, `Schema::hasColumn('users', 'is_active')`, dll digunakan di banyak controller dan model
 - **Bukti:** `PresensiFotoController.php` baris 89, 93, 163; `KaryawanController.php` baris 20, 27; `User.php` baris 121; `LaporanController.php` baris 29-30
-- **Dampak:** Overhead performa (multiple Schema::hasColumn() queries per request); code smells — menandakan skema DB tidak konsisten
+- **Dampak:** Overhead performa (multiple Schema::hasColumn() queries per request); code smells - menandakan skema DB tidak konsisten
 - **Akar masalah:** Migrasi bertahap yang menambah kolom secara inkremental, namun kode lama tidak di-refactor setelah migrasi selesai
 - **Prioritas:** SEDANG
 - **Solusi:** Jalankan semua migrasi, pastikan skema lengkap, lalu hapus semua `Schema::hasColumn()` checks di kode production
@@ -442,7 +442,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 
 #### [D3] Data Izin Tutor Tidak Ada Log Waktu Pengajuan
 - **Kondisi saat ini:** Tabel `lapor__lapors` menyimpan data izin lupa lapor, tapi tidak ada kolom untuk status approval (disetujui/ditolak)
-- **Bukti:** Migration `create_lapor__lapors_table.php` — tidak ada kolom `status` atau `approved_at`
+- **Bukti:** Migration `create_lapor__lapors_table.php` - tidak ada kolom `status` atau `approved_at`
 - **Dampak:** Kepala Sekolah tidak bisa memberikan tanda persetujuan; data hanya bisa dihapus, tidak bisa di-approve
 - **Prioritas:** SEDANG
 
@@ -451,7 +451,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 #### [K1] APP_DEBUG=true di Environment yang Mungkin Production
 - **Kondisi saat ini:** `.env` baris 4: `APP_DEBUG=true`
 - **Dampak:** Jika file `.env` ini digunakan di production, stack trace error akan tampil ke pengguna, mengekspos informasi sensitif
-- **Catatan:** `.env` saat ini dikonfigurasi dengan `DB_USERNAME=root` dan `DB_PASSWORD=` (kosong) — ciri khas environment lokal
+- **Catatan:** `.env` saat ini dikonfigurasi dengan `DB_USERNAME=root` dan `DB_PASSWORD=` (kosong) - ciri khas environment lokal
 - **Prioritas:** RENDAH untuk lokal, TINGGI jika di-deploy tanpa perubahan
 
 #### [K2] Email Auto-generate dengan Format Terprediksi
@@ -462,7 +462,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 
 #### [K3] Tidak Ada Rate Limiting di Login
 - **Kondisi saat ini:** Tidak ditemukan ThrottleRequests middleware atau rate limiter di route login
-- **Bukti:** `web.php` baris 27-28 — tidak ada `throttle:` middleware
+- **Bukti:** `web.php` baris 27-28 - tidak ada `throttle:` middleware
 - **Dampak:** Rentan terhadap serangan Brute Force
 - **Prioritas:** SEDANG
 - **Solusi:** Tambahkan `Route::middleware('throttle:5,1')` di route login
@@ -484,7 +484,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 
 #### [F2] Status Izin Hanya Bisa Diberikan Admin, Bukan Kepala Sekolah
 - **Kondisi saat ini:** Route izin hanya ada di grup `middleware(['auth', 'role:admin'])`
-- **Bukti:** `web.php` baris 54-58 — `IzinController` hanya di grup admin
+- **Bukti:** `web.php` baris 54-58 - `IzinController` hanya di grup admin
 - **Dampak:** Kepala Sekolah tidak bisa langsung memberikan izin, harus meminta admin
 - **Prioritas:** RENDAH (tergantung kebijakan institusi)
 
@@ -497,7 +497,7 @@ lapor__lapors : tutor_id FK, siswa_id FK
 #### [F4] KaryawanController::destroy Tidak Menghapus Foto
 - **Kondisi saat ini:** Method `destroy` hanya memanggil `User::findOrFail($id)->delete()` tanpa menghapus foto yang terupload
 - **Bukti:** `KaryawanController.php` baris 158-162
-- **Dampak:** File foto karyawan yang dihapus tetap ada di `public/uploads/foto_karyawan/` — akumulasi file orphan
+- **Dampak:** File foto karyawan yang dihapus tetap ada di `public/uploads/foto_karyawan/` - akumulasi file orphan
 - **Prioritas:** RENDAH
 
 #### [F5] Fitur Admin TutorController Tidak Ditemukan di Route
@@ -531,9 +531,9 @@ Karena file view sangat besar (misalnya `presensi_foto.blade.php` = 49,762 bytes
 
 | Prioritas | ID | Masalah |
 |-----------|----|---------|
-| 🔴 TINGGI | T2 | Error log production — vendor tidak terinstall di server |
+| 🔴 TINGGI | T2 | Error log production - vendor tidak terinstall di server |
 | 🔴 TINGGI | T3 | File error_log di dalam source code (keamanan informasi) |
-| 🟡 SEDANG | T1 | Deprecation PHP 8.5 — PDO::MYSQL_ATTR_SSL_CA |
+| 🟡 SEDANG | T1 | Deprecation PHP 8.5 - PDO::MYSQL_ATTR_SSL_CA |
 | 🟡 SEDANG | T4 | Backward compatibility checks berulang |
 | 🟡 SEDANG | T5 | Status default 'pending' tidak konsisten |
 | 🟡 SEDANG | K3 | Tidak ada rate limiting di login |
@@ -585,7 +585,7 @@ Berikut rekomendasi yang relevan untuk PKL, berurutan dari yang paling berdampak
 > **CATATAN:** Berdasarkan instruksi analisis, perubahan hanya dilakukan setelah mendapatkan persetujuan. Bagian ini akan diisi setelah diskusi dengan pembimbing PKL mengenai perbaikan mana yang akan diimplementasikan.
 
 Perubahan yang **telah** dilakukan selama sesi analisis ini:
-- **Tidak ada perubahan kode** — analisis bersifat read-only untuk memastikan tidak ada fungsi yang terganggu
+- **Tidak ada perubahan kode** - analisis bersifat read-only untuk memastikan tidak ada fungsi yang terganggu
 
 ---
 
@@ -737,11 +737,11 @@ Berikut informasi yang **tidak dapat dipastikan** dari analisis kode saja dan me
 | No | Informasi yang Diperlukan | Mengapa Diperlukan |
 |----|--------------------------|-------------------|
 | 1 | Jumlah total tutor, siswa, dan pengguna aktif | Untuk menilai skala sistem dan relevansi perbaikan performa |
-| 2 | Apakah sistem saat ini berjalan di production (`presensi.pkbmpikat.com`)? | Error log menunjukkan masalah deployment — perlu konfirmasi status terkini |
+| 2 | Apakah sistem saat ini berjalan di production (`presensi.pkbmpikat.com`)? | Error log menunjukkan masalah deployment - perlu konfirmasi status terkini |
 | 3 | Versi PHP di server production | Menentukan urgensi perbaikan deprecation warning |
 | 4 | Apakah ada SLA atau jam operasional sistem? | Untuk menilai dampak downtime |
 | 5 | Apakah ada fitur yang sedang dalam pengembangan oleh developer lain? | Untuk menghindari konflik saat melakukan perbaikan |
-| 6 | Kebijakan kepemilikan siswa — apakah satu siswa bisa diajar lebih dari satu tutor? | Untuk menentukan logika validasi yang tepat |
+| 6 | Kebijakan kepemilikan siswa - apakah satu siswa bisa diajar lebih dari satu tutor? | Untuk menentukan logika validasi yang tepat |
 | 7 | Apakah kepala sekolah berwenang memberikan izin, atau hanya admin? | Untuk menentukan apakah perlu perubahan hak akses |
 | 8 | Apakah data lupa lapor seharusnya masuk ke rekap presensi resmi setelah disetujui? | Menentukan scope perbaikan fitur Lupa Lapor |
 | 9 | Nama resmi dan singkatan PKBM Pikat untuk keperluan laporan formal | Untuk akurasi penulisan laporan akademis |

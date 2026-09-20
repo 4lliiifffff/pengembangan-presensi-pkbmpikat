@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Tabel presensi mandiri siswa — absensi harian siswa di lokasi PKBM.
+     * Tabel presensi mandiri siswa - absensi harian siswa di lokasi PKBM.
      *
      * Berbeda dari tabel presensis (yang mencatat sesi mengajar tutor),
      * tabel ini mencatat kehadiran mandiri siswa di lokasi PKBM/komunitas

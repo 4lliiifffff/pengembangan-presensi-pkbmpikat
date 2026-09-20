@@ -13,7 +13,7 @@
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
         'titleName' => $displayName,
-        'subTitle'  => $subTitle,
+        'subTitle' => $subTitle,
     ])
 @endpush
 
@@ -25,7 +25,8 @@
                 <div class="laporanHeaderLabel">PORTAL PRAKTIK KERJA &amp; MAGANG</div>
                 <h1 class="laporanHeaderTitle">Dashboard Magang / PKL</h1>
                 <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
-                <p class="laporanHeaderDesc">Lakukan presensi harian masuk dan pulang, serta pantau riwayat kehadiran praktik kerja di PKBM.</p>
+                <p class="laporanHeaderDesc">Lakukan presensi harian masuk dan pulang, serta pantau riwayat kehadiran
+                    praktik kerja di PKBM.</p>
             </div>
             <div class="laporanHeaderActions">
                 <div class="badgeDate">
@@ -63,8 +64,8 @@
                     'selesai' => 'Selesai Hari Ini (Sudah Pulang)',
                     default => 'Belum Presensi Hari Ini',
                 };
-                $jamMasukToday = $todayPresensi?->jam_mulai ? substr((string) $todayPresensi->jam_mulai, 0, 5) : '—';
-                $jamPulangToday = $todayPresensi?->jam_selesai ? substr((string) $todayPresensi->jam_selesai, 0, 5) : '—';
+                $jamMasukToday = $todayPresensi?->jam_mulai ? substr((string) $todayPresensi->jam_mulai, 0, 5) : '-';
+                $jamPulangToday = $todayPresensi?->jam_selesai ? substr((string) $todayPresensi->jam_selesai, 0, 5) : '-';
             @endphp
 
             <div class="todayCard {{ $statusClass }}">
@@ -106,13 +107,13 @@
                         <div class="magangInfoItem">
                             <span class="magangInfoItemLbl">Mulai Magang</span>
                             <span class="magangInfoItemVal">
-                                {{ $magang->tgl_mulai ? \Carbon\Carbon::parse($magang->tgl_mulai)->translatedFormat('d M Y') : '—' }}
+                                {{ $magang->tgl_mulai ? \Carbon\Carbon::parse($magang->tgl_mulai)->translatedFormat('d M Y') : '-' }}
                             </span>
                         </div>
                         <div class="magangInfoItem">
                             <span class="magangInfoItemLbl">Selesai Magang</span>
                             <span class="magangInfoItemVal">
-                                {{ $magang->tgl_selesai ? \Carbon\Carbon::parse($magang->tgl_selesai)->translatedFormat('d M Y') : '—' }}
+                                {{ $magang->tgl_selesai ? \Carbon\Carbon::parse($magang->tgl_selesai)->translatedFormat('d M Y') : '-' }}
                             </span>
                         </div>
                     </div>
@@ -136,16 +137,16 @@
                     <div class="activeBody">
                         <div class="activeTitle">Sesi Magang Sedang Berlangsung</div>
                         <div class="activeSub">
-                            Masuk pukul <strong >{{ substr((string) $activeSesi->jam_mulai, 0, 5) }} WIB</strong>
+                            Masuk pukul <strong>{{ substr((string) $activeSesi->jam_mulai, 0, 5) }} WIB</strong>
                         </div>
                         <div class="activeLoc">
                             <ion-icon name="location-outline"></ion-icon>
-                            <span >Lokasi Masuk Terverifikasi (PKBM Pikat)</span>
+                            <span>Lokasi Masuk Terverifikasi (PKBM Pikat)</span>
                         </div>
                     </div>
                     <a href="{{ route('magang.presensi.foto') }}" class="activeActionBtn">
                         <ion-icon name="camera-outline"></ion-icon>
-                        <span >{{ $bisaPulang ? 'Absen Pulang Sekarang' : 'Absen Pulang' }}</span>
+                        <span>{{ $bisaPulang ? 'Absen Pulang Sekarang' : 'Absen Pulang' }}</span>
                     </a>
                 </div>
             @elseif ($todayStatus !== 'selesai')
@@ -158,7 +159,7 @@
                     </div>
                     <a href="{{ route('magang.presensi.foto') }}" class="magangCtaBtn">
                         <ion-icon name="camera-outline" class="icon-md"></ion-icon>
-                        <span >Absen Masuk Sekarang</span>
+                        <span>Absen Masuk Sekarang</span>
                     </a>
                 </div>
             @endif
@@ -166,9 +167,9 @@
             {{-- ── STATISTIK KEHADIRAN BULAN INI ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2 >
+                    <h2>
                         <ion-icon name="pie-chart-outline" class="text-primary"></ion-icon>
-                        <span >Statistik Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
+                        <span>Statistik Kehadiran ({{ \Carbon\Carbon::parse($today)->translatedFormat('F Y') }})</span>
                     </h2>
                 </div>
                 <div class="statsGrid">
@@ -193,9 +194,9 @@
             {{-- ── RIWAYAT TERAKHIR ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2 >
+                    <h2>
                         <ion-icon name="time-outline" class="text-primary"></ion-icon>
-                        <span >Riwayat Presensi Terbaru</span>
+                        <span>Riwayat Presensi Terbaru</span>
                     </h2>
                     @if (Route::has('magang.riwayat'))
                         <a href="{{ route('magang.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
@@ -207,8 +208,8 @@
                         @php
                             $tgl = \Carbon\Carbon::parse($p->tgl_presensi);
                             $hari = $tgl->translatedFormat('l, d M Y');
-                            $masuk = $p->jam_mulai ? substr((string)$p->jam_mulai, 0, 5) : '—';
-                            $pulang = $p->jam_selesai ? substr((string)$p->jam_selesai, 0, 5) : '—';
+                            $masuk = $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '-';
+                            $pulang = $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '-';
                         @endphp
                         <div class="recentItem">
                             <div class="recentLeft">
@@ -223,7 +224,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div >
+                            <div>
                                 <span class="pillSmall {{ $p->foto_selesai ? 'pillOk' : 'pillPending' }}">
                                     {{ $p->foto_selesai ? 'Selesai' : 'Proses' }}
                                 </span>
@@ -231,11 +232,13 @@
                         </div>
                     @empty
                         <div class="tableEmptyState p-4">
-                            <div class="tableEmptyIconWrap indigo" style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
+                            <div class="tableEmptyIconWrap indigo"
+                                style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
                                 <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
                             </div>
                             <div class="tableEmptyTitle" style="font-size: 13.5px;">Belum Ada Riwayat Presensi</div>
-                            <div class="tableEmptyDesc" style="font-size: 11.5px;">Log presensi magang Anda bulan ini akan tampil di sini.</div>
+                            <div class="tableEmptyDesc" style="font-size: 11.5px;">Log presensi magang Anda bulan ini akan
+                                tampil di sini.</div>
                         </div>
                     @endforelse
                 </div>
@@ -245,7 +248,7 @@
     </div>
 
     @push('head')
-        <script >
+        <script>
             function updateLiveClock() {
                 const clockEl = document.getElementById('clockTime');
                 if (!clockEl) return;

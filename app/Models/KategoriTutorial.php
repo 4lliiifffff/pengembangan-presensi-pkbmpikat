@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Model KategoriTutorial — Master Kategori & Tarif Tutorial Sesuai SK Kepala PKBM
+ * Model KategoriTutorial - Master Kategori & Tarif Tutorial Sesuai SK Kepala PKBM
  */
 class KategoriTutorial extends Model
 {
@@ -120,7 +120,7 @@ class KategoriTutorial extends Model
     public function getLabelLengkapAttribute(): string
     {
         $abkLabel = $this->is_abk ? ' (ABK)' : '';
-        $durasiLabel = $this->durasi_jam > 0 ? " — {$this->durasi_jam} Jam" : '';
+        $durasiLabel = $this->durasi_jam > 0 ? " - {$this->durasi_jam} Jam" : '';
 
         return "{$this->nama_kategori}{$abkLabel}{$durasiLabel} [{$this->formatted_nominal_honor}]";
     }

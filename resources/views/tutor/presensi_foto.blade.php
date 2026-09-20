@@ -95,7 +95,8 @@
                 $jamMulaiUnclosed = substr((string) $unclosedPastSession->jam_mulai, 0, 5);
                 $siswaUnclosed = $unclosedPastSession->siswa->nama_siswa ?? 'Peserta Didik';
             @endphp
-            <div id="bannerUnclosedPastSession" class="statusBanner mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
+            <div id="bannerUnclosedPastSession" class="statusBanner mb-4"
+                style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
                 <div class="statusIcon warn" style="background: rgba(245, 158, 11, 0.15); color: #d97706;">
                     <ion-icon name="alert-circle"></ion-icon>
                 </div>
@@ -104,16 +105,19 @@
                         Presensi Pulang Terlewat pada {{ $tglUnclosed->translatedFormat('l, d F Y') }}
                     </div>
                     <div class="statusSub" style="color: #92400e; line-height: 1.5;">
-                        Sesi KBM bersama <strong>{{ $siswaUnclosed }}</strong> (Mulai: {{ $jamMulaiUnclosed }} WIB) belum tercatat selesai (*checkout*). Sesi ini <strong>belum masuk perhitungan honorarium SK</strong> hingga disetujui Kepala Sekolah.
+                        Sesi KBM bersama <strong>{{ $siswaUnclosed }}</strong> (Mulai: {{ $jamMulaiUnclosed }} WIB) belum
+                        tercatat selesai (*checkout*). Sesi ini <strong>belum masuk perhitungan honorarium SK</strong> hingga
+                        disetujui Kepala Sekolah.
                     </div>
                     <div class="d-flex items-center gap-2 mt-2.5 flex-wrap">
                         <a href="{{ route('tutor.lupa-lapor', ['tanggal' => $unclosedPastSession->tgl_presensi, 'siswa_id' => $unclosedPastSession->siswa_id, 'jam_mulai' => $jamMulaiUnclosed]) }}"
-                           class="profileBtnPrimary text-xs py-1.5 px-3 d-inline-flex items-center gap-1"
-                           style="background: #d97706; border-color: #d97706;">
+                            class="profileBtnPrimary text-xs py-1.5 px-3 d-inline-flex items-center gap-1"
+                            style="background: #d97706; border-color: #d97706;">
                             <ion-icon name="paper-plane-outline"></ion-icon> Ajukan Lupa Lapor Sesi Ini
                         </a>
-                        <button type="button" onclick="document.getElementById('bannerUnclosedPastSession').style.display='none'"
-                                class="btnOutline text-xs py-1.5 px-3" style="background: transparent;">
+                        <button type="button"
+                            onclick="document.getElementById('bannerUnclosedPastSession').style.display='none'"
+                            class="btnOutline text-xs py-1.5 px-3" style="background: transparent;">
                             Abaikan &amp; Lanjut Absen Hari Ini
                         </button>
                     </div>
@@ -125,7 +129,10 @@
         @if ($completedSessions->count() > 0)
             <div class="card mb-4">
                 <div class="cardTitle">
-                    <span>Riwayat Sesi Hari Ini</span>
+                    <span><ion-icon name="time-outline"></ion-icon> Riwayat Sesi Hari Ini</span>
+                    <span
+                        class="badge bg-success-light text-success text-xs px-2.5 py-1 rounded-full font-bold">{{ $completedSessions->count() }}
+                        Sesi</span>
                 </div>
                 @foreach ($completedSessions as $sesi)
                     @php
@@ -163,7 +170,8 @@
                 <div class="card mb-3 p-3.5 border-base bg-card-alt rounded-2xl">
                     <div class="d-flex items-center justify-between gap-2 flex-wrap mb-2">
                         <div class="d-flex items-center gap-2 flex-wrap">
-                            <span class="badge bg-success-light text-success font-bold text-xs px-2.5 py-1 rounded-full d-inline-flex items-center gap-1">
+                            <span
+                                class="badge bg-success-light text-success font-bold text-xs px-2.5 py-1 rounded-full d-inline-flex items-center gap-1">
                                 <ion-icon name="checkmark-circle-outline"></ion-icon>
                                 Siap Absen Pulang
                             </span>
@@ -173,7 +181,9 @@
                         </div>
                     </div>
                     <div class="text-xs text-muted leading-relaxed">
-                        Sesi bimbingan KBM (Murid: <strong class="text-dark">{{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</strong>) telah memenuhi syarat durasi kepulangan. Silakan verifikasi titik lokasi dan ambil foto untuk presensi pulang.
+                        Sesi bimbingan KBM (Murid: <strong
+                            class="text-dark">{{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</strong>) telah memenuhi
+                        syarat durasi kepulangan. Silakan verifikasi titik lokasi dan ambil foto untuk presensi pulang.
                     </div>
                 </div>
             @else
@@ -183,7 +193,8 @@
                     </div>
                     <div class="flex-1">
                         <div class="statusTitle">Sesi Sedang Berjalan</div>
-                        <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB — Murid: {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</div>
+                        <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB - Murid:
+                            {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</div>
                     </div>
                 </div>
 
@@ -201,7 +212,8 @@
                     <div class="countdownTime" id="countdown">{{ $sisaMenitLabel }}</div>
                     <div class="countdownSub">
                         @if ($jamPulangTarget)
-                            Target jadwal selesai: <strong>{{ $jamPulangTarget }} WIB</strong> (bisa absen pulang mulai <strong>{{ $waktuBukaTarget }} WIB</strong>)
+                            Target jadwal selesai: <strong>{{ $jamPulangTarget }} WIB</strong> (bisa absen pulang mulai
+                            <strong>{{ $waktuBukaTarget }} WIB</strong>)
                         @else
                             Bisa absen pulang setelah 80% durasi bimbingan (minimal <strong>{{ $menitWajib }} menit</strong> mengajar)
                         @endif
@@ -234,7 +246,7 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <span>Lokasi Presensi Pulang</span>
+                            <span><ion-icon name="location-outline"></ion-icon> Lokasi Presensi Pulang</span>
                         </div>
                         <div id="mapBox" class="mapBox pos-relative">
                             <div class="mapPlaceholder" id="mapPlaceholder">Menyiapkan peta lokasi...</div>
@@ -256,21 +268,22 @@
                                     Petunjuk Arah
                                 </a>
                                 <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
+                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi:
+                                        Aktif</span>
                                 </button>
                             </div>
                         </div>
 
                         <div class="mapToolbar">
                             <button type="button" onclick="refreshLocation(true)">
-                                Perbarui Lokasi Saya
+                                <ion-icon name="locate-outline"></ion-icon> Perbarui Lokasi Saya
                             </button>
                         </div>
                     </div>
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <span>Foto Presensi Pulang</span>
+                            <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Pulang</span>
                         </div>
                         <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
@@ -330,7 +343,7 @@
 
                         {{-- Tombol SELESAI --}}
                         <button type="submit" id="btnSubmit" @if (!$bisaPulang) disabled @endif class="captureBtn primary-red mt-4">
-                            Kirim Presensi Pulang
+                            <ion-icon name="log-out-outline"></ion-icon> Kirim Presensi Pulang
                         </button>
                     </div>
                 </form>
@@ -351,16 +364,21 @@
                 <div class="card mb-4 p-4 border-base bg-card-alt rounded-xl">
                     <div class="d-flex items-center justify-between flex-wrap gap-2">
                         <div>
-                            <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal: {{ $shiftEval['shift_nama'] }}</div>
-                            <div class="text-xs text-muted mt-1">Target Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b> &bull; Batas Masuk: <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                            <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal:
+                                {{ $shiftEval['shift_nama'] }}</div>
+                            <div class="text-xs text-muted mt-1">Target Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b>
+                                &bull; Batas Masuk: <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
                         </div>
                         <div>
                             @if($shiftEval['status_kehadiran'] === 'tepat_waktu')
-                                <span class="badge bg-success-light text-success font-bold text-xs py-1 px-3 rounded-full">Tepat Waktu</span>
+                                <span class="badge bg-success-light text-success font-bold text-xs py-1 px-3 rounded-full">Tepat
+                                    Waktu</span>
                             @elseif($shiftEval['status_kehadiran'] === 'lebih_awal')
-                                <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-3 rounded-full">Lebih Awal</span>
+                                <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-3 rounded-full">Lebih
+                                    Awal</span>
                             @else
-                                <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-3 rounded-full">Terlambat (+{{ $shiftEval['menit_keterlambatan'] }} mnt)</span>
+                                <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-3 rounded-full">Terlambat
+                                    (+{{ $shiftEval['menit_keterlambatan'] }} mnt)</span>
                             @endif
                         </div>
                     </div>
@@ -379,13 +397,16 @@
                                 <div>
                                     <div class="font-bold text-dark text-sm">{{ $sSesi->siswa->nama_siswa ?? 'Peserta Didik' }}</div>
                                     <div class="text-muted mt-1">
-                                        <span class="app-badge {{ $sSesi->jenis_sesi === 'pengganti' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }} text-xxs py-0 px-2">
+                                        <span
+                                            class="app-badge {{ $sSesi->jenis_sesi === 'pengganti' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }} text-xxs py-0 px-2">
                                             {{ $sSesi->jenis_label }}
                                         </span>
-                                        Pukul <b>{{ $sSesi->jam_masuk_formatted }} - {{ $sSesi->jam_pulang_formatted }} WIB</b> ({{ $sSesi->durasi_jam }} jam)
+                                        Pukul <b>{{ $sSesi->jam_masuk_formatted }} - {{ $sSesi->jam_pulang_formatted }} WIB</b>
+                                        ({{ $sSesi->durasi_jam }} jam)
                                     </div>
                                 </div>
-                                <button type="button" onclick="pilihSiswaSesiTerjadwal({{ $sSesi->siswa_id }})" class="profileBtnPrimary py-2 px-3 text-xs">
+                                <button type="button" onclick="pilihSiswaSesiTerjadwal({{ $sSesi->siswa_id }})"
+                                    class="profileBtnPrimary py-2 px-3 text-xs">
                                     Pilih Sesi
                                 </button>
                             </div>
@@ -412,7 +433,7 @@
                 {{-- ── CARD 1: INFORMASI SESI MENGAJAR ── --}}
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span>Pilihan Sesi Mengajar</span>
+                        <span><ion-icon name="options-outline"></ion-icon> Pilihan Sesi Mengajar</span>
                     </div>
 
                     {{-- 1. Tempat Belajar (Moda) --}}
@@ -421,10 +442,13 @@
                             Tempat Belajar <span class="text-danger">*</span>
                         </label>
                         <select name="moda_pembelajaran" id="selectModa" onchange="handleModaChange(this.value)"
-                            class="input w-full rounded-lg p-3 text-md font-semibold text-dark border-base bg-card-alt">
-                            <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Di Sekolah (Tatap Muka di PKBM)</option>
-                            <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>Kunjungan ke Rumah Murid</option>
-                            <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Belajar Daring (Online)</option>
+                            class="input w-full rounded-xl p-3 text-md font-semibold text-dark border-base bg-card-alt">
+                            <option value="sekolah" {{ old('moda_pembelajaran') == 'sekolah' ? 'selected' : '' }}>Di Sekolah
+                                (Tatap Muka di PKBM)</option>
+                            <option value="kunjungan_rumah" {{ old('moda_pembelajaran') == 'kunjungan_rumah' ? 'selected' : '' }}>
+                                Kunjungan ke Rumah Murid</option>
+                            <option value="online" {{ old('moda_pembelajaran') == 'online' ? 'selected' : '' }}>Belajar Daring
+                                (Online)</option>
                         </select>
                     </div>
 
@@ -435,7 +459,7 @@
                         </label>
                         <input type="url" name="link_daring" placeholder="Contoh: https://meet.google.com/..."
                             value="{{ old('link_daring') }}"
-                            class="input w-full rounded-lg p-3 text-md text-dark bg-card-alt border-primary">
+                            class="input w-full rounded-xl p-3 text-md text-dark bg-card-alt border-primary">
                     </div>
 
                     {{-- 3. Durasi Sesi Pertemuan --}}
@@ -448,23 +472,25 @@
                                 class="text-xs font-bold text-primary rounded-sm badge-tutorial-pill">Tutorial Komunitas</span>
                         </div>
                         <select name="durasi_pilihan" id="selectDurasi"
-                            class="input w-full rounded-lg p-3 text-md font-semibold text-dark border-base bg-card-alt">
+                            class="input w-full rounded-xl p-3 text-md font-semibold text-dark border-base bg-card-alt">
                             <option value="2.0">2 Jam Pertemuan (Standar)</option>
                             <option value="3.0">3 Jam Pertemuan (Panjang)</option>
                         </select>
                     </div>
 
                     {{-- 4. Checkbox Gabungan Komunitas --}}
-                    <div id="boxGabungan" class="mb-4 border-base rounded-lg p-3 bg-card-alt">
+                    <div id="boxGabungan" class="mb-4 border-base rounded-xl p-3.5 bg-card-alt">
                         <div class="flex-between">
                             <label class="d-flex items-center gap-2 text-sm font-bold cursor-pointer text-dark m-0">
                                 <input type="checkbox" name="is_gabungan" id="inputIsGabungan" value="1" {{ old('is_gabungan') ? 'checked' : '' }} onchange="updateSelectedSiswaCount()" class="checkbox-custom">
                                 <span>Sesi Gabungan Beberapa Kelas</span>
                             </label>
-                            <span id="badgeAutoGabungan" class="d-none text-xs font-bold rounded-sm badge-auto-gabungan">Otomatis</span>
+                            <span id="badgeAutoGabungan"
+                                class="d-none text-xs font-bold rounded-sm badge-auto-gabungan">Otomatis</span>
                         </div>
                         <div class="text-xs text-muted mt-2 line-height-base">
-                            Centang pilihan ini jika sesi Anda menggabungkan murid dari kelas yang berbeda dalam satu jenjang paket yang sama.
+                            Centang pilihan ini jika sesi Anda menggabungkan murid dari kelas yang berbeda dalam satu jenjang
+                            paket yang sama.
                         </div>
                     </div>
 
@@ -476,12 +502,12 @@
                             </label>
                         </div>
 
-                        <div class="border-base rounded-lg p-3 bg-card-alt">
+                        <div class="border-base rounded-xl p-3.5 bg-card-alt">
                             {{-- Search Input Bar --}}
                             <div class="pos-relative d-flex items-center mb-3">
                                 <input type="text" id="inputSearchSiswa" placeholder="Ketik nama murid..."
                                     oninput="filterSiswaList(this.value)" autocomplete="off"
-                                    class="w-full rounded-md border-base p-2 text-sm font-semibold text-dark bg-card">
+                                    class="w-full rounded-xl border-base py-2.5 px-3.5 text-sm font-semibold text-dark bg-card">
                                 <button type="button" onclick="clearSiswaSearch()" id="btnClearSiswaSearch"
                                     class="d-none pos-absolute bg-none border-none text-muted cursor-pointer text-md right-2 p-1">&times;</button>
                             </div>
@@ -493,7 +519,8 @@
                                 </div>
                                 <div class="d-flex gap-3">
                                     <button type="button" onclick="selectAllVisibleSiswa(true)"
-                                        class="text-xs font-bold text-primary bg-none border-none cursor-pointer p-0">Pilih Semua</button>
+                                        class="text-xs font-bold text-primary bg-none border-none cursor-pointer p-0">Pilih
+                                        Semua</button>
                                     <span class="text-muted">|</span>
                                     <button type="button" onclick="selectAllVisibleSiswa(false)"
                                         class="text-xs font-bold text-danger bg-none border-none cursor-pointer p-0">Reset</button>
@@ -501,16 +528,18 @@
                             </div>
 
                             {{-- Info Banner Deteksi Rombel --}}
-                            <div id="rombelDetectionBadge" class="d-none mb-2 rounded-md text-sm font-bold p-3 border-none"></div>
+                            <div id="rombelDetectionBadge" class="d-none mb-2 rounded-md text-sm font-bold p-3 border-none">
+                            </div>
 
                             {{-- Alert Mismatch Paket Siswa Terpilih --}}
                             <div id="gabunganPaketMismatchAlert"
                                 class="d-none mb-2 rounded-md text-danger text-sm font-bold p-3 alert-danger-box">
-                                <span id="gabunganPaketMismatchMsg">Peringatan: Murid yang dipilih berasal dari jenjang paket yang berbeda.</span>
+                                <span id="gabunganPaketMismatchMsg">Peringatan: Murid yang dipilih berasal dari jenjang paket
+                                    yang berbeda.</span>
                             </div>
 
                             {{-- Scrollable List of Students --}}
-                            <div id="listSiswaItems" class="overflow-y-auto max-h-180 pr-1">
+                            <div id="listSiswaItems" class="overflow-y-auto pr-1">
                                 @forelse ($siswas as $siswa)
                                     @php
                                         $p = collect($presensiToday)->get($siswa->id);
@@ -543,9 +572,11 @@
                                         </div>
                                         <div class="d-flex items-center gap-1 flex-shrink-0">
                                             @if($siswa->is_abk)
-                                                <span class="d-inline-block rounded-sm text-xs font-bold text-warning badge-abk">ABK</span>
+                                                <span
+                                                    class="d-inline-block rounded-sm text-xs font-bold text-warning badge-abk">ABK</span>
                                             @else
-                                                <span class="d-inline-block rounded-sm text-xs font-bold text-success badge-reguler">Reguler</span>
+                                                <span
+                                                    class="d-inline-block rounded-sm text-xs font-bold text-success badge-reguler">Reguler</span>
                                             @endif
                                         </div>
                                     </label>
@@ -565,7 +596,7 @@
                 {{-- ── CARD 2: LOKASI PRESENSI ── --}}
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span>Lokasi Presensi</span>
+                        <span><ion-icon name="location-outline"></ion-icon> Titik Lokasi Presensi</span>
                     </div>
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
@@ -574,7 +605,7 @@
                             Pilih Lokasi Sekolah / Cabang <span class="text-danger">*</span>
                         </label>
                         <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()"
-                            class="input w-full rounded-lg p-3 text-md font-semibold text-dark border-base bg-card-alt">
+                            class="input w-full rounded-xl p-3 text-md font-semibold text-dark border-base bg-card-alt">
                             @forelse($lokasiPresensis as $lok)
                                 <option value="{{ $lok->id }}" data-lat="{{ $lok->latitude }}" data-lng="{{ $lok->longitude }}"
                                     data-radius="{{ $lok->radius_meter }}" data-nama="{{ $lok->nama_lokasi }}"
@@ -614,14 +645,15 @@
                                 Petunjuk Arah
                             </a>
                             <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
+                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi:
+                                    Aktif</span>
                             </button>
                         </div>
                     </div>
 
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation(true)">
-                            Perbarui Lokasi Saya
+                            <ion-icon name="locate-outline"></ion-icon> Perbarui Lokasi Saya
                         </button>
                     </div>
                 </div>
@@ -629,7 +661,7 @@
                 {{-- ── CARD 3: FOTO KAMERA ── --}}
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span>Foto Presensi Masuk</span>
+                        <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Masuk</span>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>
@@ -689,7 +721,7 @@
 
                     {{-- Tombol MULAI --}}
                     <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
-                        Kirim Presensi Masuk
+                        <ion-icon name="checkmark-circle-outline"></ion-icon> Kirim Presensi Masuk
                     </button>
 
                     <div class="presensi-aux-actions">
@@ -699,8 +731,7 @@
                         </a>
 
                         <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' mengalami kendala saat presensi hari ini: ') }}"
-                            target="_blank"
-                            class="wa-support-btn">
+                            target="_blank" class="wa-support-btn">
                             <ion-icon name="logo-whatsapp"></ion-icon>
                             <span>Kendala Presensi (Hubungi Admin)</span>
                         </a>
@@ -838,7 +869,7 @@
                     }, 1000);
                 }
             @endif
-        });
+            });
 
         /* ══════════════════ MAP LEAFLET GEOFENCING VISUALIZER ══════════════════ */
         const DEFAULT_GEOFENCE_LAT = {{ config('lokasi.sekolah_lat', -7.8011945) }};
@@ -918,7 +949,7 @@
                 targetNama: currentTargetNama,
                 targetAlamat: currentTargetAlamat,
                 lokasiList: allLokasiPoints,
-                onDistanceUpdate: function(state) {
+                onDistanceUpdate: function (state) {
                     var hint = document.getElementById('mapHint');
                     var badge = document.getElementById('geofenceBadge');
                     var radarCard = document.getElementById('proximityRadarCard');
@@ -946,7 +977,7 @@
                             badge.style.background = 'rgba(2, 132, 199, 0.12)';
                             badge.style.border = '1px solid rgba(2, 132, 199, 0.35)';
                             badge.style.color = '#0369a1';
-                            badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Bebas Batas Jarak (Khusus Kunjungan / Daring)</b> — Jarak: ' + Math.round(state.distance) + ' m</span>';
+                            badge.innerHTML = '<span class="d-inline-flex items-center gap-1"><b>Bebas Batas Jarak (Khusus Kunjungan / Daring)</b> - Jarak: ' + Math.round(state.distance) + ' m</span>';
                         }
                     }
 

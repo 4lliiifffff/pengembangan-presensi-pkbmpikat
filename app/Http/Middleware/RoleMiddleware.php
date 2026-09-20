@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * RoleMiddleware — Middleware Otorisasi Berbasis Peran (Role-Based Access Control / RBAC)
+ * RoleMiddleware - Middleware Otorisasi Berbasis Peran (Role-Based Access Control / RBAC)
  *
  * Middleware ini berfungsi sebagai "penjaga gerbang" (gate keeper) yang memastikan
  * bahwa hanya pengguna dengan peran (role) tertentu yang dapat mengakses route tertentu.

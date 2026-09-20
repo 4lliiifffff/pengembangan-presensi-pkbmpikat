@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Model JenjangPaket — Master Data Jenjang / Program Paket Pendidikan Kesetaraan & Vokasi
+ * Model JenjangPaket - Master Data Jenjang / Program Paket Pendidikan Kesetaraan & Vokasi
  */
 class JenjangPaket extends Model
 {

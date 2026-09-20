@@ -12,7 +12,7 @@
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
         'titleName' => $displayName,
-        'subTitle'  => $subTitle,
+        'subTitle' => $subTitle,
     ])
 @endpush
 
@@ -24,7 +24,8 @@
                 <div class="laporanHeaderLabel">PORTAL AKADEMIK TUTOR</div>
                 <h1 class="laporanHeaderTitle">Dashboard Tutor</h1>
                 <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
-                <p class="laporanHeaderDesc">Kelola agenda mengajar, lakukan presensi KBM harian, dan pantau rekapitulasi honorarium.</p>
+                <p class="laporanHeaderDesc">Kelola agenda mengajar, lakukan presensi KBM harian, dan pantau rekapitulasi
+                    honorarium.</p>
             </div>
             <div class="laporanHeaderActions">
                 <div class="badgeDate">
@@ -62,8 +63,8 @@
                     'selesai' => 'Selesai Hari Ini',
                     default => 'Belum Mulai Sesi',
                 };
-                $jamMasukToday = $todayPresensi?->jam_mulai ? substr((string) $todayPresensi->jam_mulai, 0, 5) : '—';
-                $jamPulangToday = $todayPresensi?->jam_selesai ? substr((string) $todayPresensi->jam_selesai, 0, 5) : '—';
+                $jamMasukToday = $todayPresensi?->jam_mulai ? substr((string) $todayPresensi->jam_mulai, 0, 5) : '-';
+                $jamPulangToday = $todayPresensi?->jam_selesai ? substr((string) $todayPresensi->jam_selesai, 0, 5) : '-';
             @endphp
 
             <div class="todayCard {{ $statusClass }}">
@@ -99,9 +100,10 @@
                     @endif
                 </div>
                 @if ($todayStatus !== 'selesai')
-                    <a href="{{ route('tutor.presensi') }}" class="todayAbsenBtn {{ $todayStatus === 'proses' ? 'btnSelesai' : '' }}">
+                    <a href="{{ route('tutor.presensi') }}"
+                        class="todayAbsenBtn {{ $todayStatus === 'proses' ? 'btnSelesai' : '' }}">
                         <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
-                        <span >{{ $todayStatus === 'proses' ? 'Selesai' : 'Mulai' }}</span>
+                        <span>{{ $todayStatus === 'proses' ? 'Selesai' : 'Mulai' }}</span>
                     </a>
                 @endif
             </div>
@@ -112,28 +114,30 @@
             {{-- ── AKSI CEPAT ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2 >
+                    <h2>
                         <ion-icon name="flash-outline" class="text-primary"></ion-icon>
-                        <span >Aksi Cepat</span>
+                        <span>Aksi Cepat</span>
                     </h2>
                 </div>
 
                 <div class="quickGrid">
-                    <a href="https://wa.me/6285156452939" target="_blank" rel="noopener noreferrer" class="quickCard" aria-label="Pengajuan Izin">
+                    <a href="https://wa.me/6285156452939" target="_blank" rel="noopener noreferrer" class="quickCard"
+                        aria-label="Pengajuan Izin">
                         <div class="quickIcon warn">
                             <ion-icon name="alert-circle-outline"></ion-icon>
                         </div>
                         <div class="quickLabel">Izin via WA</div>
                     </a>
                     <a href="{{ route('tutor.lupa-lapor') }}" class="quickCard" aria-label="Lupa Lapor">
-                        <div  class="quickIcon text-warning bg-warning-light">
+                        <div class="quickIcon text-warning bg-warning-light">
                             <ion-icon name="document-text-outline"></ion-icon>
                         </div>
                         <div class="quickLabel">Lupa Lapor</div>
                     </a>
                     <a href="{{ route('tutor.presensi') }}" aria-label="Presensi Bimbingan" class="quickCard grid-span-2">
                         <div class="quickIcon success">
-                            <ion-icon name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
+                            <ion-icon
+                                name="{{ $todayStatus === 'proses' ? 'log-out-outline' : 'log-in-outline' }}"></ion-icon>
                         </div>
                         <div class="quickLabel">
                             @if ($todayStatus === 'proses')
@@ -149,9 +153,9 @@
             {{-- ── RIWAYAT TERBARU ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">
-                    <h2 >
+                    <h2>
                         <ion-icon name="time-outline" class="text-primary"></ion-icon>
-                        <span >Riwayat Terbaru</span>
+                        <span>Riwayat Terbaru</span>
                     </h2>
                     @if (Route::has('tutor.riwayat'))
                         <a href="{{ route('tutor.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
@@ -163,8 +167,8 @@
                         @php
                             $siswaLabel = $p->siswa->nama_siswa ?? 'Siswa #' . $p->siswa_id;
                             $hari = \Carbon\Carbon::parse($p->tgl_presensi)->locale('id')->translatedFormat('l, d F Y');
-                            $jamMulai = $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '—';
-                            $jamSelesai = $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '—';
+                            $jamMulai = $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '-';
+                            $jamSelesai = $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '-';
                             if ($p->foto_mulai && $p->foto_selesai) {
                                 $timeLine = $jamMulai . ' – ' . $jamSelesai . ' • ' . $siswaLabel;
                             } elseif ($p->foto_mulai) {
@@ -201,11 +205,13 @@
                         </div>
                     @empty
                         <div class="tableEmptyState p-4">
-                            <div class="tableEmptyIconWrap" style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
+                            <div class="tableEmptyIconWrap"
+                                style="width: 44px; height: 44px; font-size: 20px; margin-bottom: 8px;">
                                 <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
                             </div>
                             <div class="tableEmptyTitle" style="font-size: 13.5px;">Belum Ada Aktivitas Presensi</div>
-                            <div class="tableEmptyDesc" style="font-size: 11.5px;">Aktivitas mengajar Anda hari ini akan tampil di sini.</div>
+                            <div class="tableEmptyDesc" style="font-size: 11.5px;">Aktivitas mengajar Anda hari ini akan tampil
+                                di sini.</div>
                         </div>
                     @endforelse
                 </div>
@@ -213,8 +219,8 @@
         </div>
     </div>
 
-    <script >
-        (function() {
+    <script>
+        (function () {
             // ── Live clock ──
             const el = document.getElementById('clockTime');
             if (el) {
@@ -232,7 +238,7 @@
 
             // ── Countdown sisa waktu absen pulang (hanya jika status proses) ──
             @if ($todayStatus === 'proses' && $sisaDetikPulang > 0)
-                (function() {
+                (function () {
                     const cdEl = document.getElementById('dashCountdown');
                     if (!cdEl) return;
                     let sisa = Math.floor({{ (int) $sisaDetikPulang }});
@@ -250,6 +256,6 @@
                     }, 1000);
                 })();
             @endif
-        })();
+            })();
     </script>
 @endsection

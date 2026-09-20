@@ -15,7 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
- * TutorDashboardController — Controller Dashboard & Riwayat untuk Tutor
+ * TutorDashboardController - Controller Dashboard & Riwayat untuk Tutor
  *
  * Controller ini mengelola semua halaman yang dapat diakses oleh pengguna dengan role 'tutor':
  *  1. Dashboard utama tutor (rekap status presensi hari ini, jadwal mendatang)
@@ -113,7 +113,7 @@ class TutorDashboardController extends Controller
             $doneSesi = $allTodayPresensi->first(fn ($p) => $p->foto_mulai && $p->foto_selesai);
 
             if ($activeSesi) {
-                // Ada sesi yang masih berlangsung — tampilkan info sesi ini
+                // Ada sesi yang masih berlangsung - tampilkan info sesi ini
                 $todayPresensi = $activeSesi;
                 $todayStatus = 'proses';
 

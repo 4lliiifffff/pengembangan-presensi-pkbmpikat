@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model Jadwal — Data Agenda/Jadwal Kegiatan
+ * Model Jadwal - Data Agenda/Jadwal Kegiatan
  *
  * Model ini merepresentasikan agenda atau jadwal kegiatan yang dibuat oleh admin.
  * Jadwal bersifat informatif dan dapat dilihat oleh semua role (tutor juga bisa melihat).

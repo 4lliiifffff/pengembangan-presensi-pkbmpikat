@@ -119,7 +119,7 @@
 
 ## 3. INTEGRASI MANAJEMEN PENGGAJIAN & HONORARIUM (PAYROLL SYSTEM)
 
-### 3.1 Reformasi Honorarium Berbasis SK — Master Kategori & Tarif Dinamis
+### 3.1 Reformasi Honorarium Berbasis SK - Master Kategori & Tarif Dinamis
 * 🟢 **Master Kategori Tutorial & Tarif SK Kepala PKBM:** [SELESAI]
   - Struktur tabel `kategori_tutorials` lengkap dengan model `KategoriTutorial` dan seeder master SK:
     - 1. Tutorial Komunitas (Durasi 2 Jam) = **Rp 75.000,-** / pertemuan
@@ -338,6 +338,15 @@
 * 🟢 **Standarisasi Frame Preview Foto Presensi (Rasio Portrait 3:4 & True-Crop WYSIWYG):** [SELESAI] Menyelaraskan ukuran dan framing preview kamera dengan gambar aktual yang diunggah ke server pada 4 modul presensi (Karyawan/Admin, Tutor, Mahasiswa Magang, Siswa). Mengubah `.photoFrame` dari rasio horizontal 4:3 lama menjadi rasio portrait ideal `3/4` (`max-width: 380px; max-height: 480px; margin: 14px auto`) di `resources/css/app.css`. Memperbarui fungsi `snapPhoto()` di JavaScript untuk melakukan kalkulasi pemotongan simetris (*true-crop* 3:4) sebelum digambar ke kanvas, sehingga foto JPEG yang dikirim ke server memiliki framing yang 100% presisi (*What You See Is What You Get*) dengan apa yang dilihat pengguna di preview, menghilangkan ketidaksesuaian visual antara saat membidik, melihat hasil preview, dan verifikasi foto oleh admin di modal riwayat.
 * 🟢 **Fitur Preloader Premium Terpadu (Konsisten & Responsif Mobile):** [SELESAI] Mengimplementasikan sistem preloader elegan di seluruh halaman aplikasi (`admin`, `kepsek`, `presensi`, dan `auth.login`) terinspirasi dari standar arsitektur `suksesmetalabadi`. Menggunakan komponen terpusat `layouts/components/preloader.blade.php`, logo resmi PKBM Pikat, indikator animasi bilah ramping (*thin animated loading bar*), styling CSS terpusat di `resources/css/app.css` dengan dukungan Dark Mode otomatis (`[data-theme="dark"]`), transisi fade-out halus, serta fallback timeout protektif 2 detik dan penanganan bfcache (`pageshow`) agar tampilan selalu mulus dan responsif di smartphone.
 * 🟢 **Penyelarasan Tombol Izin & Bantuan Presensi (Integrasi Modul Digital & Izin Perangkat):** [SELESAI] Menyelaraskan tombol permohonan izin pada seluruh halaman presensi foto (`tutor`, `karyawan`, `magang`, `siswa`) agar terintegrasi resmi dengan modul sistem PKBM Pikat. Memisahkan aksi formal permohonan izin/sakit digital (`route('tutor.pengajuan-izin')` bagi tutor dengan verifikasi Kepala Sekolah, kelola izin untuk admin/kepsek) dari tombol bantuan teknis WhatsApp khusus kendala GPS/kamera. Serta menstandarisasi tombol izin akses perangkat pada banner peringatan `#permWarning` menjadi tombol aksi jelas `<ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin` dengan ukuran sentuh ergonomis mobile.
+* 🟢 **Penyempurnaan Spacing, Kerapihan Style & Responsivitas Mobile Seluruh Halaman Presensi Foto:** [SELESAI]
+  - **Akar Masalah:** Sebelumnya, kelas global `.card` diatur dengan `padding: 0;` sehingga elemen formulir, peta, kamera, dan pemilih siswa pada halaman presensi (`tutor`, `karyawan`, `magang`, `siswa`) menempel terlalu rapat ke tepi garis batas kartu. Selain itu, kontainer `.pagePad` memiliki gutter 14px yang terlalu sempit dan membentang tanpa batas di layar lebar, komponen pencarian dan checkbox siswa (`.siswa-item-row`) tidak memiliki aturan CSS, serta pembatas daftar siswa terkunci kaku di 180px.
+  - **Penyelarasan Desain CSS (`resources/css/app.css`):**
+    - Mengisolasi padding kartu presensi `.pagePad .card` menjadi 22px 20px (mobile: 18px 15px) dengan sudut membulat 20px dan soft shadow elegan.
+    - Menetapkan batas lebar responsif pada `.pagePad` (`max-width: 580px; margin: 0 auto; padding: 18px 16px 120px`) agar proporsional menyerupai mobile-app framing baik di ponsel maupun tablet/desktop.
+    - Menata tipografi header kartu `.cardTitle` dengan garis pemisah bawah (*subtle border divider*), font 15.5px semibold/extrabold, dan mengaktifkan ikon Ionicons dengan aksen warna primer.
+    - Menata `.siswa-item-row` menjadi card-item modern dengan padding 12px 14px, radius 14px, border interaktif, serta efek highlight saat dipilih. Memperluas area gulir `#listSiswaItems` menjadi 280px dengan custom sleek scrollbar.
+    - Menstandarisasi tombol aksi submit `.captureBtn` dengan tinggi ergonomis 52px, ikon pendukung (`checkmark-circle-outline` / `log-out-outline`), font tebal, dan micro-interaction hover.
+  - **Penyelarasan View Halaman Presensi:** Memperbarui 4 view (`resources/views/tutor/presensi_foto.blade.php`, `karyawan/presensi_foto.blade.php`, `magang/presensi_foto.blade.php`, `siswa/presensi_foto.blade.php`) dengan struktur semantic, ikon judul kartu, dan penataan margin konsisten.
 
 
 
@@ -377,6 +386,12 @@
 * 🟢 **Eliminasi Double Underscore (`kepala__sekolahs`):** [SELESAI] Menghapus ketidakkonsistenan double underscore pada tabel kepala sekolah menjadi `kepala_sekolah`.
 * 🟢 **Konsistensi Tabel Autentikasi Laravel (`users`):** [SELESAI] Mempertahankan tabel autentikasi bawaan Laravel tetap bernama `users` sesuai konfirmasi dan standar ekosistem Laravel Auth/Sanctum.
 * 🟢 **Harmonisasi Model, Validasi, Guard & Test Suite:** [SELESAI] Pembaruan deklarasi `protected $table` di seluruh Model Eloquent, update rules validasi Form Request / Controller (`exists:` & `unique:`), perbaikan pengecekan dinamis `Schema::has...`, penyesuaian seeder, serta update assertions di 20+ file PHPUnit test suite.
+
+### 9.8 Penyelarasan Spacing & Responsivitas Mobile Halaman Admin Kelas & Form Master Jenjang (`/admin/kelas` & `/admin/jenjang-paket/create`)
+* 🟢 **Modernisasi Toolbar Filter & Search Kelas (`admin.kelas.index`):** [SELESAI] Menggantikan tata letak filter dan pencarian yang sebelumnya rapat/terhimpit dengan komponen toolbar modern `.kelas-toolbar-card`, scroll horizontal pill tab (`.kelas-tabs-wrapper`) dengan active state kontras biru gradien, search input terintegrasi dengan tombol cari dan clear (x), serta banner indikator filter aktif yang menyajikan info jumlah kelas dan tombol *Reset Filter* 1-klik.
+* 🟢 **Redesain Kartu Kelas Modern & Lapang (`.kelasCardModern`):** [SELESAI] Merombak kartu rombel kelas dengan layout yang lega dan bernapas: avatar inisial bergradien 48x48px, nama kelas tegas, badge jenjang terformat rapi, micro-chips tingkat & total siswa dalam grid 2 kolom, kotak catatan rombel bergaris putus-putus lembut, serta tombol aksi *Edit* dan *Hapus* dengan tinggi sentuh ergonomis (40px) yang ramah layar sentuh ponsel.
+* 🟢 **Restrukturisasi Formulir Master Jenjang (`create.blade.php` & `edit.blade.php`):** [SELESAI] Menata ulang formulir pendaftaran jenjang & paket yang sebelumnya bertumpuk tanpa jeda vertikal menjadi grid responsif `.form-grid-responsive` 2-kolom dengan margin lapang (`gap: 20px`, `margin-bottom: 20px`), label khusus `.form-field-label`, helper text edukatif penomoran tingkat, info callout pedoman master jenjang, toggle kartu status aktif elegan, serta `.form-action-footer` terpadu dengan tombol Batal dan Simpan.
+* 🟢 **Peningkatan CSS Universal Form Container:** [SELESAI] Mengadaptasi `.form-card-container` dengan padding responsif (`20px 16px` di layar mobile $\le 640$px dan `28px 32px` di desktop) untuk memastikan tidak ada pemotongan visual atau tampilan berdesakan di layar HP.
 
 ---
 

@@ -1,6 +1,6 @@
 @extends('layouts.presensi')
 
-@section('title', 'Jadwal Sesi Belajar & Pengganti — Tutor')
+@section('title', 'Jadwal Sesi Belajar & Pengganti - Tutor')
 
 @php
     use Carbon\Carbon;
@@ -50,18 +50,24 @@
                     @if ($activeTab === 'rutin')
                         <div class="laporanHeaderLabel">MASTER POLA BERULANG</div>
                         <h1 class="laporanHeaderTitle">Pola Rutin Mengajar</h1>
-                        <div class="laporanHeaderSub">Kelola pola hari dan jam belajar mingguan mandiri bersama peserta didik bimbingan Anda.</div>
-                        <p class="laporanHeaderDesc">Pola rutin otomatis berulang setiap minggu dan meng-generate sesi kalender belajar murid.</p>
+                        <div class="laporanHeaderSub">Kelola pola hari dan jam belajar mingguan mandiri bersama peserta didik
+                            bimbingan Anda.</div>
+                        <p class="laporanHeaderDesc">Pola rutin otomatis berulang setiap minggu dan meng-generate sesi kalender
+                            belajar murid.</p>
                     @elseif ($activeTab === 'agenda')
                         <div class="laporanHeaderLabel">AGENDA RESMI &amp; PENGUMUMAN</div>
                         <h1 class="laporanHeaderTitle">Agenda KBM &amp; Libur Sekolah</h1>
-                        <div class="laporanHeaderSub">Kalender akademik resmi, agenda kegiatan sekolah, dan hari libur PKBM PIKAT.</div>
-                        <p class="laporanHeaderDesc">Pantau agenda kegiatan resmi sekolah dan pastikan tidak bertabrakan dengan jadwal bimbingan belajar murid Anda.</p>
+                        <div class="laporanHeaderSub">Kalender akademik resmi, agenda kegiatan sekolah, dan hari libur PKBM
+                            PIKAT.</div>
+                        <p class="laporanHeaderDesc">Pantau agenda kegiatan resmi sekolah dan pastikan tidak bertabrakan dengan
+                            jadwal bimbingan belajar murid Anda.</p>
                     @else
                         <div class="laporanHeaderLabel">PERENCANAAN KBM &amp; RESCHEDULE</div>
                         <h1 class="laporanHeaderTitle">Jadwal Sesi &amp; Pengganti</h1>
-                        <div class="laporanHeaderSub">Atur jadwal belajar murid, buat jadwal sesi tunggal, atau jadwalkan sesi pengganti (*make-up class*)</div>
-                        <p class="laporanHeaderDesc">Jadwal yang dibuat otomatis menjadi acuan smart time-gating presensi murid dan evaluasi jam masuk foto Anda.</p>
+                        <div class="laporanHeaderSub">Atur jadwal belajar murid, buat jadwal sesi tunggal, atau jadwalkan sesi
+                            pengganti (*make-up class*)</div>
+                        <p class="laporanHeaderDesc">Jadwal yang dibuat otomatis menjadi acuan smart time-gating presensi murid
+                            dan evaluasi jam masuk foto Anda.</p>
                     @endif
                 </div>
                 <div class="laporanHeaderActions header-actions-group">
@@ -70,10 +76,12 @@
                             <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Pola Rutin
                         </button>
                     @else
-                        <a href="{{ route('tutor.jadwal-sesi.export', ['tanggal' => $selectedDate->toDateString()]) }}" class="profileBtnPrimary btn-action-success" title="Ekspor Jadwal Bulan Ini ke Excel">
+                        <a href="{{ route('tutor.jadwal-sesi.export', ['tanggal' => $selectedDate->toDateString()]) }}"
+                            class="profileBtnPrimary btn-action-success" title="Ekspor Jadwal Bulan Ini ke Excel">
                             <ion-icon name="download-outline" class="icon-sm"></ion-icon> Export Excel
                         </a>
-                        <button type="button" onclick="bukaModalImportJadwal()" class="profileBtnPrimary btn-action-info" title="Import Jadwal KBM dari Berkas Excel">
+                        <button type="button" onclick="bukaModalImportJadwal()" class="profileBtnPrimary btn-action-info"
+                            title="Import Jadwal KBM dari Berkas Excel">
                             <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> Import Excel
                         </button>
                         <button type="button" onclick="bukaModalJadwalBaru(false)" class="profileBtnPrimary">
@@ -86,21 +94,24 @@
 
         {{-- ── Alert Notifikasi Flash & Error Validasi ── --}}
         @if (session('success'))
-            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-success bg-success-subtle text-success text-sm d-flex items-center gap-2">
+            <div
+                class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-success bg-success-subtle text-success text-sm d-flex items-center gap-2">
                 <ion-icon name="checkmark-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
                 <span>{{ session('success') }}</span>
             </div>
         @endif
 
         @if (session('warning'))
-            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-warning bg-warning-subtle text-warning text-sm d-flex items-center gap-2">
+            <div
+                class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-warning bg-warning-subtle text-warning text-sm d-flex items-center gap-2">
                 <ion-icon name="warning-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
                 <span>{{ session('warning') }}</span>
             </div>
         @endif
 
         @if (session('error'))
-            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm d-flex items-center gap-2">
+            <div
+                class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm d-flex items-center gap-2">
                 <ion-icon name="alert-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
                 <span>{{ session('error') }}</span>
             </div>
@@ -157,7 +168,8 @@
                     <h2 class="text-md font-extrabold text-dark m-0">
                         <ion-icon name="sync-outline" class="text-primary"></ion-icon> Master Pola Rutin Mingguan Anda
                     </h2>
-                    <p class="text-xs text-muted m-0 mt-1">Jadwal ini berulang otomatis tiap minggu dan meng-generate sesi kalender belajar siswa.</p>
+                    <p class="text-xs text-muted m-0 mt-1">Jadwal ini berulang otomatis tiap minggu dan meng-generate sesi
+                        kalender belajar siswa.</p>
                 </div>
 
                 @if ($jadwalRutins->count() > 0)
@@ -206,7 +218,8 @@
                                         <div class="dmc-field">
                                             <div class="dmc-label">Jam Belajar KBM</div>
                                             <div class="dmc-value text-primary font-bold">{{ $rutin->jam_masuk_formatted }} -
-                                                {{ $rutin->jam_pulang_formatted }} WIB</div>
+                                                {{ $rutin->jam_pulang_formatted }} WIB
+                                            </div>
                                         </div>
 
                                         <div class="dmc-field">
@@ -240,11 +253,14 @@
                                                         <ion-icon name="location" class="text-danger"></ion-icon>
                                                         {{ $rutin->lokasiPresensi->nama_lokasi }}
                                                         @if($rutin->lokasiPresensi->radius_meter)
-                                                            <span class="text-muted font-normal">({{ $rutin->lokasiPresensi->radius_meter }}m)</span>
+                                                            <span
+                                                                class="text-muted font-normal">({{ $rutin->lokasiPresensi->radius_meter }}m)</span>
                                                         @endif
                                                     </span>
                                                     @if($rutin->lokasiPresensi->latitude && $rutin->lokasiPresensi->longitude)
-                                                        <a href="https://www.google.com/maps?q={{ $rutin->lokasiPresensi->latitude }},{{ $rutin->lokasiPresensi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                                        <a href="https://www.google.com/maps?q={{ $rutin->lokasiPresensi->latitude }},{{ $rutin->lokasiPresensi->longitude }}"
+                                                            target="_blank" rel="noopener noreferrer"
+                                                            class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
                                                             <ion-icon name="navigate-outline"></ion-icon> Peta
                                                         </a>
                                                     @endif
@@ -299,9 +315,12 @@
                             <ion-icon name="repeat-outline"></ion-icon>
                         </div>
                         <div class="emptyAgendaTitle">Belum Ada Master Pola Rutin</div>
-                        <div class="emptyAgendaDesc">Anda belum membuat pola jadwal berulang mingguan dengan siswa. Pola rutin otomatis men-generate sesi kalender belajar setiap pekannya.</div>
+                        <div class="emptyAgendaDesc">Anda belum membuat pola jadwal berulang mingguan dengan siswa. Pola rutin
+                            otomatis men-generate sesi kalender belajar setiap pekannya.</div>
                         <div class="mt-3">
-                            <button type="button" onclick="bukaModalJadwalBaru(true)" class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1" style="background: #059669;">
+                            <button type="button" onclick="bukaModalJadwalBaru(true)"
+                                class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1"
+                                style="background: #059669;">
                                 <ion-icon name="add-circle-outline"></ion-icon> + Tambah Pola Rutin Sekarang
                             </button>
                         </div>
@@ -316,16 +335,16 @@
                 {{-- ── Kalender Bulanan Agenda ── --}}
                 <div class="agendaHeaderCard mb-4">
                     <div class="agendaMonthNav">
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $prevMonthDate]) }}" class="agendaNavBtn"
-                            title="Bulan Sebelumnya">
+                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $prevMonthDate]) }}"
+                            class="agendaNavBtn" title="Bulan Sebelumnya">
                             <ion-icon name="chevron-back-outline"></ion-icon>
                         </a>
                         <div class="text-center">
                             <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
                             <span class="text-xs font-bold text-muted">Kalender Agenda &amp; Sesi KBM</span>
                         </div>
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
-                            title="Bulan Berikutnya">
+                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $nextMonthDate]) }}"
+                            class="agendaNavBtn" title="Bulan Berikutnya">
                             <ion-icon name="chevron-forward-outline"></ion-icon>
                         </a>
                     </div>
@@ -419,7 +438,8 @@
                                     </div>
                                     <div class="text-right">
                                         <div class="text-xs font-extrabold text-primary">{{ $sesi->jam_rencana_formatted }} WIB</div>
-                                        <span class="app-badge {{ $sesi->status_badge_class }} text-2xs">{{ ucfirst($sesi->status) }}</span>
+                                        <span
+                                            class="app-badge {{ $sesi->status_badge_class }} text-2xs">{{ ucfirst($sesi->status) }}</span>
                                     </div>
                                 </div>
                             @endforeach
@@ -473,11 +493,13 @@
                                                 <ion-icon name="location-outline" class="text-primary"></ion-icon>
                                                 <span><strong class="text-dark">Lokasi:</strong> {{ $j->lokasiRingkasan() }}</span>
                                                 @if($j->lokasiPresensi)
-                                                    <span class="app-badge badge-layanan-dl text-2xs">Titik Absen: {{ $j->lokasiPresensi->nama_lokasi }}</span>
+                                                    <span class="app-badge badge-layanan-dl text-2xs">Titik Absen:
+                                                        {{ $j->lokasiPresensi->nama_lokasi }}</span>
                                                 @endif
                                             </div>
                                             @if($j->lokasiPetaUrl())
-                                                <a href="{{ $j->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline ml-2">
+                                                <a href="{{ $j->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer"
+                                                    class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline ml-2">
                                                     <ion-icon name="navigate-outline"></ion-icon> Petunjuk Peta
                                                 </a>
                                             @endif
@@ -494,7 +516,8 @@
                         </div>
                         <div class="emptyAgendaTitle">Tidak Ada Agenda Resmi PKBM</div>
                         <div class="emptyAgendaDesc">Belum ada agenda sekolah atau pengumuman akademik terjadwal pada
-                            <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
+                            <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.
+                        </div>
                     </div>
                 @endif
             </div>
@@ -506,16 +529,16 @@
                 {{-- ── Kalender Sesi Bulanan ── --}}
                 <div class="agendaHeaderCard mb-4">
                     <div class="agendaMonthNav">
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $prevMonthDate]) }}" class="agendaNavBtn"
-                            title="Bulan Sebelumnya">
+                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $prevMonthDate]) }}"
+                            class="agendaNavBtn" title="Bulan Sebelumnya">
                             <ion-icon name="chevron-back-outline"></ion-icon>
                         </a>
                         <div class="text-center">
                             <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
                             <span class="text-xs font-bold text-muted">Jadwal Sesi Mengajar Tutor</span>
                         </div>
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
-                            title="Bulan Berikutnya">
+                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $nextMonthDate]) }}"
+                            class="agendaNavBtn" title="Bulan Berikutnya">
                             <ion-icon name="chevron-forward-outline"></ion-icon>
                         </a>
                     </div>
@@ -608,14 +631,16 @@
                                 @if($agenda->lokasiRingkasan())
                                     <div class="agendaNoticeLocation d-flex items-center justify-between flex-wrap gap-1">
                                         <div class="d-flex items-center gap-1">
-                                            <ion-icon name="location-outline"></ion-icon> 
+                                            <ion-icon name="location-outline"></ion-icon>
                                             <span>{{ $agenda->lokasiRingkasan() }}</span>
                                             @if($agenda->lokasiPresensi)
-                                                <span class="app-badge badge-layanan-dl text-2xs ml-1">Titik Absen: {{ $agenda->lokasiPresensi->nama_lokasi }}</span>
+                                                <span class="app-badge badge-layanan-dl text-2xs ml-1">Titik Absen:
+                                                    {{ $agenda->lokasiPresensi->nama_lokasi }}</span>
                                             @endif
                                         </div>
                                         @if($agenda->lokasiPetaUrl())
-                                            <a href="{{ $agenda->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                            <a href="{{ $agenda->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer"
+                                                class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
                                                 <ion-icon name="navigate-outline"></ion-icon> Buka Peta
                                             </a>
                                         @endif
@@ -717,7 +742,9 @@
                                                         @endif
                                                     </span>
                                                     @if($lokasiSesi->latitude && $lokasiSesi->longitude)
-                                                        <a href="https://www.google.com/maps?q={{ $lokasiSesi->latitude }},{{ $lokasiSesi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                                        <a href="https://www.google.com/maps?q={{ $lokasiSesi->latitude }},{{ $lokasiSesi->longitude }}"
+                                                            target="_blank" rel="noopener noreferrer"
+                                                            class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
                                                             <ion-icon name="navigate-outline"></ion-icon> Peta
                                                         </a>
                                                     @endif
@@ -800,9 +827,11 @@
                             <ion-icon name="school-outline"></ion-icon>
                         </div>
                         <div class="emptyAgendaTitle">Belum Ada Sesi KBM Terjadwal</div>
-                        <div class="emptyAgendaDesc">Tidak ada agenda sesi belajar mengajar dengan peserta didik pada <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
+                        <div class="emptyAgendaDesc">Tidak ada agenda sesi belajar mengajar dengan peserta didik pada
+                            <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
                         <div class="mt-3">
-                            <button type="button" onclick="bukaModalJadwalBaru(false)" class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1">
+                            <button type="button" onclick="bukaModalJadwalBaru(false)"
+                                class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1">
                                 <ion-icon name="add-circle-outline"></ion-icon> Jadwalkan Sesi Hari Ini
                             </button>
                         </div>
@@ -869,7 +898,8 @@
                             <option value="">-- Pilih Siswa Bimbingan --</option>
                             @foreach($siswas as $s)
                                 <option value="{{ $s->id }}" {{ (string) old('siswa_id') === (string) $s->id ? 'selected' : '' }}>
-                                    {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} - {{ $s->nama_kelas_lengkap ?? 'Reguler' }})
+                                    {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} -
+                                    {{ $s->nama_kelas_lengkap ?? 'Reguler' }})
                                 </option>
                             @endforeach
                         </select>
@@ -880,25 +910,32 @@
                         <div class="form-field-wrapper mb-3">
                             <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
                             <select name="hari" id="modalHari" class="filterSelect">
-                                <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin</option>
-                                <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa</option>
+                                <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin
+                                </option>
+                                <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa
+                                </option>
                                 <option value="rabu" {{ old('hari') === 'rabu' ? 'selected' : '' }}>Setiap Hari Rabu</option>
-                                <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis</option>
-                                <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat</option>
-                                <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
-                                <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu</option>
+                                <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis
+                                </option>
+                                <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat
+                                </option>
+                                <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu
+                                </option>
+                                <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu
+                                </option>
                             </select>
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Berlaku Mulai</label>
-                                <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}" class="profileInput">
+                                <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}"
+                                    class="profileInput">
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Berlaku Sampai (Bulan/Tanggal Selesai)</label>
-                                <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}" class="profileInput"
-                                    placeholder="Pilih batas tanggal">
+                                <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}"
+                                    class="profileInput" placeholder="Pilih batas tanggal">
                                 <span class="field-help-text">Kosongkan jika terus berlanjut tanpa batas.</span>
                             </div>
                         </div>
@@ -910,9 +947,12 @@
                             <label class="filterFieldLabel">Jenis Sesi <span class="text-danger">*</span></label>
                             <select name="jenis_sesi" id="modalJenisSesi" onchange="toggleTanggalAsli()"
                                 class="filterSelect">
-                                <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler</option>
-                                <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi Pengganti (Make-up Class / Reschedule)</option>
-                                <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi Tambahan / Pengayaan</option>
+                                <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler
+                                </option>
+                                <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi
+                                    Pengganti (Make-up Class / Reschedule)</option>
+                                <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi
+                                    Tambahan / Pengayaan</option>
                             </select>
                         </div>
 
@@ -920,12 +960,14 @@
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Tanggal Rencana <span class="text-danger">*</span></label>
                                 <input type="date" name="tanggal_rencana" id="modalTanggalRencana"
-                                    value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}" class="profileInput">
+                                    value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}"
+                                    class="profileInput">
                             </div>
 
                             <div class="form-field-wrapper d-none" id="boxTanggalAsli">
                                 <label class="filterFieldLabel">Menggantikan Sesi Tanggal</label>
-                                <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}" class="profileInput">
+                                <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}"
+                                    class="profileInput">
                                 <span class="field-help-text">Tanggal sesi semula yang dilewati.</span>
                             </div>
                         </div>
@@ -933,16 +975,20 @@
 
                     {{-- Kategori SK --}}
                     <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Kategori Tutorial SK <span class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
+                        <label class="filterFieldLabel">Kategori Tutorial SK <span
+                                class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
                         <select name="kategori_tutorial_id" id="modalKategoriTutorial" onchange="kategoriUniversalChange()"
                             class="filterSelect">
                             <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
                             @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" data-nominal="{{ $kat->nominal_honor }}" {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
-                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull; {{ $kat->formatted_nominal_honor }})
+                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}"
+                                    data-nominal="{{ $kat->nominal_honor }}" {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
+                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull;
+                                    {{ $kat->formatted_nominal_honor }})
                                 </option>
                             @endforeach
-                            <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi Khusus (Belum Diatur SK) --</option>
+                            <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi
+                                Khusus (Belum Diatur SK) --</option>
                         </select>
                     </div>
 
@@ -954,32 +1000,42 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
-                                <input type="time" name="jam_masuk" id="modalJamMasukRutin" value="{{ old('jam_masuk', '10:00') }}"
-                                    onchange="hitungDurasiUniversal(true)" class="profileInput d-none">
-                                <input type="time" name="jam_masuk_rencana" id="modalJamMasukSingle" value="{{ old('jam_masuk_rencana', '10:00') }}"
-                                    onchange="hitungDurasiUniversal(true)" class="profileInput" required>
+                                <input type="time" name="jam_masuk" id="modalJamMasukRutin"
+                                    value="{{ old('jam_masuk', '10:00') }}" onchange="hitungDurasiUniversal(true)"
+                                    class="profileInput d-none">
+                                <input type="time" name="jam_masuk_rencana" id="modalJamMasukSingle"
+                                    value="{{ old('jam_masuk_rencana', '10:00') }}" onchange="hitungDurasiUniversal(true)"
+                                    class="profileInput" required>
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
-                                <input type="time" name="jam_pulang" id="modalJamPulangRutin" value="{{ old('jam_pulang', '12:00') }}"
-                                    onchange="hitungDurasiUniversal(false)" class="profileInput d-none">
-                                <input type="time" name="jam_pulang_rencana" id="modalJamPulangSingle" value="{{ old('jam_pulang_rencana', '12:00') }}"
-                                    onchange="hitungDurasiUniversal(false)" class="profileInput" required>
+                                <input type="time" name="jam_pulang" id="modalJamPulangRutin"
+                                    value="{{ old('jam_pulang', '12:00') }}" onchange="hitungDurasiUniversal(false)"
+                                    class="profileInput d-none">
+                                <input type="time" name="jam_pulang_rencana" id="modalJamPulangSingle"
+                                    value="{{ old('jam_pulang_rencana', '12:00') }}" onchange="hitungDurasiUniversal(false)"
+                                    class="profileInput" required>
                             </div>
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Durasi (Jam)</label>
                                 <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam"
-                                    id="modalDurasiUniversal" value="{{ old('durasi_jam', '2.00') }}" class="profileInput" readonly style="background: var(--card);">
+                                    id="modalDurasiUniversal" value="{{ old('durasi_jam', '2.00') }}" class="profileInput"
+                                    readonly style="background: var(--card);">
                             </div>
                         </div>
 
                         {{-- Alert Callout Interaktif Jika Durasi Non-SK --}}
-                        <div id="boxWarningNonSk" class="mt-3 p-3 rounded-xl d-none" style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.25);">
+                        <div id="boxWarningNonSk" class="mt-3 p-3 rounded-xl d-none"
+                            style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.25);">
                             <div class="d-flex items-start gap-2">
-                                <ion-icon name="alert-circle-outline" style="font-size: 20px; color: #d97706; flex-shrink: 0; margin-top: 1px;"></ion-icon>
+                                <ion-icon name="alert-circle-outline"
+                                    style="font-size: 20px; color: #d97706; flex-shrink: 0; margin-top: 1px;"></ion-icon>
                                 <div class="text-xs" style="color: var(--text); line-height: 1.5;">
-                                    <strong style="color: #d97706;">Durasi Non-SK (<span id="labelDurasiNonSk">0</span> Jam):</strong>
-                                    Durasi ini belum terdaftar dalam SK Tarif Resmi PKBM. Sesi ini akan ditandai untuk verifikasi Admin/Kepsek, dan kompensasi honorarium akan mengikuti tarif flat default SK terdekat (Rp 75.000,-). Hubungi Admin jika memerlukan SK tarif khusus.
+                                    <strong style="color: #d97706;">Durasi Non-SK (<span id="labelDurasiNonSk">0</span>
+                                        Jam):</strong>
+                                    Durasi ini belum terdaftar dalam SK Tarif Resmi PKBM. Sesi ini akan ditandai untuk
+                                    verifikasi Admin/Kepsek, dan kompensasi honorarium akan mengikuti tarif flat default SK
+                                    terdekat (Rp 75.000,-). Hubungi Admin jika memerlukan SK tarif khusus.
                                 </div>
                             </div>
                         </div>
@@ -993,7 +1049,8 @@
 
                     {{-- Titik Lokasi Presensi KBM (Geofence GPS) --}}
                     <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Presensi KBM <span class="text-xs text-muted font-normal">(Titik Geofence Absen)</span></label>
+                        <label class="filterFieldLabel">Titik Lokasi Presensi KBM <span
+                                class="text-xs text-muted font-normal">(Titik Geofence Absen)</span></label>
                         <select name="lokasi_presensi_id" id="modalLokasiPresensi" class="filterSelect">
                             <option value="">-- Lokasi Default PKBM / Sesuai Siswa --</option>
                             @foreach($lokasiPresensis as $lok)
@@ -1002,7 +1059,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        <span class="field-help-text">Jika dipilih, presensi tutor dan siswa akan diarahkan dan dilacak pada radius koordinat titik ini.</span>
+                        <span class="field-help-text">Jika dipilih, presensi tutor dan siswa akan diarahkan dan dilacak pada
+                            radius koordinat titik ini.</span>
                     </div>
 
                     <div class="form-field-wrapper mb-4">
@@ -1085,7 +1143,8 @@
                                 </option>
                             @endforeach
                         </select>
-                        <span class="field-help-text">Ganti titik koordinat presensi jika sesi pengganti diadakan di lokasi berbeda.</span>
+                        <span class="field-help-text">Ganti titik koordinat presensi jika sesi pengganti diadakan di lokasi
+                            berbeda.</span>
                     </div>
 
                     <div class="form-field-wrapper mb-4">
@@ -1228,7 +1287,7 @@
             @foreach($kategoriTutorials as $kat)
                 { id: {{ $kat->id }}, durasi: {{ (float) $kat->durasi_jam }} },
             @endforeach
-        ];
+            ];
 
         function kategoriUniversalChange() {
             const sel = document.getElementById('modalKategoriTutorial');
@@ -1348,8 +1407,8 @@
             bukaModalJadwalBaru(initialRecurring);
         @endif
 
-        // Auto-open modal jika diarahkan dari halaman Agenda PKBM dengan parameter open_modal
-        const urlParams = new URLSearchParams(window.location.search);
+            // Auto-open modal jika diarahkan dari halaman Agenda PKBM dengan parameter open_modal
+            const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('open_modal') === '1' || urlParams.get('open_modal') === 'rutin') {
             bukaModalJadwalBaru(urlParams.get('open_modal') === 'rutin');
         }
@@ -1383,39 +1442,39 @@
                 if (file.size > 5 * 1024 * 1024) {
                     feedback.style.display = 'block';
                     feedback.innerHTML = `
-                        <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
-                            <div class="fsc-info">
-                                <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
-                                <div class="fsc-details">
-                                    <div class="fsc-name">${file.name}</div>
-                                    <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
+                            <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
+                                <div class="fsc-info">
+                                    <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
+                                    <div class="fsc-details">
+                                        <div class="fsc-name">${file.name}</div>
+                                        <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
+                                    </div>
                                 </div>
-                            </div>
-                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
-                                <ion-icon name="close-circle-outline"></ion-icon>
-                            </button>
-                        </div>`;
+                                <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
+                                    <ion-icon name="close-circle-outline"></ion-icon>
+                                </button>
+                            </div>`;
                     input.value = '';
                     return;
                 }
 
                 feedback.style.display = 'block';
                 feedback.innerHTML = `
-                    <div class="file-selected-card">
-                        <div class="fsc-info">
-                            <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
-                            <div class="fsc-details">
-                                <div class="fsc-name">${file.name}</div>
-                                <div class="fsc-meta">
-                                    <span class="fsc-size">${sizeText}</span>
-                                    <span class="fsc-status-badge">Siap diunggah</span>
+                        <div class="file-selected-card">
+                            <div class="fsc-info">
+                                <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
+                                <div class="fsc-details">
+                                    <div class="fsc-name">${file.name}</div>
+                                    <div class="fsc-meta">
+                                        <span class="fsc-size">${sizeText}</span>
+                                        <span class="fsc-status-badge">Siap diunggah</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus berkas">
-                            <ion-icon name="close-circle-outline"></ion-icon>
-                        </button>
-                    </div>`;
+                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus berkas">
+                                <ion-icon name="close-circle-outline"></ion-icon>
+                            </button>
+                        </div>`;
             }
         }
 
@@ -1431,7 +1490,8 @@
     </script>
 
     {{-- ── MODAL IMPORT JADWAL SESI EXCEL ── --}}
-    <div id="importJadwalModal" class="app-modal-backdrop" style="display: none;" onclick="if(event.target===this) tutupModalImportJadwal()">
+    <div id="importJadwalModal" class="app-modal-backdrop" style="display: none;"
+        onclick="if(event.target===this) tutupModalImportJadwal()">
         <div class="app-modal-card">
             <div class="app-modal-header">
                 <div class="app-modal-header-left">
@@ -1443,11 +1503,13 @@
                         <div class="text-xs text-muted">Format Spreadsheet Excel / CSV</div>
                     </div>
                 </div>
-                <button type="button" onclick="tutupModalImportJadwal()" class="app-modal-close" title="Tutup">&times;</button>
+                <button type="button" onclick="tutupModalImportJadwal()" class="app-modal-close"
+                    title="Tutup">&times;</button>
             </div>
 
             <p class="app-modal-desc">
-                Unggah berkas jadwal KBM yang diekspor dari sistem lain (untuk satu bulan atau lebih). Sesi yang diimpor otomatis masuk ke kalender, terhubung ke kamera presensi, dan <b>tetap bisa di-reschedule</b> kapan saja.
+                Unggah berkas jadwal KBM yang diekspor dari sistem lain (untuk satu bulan atau lebih). Sesi yang diimpor
+                otomatis masuk ke kalender, terhubung ke kamera presensi, dan <b>tetap bisa di-reschedule</b> kapan saja.
             </p>
 
             <div class="import-template-banner">
@@ -1457,10 +1519,12 @@
                     </div>
                     <div class="import-template-texts">
                         <div class="import-template-title">Gunakan Template Format Excel</div>
-                        <div class="import-template-desc">Unduh format resmi untuk memastikan data tanggal, jam, dan siswa terbaca tepat.</div>
+                        <div class="import-template-desc">Unduh format resmi untuk memastikan data tanggal, jam, dan siswa
+                            terbaca tepat.</div>
                     </div>
                 </div>
-                <a href="{{ route('tutor.jadwal-sesi.template') }}" class="btn-download-template" title="Download Template Jadwal Sesi">
+                <a href="{{ route('tutor.jadwal-sesi.template') }}" class="btn-download-template"
+                    title="Download Template Jadwal Sesi">
                     <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
                 </a>
             </div>
@@ -1470,7 +1534,8 @@
                 <div class="form-field-wrapper mb-3">
                     <label class="form-field-label">Pilih Berkas Excel / CSV Jadwal:</label>
                     <div class="fileUploadBox">
-                        <input type="file" name="file_excel" id="jadwalSesiFileInput" accept=".xlsx,.xls,.csv" required onchange="handleExcelFileSelected(this, 'jadwalSesiFileFeedback')">
+                        <input type="file" name="file_excel" id="jadwalSesiFileInput" accept=".xlsx,.xls,.csv" required
+                            onchange="handleExcelFileSelected(this, 'jadwalSesiFileFeedback')">
                         <div class="fileUploadIcon">
                             <ion-icon name="cloud-upload-outline"></ion-icon>
                         </div>
@@ -1491,7 +1556,8 @@
                     <ul class="m-0 ps-3">
                         <li>Jadwal KBM 1 bulan atau lebih akan tercatat dengan status <b>Terjadwal</b>.</li>
                         <li>Sesi otomatis muncul di halaman presensi kamera saat tanggal sesi tiba.</li>
-                        <li>Jika jadwal berubah, Anda dapat melakukan <b>Reschedule</b> langsung dari tombol di kalender.</li>
+                        <li>Jika jadwal berubah, Anda dapat melakukan <b>Reschedule</b> langsung dari tombol di kalender.
+                        </li>
                     </ul>
                 </div>
 

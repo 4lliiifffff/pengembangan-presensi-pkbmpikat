@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Model Tutor — Data Profil Detail Tutor
+ * Model Tutor - Data Profil Detail Tutor
  *
  * Model ini merepresentasikan data profil lengkap seorang tutor.
  * Tutor adalah pengguna dengan role 'tutor' yang memiliki record User untuk login
@@ -37,7 +37,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  *
  * SIDANG FAQ:
  *   Q: Mengapa data tutor dipisah dari tabel users?
- *   A: Separation of Concerns — tabel users hanya mengurus autentikasi, sementara
+ *   A: Separation of Concerns - tabel users hanya mengurus autentikasi, sementara
  *      tabel tutors menyimpan data domain bisnis. Ini mempermudah perubahan schema
  *      di masa depan tanpa mengganggu mekanisme login.
  *

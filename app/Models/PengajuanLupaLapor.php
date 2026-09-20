@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Model PengajuanLupaLapor — Pengajuan Lupa Lapor (Retroactive Attendance Request)
+ * Model PengajuanLupaLapor - Pengajuan Lupa Lapor (Retroactive Attendance Request)
  *
  * Model ini merepresentasikan pengajuan presensi susulan/retroaktif oleh Tutor
  * ketika mereka lupa melakukan presensi digital pada hari mengajar.

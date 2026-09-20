@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
- * Model Kelas — Data Kelas & Rombongan Belajar
+ * Model Kelas - Data Kelas & Rombongan Belajar
  */
 class kelas extends Model
 {

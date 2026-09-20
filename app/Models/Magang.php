@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * Model Magang — Data Profil Mahasiswa Magang / Siswa PKL
+ * Model Magang - Data Profil Mahasiswa Magang / Siswa PKL
  */
 class Magang extends Model
 {

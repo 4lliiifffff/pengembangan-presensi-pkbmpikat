@@ -255,7 +255,7 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        Lokasi Presensi Pulang
+                        <span><ion-icon name="location-outline"></ion-icon> Lokasi Presensi Pulang</span>
                     </div>
                     <div id="mapBox" class="mapBox pos-relative">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
@@ -284,14 +284,14 @@
 
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation(true)">
-                            Perbarui Lokasi
+                            <ion-icon name="locate-outline"></ion-icon> Perbarui Lokasi
                         </button>
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-4">
                     <div class="cardTitle">
-                        Foto Presensi Pulang
+                        <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Pulang</span>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>
@@ -346,7 +346,7 @@
 
                     {{-- Tombol SELESAI --}}
                     <button type="submit" id="btnSubmit" @if (!$bisaPulang) disabled @endif class="captureBtn primary-red mt-4">
-                        Kirim Presensi Pulang
+                        <ion-icon name="log-out-outline"></ion-icon> Kirim Presensi Pulang
                     </button>
                 </div>
             </form>
@@ -398,7 +398,7 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        Lokasi Presensi Masuk
+                        <span><ion-icon name="location-outline"></ion-icon> Lokasi Presensi Masuk</span>
                     </div>
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen Karyawan --}}
@@ -464,14 +464,14 @@
 
                     <div class="mapToolbar">
                         <button type="button" onclick="refreshLocation(true)">
-                            Perbarui Lokasi
+                            <ion-icon name="locate-outline"></ion-icon> Perbarui Lokasi
                         </button>
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-4">
                     <div class="cardTitle">
-                        Foto Presensi Masuk
+                        <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Masuk</span>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>
@@ -526,7 +526,7 @@
 
                     {{-- Tombol MULAI --}}
                     <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
-                        Kirim Presensi Masuk
+                        <ion-icon name="checkmark-circle-outline"></ion-icon> Kirim Presensi Masuk
                     </button>
 
                     <div class="presensi-aux-actions">

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 /**
- * AuthWebController — Controller untuk Proses Autentikasi (Login & Logout)
+ * AuthWebController - Controller untuk Proses Autentikasi (Login & Logout)
  *
  * Controller ini menangani seluruh proses autentikasi pengguna berbasis web,
  * termasuk validasi kredensial, penetapan sesi, dan pengalihan berdasarkan peran (role).

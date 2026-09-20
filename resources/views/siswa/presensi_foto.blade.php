@@ -55,7 +55,8 @@
                     <div class="statusSub">
                         Kehadiran Anda berhasil diverifikasi pada pukul <strong>{{ $jamMasuk }} WIB</strong>
                         @if($isLate)
-                            <span class="text-warning font-semibold">(Terlambat {{ $todayPresensi->menit_keterlambatan }} menit dari jadwal KBM)</span>
+                            <span class="text-warning font-semibold">(Terlambat {{ $todayPresensi->menit_keterlambatan }} menit dari
+                                jadwal KBM)</span>
                         @else
                             <span class="text-success font-semibold">(Tepat Waktu)</span>
                         @endif
@@ -67,7 +68,8 @@
             <div class="data-mobile-card mb-4">
                 <div class="dmc-header">
                     <div class="d-flex items-center gap-2">
-                        <div class="avatar-sm rounded-full bg-primary-light text-primary d-flex align-items-center justify-content-center font-bold" style="width: 32px; height: 32px; font-size: 0.9rem;">
+                        <div class="avatar-sm rounded-full bg-primary-light text-primary d-flex align-items-center justify-content-center font-bold"
+                            style="width: 32px; height: 32px; font-size: 0.9rem;">
                             <ion-icon name="shield-checkmark-outline"></ion-icon>
                         </div>
                         <div>
@@ -77,7 +79,8 @@
                     </div>
                     <div>
                         @if($isLate)
-                            <span class="app-badge badge-layanan-dl">Terlambat (+{{ $todayPresensi->menit_keterlambatan }} mnt)</span>
+                            <span class="app-badge badge-layanan-dl">Terlambat (+{{ $todayPresensi->menit_keterlambatan }}
+                                mnt)</span>
                         @elseif($todayPresensi->status_kehadiran === 'lebih_awal')
                             <span class="app-badge badge-layanan-komunitas">Lebih Awal</span>
                         @else
@@ -87,20 +90,23 @@
                 </div>
 
                 {{-- User Profile & Selfie Snapshot Card --}}
-                <div class="d-flex items-center gap-3 p-3 rounded-xl mb-3" style="background: var(--card-alt, #f8fafc); border: 1px solid var(--border, #f1f5f9);">
+                <div class="d-flex items-center gap-3 p-3 rounded-xl mb-3"
+                    style="background: var(--card-alt, #f8fafc); border: 1px solid var(--border, #f1f5f9);">
                     <div class="pos-relative flex-shrink-0">
                         @if ($todayPresensi->foto_masuk_url)
-                            <img src="{{ $todayPresensi->foto_masuk_url }}" 
-                                 onclick="openBuktiPhotoModal('{{ $todayPresensi->foto_masuk_url }}', 'Foto Presensi: {{ $displayName }}')"
-                                 alt="Foto Presensi Masuk" 
-                                 class="rounded-xl object-cover cursor-pointer shadow-sm" 
-                                 style="width: 72px; height: 72px; object-fit: cover; border: 2px solid var(--card, #fff);" 
-                                 title="Klik untuk memperbesar">
-                            <span class="pos-absolute bottom-0 right-0 bg-success text-white rounded-full p-0.5 d-flex align-items-center justify-content-center shadow" style="width: 20px; height: 20px; font-size: 11px; transform: translate(25%, 25%);">
+                            <img src="{{ $todayPresensi->foto_masuk_url }}"
+                                onclick="openBuktiPhotoModal('{{ $todayPresensi->foto_masuk_url }}', 'Foto Presensi: {{ $displayName }}')"
+                                alt="Foto Presensi Masuk" class="rounded-xl object-cover cursor-pointer shadow-sm"
+                                style="width: 72px; height: 72px; object-fit: cover; border: 2px solid var(--card, #fff);"
+                                title="Klik untuk memperbesar">
+                            <span
+                                class="pos-absolute bottom-0 right-0 bg-success text-white rounded-full p-0.5 d-flex align-items-center justify-content-center shadow"
+                                style="width: 20px; height: 20px; font-size: 11px; transform: translate(25%, 25%);">
                                 <ion-icon name="checkmark-outline"></ion-icon>
                             </span>
                         @else
-                            <div class="avatar-lg bg-success-light text-success font-extrabold rounded-xl d-flex align-items-center justify-content-center shadow-sm" style="width: 72px; height: 72px; font-size: 1.8rem;">
+                            <div class="avatar-lg bg-success-light text-success font-extrabold rounded-xl d-flex align-items-center justify-content-center shadow-sm"
+                                style="width: 72px; height: 72px; font-size: 1.8rem;">
                                 ✓
                             </div>
                         @endif
@@ -108,10 +114,12 @@
                     <div class="min-w-0 flex-1">
                         <h4 class="font-extrabold text-base text-dark mb-0.5 truncate">{{ $displayName }}</h4>
                         <div class="text-xs text-muted font-semibold mb-1">
-                            {{ $siswa?->kelas?->nama_kelas ?? 'Kelas Siswa' }} &bull; No. Absen: <strong>{{ $siswa?->no_absen ?? '—' }}</strong>
+                            {{ $siswa?->kelas?->nama_kelas ?? 'Kelas Siswa' }} &bull; No. Absen:
+                            <strong>{{ $siswa?->no_absen ?? '-' }}</strong>
                         </div>
                         <div class="text-xs text-muted">
-                            NISN/NIK: <span class="font-mono font-semibold text-dark">{{ $siswa?->nisn ?? ($user->nik ?? '—') }}</span>
+                            NISN/NIK: <span
+                                class="font-mono font-semibold text-dark">{{ $siswa?->nisn ?? ($user->nik ?? '-') }}</span>
                         </div>
                     </div>
                 </div>
@@ -129,7 +137,8 @@
                         <div class="dmc-label">Status Kehadiran</div>
                         <div class="dmc-value">
                             @if($isLate)
-                                <span class="text-warning font-bold">Terlambat (+{{ $todayPresensi->menit_keterlambatan }} mnt)</span>
+                                <span class="text-warning font-bold">Terlambat (+{{ $todayPresensi->menit_keterlambatan }}
+                                    mnt)</span>
                             @elseif($todayPresensi->status_kehadiran === 'lebih_awal')
                                 <span class="text-info font-bold">Lebih Awal</span>
                             @else
@@ -175,41 +184,49 @@
                 {{-- Action Buttons --}}
                 <div class="dmc-footer">
                     <div class="dmc-actions flex-wrap gap-2">
-                        <a href="{{ route('siswa.dashboard') }}" class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
+                        <a href="{{ route('siswa.dashboard') }}"
+                            class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
                             <ion-icon name="home-outline"></ion-icon> Dashboard
                         </a>
-                        <a href="{{ route('siswa.jadwal') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                        <a href="{{ route('siswa.jadwal') }}"
+                            class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                             <ion-icon name="calendar-outline"></ion-icon> Jadwal
                         </a>
-                        <a href="{{ route('siswa.riwayat') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                        <a href="{{ route('siswa.riwayat') }}"
+                            class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                             <ion-icon name="time-outline"></ion-icon> Riwayat
                         </a>
                     </div>
                 </div>
             </div>
 
-        {{-- ── TIME-GATED: TIDAK BISA ABSEN (BELUM WAKTUNYA ATAU TIDAK ADA JADWAL) ── --}}
-        @elseif (! $canCheckIn)
+            {{-- ── TIME-GATED: TIDAK BISA ABSEN (BELUM WAKTUNYA ATAU TIDAK ADA JADWAL) ── --}}
+        @elseif (!$canCheckIn)
             @if ($gatingReason === 'no_schedule')
-                <div class="statusBanner mb-4" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22);">
+                <div class="statusBanner mb-4"
+                    style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22);">
                     <div class="statusIcon warn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
                         <ion-icon name="calendar-outline"></ion-icon>
                     </div>
                     <div class="flex-1 min-w-0">
                         <div class="statusTitle" style="color: #b91c1c;">Tidak Ada Jadwal Belajar Hari Ini</div>
-                        <div class="statusSub" style="color: #64748b;">Presensi mandiri hanya dapat dilakukan saat jadwal KBM aktif.</div>
+                        <div class="statusSub" style="color: #64748b;">Presensi mandiri hanya dapat dilakukan saat jadwal KBM aktif.
+                        </div>
                     </div>
                 </div>
 
                 <div class="data-mobile-card mb-4 text-center p-4">
                     <div class="d-flex justify-content-center mb-3">
-                        <div class="avatar-lg bg-danger-light text-danger rounded-2xl d-flex align-items-center justify-content-center" style="width: 72px; height: 72px; font-size: 2.2rem;">
+                        <div class="avatar-lg bg-danger-light text-danger rounded-2xl d-flex align-items-center justify-content-center"
+                            style="width: 72px; height: 72px; font-size: 2.2rem;">
                             <ion-icon name="calendar-outline"></ion-icon>
                         </div>
                     </div>
                     <h3 class="font-extrabold text-base text-dark mb-1">Hari Ini Tidak Ada KBM</h3>
                     <p class="text-xs text-muted mb-4 max-w-sm mx-auto" style="line-height: 1.5;">
-                        Anda tidak memiliki jadwal sesi belajar yang aktif untuk hari ini (<strong>{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}</strong>). Silakan periksa kalender belajar untuk melihat agenda mingguan Anda.
+                        Anda tidak memiliki jadwal sesi belajar yang aktif untuk hari ini
+                        (<strong>{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}</strong>). Silakan periksa
+                        kalender belajar untuk melihat agenda mingguan Anda.
                     </p>
 
                     <div class="dmc-footer pt-3 border-t-base">
@@ -217,7 +234,8 @@
                             <a href="{{ route('siswa.jadwal') }}" class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
                                 <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal Mingguan
                             </a>
-                            <a href="{{ route('siswa.dashboard') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                            <a href="{{ route('siswa.dashboard') }}"
+                                class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                                 <ion-icon name="home-outline"></ion-icon> Dashboard
                             </a>
                         </div>
@@ -237,7 +255,8 @@
 
                 <div class="data-mobile-card mb-4 text-center p-4">
                     <div class="d-flex justify-content-center mb-2">
-                        <div class="avatar-lg bg-warning-light text-warning rounded-2xl d-flex align-items-center justify-content-center" style="width: 68px; height: 68px; font-size: 2rem;">
+                        <div class="avatar-lg bg-warning-light text-warning rounded-2xl d-flex align-items-center justify-content-center"
+                            style="width: 68px; height: 68px; font-size: 2rem;">
                             <ion-icon name="time-outline"></ion-icon>
                         </div>
                     </div>
@@ -282,7 +301,9 @@
                                         {{ $todaySesi->lokasiPresensi->nama_lokasi }}
                                     </span>
                                     @if($todaySesi->lokasiPresensi->latitude && $todaySesi->lokasiPresensi->longitude)
-                                        <a href="https://www.google.com/maps?q={{ $todaySesi->lokasiPresensi->latitude }},{{ $todaySesi->lokasiPresensi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                        <a href="https://www.google.com/maps?q={{ $todaySesi->lokasiPresensi->latitude }},{{ $todaySesi->lokasiPresensi->longitude }}"
+                                            target="_blank" rel="noopener noreferrer"
+                                            class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
                                             <ion-icon name="navigate-outline"></ion-icon> Peta
                                         </a>
                                     @endif
@@ -302,10 +323,12 @@
 
                     <div class="dmc-footer pt-3 border-t-base">
                         <div class="dmc-actions flex-wrap gap-2">
-                            <a href="{{ route('siswa.dashboard') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                            <a href="{{ route('siswa.dashboard') }}"
+                                class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                                 <ion-icon name="home-outline"></ion-icon> Dashboard
                             </a>
-                            <a href="{{ route('siswa.jadwal') }}" class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                            <a href="{{ route('siswa.jadwal') }}"
+                                class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                                 <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal
                             </a>
                         </div>
@@ -313,7 +336,7 @@
                 </div>
 
                 <script>
-                    (function() {
+                    (function () {
                         const openTime = new Date("{{ $today }}T{{ $waktuBukaStr }}:00").getTime();
                         const clockEl = document.getElementById('countdownClock');
 
@@ -332,9 +355,9 @@
                             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
                             if (clockEl) {
-                                clockEl.textContent = 
-                                    String(hours).padStart(2, '0') + " : " + 
-                                    String(minutes).padStart(2, '0') + " : " + 
+                                clockEl.textContent =
+                                    String(hours).padStart(2, '0') + " : " +
+                                    String(minutes).padStart(2, '0') + " : " +
                                     String(seconds).padStart(2, '0');
                             }
                         }
@@ -345,41 +368,49 @@
                 </script>
             @endif
 
-        {{-- ── WAKTU ABSEN TERBUKA (NORMAL FORM) ── --}}
+            {{-- ── WAKTU ABSEN TERBUKA (NORMAL FORM) ── --}}
         @else
             @if(isset($sesiEval))
                 <div class="card mb-4 p-4 border-base bg-card-alt rounded-xl">
                     <div class="d-flex items-center justify-between flex-wrap gap-2">
                         <div>
                             <div class="text-xs font-bold text-primary text-uppercase tracking-wider">
-                                Jadwal KBM: {{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }} ({{ $sesiEval['jam_masuk_target'] }} - {{ $sesiEval['jam_pulang_target'] }} WIB)
+                                Jadwal KBM: {{ $todaySesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }}
+                                ({{ $sesiEval['jam_masuk_target'] }} - {{ $sesiEval['jam_pulang_target'] }} WIB)
                             </div>
                             <div class="text-xs text-muted mt-1">
-                                Target Masuk: <b>{{ $sesiEval['jam_masuk_target'] }} WIB</b> &bull; Batas Toleransi: <b>{{ $sesiEval['batas_toleransi'] }} WIB</b> ({{ $sesiEval['tolerance_minutes'] }} mnt)
+                                Target Masuk: <b>{{ $sesiEval['jam_masuk_target'] }} WIB</b> &bull; Batas Toleransi:
+                                <b>{{ $sesiEval['batas_toleransi'] }} WIB</b> ({{ $sesiEval['tolerance_minutes'] }} mnt)
                             </div>
                         </div>
                         <div>
                             @if($sesiEval['status_kehadiran'] === 'tepat_waktu')
-                                <span class="badge bg-success-light text-success font-bold text-xs py-1 px-3 rounded-full">Tepat Waktu</span>
+                                <span class="badge bg-success-light text-success font-bold text-xs py-1 px-3 rounded-full">Tepat
+                                    Waktu</span>
                             @elseif($sesiEval['status_kehadiran'] === 'lebih_awal')
-                                <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-3 rounded-full">Lebih Awal</span>
+                                <span class="badge bg-primary-light text-primary font-bold text-xs py-1 px-3 rounded-full">Lebih
+                                    Awal</span>
                             @else
-                                <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-3 rounded-full">Terlambat (+{{ $sesiEval['menit_keterlambatan'] }} mnt)</span>
+                                <span class="badge bg-warning-light text-warning font-bold text-xs py-1 px-3 rounded-full">Terlambat
+                                    (+{{ $sesiEval['menit_keterlambatan'] }} mnt)</span>
                             @endif
                         </div>
                     </div>
                     @if($sesiEval['is_terlambat'])
                         <div class="mt-2 text-xs text-warning font-semibold">
                             <ion-icon name="alert-circle-outline" style="vertical-align: -2px;"></ion-icon>
-                            Anda melewati batas waktu toleransi ({{ $sesiEval['batas_toleransi'] }} WIB). Presensi tetap dapat dilakukan dan tercatat terlambat.
+                            Anda melewati batas waktu toleransi ({{ $sesiEval['batas_toleransi'] }} WIB). Presensi tetap dapat dilakukan
+                            dan tercatat terlambat.
                         </div>
                     @endif
                 </div>
             @endif
 
-            <div class="statusBanner {{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'mb-4' : 'ready mb-4' }}" style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'background: #fffbeb; border-left: 4px solid #f59e0b;' : '' }}">
+            <div class="statusBanner {{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'mb-4' : 'ready mb-4' }}"
+                style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'background: #fffbeb; border-left: 4px solid #f59e0b;' : '' }}">
                 <div>
-                    <div class="statusTitle" style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'color: #b45309;' : '' }}">
+                    <div class="statusTitle"
+                        style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'color: #b45309;' : '' }}">
                         {{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'Presensi Masuk (Melebihi Toleransi)' : 'Presensi KBM Masuk Dibuka' }}
                     </div>
                     <div class="statusSub" style="{{ isset($sesiEval) && $sesiEval['is_terlambat'] ? 'color: #78350f;' : '' }}">
@@ -398,16 +429,19 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        Lokasi Presensi Masuk
+                        <ion-icon name="location-outline"></ion-icon>
+                        <span>Lokasi Presensi Masuk</span>
                     </div>
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
                     <div class="mb-3" id="boxPilihLokasi">
                         @if(isset($targetLokasi) && $targetLokasi && $todaySesi?->lokasiPresensi)
-                            <div class="p-2.5 rounded-xl border border-blue bg-blue-subtle text-xs mb-3 d-flex items-center gap-2" style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #1d4ed8;">
+                            <div class="p-2.5 rounded-xl border border-blue bg-blue-subtle text-xs mb-3 d-flex items-center gap-2"
+                                style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #1d4ed8;">
                                 <ion-icon name="pin-outline" style="font-size: 18px; flex-shrink: 0;"></ion-icon>
                                 <div>
-                                    <strong>Lokasi KBM Terjadwal:</strong> Titik presensi otomatis disesuaikan ke <strong>{{ $targetLokasi->nama_lokasi }}</strong> sesuai sesi belajar Anda.
+                                    <strong>Lokasi KBM Terjadwal:</strong> Titik presensi otomatis disesuaikan ke
+                                    <strong>{{ $targetLokasi->nama_lokasi }}</strong> sesuai sesi belajar Anda.
                                 </div>
                             </div>
                         @endif
@@ -415,20 +449,16 @@
                         <label class="d-block text-sm font-semibold text-muted mb-2">
                             Pilih Lokasi PKBM / Mitra <span class="text-danger">*</span>
                         </label>
-                        <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="select w-full">
+                        <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()"
+                            class="select w-full">
                             @forelse($lokasiPresensis as $lok)
-                                <option value="{{ $lok->id }}"
-                                    data-lat="{{ $lok->latitude }}"
-                                    data-lng="{{ $lok->longitude }}"
-                                    data-radius="{{ $lok->radius_meter }}"
-                                    data-nama="{{ $lok->nama_lokasi }}"
-                                    data-alamat="{{ $lok->alamat ?? '' }}"
-                                    {{ (old('lokasi_presensi_id', $targetLokasi?->id) == $lok->id || (!old('lokasi_presensi_id') && !$targetLokasi && $loop->first)) ? 'selected' : '' }}>
+                                <option value="{{ $lok->id }}" data-lat="{{ $lok->latitude }}" data-lng="{{ $lok->longitude }}"
+                                    data-radius="{{ $lok->radius_meter }}" data-nama="{{ $lok->nama_lokasi }}"
+                                    data-alamat="{{ $lok->alamat ?? '' }}" {{ (old('lokasi_presensi_id', $targetLokasi?->id) == $lok->id || (!old('lokasi_presensi_id') && !$targetLokasi && $loop->first)) ? 'selected' : '' }}>
                                     {{ $lok->nama_lokasi }}
                                 </option>
                             @empty
-                                <option value=""
-                                    data-lat="{{ (float) ($kantorLat ?? config('lokasi.sekolah_lat', -7.8011945)) }}"
+                                <option value="" data-lat="{{ (float) ($kantorLat ?? config('lokasi.sekolah_lat', -7.8011945)) }}"
                                     data-lng="{{ (float) ($kantorLng ?? config('lokasi.sekolah_lng', 110.364917)) }}"
                                     data-radius="{{ (int) ($radius ?? config('lokasi.radius_meter', 100)) }}"
                                     data-nama="{{ config('lokasi.sekolah_nama', 'PKBM Pikat') }}"
@@ -445,7 +475,7 @@
                         <div id="leafletMap" class="map-camera-box d-none"></div>
                     </div>
                     <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
-                    
+
                     {{-- Proximity Radar & Live Track Card --}}
                     <div id="proximityRadarCard" class="proximityRadarCard d-none">
                         <div class="radarHeader">
@@ -460,7 +490,8 @@
                                 Petunjuk Arah (Peta)
                             </a>
                             <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
+                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi:
+                                    Aktif</span>
                             </button>
                         </div>
                     </div>
@@ -472,9 +503,10 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <div class="card mb-4">
                     <div class="cardTitle">
-                        Foto Presensi Masuk
+                        <ion-icon name="camera-outline"></ion-icon>
+                        <span>Foto Presensi Masuk</span>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>
@@ -483,24 +515,33 @@
                         {{-- Grid Overlay --}}
                         <div id="cameraGrid" class="cameraGridOverlay d-none">
                             <div class="gridBox">
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
+                                <div class="gridCell"></div>
                             </div>
                         </div>
 
                         {{-- Floating Camera Toolbar Overlay --}}
                         <div id="camControlBar" class="camControlBar d-none">
                             <div class="camControlGroup">
-                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
+                                <button type="button" class="camToolBtn active" id="btnToggleMirror"
+                                    onclick="toggleCameraMirror()" title="Cermin Kamera">
                                     Cermin
                                 </button>
                             </div>
                             <div class="camControlGroup">
-                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
+                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()"
+                                    title="Garis Bantu">
                                     Garis Bantu
                                 </button>
-                                <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash" class="camToolBtn d-none">
+                                <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash"
+                                    class="camToolBtn d-none">
                                     Lampu
                                 </button>
                             </div>
@@ -529,11 +570,13 @@
 
                     {{-- Tombol MULAI --}}
                     <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
-                        Kirim Presensi Masuk
+                        <ion-icon name="checkmark-circle-outline" class="text-xl"></ion-icon>
+                        <span>Kirim Presensi Masuk</span>
                     </button>
 
                     <div class="presensi-aux-actions">
-                        <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin PKBM Pikat, saya siswa (' . $displayName . ') ingin menginformasikan perihal izin/kendala presensi hari ini: ') }}" target="_blank" class="wa-support-btn">
+                        <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin PKBM Pikat, saya siswa (' . $displayName . ') ingin menginformasikan perihal izin/kendala presensi hari ini: ') }}"
+                            target="_blank" class="wa-support-btn">
                             <ion-icon name="logo-whatsapp"></ion-icon>
                             <span>Izin / Kendala Siswa (Hubungi Admin)</span>
                         </a>
@@ -549,10 +592,12 @@
         <div class="modal-box">
             <div class="modal-header">
                 <span id="buktiPhotoModalTitle" class="font-extrabold text-dark">Foto Presensi</span>
-                <button type="button" class="modal-close" onclick="closeBuktiPhotoModal()" aria-label="Tutup">&times;</button>
+                <button type="button" class="modal-close" onclick="closeBuktiPhotoModal()"
+                    aria-label="Tutup">&times;</button>
             </div>
             <div class="modal-body p-0 text-center" style="background: #000;">
-                <img id="buktiPhotoModalImg" src="" alt="Foto Presensi" style="width: 100%; max-height: 75vh; object-fit: contain; display: block; margin: 0 auto;">
+                <img id="buktiPhotoModalImg" src="" alt="Foto Presensi"
+                    style="width: 100%; max-height: 75vh; object-fit: contain; display: block; margin: 0 auto;">
             </div>
         </div>
     </div>
@@ -563,7 +608,7 @@
             if (permW) permW.style.display = 'flex';
             const permD = document.getElementById('permWarnDesc');
             if (permD) permD.innerHTML = msg;
-            
+
             var btnSubmit = document.getElementById('btnSubmit');
             if (btnSubmit) btnSubmit.disabled = true;
 
@@ -595,7 +640,7 @@
                 }) :
                 Promise.reject(new Error('no_media_devices'));
 
-            var locP = new Promise(function(resolve, reject) {
+            var locP = new Promise(function (resolve, reject) {
                 if (!navigator.geolocation) return reject(new Error('no_geolocation'));
                 navigator.geolocation.getCurrentPosition(resolve, reject, {
                     enableHighAccuracy: true,
@@ -604,13 +649,13 @@
                 });
             });
 
-            Promise.all([camP, locP]).then(function(results) {
+            Promise.all([camP, locP]).then(function (results) {
                 var stream = results[0];
-                if (stream) stream.getTracks().forEach(function(t) {
+                if (stream) stream.getTracks().forEach(function (t) {
                     t.stop();
                 });
                 showMainContent();
-            }).catch(function(err) {
+            }).catch(function (err) {
                 var name = err && err.name ? err.name : '';
                 if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
                     showGateError('Izin <strong>kamera</strong> dan <strong>lokasi GPS</strong> wajib diaktifkan.');
@@ -622,7 +667,7 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             checkPermissions();
         });
 
@@ -693,7 +738,7 @@
                 targetNama: currentTargetNama,
                 targetAlamat: currentTargetAlamat,
                 lokasiList: allLokasiPoints,
-                onDistanceUpdate: function(state) {
+                onDistanceUpdate: function (state) {
                     var badge = document.getElementById('geofenceBadge');
                     var radarCard = document.getElementById('proximityRadarCard');
                     var radarDot = document.getElementById('radarStatusDot');
@@ -773,7 +818,7 @@
 
         function refreshLocation(isManual) {
             if (!navigator.geolocation) return;
-            
+
             var ph = document.getElementById('mapPlaceholder');
             if (ph && isManual) {
                 ph.textContent = 'Memperbarui koordinat lokasi...';
@@ -844,7 +889,7 @@
             watchPositionId = navigator.geolocation.watchPosition(function (pos) {
                 if (!isLiveTracking) return;
                 setMapFromLatLng(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-            }, function () {}, {
+            }, function () { }, {
                 enableHighAccuracy: true,
                 timeout: 10000,
                 maximumAge: 3000

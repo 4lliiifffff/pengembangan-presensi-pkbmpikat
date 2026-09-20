@@ -23,7 +23,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 /**
- * PresensiFotoController — Controller Absensi Berbasis Foto untuk Tutor
+ * PresensiFotoController - Controller Absensi Berbasis Foto untuk Tutor
  *
  * Controller ini mengelola fitur inti dari sistem presensi: proses Clock In (absen masuk)
  * dan Clock Out (absen pulang) yang dilengkapi dengan verifikasi foto sebagai bukti kehadiran.
@@ -169,8 +169,8 @@ class PresensiFotoController extends Controller
      * Memproses pengiriman form presensi (absen masuk atau absen pulang).
      *
      * Method ini menangani dua mode dalam satu endpoint:
-     *  - mode 'mulai'   : Clock In (absen masuk) — buat record presensi baru
-     *  - mode 'selesai' : Clock Out (absen pulang) — update record yang sudah ada
+     *  - mode 'mulai'   : Clock In (absen masuk) - buat record presensi baru
+     *  - mode 'selesai' : Clock Out (absen pulang) - update record yang sudah ada
      *
      * VALIDASI INPUT:
      *  - siswa_id : Wajib, harus berupa angka integer
@@ -393,7 +393,7 @@ class PresensiFotoController extends Controller
             }
 
             // Validasi durasi maksimal: jika sudah lebih dari 2 jam, tetap izinkan tapi catat
-            // (tidak ada blokir — hanya pastikan tetap bisa absen pulang)
+            // (tidak ada blokir - hanya pastikan tetap bisa absen pulang)
 
             $presensisToUpdate[] = $presensi;
         }
