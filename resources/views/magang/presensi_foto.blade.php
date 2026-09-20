@@ -31,6 +31,7 @@
 
         $dashRoute = route('magang.dashboard');
         $storeRoute = route('magang.presensi.store');
+        $adminWa = config('app.admin_wa', '6281234567890');
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -46,8 +47,8 @@
             <div class="permWarnTitle" id="permWarnTitle">Izin belum diberikan</div>
             <div class="permWarnDesc" id="permWarnDesc">Kamera dan lokasi diperlukan untuk melakukan presensi.</div>
         </div>
-        <button onclick="checkPermissions()" class="permWarnBtn">
-            Coba Lagi
+        <button type="button" onclick="checkPermissions()" class="permWarnBtn">
+            <ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin
         </button>
     </div>
 
@@ -372,6 +373,13 @@
                         <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
                             Kirim Presensi Masuk
                         </button>
+
+                        <div class="presensi-aux-actions">
+                            <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Pembina/Admin PKBM Pikat, saya ' . $displayName . ' ingin menginformasikan perihal izin/kendala presensi magang hari ini: ') }}" target="_blank" class="wa-support-btn">
+                                <ion-icon name="logo-whatsapp"></ion-icon>
+                                <span>Izin / Kendala Magang (Hubungi Pembina)</span>
+                            </a>
+                        </div>
                     </div>
                 </form>
             @endif

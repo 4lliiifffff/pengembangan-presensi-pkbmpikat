@@ -90,6 +90,10 @@ class MagangRoleAndPresensiTest extends TestCase
         $responseDash->assertStatus(200);
         $responseDash->assertSee('Universitas Gadjah Mada');
 
+        $responsePresensiIndex = $this->get(route('magang.presensi'));
+        $responsePresensiIndex->assertStatus(200);
+        $responsePresensiIndex->assertSee('Presensi Magang');
+
         $responsePresensi = $this->get(route('magang.presensi.foto'));
         $responsePresensi->assertStatus(200);
         $responsePresensi->assertSee('Presensi Magang');

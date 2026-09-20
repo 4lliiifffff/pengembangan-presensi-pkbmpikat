@@ -12,6 +12,7 @@
 
         $dashRoute = route('siswa.dashboard');
         $storeRoute = route('siswa.presensi.store');
+        $adminWa = config('app.admin_wa', '6281234567890');
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -27,8 +28,8 @@
             <div class="permWarnTitle" id="permWarnTitle">Izin belum diberikan</div>
             <div class="permWarnDesc" id="permWarnDesc">Kamera dan lokasi diperlukan untuk melakukan absensi mandiri.</div>
         </div>
-        <button onclick="checkPermissions()" class="permWarnBtn">
-            Coba Lagi
+        <button type="button" onclick="checkPermissions()" class="permWarnBtn">
+            <ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin
         </button>
     </div>
 
@@ -272,6 +273,22 @@
                                 {{ $waktuBukaStr }} WIB (H-30 Mnt)
                             </div>
                         </div>
+                        @if($todaySesi->lokasiPresensi)
+                            <div class="dmc-field full">
+                                <div class="dmc-label">Titik Lokasi KBM</div>
+                                <div class="dmc-value font-bold text-dark d-flex items-center justify-between">
+                                    <span class="d-inline-flex items-center gap-1">
+                                        <ion-icon name="location" class="text-danger"></ion-icon>
+                                        {{ $todaySesi->lokasiPresensi->nama_lokasi }}
+                                    </span>
+                                    @if($todaySesi->lokasiPresensi->latitude && $todaySesi->lokasiPresensi->longitude)
+                                        <a href="https://www.google.com/maps?q={{ $todaySesi->lokasiPresensi->latitude }},{{ $todaySesi->lokasiPresensi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                            <ion-icon name="navigate-outline"></ion-icon> Peta
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Countdown Timer Box --}}
@@ -386,6 +403,15 @@
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
                     <div class="mb-3" id="boxPilihLokasi">
+                        @if(isset($targetLokasi) && $targetLokasi && $todaySesi?->lokasiPresensi)
+                            <div class="p-2.5 rounded-xl border border-blue bg-blue-subtle text-xs mb-3 d-flex items-center gap-2" style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #1d4ed8;">
+                                <ion-icon name="pin-outline" style="font-size: 18px; flex-shrink: 0;"></ion-icon>
+                                <div>
+                                    <strong>Lokasi KBM Terjadwal:</strong> Titik presensi otomatis disesuaikan ke <strong>{{ $targetLokasi->nama_lokasi }}</strong> sesuai sesi belajar Anda.
+                                </div>
+                            </div>
+                        @endif
+
                         <label class="d-block text-sm font-semibold text-muted mb-2">
                             Pilih Lokasi PKBM / Mitra <span class="text-danger">*</span>
                         </label>
@@ -397,7 +423,7 @@
                                     data-radius="{{ $lok->radius_meter }}"
                                     data-nama="{{ $lok->nama_lokasi }}"
                                     data-alamat="{{ $lok->alamat ?? '' }}"
-                                    {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
+                                    {{ (old('lokasi_presensi_id', $targetLokasi?->id) == $lok->id || (!old('lokasi_presensi_id') && !$targetLokasi && $loop->first)) ? 'selected' : '' }}>
                                     {{ $lok->nama_lokasi }}
                                 </option>
                             @empty
@@ -505,6 +531,13 @@
                     <button type="submit" id="btnSubmit" class="captureBtn primary-blue mt-4">
                         Kirim Presensi Masuk
                     </button>
+
+                    <div class="presensi-aux-actions">
+                        <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin PKBM Pikat, saya siswa (' . $displayName . ') ingin menginformasikan perihal izin/kendala presensi hari ini: ') }}" target="_blank" class="wa-support-btn">
+                            <ion-icon name="logo-whatsapp"></ion-icon>
+                            <span>Izin / Kendala Siswa (Hubungi Admin)</span>
+                        </a>
+                    </div>
                 </div>
             </form>
         @endif

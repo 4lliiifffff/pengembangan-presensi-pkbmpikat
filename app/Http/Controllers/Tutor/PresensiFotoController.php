@@ -130,7 +130,7 @@ class PresensiFotoController extends Controller
         $shiftEval = $shiftService->evaluateCheckIn();
 
         // Ambil jadwal sesi rencana / sesi pengganti tutor untuk hari ini
-        $scheduledSessionsToday = JadwalSesi::with(['siswa', 'kategoriTutorial'])
+        $scheduledSessionsToday = JadwalSesi::with(['siswa', 'kategoriTutorial', 'lokasiPresensi'])
             ->where('tutor_id', $tutor->id)
             ->whereDate('tanggal_rencana', $today)
             ->where('status', 'terjadwal')
@@ -217,10 +217,18 @@ class PresensiFotoController extends Controller
         //  MODE: MULAI (Clock In / Absen Masuk)
         // ─────────────────────────────────────────────
         if ($validated['mode'] === 'mulai') {
-            // Validasi Geofencing jika moda sekolah berdasarkan titik yang dipilih
+            $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)
+                ->whereIn('siswa_id', $validated['siswa_id'])
+                ->whereDate('tanggal_rencana', $today)
+                ->where('status', 'terjadwal')
+                ->first();
+
+            // Validasi Geofencing jika moda sekolah berdasarkan titik yang dipilih (atau dari sesi KBM terjadwal)
             $moda = $validated['moda_pembelajaran'] ?? 'sekolah';
             if ($moda === 'sekolah') {
-                $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+                $lokasiPresensiId = isset($validated['lokasi_presensi_id']) && $validated['lokasi_presensi_id']
+                    ? (int) $validated['lokasi_presensi_id']
+                    : ($jadwalSesi?->lokasi_presensi_id ?? null);
                 $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
                 if (! $geofenceCheck['is_valid']) {
                     return back()->with('warning', $geofenceCheck['message']);
@@ -241,12 +249,6 @@ class PresensiFotoController extends Controller
                     return back()->with('warning', 'Presensi masuk masih berjalan untuk salah satu siswa terpilih. Silahkan absen pulang dulu.');
                 }
             }
-
-            $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)
-                ->whereIn('siswa_id', $validated['siswa_id'])
-                ->whereDate('tanggal_rencana', $today)
-                ->where('status', 'terjadwal')
-                ->first();
 
             $shiftEval = $shiftService->evaluateCheckIn($now, null, null, $jadwalSesi);
 

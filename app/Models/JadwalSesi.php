@@ -20,6 +20,7 @@ class JadwalSesi extends Model
         'siswa_id',
         'kategori_tutorial_id',
         'jadwal_kerja_id',
+        'lokasi_presensi_id',
         'tanggal_rencana',
         'jam_masuk_rencana',
         'jam_pulang_rencana',
@@ -68,6 +69,11 @@ class JadwalSesi extends Model
     public function jadwalKerja(): BelongsTo
     {
         return $this->belongsTo(JadwalKerja::class);
+    }
+
+    public function lokasiPresensi(): BelongsTo
+    {
+        return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
     }
 
     public function presensi(): BelongsTo

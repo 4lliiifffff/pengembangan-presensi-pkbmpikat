@@ -39,14 +39,15 @@ class SiswaDashboardController extends Controller
         $activeSesi = null;
 
         // Jadwal Sesi Belajar / Tutorial bersama Tutor Hari Ini
-        $jadwalSesiHariIni = JadwalSesi::with(['tutor', 'kategoriTutorial'])
+        $jadwalSesiHariIni = JadwalSesi::with(['tutor', 'kategoriTutorial', 'lokasiPresensi'])
             ->where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
             ->orderBy('jam_masuk_rencana')
             ->get();
 
         // Agenda / Jadwal Kegiatan Umum PKBM Mendatang
-        $agendaMendatang = Jadwal::whereDate('tanggal', '>=', $today)
+        $agendaMendatang = Jadwal::with('lokasiPresensi')
+            ->whereDate('tanggal', '>=', $today)
             ->orderBy('tanggal')
             ->limit(3)
             ->get();
@@ -180,14 +181,15 @@ class SiswaDashboardController extends Controller
         }
 
         // 1. Jadwal Sesi Belajar / Tutorial Siswa pada tanggal terpilih
-        $jadwalSesis = JadwalSesi::with(['tutor', 'kategoriTutorial', 'jadwalKerja'])
+        $jadwalSesis = JadwalSesi::with(['tutor', 'kategoriTutorial', 'jadwalKerja', 'lokasiPresensi'])
             ->where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $selectedDate)
             ->orderBy('jam_masuk_rencana')
             ->get();
 
         // 2. Agenda Kegiatan Umum PKBM pada tanggal terpilih
-        $agendas = Jadwal::whereDate('tanggal', $selectedDate)
+        $agendas = Jadwal::with('lokasiPresensi')
+            ->whereDate('tanggal', $selectedDate)
             ->orderBy('tanggal')
             ->orderBy('created_at')
             ->get();

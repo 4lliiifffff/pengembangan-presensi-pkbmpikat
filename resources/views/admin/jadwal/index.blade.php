@@ -312,9 +312,28 @@
                             </div>
                         @endif
 
-                        <div class="agendaMetaRow">
-                            <ion-icon name="location-outline" class="text-primary"></ion-icon>
-                            <span><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
+                        <div class="agendaMetaRow d-flex items-center justify-between flex-wrap gap-2">
+                            <div class="d-flex items-center gap-2 flex-wrap">
+                                <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                                @if($jadwal->lokasiPresensi)
+                                    <span class="app-badge badge-layanan-dl text-xs">
+                                        <ion-icon name="business-outline" class="mr-1"></ion-icon>
+                                        {{ $jadwal->lokasiPresensi->nama_lokasi }}
+                                    </span>
+                                    @if($jadwal->lokasi)
+                                        <span class="text-xs text-muted">({{ $jadwal->lokasi }})</span>
+                                    @endif
+                                @else
+                                    <span><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
+                                @endif
+                            </div>
+
+                            @if($jadwal->lokasiPetaUrl())
+                                <a href="{{ $jadwal->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer"
+                                   class="text-xs font-bold text-primary d-inline-flex items-center gap-1 hover:underline">
+                                    <ion-icon name="map-outline"></ion-icon> Petunjuk Arah
+                                </a>
+                            @endif
                         </div>
                     </div>
                 @endforeach

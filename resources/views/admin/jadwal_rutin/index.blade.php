@@ -221,6 +221,14 @@
                                 <div class="text-xs text-muted mt-1">
                                     Durasi: <strong>{{ number_format((float) $item->durasi_jam, 1) }} Jam</strong>
                                 </div>
+                                @if ($item->lokasiPresensi)
+                                    <div class="mt-1">
+                                        <span class="app-badge badge-layanan-dl" style="font-size: 10px; padding: 2px 6px;">
+                                            <ion-icon name="location-outline"></ion-icon>
+                                            {{ $item->lokasiPresensi->nama_lokasi }}
+                                        </span>
+                                    </div>
+                                @endif
                             </td>
                             <td class="text-center">
                                 @if ($item->is_active)
@@ -329,6 +337,16 @@
                         <div class="dmc-label">Durasi / Sesi Kalender</div>
                         <div class="dmc-value font-bold">{{ number_format((float) $item->durasi_jam, 1) }} Jam ({{ $item->jadwal_sesis_count }} Sesi)</div>
                     </div>
+
+                    @if ($item->lokasiPresensi)
+                        <div class="dmc-field full">
+                            <div class="dmc-label">Titik Lokasi Presensi / Belajar</div>
+                            <div class="dmc-value d-flex items-center gap-1 text-xs font-semibold text-primary">
+                                <ion-icon name="location-outline"></ion-icon>
+                                {{ $item->lokasiPresensi->nama_lokasi }} ({{ ucfirst($item->lokasiPresensi->tipe) }})
+                            </div>
+                        </div>
+                    @endif
 
                     <div class="dmc-field full">
                         <div class="dmc-label">Jendela Presensi Masuk Siswa</div>

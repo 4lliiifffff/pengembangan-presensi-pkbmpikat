@@ -46,8 +46,8 @@ class SiswaPresensiController extends Controller
             ->whereDate('tgl_presensi', $today)
             ->first();
 
-        // Cek Jadwal Sesi KBM Hari Ini untuk Smart Time-Gating
-        $todaySesiQuery = JadwalSesi::with(['tutor', 'kategoriTutorial'])
+        // Cek Jadwal Sesi KBM Hari Ini untuk Smart Time-Gating & Lokasi Target
+        $todaySesiQuery = JadwalSesi::with(['tutor', 'kategoriTutorial', 'lokasiPresensi'])
             ->where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
             ->where('status', '!=', 'dibatalkan');
@@ -137,9 +137,17 @@ class SiswaPresensiController extends Controller
         }
 
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-        $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
-        $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
-        $radius = (int) config('lokasi.radius_meter', 100);
+        $targetLokasi = $todaySesi?->lokasiPresensi;
+
+        if ($targetLokasi && $targetLokasi->latitude && $targetLokasi->longitude) {
+            $kantorLat = (float) $targetLokasi->latitude;
+            $kantorLng = (float) $targetLokasi->longitude;
+            $radius = (int) $targetLokasi->radius_meter;
+        } else {
+            $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
+            $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
+            $radius = (int) config('lokasi.radius_meter', 100);
+        }
 
         return view('siswa.presensi_foto', [
             'user' => $user,
@@ -148,6 +156,7 @@ class SiswaPresensiController extends Controller
             'todayPresensi' => $todayPresensi,
             'alreadyCheckedIn' => (bool) $todayPresensi,
             'todaySesi' => $todaySesi,
+            'targetLokasi' => $targetLokasi,
             'sesiEval' => $sesiEval,
             'canCheckIn' => $canCheckIn,
             'gatingReason' => $gatingReason,
@@ -247,8 +256,10 @@ class SiswaPresensiController extends Controller
             return back()->with('warning', $antiMockCheck['message']);
         }
 
-        // Validasi Geofencing berdasarkan titik lokasi yang dipilih
-        $lokasiPresensiId = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+        // Validasi Geofencing berdasarkan titik lokasi yang dipilih (atau dari sesi aktif)
+        $lokasiPresensiId = isset($validated['lokasi_presensi_id']) && $validated['lokasi_presensi_id']
+            ? (int) $validated['lokasi_presensi_id']
+            : ($todaySesi?->lokasi_presensi_id ?? null);
         $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
         if (! $geofenceCheck['is_valid']) {
             return back()->with('warning', $geofenceCheck['message']);

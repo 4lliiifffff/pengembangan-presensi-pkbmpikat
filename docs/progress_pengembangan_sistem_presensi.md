@@ -1,8 +1,8 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 19 September 2026  
+**Tanggal Pembaruan:** 20 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, & Penjadwalan Sesi Pengganti / Reschedule Future-Proof)  
+**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti / Reschedule Future-Proof, & Integrasi Multi-Geofence Titik Lokasi Presensi Terpadu)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 45
+    "Selesai (Completed)" : 46
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -21,14 +21,14 @@ pie title Status Fitur & Pengkondisian Sistem
 | 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
 | 2. Core Presensi & Validasi Lokasi | 9 | 8 | 0 | 1 |
 | 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
-| 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 6 | 6 | 0 | 0 |
+| 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 7 | 7 | 0 | 0 |
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
 | 6. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
 | 7. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
 | 8. UI/UX Excellence & Responsive Layout | 5 | 5 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **50** | **44** | **0** | **6** |
+| **TOTAL** | **51** | **45** | **0** | **6** |
 
 ---
 
@@ -680,6 +680,18 @@ pie title Status Fitur & Pengkondisian Sistem
     - **Keandalan & Performa:**
       - Menghilangkan preloader secara instan saat event `load` selesai, dilengkapi fallback batas waktu 2 detik dan pendeteksi *bfcache* (`pageshow`) agar tidak menghambat pengguna.
 
+#### 9.8 Penyelarasan Tombol Izin & Bantuan Presensi (Integrasi Modul Digital & Izin Perangkat)
+- 🟢 **Integrasi Tombol Izin Resmi & Bantuan Kendala**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Sebelumnya tombol izin pada halaman presensi hanya berupa tautan teks WhatsApp tunggal (`Izin / Kendala (Hubungi Admin)`). Hal ini membingungkan karena sistem telah memiliki alur digital formal untuk Pengajuan Izin/Sakit (`route('tutor.pengajuan-izin')`) dengan approval Kepala Sekolah (`route('kepsek.pengajuan-izin')`).
+    - **Pemisahan Aksi Formal & Bantuan Teknis:**
+      - Modul Tutor (`resources/views/tutor/presensi_foto.blade.php`): Menambahkan tombol utama `.btn-izin-action` menuju modul resmi `tutor.pengajuan-izin`, didampingi tombol sekunder bantuan kendala teknis WhatsApp.
+      - Modul Karyawan/Admin/Kepsek (`resources/views/karyawan/presensi_foto.blade.php`): Menyelaraskan tombol aksi menuju persetujuan izin (`kepsek.pengajuan-izin`) bagi Kepala Sekolah atau rekap izin (`admin.izin.index`) bagi Admin, serta opsi bantuan WA.
+      - Modul Magang & Siswa (`magang/presensi_foto.blade.php` & `siswa/presensi_foto.blade.php`): Melengkapi form presensi dengan tombol bantuan izin/kendala langsung ke pembina/admin via WhatsApp dengan template pesan otomatis yang terstruktur.
+    - **Standardisasi Tombol Izin Perangkat (`#permWarning`):**
+      - Memperbarui tombol pada banner peringatan kamera/GPS di 4 modul presensi menjadi tombol aksi jelas `<ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin` dengan styling `.permWarnBtn` yang kontras dan ramah sentuhan mobile.
+
 ---
 
 
@@ -731,6 +743,8 @@ pie title Status Fitur & Pengkondisian Sistem
 | 29 | **Optimalisasi Layout Spacing & Responsivitas Mobile Dashboard Admin** | UI/UX & Responsive | Memperbaiki bug penutupan tag pembungkus `.laporanHeader` yang memicu *nested double-padding* pada mobile, menyelaraskan kartu ringkasan KPI (`.summaryCard` & `.summarySub`), menambahkan pintasan menu cepat operasional Admin (`.adminQuickSection` & `.adminQuickGrid`), memodernisasi grafik mingguan dengan indikator angka real-time (`.barChart`, `.barCount`), serta menerapkan layout adaptif ergonomis pada kartu aktivitas presensi (`.activityRow`) di layar $\le 540$px. | 🟢 Selesai |
 | 30 | **Standardisasi Desain Empty State Tabel & Kartu Mobile (Design System 5 Role)** | UI/UX & Responsive | Harmonisasi gaya visual *empty state* dengan mengadopsi wadah pill badge berkontur lembut (`.tableEmptyIconWrap`, 52px, border-radius 16px, background aksen transparan, tema terang & gelap) menggantikan ikon polos 44px (`.tableEmptyIcon`), menghadirkan komponen `.tableEmptyCard` untuk mobile card list, serta refactoring menyeluruh pada seluruh view tabel/kartu kosong di 5 peran pengguna: **Admin** (`laporan`, `karyawan`, `siswa`, `jadwal_rutin`, `jadwal_kerja`, `lokasi_presensi`, `magang`, `jenjang_paket`, `kategori_tutorial`, `kelas`, `izin`, `payroll`), **Kepala Sekolah** (`presensi`, `pengajuan_izin`, `lupa_lapor`, `laporan`, `dashboard`), **Tutor** (`riwayat`, `payroll`, `dashboard`), **Siswa** (`riwayat`, `dashboard`), dan **Magang** (`riwayat`, `dashboard`) agar 100% konsisten, modern, dan responsif. | 🟢 Selesai |
 | 31 | **Pembatasan Kamera Presensi Selfie (Khusus Kamera Depan & Eliminasi Flip)** | Camera & Security | Membatasi sistem pengambilan foto presensi multi-role (Tutor, Karyawan/Admin, Magang, Siswa) agar secara ketat hanya menggunakan kamera depan (`facingMode: { ideal: 'user' }`), menghapus tombol ganti/tukar kamera dari floating toolbar `#camControlBar`, mengunci orientasi cermin selfie, dan mencegah manipulasi presensi via kamera belakang. | 🟢 Selesai |
+| 32 | **Perbaikan Dependency Injection & ArgumentCountError Presensi Magang** | Backend Bugfix | Memperbaiki bug `ArgumentCountError` pada `MagangPresensiController@foto` ketika dipanggil internal oleh `index()` tanpa argumen. Menginjeksi `ShiftPresensiService` via constructor property promotion dan menyediakan default parameter nullable fallback, serta melengkapi test assertion untuk `route('magang.presensi')`. | 🟢 Selesai |
+| 33 | **Integrasi Multi-Geofence Titik Lokasi Presensi pada Penjadwalan & Pelacakan Lintas Peran** | Schedule & Geofence | Migrasi `lokasi_presensi_id` pada `jadwals`, `jadwal_rutins`, dan `jadwal_sesis`. Relasi Eloquent, helper `lokasiRingkasan()` dan `lokasiPetaUrl()`, propagasi otomatis pola rutin ke sesi kalender, dukungan ganti titik lokasi saat reschedule tutor, integrasi impor Excel jadwal, pemilih titik presensi resmi pada admin & tutor, serta auto-select & geofence locking presensi mandiri siswa (`targetLokasi`). Dilengkapi 5 unit/feature test komprehensif di `JadwalLokasiTrackingTest` lulus 100%. | 🟢 Selesai |
 
 ---
 

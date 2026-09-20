@@ -79,8 +79,8 @@
             <div class="permWarnTitle" id="permWarnTitle">Izin belum diberikan</div>
             <div class="permWarnDesc" id="permWarnDesc">Kamera dan lokasi diperlukan untuk melakukan presensi.</div>
         </div>
-        <button onclick="checkPermissions()" class="permWarnBtn">
-            Coba Lagi
+        <button type="button" onclick="checkPermissions()" class="permWarnBtn">
+            <ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin
         </button>
     </div>
 
@@ -495,9 +495,24 @@
                         Kirim Presensi Masuk
                     </button>
 
-                    <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' ingin izin untuk hari ini...') }}" target="_blank" class="d-flex items-center justify-center gap-2 p-3 rounded-lg text-no-decor text-success text-md font-extrabold mt-2 wa-support-btn">
-                        Izin / Kendala (Hubungi Admin)
-                    </a>
+                    <div class="presensi-aux-actions">
+                        @if ($user?->role === 'kepala_sekolah')
+                            <a href="{{ route('kepsek.pengajuan-izin') }}" class="btn-izin-action">
+                                <ion-icon name="clipboard-outline"></ion-icon>
+                                <span>Persetujuan Izin Guru &amp; Karyawan</span>
+                            </a>
+                        @elseif ($user?->role === 'admin')
+                            <a href="{{ route('admin.izin.index') }}" class="btn-izin-action">
+                                <ion-icon name="calendar-outline"></ion-icon>
+                                <span>Data Rekap Izin &amp; Sakit</span>
+                            </a>
+                        @endif
+
+                        <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' mengalami kendala saat presensi hari ini: ') }}" target="_blank" class="wa-support-btn">
+                            <ion-icon name="logo-whatsapp"></ion-icon>
+                            <span>Kendala Presensi (Hubungi Admin)</span>
+                        </a>
+                    </div>
                 </div>
             </form>
 

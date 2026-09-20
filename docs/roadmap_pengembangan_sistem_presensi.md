@@ -104,6 +104,9 @@
   - **Peniadaan Waktu Tunggu Minimal 1 Jam di Backend:** Membebaskan role `admin` dan `kepala_sekolah` dari batasan kaku 3600 detik (1 jam) pada `KaryawanPresensiController@store` mode `selesai`. Pimpinan dan administrator kini dapat melakukan presensi pulang sewaktu-waktu sesuai kebutuhan dinas/rapat mendesak.
   - **Eliminasi Teks Ganda & Countdown Card di View:** Menghapus timer countdown `58:39` dan teks redundan `"minimal 1 jam durasi kerja"` pada `resources/views/karyawan/presensi_foto.blade.php`. Menggantikannya dengan banner penjelas *"Akses Fleksibel Kepulangan Aktif"* serta langsung mengaktifkan formulir foto dan tombol kirim presensi pulang.
   - **Automated Feature Test Suite:** 3 skenario pengujian komprehensif di `tests/Feature/KaryawanCheckOutBypassTest.php` lulus 100%.
+* 🟢 **Resolusi ArgumentCountError & Penguatan Injeksi Dependency Presensi Magang:** [SELESAI]
+  - **Akar Masalah:** Method `MagangPresensiController@index` memanggil internal `$this->foto()` tanpa argumen, padahal signature method `foto(ShiftPresensiService $shiftService)` mewajibkan 1 parameter yang hanya di-*resolve* otomatis oleh container Laravel saat rute dipanggil via router (`route('magang.presensi.foto')`). Pemanggilan method manual `$this->foto()` pada rute `route('magang.presensi')` memicu `ArgumentCountError` (0 passed, exactly 1 expected).
+  - **Solusi Arsitektur:** Mempromosikan injeksi `ShiftPresensiService $shiftService` ke constructor controller (`__construct`), mengubah parameter method `foto(?ShiftPresensiService $shiftService = null)` menjadi opsional dengan fallback `$this->shiftService`, serta menambahkan coverage pengujian otomatis untuk `route('magang.presensi')` di `tests/Feature/MagangRoleAndPresensiTest.php` (7 passed, 31 assertions).
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---
@@ -239,6 +242,22 @@
   - Konfigurasi run default `DatabaseSeeder` difokuskan murni pada inisialisasi akun pengguna seluruh peran (`AdminSeeder`, `UserRoleSeeder`, `MagangSeeder`, `SiswaUserSeeder`).
   - Mengeliminasi pembuatan otomatis jadwal operasional, data master, dan generator sesi kalender dummy saat `php artisan db:seed` dijalankan, menjaga database tetap bersih dan ringan.
 
+* 🟢 **Integrasi Multi-Geofence Titik Lokasi Presensi pada Seluruh Penjadwalan & Pelacakan Lintas-Peran (Siswa, Tutor, Admin, Kepsek):** [SELESAI]
+  - **Arsitektur Database Terintegrasi (`lokasi_presensi_id`):**
+    - Menambahkan kolom foreign key `lokasi_presensi_id` (nullable, `onDelete('set null')`) pada 3 tabel penjadwalan inti: `jadwals` (agenda sekolah), `jadwal_rutins` (master pola mingguan), dan `jadwal_sesis` (sesi KBM aktual) via migrasi `2026_09_20_182127_add_lokasi_presensi_id_to_jadwals_and_kbm_tables.php`.
+    - Relasi Eloquent `belongsTo(LokasiPresensi::class)` pada model `Jadwal`, `JadwalRutin`, dan `JadwalSesi`.
+    - Format alamat pintar `lokasiRingkasan()` dan tautan peta koordinat akurat `lokasiPetaUrl()` (mengarahkan langsung ke titik Google Maps koordinat GPS resmi).
+  - **Propagasi Otomatis & Fleksibilitas Reschedule:**
+    - `JadwalRutinService::generateSesiForPeriod()` mewariskan `lokasi_presensi_id` master rutin ke seluruh sesi KBM tergenerate.
+    - Sinkronisasi instan saat master pola diperbarui (`syncOnMasterUpdate()`).
+    - Dukungan opsi ganti atau pertahankan titik lokasi saat sesi di-reschedule oleh Tutor via modal Opsi 2.
+    - Impor agenda spreadsheet (`JadwalImport`) otomatis mencocokkan string lokasi dengan master nama lokasi presensi.
+  - **Pelacakan Terpadu & Interaktif Lintas Role:**
+    - **Siswa (`/siswa/jadwal` & `/siswa/presensi`):** Melihat titik lokasi bimbingan KBM dan agenda sekolah beserta tombol *"Petunjuk Peta"*; form presensi foto otomatis mengunci (`targetLokasi`) koordinat dan geofence radius ke titik KBM sesi hari itu, dilengkapi banner visual informatif.
+    - **Tutor (`/tutor/jadwal-sesi` & `/tutor/presensi`):** Pilihan titik lokasi resmi pada modal jadwal rutin, modal sesi sekali, dan modal reschedule; kartu sesi KBM dan agenda menampilkan rincian titik dan petunjuk Google Maps; presensi mengajar tutor otomatis menyelaraskan geofence check-in ke titik sesi KBM hari itu.
+    - **Admin & Kepsek (`/admin/jadwal` & `/admin/jadwal_rutin`):** Form pemilih titik presensi resmi + teks ruang/catatan tambahan pada agenda dan master rutin, tabel desktop & kartu mobile menyajikan badge lokasi dengan tautan langsung ke navigasi peta Google Maps.
+  - **Automated QA & Testing Suite:** 5 skenario pengujian komprehensif di `tests/Feature/JadwalLokasiTrackingTest.php` (agenda, propagasi rutin, pembuatan sesi sekali, reschedule ubah titik, dan presensi mandiri siswa auto-targeting) lulus 100%.
+
 * 🟢 **Modernisasi Antarmuka Login Autentikasi (`auth.login`):** [SELESAI]
   - Redesain halaman login dengan arsitektur mobile-first (kartu fluid ringkas di layar ponsel) dan split card 2-kolom elegan di desktop/tablet.
   - Penambahan fitur toggle show/hide password, input visual icon, checkbox "Ingat Saya", tombol switch Dark/Light Mode instan, serta proteksi submit loading state.
@@ -312,6 +331,7 @@
 * 🟢 **Pembatasan Kamera Presensi Selfie (Khusus Kamera Depan & Eliminasi Flip Kamera):** [SELESAI] Membatasi sistem pengambilan foto presensi di seluruh modul (Tutor, Karyawan/Admin, Mahasiswa Magang, Siswa) agar secara ketat hanya menggunakan kamera depan (`facingMode: { ideal: 'user' }`). Menghilangkan tombol flip/tukar kamera (`#btnToggleSwitch`) dari antarmuka kamera floating toolbar (`#camControlBar`), mengunci variabel `currentFacingMode = 'user'`, serta memastikan orientasi cermin selfie (`isMirrored = true`) aktif secara alami guna mencegah manipulasi presensi foto via kamera belakang.
 * 🟢 **Standarisasi Frame Preview Foto Presensi (Rasio Portrait 3:4 & True-Crop WYSIWYG):** [SELESAI] Menyelaraskan ukuran dan framing preview kamera dengan gambar aktual yang diunggah ke server pada 4 modul presensi (Karyawan/Admin, Tutor, Mahasiswa Magang, Siswa). Mengubah `.photoFrame` dari rasio horizontal 4:3 lama menjadi rasio portrait ideal `3/4` (`max-width: 380px; max-height: 480px; margin: 14px auto`) di `resources/css/app.css`. Memperbarui fungsi `snapPhoto()` di JavaScript untuk melakukan kalkulasi pemotongan simetris (*true-crop* 3:4) sebelum digambar ke kanvas, sehingga foto JPEG yang dikirim ke server memiliki framing yang 100% presisi (*What You See Is What You Get*) dengan apa yang dilihat pengguna di preview, menghilangkan ketidaksesuaian visual antara saat membidik, melihat hasil preview, dan verifikasi foto oleh admin di modal riwayat.
 * 🟢 **Fitur Preloader Premium Terpadu (Konsisten & Responsif Mobile):** [SELESAI] Mengimplementasikan sistem preloader elegan di seluruh halaman aplikasi (`admin`, `kepsek`, `presensi`, dan `auth.login`) terinspirasi dari standar arsitektur `suksesmetalabadi`. Menggunakan komponen terpusat `layouts/components/preloader.blade.php`, logo resmi PKBM Pikat, indikator animasi bilah ramping (*thin animated loading bar*), styling CSS terpusat di `resources/css/app.css` dengan dukungan Dark Mode otomatis (`[data-theme="dark"]`), transisi fade-out halus, serta fallback timeout protektif 2 detik dan penanganan bfcache (`pageshow`) agar tampilan selalu mulus dan responsif di smartphone.
+* 🟢 **Penyelarasan Tombol Izin & Bantuan Presensi (Integrasi Modul Digital & Izin Perangkat):** [SELESAI] Menyelaraskan tombol permohonan izin pada seluruh halaman presensi foto (`tutor`, `karyawan`, `magang`, `siswa`) agar terintegrasi resmi dengan modul sistem PKBM Pikat. Memisahkan aksi formal permohonan izin/sakit digital (`route('tutor.pengajuan-izin')` bagi tutor dengan verifikasi Kepala Sekolah, kelola izin untuk admin/kepsek) dari tombol bantuan teknis WhatsApp khusus kendala GPS/kamera. Serta menstandarisasi tombol izin akses perangkat pada banner peringatan `#permWarning` menjadi tombol aksi jelas `<ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin` dengan ukuran sentuh ergonomis mobile.
 
 
 

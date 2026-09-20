@@ -222,6 +222,28 @@
                                                     </div>
                                                 </div>
                                             @endif
+                                            @php
+                                                $lokasiSesi = $sesi->lokasiPresensi ?? $sesi->jadwalRutin?->lokasiPresensi;
+                                            @endphp
+                                            @if($lokasiSesi)
+                                                <div class="dmc-field full">
+                                                    <div class="dmc-label">Titik Lokasi Belajar / Absen</div>
+                                                    <div class="dmc-value d-flex items-center justify-between">
+                                                        <span class="d-inline-flex items-center gap-1 text-xs font-semibold text-dark">
+                                                            <ion-icon name="location" class="text-danger"></ion-icon>
+                                                            {{ $lokasiSesi->nama_lokasi }}
+                                                            @if($lokasiSesi->radius_meter)
+                                                                <span class="text-muted font-normal">({{ $lokasiSesi->radius_meter }}m)</span>
+                                                            @endif
+                                                        </span>
+                                                        @if($lokasiSesi->latitude && $lokasiSesi->longitude)
+                                                            <a href="https://www.google.com/maps?q={{ $lokasiSesi->latitude }},{{ $lokasiSesi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                                                <ion-icon name="navigate-outline"></ion-icon> Petunjuk Peta
+                                                            </a>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            @endif
                                         </div>
 
                                         @if($sesi->tanggal_asli)
@@ -280,10 +302,20 @@
                                             </div>
                                         @endif
 
-                                        @if($lokasi)
-                                            <div class="agendaMetaRow">
-                                                <ion-icon name="location-outline" class="text-primary"></ion-icon>
-                                                <span><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
+                                        @if($j->lokasiRingkasan())
+                                            <div class="agendaMetaRow d-flex items-center justify-between flex-wrap gap-1">
+                                                <div class="d-flex items-center gap-1">
+                                                    <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                                                    <span><strong class="text-dark">Lokasi:</strong> {{ $j->lokasiRingkasan() }}</span>
+                                                    @if($j->lokasiPresensi)
+                                                        <span class="app-badge badge-layanan-dl text-2xs ml-1">Titik Absen: {{ $j->lokasiPresensi->nama_lokasi }}</span>
+                                                    @endif
+                                                </div>
+                                                @if($j->lokasiPetaUrl())
+                                                    <a href="{{ $j->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline ml-2">
+                                                        <ion-icon name="navigate-outline"></ion-icon> Petunjuk Peta
+                                                    </a>
+                                                @endif
                                             </div>
                                         @endif
                                     </div>

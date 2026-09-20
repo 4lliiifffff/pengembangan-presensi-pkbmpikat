@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Jadwal;
+use App\Models\LokasiPresensi;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -39,11 +40,20 @@ class JadwalImport implements ToCollection, WithHeadingRow, WithValidation
                     continue;
                 }
 
+                $lokasiPresensiId = null;
+                if ($lokasi) {
+                    $matchedLokasi = LokasiPresensi::where('nama_lokasi', $lokasi)->first();
+                    if ($matchedLokasi) {
+                        $lokasiPresensiId = $matchedLokasi->id;
+                    }
+                }
+
                 Jadwal::create([
                     'judul' => $judul,
                     'deskripsi' => $deskripsi ?: null,
                     'tanggal' => $parsedTanggal,
                     'lokasi' => $lokasi ?: null,
+                    'lokasi_presensi_id' => $lokasiPresensiId,
                 ]);
 
                 $this->importedCount++;

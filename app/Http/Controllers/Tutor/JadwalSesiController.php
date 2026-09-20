@@ -12,6 +12,7 @@ use App\Models\JadwalKerja;
 use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
 use App\Models\KategoriTutorial;
+use App\Models\LokasiPresensi;
 use App\Models\Siswa;
 use App\Services\JadwalRutinService;
 use App\Services\WebPushService;
@@ -54,14 +55,14 @@ class JadwalSesiController extends Controller
         }
 
         // Sesi belajar tutor pada tanggal terpilih
-        $sesiHariIni = JadwalSesi::with(['siswa', 'kategoriTutorial', 'presensi'])
+        $sesiHariIni = JadwalSesi::with(['siswa', 'kategoriTutorial', 'presensi', 'lokasiPresensi'])
             ->where('tutor_id', $tutor->id)
             ->whereDate('tanggal_rencana', $selectedDate)
             ->orderBy('jam_masuk_rencana')
             ->get();
 
         // Riwayat sesi mendatang dan sesi pengganti
-        $upcomingSesi = JadwalSesi::with(['siswa', 'kategoriTutorial'])
+        $upcomingSesi = JadwalSesi::with(['siswa', 'kategoriTutorial', 'lokasiPresensi'])
             ->where('tutor_id', $tutor->id)
             ->where('status', 'terjadwal')
             ->whereDate('tanggal_rencana', '>=', $today)
@@ -81,7 +82,7 @@ class JadwalSesiController extends Controller
             ->map->count();
 
         // Master Pola Rutin Mingguan milik Tutor ini
-        $jadwalRutins = JadwalRutin::with(['siswa', 'kategoriTutorial'])
+        $jadwalRutins = JadwalRutin::with(['siswa', 'kategoriTutorial', 'lokasiPresensi'])
             ->where('tutor_id', $tutor->id)
             ->withCount('jadwalSesis')
             ->orderBy('hari')
@@ -89,7 +90,8 @@ class JadwalSesiController extends Controller
             ->get();
 
         // INTEGRASI: Agenda & Pengumuman Resmi PKBM pada tanggal terpilih
-        $agendasHariIni = Jadwal::whereDate('tanggal', $selectedDate)
+        $agendasHariIni = Jadwal::with('lokasiPresensi')
+            ->whereDate('tanggal', $selectedDate)
             ->orderBy('tanggal')
             ->orderBy('created_at')
             ->get();
@@ -118,6 +120,7 @@ class JadwalSesiController extends Controller
 
         $siswas = Siswa::where('tutor_id', $tutor->id)->orWhereNull('tutor_id')->orderBy('nama_siswa')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->get();
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
         return view('tutor.jadwal_sesi.index', compact(
             'tutor',
@@ -133,7 +136,8 @@ class JadwalSesiController extends Controller
             'monthDays',
             'monthCounts',
             'siswas',
-            'kategoriTutorials'
+            'kategoriTutorials',
+            'lokasiPresensis'
         ));
     }
 
@@ -173,6 +177,7 @@ class JadwalSesiController extends Controller
             $validated = $request->validate([
                 'siswa_id' => ['required', 'exists:siswas,id'],
                 'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
+                'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
                 'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
                 'jam_masuk' => ['required', 'date_format:H:i'],
                 'jam_pulang' => ['required', 'date_format:H:i', 'after:jam_masuk'],
@@ -255,6 +260,7 @@ class JadwalSesiController extends Controller
         $validated = $request->validate([
             'siswa_id' => ['required', 'exists:siswas,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'tanggal_rencana' => ['required', 'date'],
             'jam_masuk_rencana' => ['required', 'date_format:H:i'],
             'jam_pulang_rencana' => ['required', 'date_format:H:i', 'after:jam_masuk_rencana'],
@@ -354,6 +360,7 @@ class JadwalSesiController extends Controller
             'tanggal_baru' => ['required', 'date'],
             'jam_masuk_baru' => ['required', 'date_format:H:i'],
             'jam_pulang_baru' => ['required', 'date_format:H:i', 'after:jam_masuk_baru'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'alasan_penggantian' => ['required', 'string', 'max:1000'],
         ], [
             'tanggal_baru.required' => 'Tanggal baru hasil reschedule wajib diisi.',
@@ -368,7 +375,9 @@ class JadwalSesiController extends Controller
             $validated['tanggal_baru'],
             $validated['jam_masuk_baru'],
             $validated['jam_pulang_baru'],
-            $validated['alasan_penggantian']
+            $validated['alasan_penggantian'],
+            null,
+            $validated['lokasi_presensi_id'] ?? null
         );
 
         // Web Push Notifikasi ke Siswa
@@ -408,6 +417,7 @@ class JadwalSesiController extends Controller
         $validated = $request->validate([
             'siswa_id' => ['required', 'exists:siswas,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'tanggal_rencana' => ['required', 'date'],
             'jam_masuk_rencana' => ['required', 'date_format:H:i'],
             'jam_pulang_rencana' => ['required', 'date_format:H:i', 'after:jam_masuk_rencana'],

@@ -29,6 +29,7 @@ class JadwalRutin extends Model
         'tutor_id',
         'kategori_tutorial_id',
         'jadwal_kerja_id',
+        'lokasi_presensi_id',
         'hari',
         'jam_masuk',
         'jam_pulang',
@@ -69,6 +70,11 @@ class JadwalRutin extends Model
     public function jadwalKerja(): BelongsTo
     {
         return $this->belongsTo(JadwalKerja::class);
+    }
+
+    public function lokasiPresensi(): BelongsTo
+    {
+        return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
     }
 
     public function jadwalSesis(): HasMany

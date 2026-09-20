@@ -232,6 +232,25 @@
                                             <div class="dmc-value font-bold">{{ $rutin->jadwal_sesis_count }} Sesi Kalender</div>
                                         </div>
 
+                                        @if ($rutin->lokasiPresensi)
+                                            <div class="dmc-field full">
+                                                <div class="dmc-label">Titik Lokasi Presensi Rutin</div>
+                                                <div class="dmc-value d-flex items-center justify-between">
+                                                    <span class="d-inline-flex items-center gap-1 text-xs font-semibold text-dark">
+                                                        <ion-icon name="location" class="text-danger"></ion-icon>
+                                                        {{ $rutin->lokasiPresensi->nama_lokasi }}
+                                                        @if($rutin->lokasiPresensi->radius_meter)
+                                                            <span class="text-muted font-normal">({{ $rutin->lokasiPresensi->radius_meter }}m)</span>
+                                                        @endif
+                                                    </span>
+                                                    @if($rutin->lokasiPresensi->latitude && $rutin->lokasiPresensi->longitude)
+                                                        <a href="https://www.google.com/maps?q={{ $rutin->lokasiPresensi->latitude }},{{ $rutin->lokasiPresensi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                                            <ion-icon name="navigate-outline"></ion-icon> Peta
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
                                         @if ($rutin->keterangan)
                                             <div class="dmc-field full">
                                                 <div class="dmc-label">Catatan / Kesepakatan</div>
@@ -448,10 +467,20 @@
                                         </div>
                                     @endif
 
-                                    @if($lokasi)
-                                        <div class="agendaMetaRow">
-                                            <ion-icon name="location-outline" class="text-primary"></ion-icon>
-                                            <span><strong class="text-dark">Lokasi:</strong> {{ $lokasi }}</span>
+                                    @if($j->lokasiRingkasan())
+                                        <div class="agendaMetaRow d-flex items-center justify-between">
+                                            <div class="d-flex items-center gap-1 flex-wrap">
+                                                <ion-icon name="location-outline" class="text-primary"></ion-icon>
+                                                <span><strong class="text-dark">Lokasi:</strong> {{ $j->lokasiRingkasan() }}</span>
+                                                @if($j->lokasiPresensi)
+                                                    <span class="app-badge badge-layanan-dl text-2xs">Titik Absen: {{ $j->lokasiPresensi->nama_lokasi }}</span>
+                                                @endif
+                                            </div>
+                                            @if($j->lokasiPetaUrl())
+                                                <a href="{{ $j->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline ml-2">
+                                                    <ion-icon name="navigate-outline"></ion-icon> Petunjuk Peta
+                                                </a>
+                                            @endif
                                         </div>
                                     @endif
                                 </div>
@@ -576,9 +605,20 @@
                                 @if($agenda->deskripsi)
                                     <div class="agendaNoticeDesc">{{ $agenda->deskripsi }}</div>
                                 @endif
-                                @if($agenda->lokasi)
-                                    <div class="agendaNoticeLocation">
-                                        <ion-icon name="location-outline"></ion-icon> {{ $agenda->lokasi }}
+                                @if($agenda->lokasiRingkasan())
+                                    <div class="agendaNoticeLocation d-flex items-center justify-between flex-wrap gap-1">
+                                        <div class="d-flex items-center gap-1">
+                                            <ion-icon name="location-outline"></ion-icon> 
+                                            <span>{{ $agenda->lokasiRingkasan() }}</span>
+                                            @if($agenda->lokasiPresensi)
+                                                <span class="app-badge badge-layanan-dl text-2xs ml-1">Titik Absen: {{ $agenda->lokasiPresensi->nama_lokasi }}</span>
+                                            @endif
+                                        </div>
+                                        @if($agenda->lokasiPetaUrl())
+                                            <a href="{{ $agenda->lokasiPetaUrl() }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                                <ion-icon name="navigate-outline"></ion-icon> Buka Peta
+                                            </a>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
@@ -662,6 +702,29 @@
                                             </div>
                                         </div>
 
+                                        @php
+                                            $lokasiSesi = $sesi->lokasiPresensi ?? $sesi->jadwalRutin?->lokasiPresensi;
+                                        @endphp
+                                        @if($lokasiSesi)
+                                            <div class="dmc-field full">
+                                                <div class="dmc-label">Titik Lokasi Presensi KBM</div>
+                                                <div class="dmc-value d-flex items-center justify-between">
+                                                    <span class="d-inline-flex items-center gap-1 text-xs font-semibold text-dark">
+                                                        <ion-icon name="location" class="text-danger"></ion-icon>
+                                                        {{ $lokasiSesi->nama_lokasi }}
+                                                        @if($lokasiSesi->radius_meter)
+                                                            <span class="text-muted font-normal">({{ $lokasiSesi->radius_meter }}m)</span>
+                                                        @endif
+                                                    </span>
+                                                    @if($lokasiSesi->latitude && $lokasiSesi->longitude)
+                                                        <a href="https://www.google.com/maps?q={{ $lokasiSesi->latitude }},{{ $lokasiSesi->longitude }}" target="_blank" rel="noopener noreferrer" class="text-xs text-primary font-bold d-inline-flex items-center gap-1 hover:underline">
+                                                            <ion-icon name="navigate-outline"></ion-icon> Peta
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         @if($sesi->tanggal_asli)
                                             <div class="dmc-field full">
                                                 <div class="dmc-label">Menggantikan Sesi Sebelumnya</div>
@@ -699,7 +762,7 @@
                                                 </a>
 
                                                 <button type="button"
-                                                    onclick="bukaModalReschedule({{ $sesi->id }}, '{{ addslashes($sesi->siswa->nama_siswa ?? 'Siswa') }}', '{{ $sesi->tanggal_rencana->format('Y-m-d') }}', '{{ substr((string) $sesi->jam_masuk_rencana, 0, 5) }}', '{{ substr((string) $sesi->jam_pulang_rencana, 0, 5) }}')"
+                                                    onclick="bukaModalReschedule({{ $sesi->id }}, '{{ addslashes($sesi->siswa->nama_siswa ?? 'Siswa') }}', '{{ $sesi->tanggal_rencana->format('Y-m-d') }}', '{{ substr((string) $sesi->jam_masuk_rencana, 0, 5) }}', '{{ substr((string) $sesi->jam_pulang_rencana, 0, 5) }}', '{{ $sesi->lokasi_presensi_id ?? $sesi->jadwalRutin?->lokasi_presensi_id ?? '' }}')"
                                                     class="smallBtn btn-table-action"
                                                     style="background: rgba(37,99,235,0.08); color: #2563eb; border: 1px solid rgba(37,99,235,0.2);">
                                                     <ion-icon name="repeat-outline"></ion-icon> Reschedule
@@ -928,6 +991,20 @@
                             placeholder="Misal: Permintaan orang tua, persiapan ujian, dsb." class="profileInput">
                     </div>
 
+                    {{-- Titik Lokasi Presensi KBM (Geofence GPS) --}}
+                    <div class="form-field-wrapper mb-3">
+                        <label class="filterFieldLabel">Titik Lokasi Presensi KBM <span class="text-xs text-muted font-normal">(Titik Geofence Absen)</span></label>
+                        <select name="lokasi_presensi_id" id="modalLokasiPresensi" class="filterSelect">
+                            <option value="">-- Lokasi Default PKBM / Sesuai Siswa --</option>
+                            @foreach($lokasiPresensis as $lok)
+                                <option value="{{ $lok->id }}" {{ (string) old('lokasi_presensi_id') === (string) $lok->id ? 'selected' : '' }}>
+                                    📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="field-help-text">Jika dipilih, presensi tutor dan siswa akan diarahkan dan dilacak pada radius koordinat titik ini.</span>
+                    </div>
+
                     <div class="form-field-wrapper mb-4">
                         <label class="filterFieldLabel">Catatan Tambahan (Opsional)</label>
                         <textarea name="catatan" rows="2" placeholder="Catatan materi atau lokasi KBM..."
@@ -995,6 +1072,20 @@
                             <input type="time" name="jam_pulang_baru" id="rescheduleJamPulang" class="profileInput"
                                 required>
                         </div>
+                    </div>
+
+                    {{-- Titik Lokasi Presensi KBM (Reschedule) --}}
+                    <div class="form-field-wrapper mb-3">
+                        <label class="filterFieldLabel">Titik Lokasi Presensi KBM (Opsional)</label>
+                        <select name="lokasi_presensi_id" id="rescheduleLokasiPresensi" class="filterSelect">
+                            <option value="">-- Tetap Gunakan Titik Semula / Default --</option>
+                            @foreach($lokasiPresensis as $lok)
+                                <option value="{{ $lok->id }}">
+                                    📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="field-help-text">Ganti titik koordinat presensi jika sesi pengganti diadakan di lokasi berbeda.</span>
                     </div>
 
                     <div class="form-field-wrapper mb-4">
@@ -1216,13 +1307,14 @@
             }
         }
 
-        function bukaModalReschedule(id, namaSiswa, tanggalRencana, jamMasuk, jamPulang) {
+        function bukaModalReschedule(id, namaSiswa, tanggalRencana, jamMasuk, jamPulang, lokasiPresensiId = '') {
             const modal = document.getElementById('modalRescheduleSesi');
             const form = document.getElementById('formReschedule');
             const info = document.getElementById('rescheduleSesiInfo');
             const inTgl = document.getElementById('rescheduleTanggalBaru');
             const inMasuk = document.getElementById('rescheduleJamMasuk');
             const inPulang = document.getElementById('rescheduleJamPulang');
+            const selLokasi = document.getElementById('rescheduleLokasiPresensi');
 
             if (modal && form) {
                 form.action = '/tutor/jadwal-sesi/' + id + '/reschedule';
@@ -1230,6 +1322,9 @@
                 inTgl.value = tanggalRencana;
                 inMasuk.value = jamMasuk;
                 inPulang.value = jamPulang;
+                if (selLokasi) {
+                    selLokasi.value = lokasiPresensiId || '';
+                }
 
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JadwalKerja;
 use App\Models\JadwalRutin;
 use App\Models\KategoriTutorial;
+use App\Models\LokasiPresensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Services\JadwalRutinService;
@@ -22,7 +23,7 @@ class JadwalRutinController extends Controller
     public function index(Request $request): View
     {
         $query = JadwalRutin::query()
-            ->with(['siswa.relKelas', 'tutor', 'kategoriTutorial', 'jadwalKerja'])
+            ->with(['siswa.relKelas', 'tutor', 'kategoriTutorial', 'jadwalKerja', 'lokasiPresensi'])
             ->withCount('jadwalSesis');
 
         if ($request->filled('search')) {
@@ -77,6 +78,7 @@ class JadwalRutinController extends Controller
         $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
         $jadwalKerjas = JadwalKerja::active()->where('jenis_shift', 'kbm')->orderBy('urutan')->get();
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
         $hariList = [
             'senin' => 'Senin',
@@ -88,7 +90,7 @@ class JadwalRutinController extends Controller
             'minggu' => 'Minggu',
         ];
 
-        return view('admin.jadwal_rutin.create', compact('siswas', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'hariList'));
+        return view('admin.jadwal_rutin.create', compact('siswas', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
     }
 
     /**
@@ -101,6 +103,7 @@ class JadwalRutinController extends Controller
             'tutor_id' => ['required', 'exists:tutors,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
             'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerjas,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i', 'after:jam_masuk'],
@@ -159,6 +162,7 @@ class JadwalRutinController extends Controller
         $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
         $jadwalKerjas = JadwalKerja::active()->where('jenis_shift', 'kbm')->orderBy('urutan')->get();
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
         $hariList = [
             'senin' => 'Senin',
@@ -170,7 +174,7 @@ class JadwalRutinController extends Controller
             'minggu' => 'Minggu',
         ];
 
-        return view('admin.jadwal_rutin.edit', compact('jadwalRutin', 'siswas', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'hariList'));
+        return view('admin.jadwal_rutin.edit', compact('jadwalRutin', 'siswas', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
     }
 
     /**
@@ -183,6 +187,7 @@ class JadwalRutinController extends Controller
             'tutor_id' => ['required', 'exists:tutors,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
             'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerjas,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
             'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i', 'after:jam_masuk'],

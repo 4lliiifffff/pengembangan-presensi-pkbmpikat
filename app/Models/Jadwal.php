@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model Jadwal — Data Agenda/Jadwal Kegiatan
@@ -11,26 +12,12 @@ use Illuminate\Database\Eloquent\Model;
  * Jadwal bersifat informatif dan dapat dilihat oleh semua role (tutor juga bisa melihat).
  *
  * STRUKTUR TABEL 'jadwals':
- *   - id        : Primary key
- *   - judul     : Judul/nama kegiatan atau agenda
- *   - deskripsi : Deskripsi detail kegiatan (opsional)
- *   - tanggal   : Tanggal pelaksanaan kegiatan
- *   - lokasi    : Tempat pelaksanaan (jika kosong, diasumsikan di lokasi sekolah)
- *
- * FITUR KHUSUS:
- *   - Auto-generate URL Google Maps dari field 'lokasi'
- *   - Fallback ke lokasi sekolah default dari konfigurasi jika lokasi tidak diisi
- *
- * SIDANG FAQ:
- *   Q: Apakah Jadwal terhubung dengan presensi tutor?
- *   A: Jadwal hanya bersifat informatif (pengumuman kegiatan). Presensi tutor
- *      dilakukan secara mandiri oleh tutor melalui fitur absensi foto, tidak
- *      terikat langsung ke jadwal. Ini desain yang fleksibel untuk lembaga bimbel.
- *
- *   Q: Mengapa 'tanggal' di-cast ke 'date:Y-m-d'?
- *   A: Cast ini memastikan Laravel membaca nilai dari DB sebagai Carbon date object
- *      dengan format 'Y-m-d'. Ini memudahkan manipulasi tanggal dan memastikan
- *      konsistensi format saat ditampilkan di view.
+ *   - id                 : Primary key
+ *   - judul              : Judul/nama kegiatan atau agenda
+ *   - deskripsi          : Deskripsi detail kegiatan (opsional)
+ *   - tanggal            : Tanggal pelaksanaan kegiatan
+ *   - lokasi             : Tempat pelaksanaan (keterangan ruangan / custom)
+ *   - lokasi_presensi_id : Foreign key ke master lokasi_presensis (opsional)
  */
 class Jadwal extends Model
 {
@@ -40,10 +27,11 @@ class Jadwal extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'judul',     // Nama/judul agenda kegiatan
-        'deskripsi', // Deskripsi lebih lanjut tentang kegiatan (opsional)
-        'tanggal',   // Tanggal pelaksanaan (format: YYYY-MM-DD)
-        'lokasi',    // Lokasi kegiatan; kosong = di lokasi sekolah default
+        'judul',              // Nama/judul agenda kegiatan
+        'deskripsi',          // Deskripsi lebih lanjut tentang kegiatan (opsional)
+        'tanggal',            // Tanggal pelaksanaan (format: YYYY-MM-DD)
+        'lokasi',             // Lokasi kegiatan; keterangan ruangan / lokasi custom
+        'lokasi_presensi_id', // Foreign key ke master lokasi presensi resmi
     ];
 
     /**
@@ -57,22 +45,39 @@ class Jadwal extends Model
     ];
 
     /**
+     * Relasi ke Master Titik Lokasi Presensi Resmi.
+     */
+    public function lokasiPresensi(): BelongsTo
+    {
+        return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
+    }
+
+    /**
      * Memeriksa apakah lokasi jadwal adalah lokasi sekolah (default).
-     * Method ini selalu mengembalikan true karena lokasi jadwal selalu
-     * diasosiasikan dengan sekolah (bisa di sekolah atau mengikuti Google Maps).
      */
     public function isLokasiSekolah(): bool
     {
+        if ($this->lokasiPresensi) {
+            return $this->lokasiPresensi->tipe === 'pusat';
+        }
+
         return true;
     }
 
     /**
      * Mengembalikan ringkasan lokasi untuk ditampilkan di UI.
-     * Jika lokasi diisi → tampilkan lokasi tersebut.
-     * Jika tidak → tampilkan nama sekolah dari konfigurasi (config/lokasi.php).
+     * Jika terhubung ke master lokasi resmi -> tampilkan nama titik resmi (+ detail ruangan jika ada).
+     * Jika hanya lokasi teks -> tampilkan teks tersebut.
+     * Jika kosong -> tampilkan nama sekolah default.
      */
     public function lokasiRingkasan(): string
     {
+        if ($this->lokasiPresensi) {
+            $nama = $this->lokasiPresensi->nama_lokasi;
+
+            return $this->lokasi ? "{$nama} ({$this->lokasi})" : $nama;
+        }
+
         return $this->lokasi ?: (string) config('lokasi.sekolah_nama');
     }
 
@@ -80,26 +85,25 @@ class Jadwal extends Model
      * Menghasilkan URL Google Maps untuk lokasi jadwal.
      *
      * Logika:
-     *  - Jika ada lokasi custom → encode ke URL pencarian Google Maps
-     *  - Jika tidak ada lokasi → gunakan URL tetap sekolah dari konfigurasi
-     *  - Jika keduanya tidak ada → kembalikan null
-     *
-     * SIDANG FAQ:
-     *   Q: Mengapa menggunakan Google Maps API dengan parameter 'query'?
-     *   A: Parameter 'query' memungkinkan pencarian berdasarkan nama tempat atau
-     *      alamat tanpa memerlukan API key khusus (menggunakan web search URL).
-     *      rawurlencode() digunakan untuk encoding karakter spesial dalam nama lokasi.
+     *  - Jika terhubung ke titik master lokasi resmi -> gunakan koordinat GPS akurat (latitude, longitude)
+     *  - Jika ada lokasi custom teks -> encode ke URL pencarian Google Maps
+     *  - Jika tidak ada lokasi -> gunakan URL tetap sekolah dari konfigurasi
      *
      * @return string|null URL Google Maps atau null jika tidak ada lokasi
      */
     public function lokasiPetaUrl(): ?string
     {
+        if ($this->lokasiPresensi && $this->lokasiPresensi->latitude && $this->lokasiPresensi->longitude) {
+            $lat = $this->lokasiPresensi->latitude;
+            $lng = $this->lokasiPresensi->longitude;
+
+            return "https://www.google.com/maps/search/?api=1&query={$lat},{$lng}";
+        }
+
         if ($this->lokasi) {
-            // Buat URL pencarian Google Maps dengan nama lokasi yang sudah di-encode
             return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($this->lokasi);
         }
 
-        // Gunakan URL Maps sekolah yang sudah dikonfigurasi di config/lokasi.php
         $url = config('lokasi.sekolah_maps_url');
 
         return $url ? (string) $url : null;

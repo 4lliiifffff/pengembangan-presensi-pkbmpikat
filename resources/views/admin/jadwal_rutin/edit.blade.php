@@ -85,6 +85,23 @@
 
                 <div class="form-field-wrapper">
                     <label class="form-field-label">
+                        Titik Lokasi Belajar / Presensi (Opsional)
+                    </label>
+                    <select name="lokasi_presensi_id" id="lokasi_presensi_id" class="filterSelect">
+                        <option value="">-- Default Lokasi Sekolah Pusat --</option>
+                        @foreach ($lokasiPresensis as $lp)
+                            <option value="{{ $lp->id }}" {{ old('lokasi_presensi_id', $jadwalRutin->lokasi_presensi_id) == $lp->id ? 'selected' : '' }}>
+                                {{ $lp->nama_lokasi }} ({{ ucfirst($lp->tipe) }} &bull; Radius {{ $lp->radius_meter }}m)
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="field-help-text">Siswa dan Tutor akan otomatis diarahkan melakukan presensi pada titik lokasi ini.</div>
+                </div>
+            </div>
+
+            <div class="form-grid-responsive mb-4">
+                <div class="form-field-wrapper">
+                    <label class="form-field-label">
                         Hari Belajar Mingguan <span class="text-danger">*</span>
                     </label>
                     <select name="hari" required class="filterSelect">

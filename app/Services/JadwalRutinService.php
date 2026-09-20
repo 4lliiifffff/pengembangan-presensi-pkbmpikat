@@ -102,6 +102,7 @@ class JadwalRutinService
                     'siswa_id' => $rutin->siswa_id,
                     'kategori_tutorial_id' => $rutin->kategori_tutorial_id,
                     'jadwal_kerja_id' => $rutin->jadwal_kerja_id,
+                    'lokasi_presensi_id' => $rutin->lokasi_presensi_id,
                     'tanggal_rencana' => $dateStr,
                     'jam_masuk_rencana' => $rutin->jam_masuk,
                     'jam_pulang_rencana' => $rutin->jam_pulang,
@@ -165,6 +166,7 @@ class JadwalRutinService
                 'siswa_id' => $jadwalRutin->siswa_id,
                 'kategori_tutorial_id' => $jadwalRutin->kategori_tutorial_id,
                 'jadwal_kerja_id' => $jadwalRutin->jadwal_kerja_id,
+                'lokasi_presensi_id' => $jadwalRutin->lokasi_presensi_id,
                 'jam_masuk_rencana' => $jadwalRutin->jam_masuk,
                 'jam_pulang_rencana' => $jadwalRutin->jam_pulang,
                 'durasi_jam' => $jadwalRutin->durasi_jam,
@@ -229,7 +231,8 @@ class JadwalRutinService
         string $newJamMasuk,
         string $newJamPulang,
         string $alasan,
-        ?float $durasiJam = null
+        ?float $durasiJam = null,
+        ?int $lokasiPresensiId = null
     ): JadwalSesi {
         if ($oldSesi->status === 'selesai' || $oldSesi->presensi_id) {
             throw new \InvalidArgumentException('Sesi yang sudah selesai presensi tidak dapat di-reschedule.');
@@ -264,6 +267,7 @@ class JadwalRutinService
             'siswa_id' => $oldSesi->siswa_id,
             'kategori_tutorial_id' => $oldSesi->kategori_tutorial_id,
             'jadwal_kerja_id' => $oldSesi->jadwal_kerja_id,
+            'lokasi_presensi_id' => $lokasiPresensiId ?? $oldSesi->lokasi_presensi_id,
             'tanggal_rencana' => $newDate,
             'jam_masuk_rencana' => $newJamMasuk,
             'jam_pulang_rencana' => $newJamPulang,

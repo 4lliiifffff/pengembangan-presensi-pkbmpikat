@@ -7,6 +7,7 @@ use App\Exports\JadwalTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\JadwalImport;
 use App\Models\Jadwal;
+use App\Models\LokasiPresensi;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -27,8 +28,9 @@ class JadwalController extends Controller
             $monthDays->push($date->copy());
         }
 
-        // Agenda untuk tanggal yang dipilih
-        $jadwals = Jadwal::whereDate('tanggal', $selectedDate)
+        // Agenda untuk tanggal yang dipilih (eager load titik lokasi resmi)
+        $jadwals = Jadwal::with('lokasiPresensi')
+            ->whereDate('tanggal', $selectedDate)
             ->orderBy('created_at')
             ->get();
 
@@ -54,22 +56,26 @@ class JadwalController extends Controller
 
     public function create()
     {
-        return view('admin.jadwal.create');
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
+
+        return view('admin.jadwal.create', compact('lokasiPresensis'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul' => 'required|string|max:200',
             'deskripsi' => 'nullable|string|max:1000',
             'tanggal' => 'required|date',
             'lokasi' => 'nullable|string|max:255',
+            'lokasi_presensi_id' => 'nullable|exists:lokasi_presensis,id',
         ], [
             'judul.required' => 'Judul agenda wajib diisi.',
             'tanggal.required' => 'Tanggal wajib diisi.',
+            'lokasi_presensi_id.exists' => 'Titik lokasi presensi yang dipilih tidak valid.',
         ]);
 
-        Jadwal::create($request->only(['judul', 'deskripsi', 'tanggal', 'lokasi']));
+        Jadwal::create($validated);
 
         return redirect()->route('admin.jadwal.index', ['tanggal' => $request->tanggal])
             ->with('success', 'Agenda berhasil ditambahkan.');
@@ -77,22 +83,27 @@ class JadwalController extends Controller
 
     public function edit(Jadwal $jadwal)
     {
-        return view('admin.jadwal.edit', compact('jadwal'));
+        $jadwal->load('lokasiPresensi');
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
+
+        return view('admin.jadwal.edit', compact('jadwal', 'lokasiPresensis'));
     }
 
     public function update(Request $request, Jadwal $jadwal)
     {
-        $request->validate([
+        $validated = $request->validate([
             'judul' => 'required|string|max:200',
             'deskripsi' => 'nullable|string|max:1000',
             'tanggal' => 'required|date',
             'lokasi' => 'nullable|string|max:255',
+            'lokasi_presensi_id' => 'nullable|exists:lokasi_presensis,id',
         ], [
             'judul.required' => 'Judul agenda wajib diisi.',
             'tanggal.required' => 'Tanggal wajib diisi.',
+            'lokasi_presensi_id.exists' => 'Titik lokasi presensi yang dipilih tidak valid.',
         ]);
 
-        $jadwal->update($request->only(['judul', 'deskripsi', 'tanggal', 'lokasi']));
+        $jadwal->update($validated);
 
         return redirect()->route('admin.jadwal.index', ['tanggal' => $jadwal->tanggal])
             ->with('success', 'Agenda berhasil diperbarui.');

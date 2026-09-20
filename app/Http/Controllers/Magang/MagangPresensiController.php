@@ -18,7 +18,10 @@ use Illuminate\View\View;
 
 class MagangPresensiController extends Controller
 {
-    public function __construct(protected WebPushService $webPushService) {}
+    public function __construct(
+        protected WebPushService $webPushService,
+        protected ShiftPresensiService $shiftService
+    ) {}
 
     /**
      * Tampilkan form presensi foto kamera & lokasi GPS untuk mahasiswa magang.
@@ -28,8 +31,9 @@ class MagangPresensiController extends Controller
         return $this->foto();
     }
 
-    public function foto(ShiftPresensiService $shiftService): View
+    public function foto(?ShiftPresensiService $shiftService = null): View
     {
+        $shiftService = $shiftService ?? $this->shiftService;
         $user = Auth::user();
         $magang = $user->magang;
         $today = Carbon::now('Asia/Jakarta')->toDateString();
