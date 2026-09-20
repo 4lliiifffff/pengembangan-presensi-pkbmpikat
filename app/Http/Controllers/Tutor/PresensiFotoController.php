@@ -137,6 +137,16 @@ class PresensiFotoController extends Controller
             ->orderBy('jam_masuk_rencana')
             ->get();
 
+        // Cek apakah ada sesi lampau (sebelum hari ini) yang belum melakukan presensi pulang (unclosed past session)
+        $unclosedPastSessionQuery = Presensi::with('siswa')
+            ->whereDate('tgl_presensi', '<', $today)
+            ->whereNotNull('foto_mulai')
+            ->whereNull('foto_selesai');
+        if ($hasPresensiTutorId) {
+            $unclosedPastSessionQuery->where('tutor_id', $tutor->id);
+        }
+        $unclosedPastSession = $unclosedPastSessionQuery->orderByDesc('tgl_presensi')->orderByDesc('id')->first();
+
         // Kirim semua data ke view
         return view('tutor.presensi_foto', [
             'tutor' => $tutor,
@@ -151,6 +161,7 @@ class PresensiFotoController extends Controller
             'completedSessions' => $completedSessions,  // Daftar sesi selesai hari ini (riwayat)
             'shiftEval' => $shiftEval,
             'scheduledSessionsToday' => $scheduledSessionsToday,
+            'unclosedPastSession' => $unclosedPastSession,
         ]);
     }
 

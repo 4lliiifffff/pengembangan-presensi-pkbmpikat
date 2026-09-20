@@ -63,6 +63,15 @@
     </div>
     @endif
 
+    @if(request('tanggal') || request('siswa_id'))
+        <div class="p-3 mb-3 rounded-xl border border-blue bg-blue-subtle text-xs d-flex items-start gap-2" style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #1d4ed8;">
+            <ion-icon name="information-circle-outline" style="font-size: 20px; flex-shrink: 0; margin-top: 1px;"></ion-icon>
+            <div>
+                <strong>Pemberitahuan:</strong> Formulir telah diisi otomatis berdasarkan sesi mengajar Anda yang belum melakukan checkout pada <strong>{{ request('tanggal') ? \Carbon\Carbon::parse(request('tanggal'))->translatedFormat('l, d F Y') : 'sesi sebelumnya' }}</strong>. Silakan lengkapi jam selesai dan alasan sebelum mengirim ke Kepala Sekolah.
+            </div>
+        </div>
+    @endif
+
     <form method="POST" action="{{ route('tutor.lupa-lapor.store') }}">
         @csrf
 
@@ -76,7 +85,7 @@
                     <select name="siswa_id" class="input" required>
                         <option value="">— Pilih Siswa —</option>
                         @foreach($siswaList as $siswa)
-                            <option value="{{ $siswa->id }}" {{ old('siswa_id') == $siswa->id ? 'selected' : '' }}>
+                            <option value="{{ $siswa->id }}" {{ (string) old('siswa_id', request('siswa_id')) === (string) $siswa->id ? 'selected' : '' }}>
                                 {{ $siswa->nama_siswa }}
                             </option>
                         @endforeach
@@ -86,7 +95,7 @@
                 {{-- Tanggal --}}
                 <div >
                     <div class="fieldLabel">Tanggal <span class="req">*</span></div>
-                    <input type="date" name="tanggal" class="input" value="{{ old('tanggal', now()->toDateString()) }}"
+                    <input type="date" name="tanggal" class="input" value="{{ old('tanggal', request('tanggal', now()->toDateString())) }}"
                            max="{{ now()->toDateString() }}" required>
                 </div>
 
@@ -94,7 +103,7 @@
                 <div class="inputRow">
                     <div >
                         <div class="fieldLabel">Jam Mulai <span class="req">*</span></div>
-                        <input type="time" name="jam_mulai" class="input" value="{{ old('jam_mulai') }}" required>
+                        <input type="time" name="jam_mulai" class="input" value="{{ old('jam_mulai', request('jam_mulai')) }}" required>
                     </div>
                     <div >
                         <div class="fieldLabel">Jam Selesai <span class="req">*</span></div>

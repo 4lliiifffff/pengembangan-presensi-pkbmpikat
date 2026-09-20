@@ -54,6 +54,15 @@ class MagangPresensiController extends Controller
         $radius = (int) config('lokasi.radius_meter', 100);
         $shiftEval = $shiftService->evaluateCheckIn();
 
+        $unclosedPastSession = PresensiKaryawan::with('lokasiPresensi')
+            ->where('user_id', $user->id)
+            ->whereDate('tgl_presensi', '<', $today)
+            ->whereNotNull('foto_mulai')
+            ->whereNull('foto_selesai')
+            ->orderByDesc('tgl_presensi')
+            ->orderByDesc('id')
+            ->first();
+
         return view('magang.presensi_foto', [
             'user' => $user,
             'magang' => $magang,
@@ -66,6 +75,7 @@ class MagangPresensiController extends Controller
             'kantorLng' => $kantorLng,
             'radius' => $radius,
             'shiftEval' => $shiftEval,
+            'unclosedPastSession' => $unclosedPastSession,
         ]);
     }
 

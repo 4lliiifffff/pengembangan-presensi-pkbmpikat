@@ -88,6 +88,39 @@
     {{-- ══════════════════ MAIN CONTENT ══════════════════ --}}
     <div class="pagePad" id="mainContent">
 
+        {{-- ── PERINGATAN SESI LAMPAU TANPA CHECKOUT (LUPA ABSEN PULANG) ── --}}
+        @if (isset($unclosedPastSession) && $unclosedPastSession)
+            @php
+                $tglUnclosed = \Carbon\Carbon::parse($unclosedPastSession->tgl_presensi, 'Asia/Jakarta');
+                $jamMulaiUnclosed = substr((string) $unclosedPastSession->jam_mulai, 0, 5);
+                $siswaUnclosed = $unclosedPastSession->siswa->nama_siswa ?? 'Peserta Didik';
+            @endphp
+            <div id="bannerUnclosedPastSession" class="statusBanner mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
+                <div class="statusIcon warn" style="background: rgba(245, 158, 11, 0.15); color: #d97706;">
+                    <ion-icon name="alert-circle"></ion-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="statusTitle" style="color: #b45309;">
+                        Presensi Pulang Terlewat pada {{ $tglUnclosed->translatedFormat('l, d F Y') }}
+                    </div>
+                    <div class="statusSub" style="color: #92400e; line-height: 1.5;">
+                        Sesi KBM bersama <strong>{{ $siswaUnclosed }}</strong> (Mulai: {{ $jamMulaiUnclosed }} WIB) belum tercatat selesai (*checkout*). Sesi ini <strong>belum masuk perhitungan honorarium SK</strong> hingga disetujui Kepala Sekolah.
+                    </div>
+                    <div class="d-flex items-center gap-2 mt-2.5 flex-wrap">
+                        <a href="{{ route('tutor.lupa-lapor', ['tanggal' => $unclosedPastSession->tgl_presensi, 'siswa_id' => $unclosedPastSession->siswa_id, 'jam_mulai' => $jamMulaiUnclosed]) }}"
+                           class="profileBtnPrimary text-xs py-1.5 px-3 d-inline-flex items-center gap-1"
+                           style="background: #d97706; border-color: #d97706;">
+                            <ion-icon name="paper-plane-outline"></ion-icon> Ajukan Lupa Lapor Sesi Ini
+                        </a>
+                        <button type="button" onclick="document.getElementById('bannerUnclosedPastSession').style.display='none'"
+                                class="btnOutline text-xs py-1.5 px-3" style="background: transparent;">
+                            Abaikan &amp; Lanjut Absen Hari Ini
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- ── RIWAYAT SESI SELESAI HARI INI ── --}}
         @if ($completedSessions->count() > 0)
             <div class="card mb-4">

@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 46
+    "Selesai (Completed)" : 47
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -19,7 +19,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
 | 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
-| 2. Core Presensi & Validasi Lokasi | 9 | 8 | 0 | 1 |
+| 2. Core Presensi & Validasi Lokasi | 10 | 9 | 0 | 1 |
 | 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
 | 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 7 | 7 | 0 | 0 |
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
@@ -28,7 +28,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 8. UI/UX Excellence & Responsive Layout | 5 | 5 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **51** | **45** | **0** | **6** |
+| **TOTAL** | **52** | **46** | **0** | **6** |
 
 ---
 
@@ -166,7 +166,21 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Rincian Implementasi:**
     - **Backend Exemption:** Menghapus batasan waktu tunggu minimal 1 jam (3600 detik) di `KaryawanPresensiController@store` mode `selesai` khusus untuk role `admin` dan `kepala_sekolah`. Pimpinan dapat melakukan checkout sewaktu-waktu tanpa terkunci timer.
     - **Pembersihan Antarmuka:** Menghapus timer countdown `58:39` dan teks redundan `"minimal 1 jam durasi kerja"` pada `resources/views/karyawan/presensi_foto.blade.php`. Menggantikannya dengan kartu status *"Akses Fleksibel Kepulangan Aktif"* serta langsung membuka form foto dan tombol kirim presensi pulang.
-    - **Automated Feature Test:** 3 pengujian komprehensif pada `tests/Feature/KaryawanCheckOutBypassTest.php` lulus 100%.
+- 🟢 **Penanganan Presensi Tanpa Clock-Out Lintas Hari (Fault-Tolerant Check-In & Actionable Warning Banner)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Ketika pengguna (Tutor, Karyawan, atau Magang) lupa melakukan presensi pulang (*checkout*) pada hari H, keesokan harinya (H+1) sistem harus tetap mengizinkan mereka melakukan presensi masuk (*clock-in*) baru tanpa terblokir (*fault-tolerant*), sekaligus memberikan peringatan aktif dan jalur pemulihan data sesi lampau yang belum tuntas.
+    - **Backend Detection (`$unclosedPastSession`):**
+      - Controller `PresensiFotoController@index` (Tutor), `KaryawanPresensiController@foto` (Karyawan/Admin), dan `MagangPresensiController@foto` (Magang) mendeteksi presensi lampau yang memiliki `foto_mulai` tetapi `foto_selesai` masih kosong pada tanggal sebelum hari ini (`tgl_presensi < $today`).
+    - **Actionable Warning Banner di Antarmuka Kamera:**
+      - Modul Tutor (`resources/views/tutor/presensi_foto.blade.php`): Menampilkan banner peringatan `.statusBanner` interaktif berisi detail tanggal, nama siswa, dan waktu mulai sesi yang terlewat, mengedukasi bahwa honorarium sesi tersebut belum dapat dicairkan tanpa jam selesai yang valid, serta menyediakan tombol aksi 1-klik *"Ajukan Lupa Lapor Sesi Ini"* dan opsi *"Abaikan & Lanjut Absen"*.
+      - Modul Karyawan & Magang: Menampilkan banner peringatan serupa yang terhubung dengan tombol konfirmasi cepat ke Admin/Pembina melalui WhatsApp resmi PKBM Pikat.
+    - **Alur Pre-filled Lupa Lapor 1-Klik (`tutor/lupa_lapor.blade.php`):**
+      - Menerima parameter URL query (`siswa_id`, `tanggal`, `jam_mulai`) yang secara instan mengisi kolom formulir pengajuan Lupa Lapor tutor, dilengkapi kotak informasi edukatif.
+    - **Sinkronisasi Otomatis Jadwal Sesi & Payroll Saat Disetujui:**
+      - Pada `PresensiService::syncApprovedAttendance()`, saat Kepala Sekolah menyetujui pengajuan Lupa Lapor, status `JadwalSesi` terkait langsung diselaraskan menjadi `'selesai'` dan diikat dengan `presensi_id`. Sesi tersebut otomatis memenuhi kualifikasi `PayrollService` (`whereNotNull('jam_selesai')`) sehingga honorarium tutor dihitung secara akurat dan tidak hangus.
+    - **Pengujian Otomatis Komprehensif:**
+      - Menambahkan 5 skenario automated tests di `tests/Feature/UnclosedPresensiHandlingTest.php` yang mencakup toleransi clock-in tutor, karyawan, magang, auto-fill form lupa lapor, serta sinkronisasi status sesi & payroll saat approval kepsek (seluruh assertions lulus 100%).
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
@@ -745,6 +759,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 31 | **Pembatasan Kamera Presensi Selfie (Khusus Kamera Depan & Eliminasi Flip)** | Camera & Security | Membatasi sistem pengambilan foto presensi multi-role (Tutor, Karyawan/Admin, Magang, Siswa) agar secara ketat hanya menggunakan kamera depan (`facingMode: { ideal: 'user' }`), menghapus tombol ganti/tukar kamera dari floating toolbar `#camControlBar`, mengunci orientasi cermin selfie, dan mencegah manipulasi presensi via kamera belakang. | 🟢 Selesai |
 | 32 | **Perbaikan Dependency Injection & ArgumentCountError Presensi Magang** | Backend Bugfix | Memperbaiki bug `ArgumentCountError` pada `MagangPresensiController@foto` ketika dipanggil internal oleh `index()` tanpa argumen. Menginjeksi `ShiftPresensiService` via constructor property promotion dan menyediakan default parameter nullable fallback, serta melengkapi test assertion untuk `route('magang.presensi')`. | 🟢 Selesai |
 | 33 | **Integrasi Multi-Geofence Titik Lokasi Presensi pada Penjadwalan & Pelacakan Lintas Peran** | Schedule & Geofence | Migrasi `lokasi_presensi_id` pada `jadwals`, `jadwal_rutins`, dan `jadwal_sesis`. Relasi Eloquent, helper `lokasiRingkasan()` dan `lokasiPetaUrl()`, propagasi otomatis pola rutin ke sesi kalender, dukungan ganti titik lokasi saat reschedule tutor, integrasi impor Excel jadwal, pemilih titik presensi resmi pada admin & tutor, serta auto-select & geofence locking presensi mandiri siswa (`targetLokasi`). Dilengkapi 5 unit/feature test komprehensif di `JadwalLokasiTrackingTest` lulus 100%. | 🟢 Selesai |
+| 34 | **Penanganan Presensi Tanpa Clock-Out Lintas Hari (Fault-Tolerant & Actionable Warning Banner)** | Attendance Recovery | Deteksi sesi lampau belum checkout (`$unclosedPastSession`), non-blocking clock-in hari H+1, banner interaktif dengan 1-klik pre-fill Lupa Lapor (tutor) & konfirmasi WhatsApp (karyawan/magang), sinkronisasi status `jadwal_sesis` ke `'selesai'` dan kelayakan payroll otomatis saat disetujui Kepala Sekolah. Dilengkapi 5 automated tests di `UnclosedPresensiHandlingTest` lulus 100%. | 🟢 Selesai |
 
 ---
 

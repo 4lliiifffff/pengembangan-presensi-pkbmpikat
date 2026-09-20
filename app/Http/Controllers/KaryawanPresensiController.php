@@ -37,6 +37,15 @@ class KaryawanPresensiController extends Controller
         $isBypassRadius = $geofencingService->isExemptFromRadius($user);
         $isBypassWaktuTunggu = in_array($user->role, ['admin', 'kepala_sekolah'], true);
 
+        $unclosedPastSession = PresensiKaryawan::with('lokasiPresensi')
+            ->where('user_id', $user->id)
+            ->whereDate('tgl_presensi', '<', $today)
+            ->whereNotNull('foto_mulai')
+            ->whereNull('foto_selesai')
+            ->orderByDesc('tgl_presensi')
+            ->orderByDesc('id')
+            ->first();
+
         return view('karyawan.presensi_foto', [
             'user' => $user,
             'today' => $today,
@@ -46,6 +55,7 @@ class KaryawanPresensiController extends Controller
             'shiftEval' => $shiftEval,
             'isBypassRadius' => $isBypassRadius,
             'isBypassWaktuTunggu' => $isBypassWaktuTunggu,
+            'unclosedPastSession' => $unclosedPastSession,
         ]);
     }
 

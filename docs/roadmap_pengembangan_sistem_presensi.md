@@ -36,6 +36,12 @@
   - Menambahkan status persetujuan (`pending`, `disetujui`, `ditolak`) dan kolom `catatan_kepsek`.
   - Menyempurnakan alur pengajuan oleh Tutor serta persetujuan interaktif oleh Kepala Sekolah.
   - **Otomatisasi Rekap Presensi**: Ketika Kepala Sekolah mengklik "Setujui", sistem secara otomatis melakukan *upsert* (membuat/memperbarui) data kehadiran pada tabel `presensis` (`status = 'hadir'`).
+* 🟢 **Penanganan Presensi Tanpa Clock-Out Lintas Hari (Fault-Tolerant Check-In & Actionable Warning Banner):** [SELESAI]
+  - **Prinsip Fault-Tolerant Non-Blocking:** Absen masuk pada hari berikutnya tetap diizinkan berjalan normal agar kehadiran hari baru tidak hangus/terganggu.
+  - **Pendeteksian Sesi Lampau Menggantung (`unclosedPastSession`):** Controller presensi Tutor, Karyawan, dan Magang otomatis mendeteksi jika ada catatan kehadiran sebelum hari ini yang memiliki `jam_mulai` namun `jam_selesai` masih `NULL`.
+  - **Banner Peringatan Edukatif & Tombol Aksi 1-Klik:** Menampilkan banner peringatan interaktif di atas form presensi hari ini. Untuk Tutor, tombol *"Ajukan Lupa Lapor Sesi Ini"* langsung membuka form Lupa Lapor dengan data tanggal, siswa, dan jam mulai yang sudah terisi otomatis (*pre-filled*). Untuk Karyawan dan Magang, tersedia tombol konfirmasi cepat ke WhatsApp Admin/Pembina.
+  - **Sinkronisasi Siklus Jadwal & Pemulihan Payroll:** Pada `PresensiService::syncApprovedAttendance()`, persetujuan Lupa Lapor oleh Kepala Sekolah otomatis meng-update status `JadwalSesi` terkait dari `'berlangsung'` menjadi `'selesai'` dan mengaitkan `presensi_id`, sehingga `PayrollService` secara otomatis memvalidasi sesi tersebut ke dalam perhitungan honorarium SK.
+  - **Automated QA Suite:** 5 skenario pengujian komprehensif di `tests/Feature/UnclosedPresensiHandlingTest.php` lulus 100%.
 
 ### 2.3 Validasi Lokasi & Fitur Lanjutan
 * 🟢 **Presensi Multi-Moda (Sekolah, Kunjungan Rumah, Online):** [SELESAI] 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\JadwalSesi;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
@@ -36,7 +37,7 @@ class PresensiService
         $count = 0;
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
             foreach ($targetSiswaIds as $siswaId) {
-                Presensi::updateOrCreate(
+                $presensi = Presensi::updateOrCreate(
                     [
                         'tutor_id' => $tutorId,
                         'siswa_id' => $siswaId,
@@ -49,6 +50,17 @@ class PresensiService
                         'materi' => $materi,
                     ]
                 );
+
+                // Sinkronisasi status sesi KBM terkait jika ada
+                JadwalSesi::where('tutor_id', $tutorId)
+                    ->where('siswa_id', $siswaId)
+                    ->whereDate('tanggal_rencana', $date->toDateString())
+                    ->where('status', '!=', 'dibatalkan')
+                    ->update([
+                        'status' => 'selesai',
+                        'presensi_id' => $presensi->id,
+                    ]);
+
                 $count++;
             }
         }

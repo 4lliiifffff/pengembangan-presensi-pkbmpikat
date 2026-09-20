@@ -87,6 +87,40 @@
     {{-- ══════════════════ MAIN CONTENT ══════════════════ --}}
     <div class="pagePad" id="mainContent">
 
+        {{-- ── PERINGATAN PRESENSI PULANG LAMPAU TERLEWAT ── --}}
+        @if (isset($unclosedPastSession) && $unclosedPastSession)
+            @php
+                $tglUnclosed = \Carbon\Carbon::parse($unclosedPastSession->tgl_presensi, 'Asia/Jakarta');
+                $jamMulaiUnclosed = substr((string) $unclosedPastSession->jam_mulai, 0, 5);
+                $adminWaNumber = config('app.admin_wa', '6281234567890');
+                $pesanWa = urlencode("Halo Admin PKBM Pikat, saya {$displayName} terlewat presensi pulang pada hari {$tglUnclosed->translatedFormat('l, d F Y')} (masuk pukul {$jamMulaiUnclosed} WIB). Mohon bantuan rekonsiliasi jam kerja di sistem. Terima kasih.");
+            @endphp
+            <div id="bannerUnclosedPastSession" class="statusBanner mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
+                <div class="statusIcon warn" style="background: rgba(245, 158, 11, 0.15); color: #d97706;">
+                    <ion-icon name="time-outline"></ion-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="statusTitle" style="color: #b45309;">
+                        Presensi Pulang Terlewat pada {{ $tglUnclosed->translatedFormat('l, d F Y') }}
+                    </div>
+                    <div class="statusSub" style="color: #92400e; line-height: 1.5;">
+                        Anda tercatat masuk pukul <strong>{{ $jamMulaiUnclosed }} WIB</strong> kemarin namun belum melakukan presensi pulang (*checkout*). Kehadiran hari ini tetap dapat dicatat normal.
+                    </div>
+                    <div class="d-flex items-center gap-2 mt-2.5 flex-wrap">
+                        <a href="https://wa.me/{{ $adminWaNumber }}?text={{ $pesanWa }}" target="_blank" rel="noopener noreferrer"
+                           class="profileBtnPrimary text-xs py-1.5 px-3 d-inline-flex items-center gap-1"
+                           style="background: #059669; border-color: #059669;">
+                            <ion-icon name="logo-whatsapp"></ion-icon> Konfirmasi ke Admin
+                        </a>
+                        <button type="button" onclick="document.getElementById('bannerUnclosedPastSession').style.display='none'"
+                                class="btnOutline text-xs py-1.5 px-3" style="background: transparent;">
+                            Abaikan &amp; Lanjut Absen Hari Ini
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         {{-- ── Banner Notifikasi Fleksibilitas Bebas Radius (Admin & Kepala Sekolah) ── --}}
         @if ($isBypassRadius && !$activeSesi)
             <div class="statusBanner flexible mb-3">
