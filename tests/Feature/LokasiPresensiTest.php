@@ -63,7 +63,7 @@ class LokasiPresensiTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.lokasi-presensi.index'));
-        $this->assertDatabaseHas('lokasi_presensis', [
+        $this->assertDatabaseHas('lokasi_presensi', [
             'nama_lokasi' => 'Sentra Belajar Bantul',
             'tipe' => 'cabang',
             'radius_meter' => 120,
@@ -93,7 +93,7 @@ class LokasiPresensiTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.lokasi-presensi.index'));
-        $this->assertDatabaseHas('lokasi_presensis', [
+        $this->assertDatabaseHas('lokasi_presensi', [
             'id' => $lokasi->id,
             'nama_lokasi' => 'Lokasi Diperbarui',
             'tipe' => 'cabang',
@@ -118,7 +118,7 @@ class LokasiPresensiTest extends TestCase
             ->patch(route('admin.lokasi-presensi.toggleStatus', $lokasi->id));
 
         $response->assertRedirect(route('admin.lokasi-presensi.index'));
-        $this->assertDatabaseHas('lokasi_presensis', [
+        $this->assertDatabaseHas('lokasi_presensi', [
             'id' => $lokasi->id,
             'is_active' => false,
         ]);
@@ -139,7 +139,7 @@ class LokasiPresensiTest extends TestCase
         $response = $this->actingAs($admin)->delete(route('admin.lokasi-presensi.destroy', $lokasi->id));
 
         $response->assertRedirect(route('admin.lokasi-presensi.index'));
-        $this->assertDatabaseMissing('lokasi_presensis', [
+        $this->assertDatabaseMissing('lokasi_presensi', [
             'id' => $lokasi->id,
         ]);
     }
@@ -205,7 +205,7 @@ class LokasiPresensiTest extends TestCase
         ]);
 
         $responseFail->assertSessionHas('warning');
-        $this->assertDatabaseMissing('presensis', [
+        $this->assertDatabaseMissing('presensi', [
             'siswa_id' => $siswa->id,
             'lokasi_presensi_id' => $lokasiCabang->id,
         ]);
@@ -222,7 +222,7 @@ class LokasiPresensiTest extends TestCase
         ]);
 
         $responseSuccess->assertRedirect(route('tutor.dashboard'));
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'siswa_id' => $siswa->id,
             'lokasi_presensi_id' => $lokasiCabang->id,
             'status' => 'hadir',
@@ -263,7 +263,7 @@ class LokasiPresensiTest extends TestCase
         ]);
 
         $response->assertRedirect(route('magang.dashboard'));
-        $this->assertDatabaseHas('presensi_karyawans', [
+        $this->assertDatabaseHas('presensi_karyawan', [
             'user_id' => $magangUser->id,
             'lokasi_presensi_id' => $lokasiMitra->id,
             'status' => 'hadir',

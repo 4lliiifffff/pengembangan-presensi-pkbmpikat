@@ -25,7 +25,7 @@ class Siswa extends Model
      *
      * @var string
      */
-    protected $table = 'siswas';
+    protected $table = 'siswa';
 
     /**
      * Kolom yang boleh diisi secara massal (Mass Assignment Whitelist).

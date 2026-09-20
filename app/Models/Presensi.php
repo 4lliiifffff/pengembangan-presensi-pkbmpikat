@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Presensi extends Model
 {
+    protected $table = 'presensi';
+
     /**
      * Daftar kolom yang boleh diisi secara massal (Mass Assignment Whitelist).
      * Kolom yang tidak ada di sini TIDAK BISA diisi melalui Presensi::create() atau update().

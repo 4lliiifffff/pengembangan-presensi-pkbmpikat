@@ -81,7 +81,7 @@ class GeofencingTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'siswa_id' => $siswa->id,
             'tutor_id' => $tutor->id,
             'moda_pembelajaran' => 'sekolah',
@@ -127,7 +127,7 @@ class GeofencingTest extends TestCase
         $warning = session('warning');
         $this->assertStringContainsString('di luar radius', $warning);
 
-        $this->assertDatabaseMissing('presensis', [
+        $this->assertDatabaseMissing('presensi', [
             'siswa_id' => $siswa->id,
             'tutor_id' => $tutor->id,
         ]);
@@ -169,7 +169,7 @@ class GeofencingTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'siswa_id' => $siswa->id,
             'tutor_id' => $tutor->id,
             'moda_pembelajaran' => 'online',
@@ -239,7 +239,7 @@ class GeofencingTest extends TestCase
         $response->assertRedirect(route('admin.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_karyawans', [
+        $this->assertDatabaseHas('presensi_karyawan', [
             'user_id' => $adminUser->id,
             'lokasi_mulai' => $lokasiLuarKota,
             'status' => 'hadir',
@@ -265,7 +265,7 @@ class GeofencingTest extends TestCase
         $response->assertRedirect(route('kepsek.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_karyawans', [
+        $this->assertDatabaseHas('presensi_karyawan', [
             'user_id' => $kepsekUser->id,
             'lokasi_mulai' => $lokasiLuarRadius,
             'status' => 'hadir',

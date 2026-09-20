@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class JenjangPaket extends Model
 {
-    protected $table = 'jenjang_pakets';
+    protected $table = 'jenjang_paket';
 
     protected $fillable = [
         'kode',

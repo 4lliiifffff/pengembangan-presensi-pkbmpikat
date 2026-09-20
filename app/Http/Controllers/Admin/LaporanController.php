@@ -33,8 +33,9 @@ class LaporanController extends Controller
         $siswaId = $request->get('siswa_id');
         $statusFilter = $request->get('status');
 
-        $hasStatus = Schema::hasColumn('presensis', 'status');
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $presensiTable = (new Presensi)->getTable();
+        $hasStatus = Schema::hasColumn($presensiTable, 'status');
+        $hasJamMulai = Schema::hasColumn($presensiTable, 'jam_mulai');
         $baseQuery = Presensi::whereBetween('tgl_presensi', [$startDate, $endDate]);
 
         if ($tutorId) {
@@ -62,7 +63,7 @@ class LaporanController extends Controller
             $totalIzin = (clone $baseQuery)->where('status', 'izin')->count();
             $totalAlpha = (clone $baseQuery)->where('status', 'alpha')->count();
         } else {
-            $hadirColumn = Schema::hasColumn('presensis', 'jam_selesai') ? 'jam_selesai' : ($hasJamMulai ? 'jam_mulai' : null);
+            $hadirColumn = Schema::hasColumn($presensiTable, 'jam_selesai') ? 'jam_selesai' : ($hasJamMulai ? 'jam_mulai' : null);
             $totalHadir = $hadirColumn ? (clone $baseQuery)->whereNotNull($hadirColumn)->count() : 0;
             $totalProses = $hasJamMulai ? (clone $baseQuery)->whereNotNull('jam_mulai')->whereNull('jam_selesai')->count() : 0;
             $totalIzin = 0;
@@ -228,8 +229,9 @@ class LaporanController extends Controller
 
         $presensis = $query->orderBy('tgl_presensi')->get();
 
-        $hasStatus = Schema::hasColumn('presensis', 'status');
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $presensiTable = (new Presensi)->getTable();
+        $hasStatus = Schema::hasColumn($presensiTable, 'status');
+        $hasJamMulai = Schema::hasColumn($presensiTable, 'jam_mulai');
 
         $totalHadir = 0;
         $totalIzin = 0;

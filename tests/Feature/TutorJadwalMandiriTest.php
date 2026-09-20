@@ -103,7 +103,7 @@ class TutorJadwalMandiriTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('jadwal_rutins', [
+        $this->assertDatabaseHas('jadwal_rutin', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'hari' => 'kamis',
@@ -138,7 +138,7 @@ class TutorJadwalMandiriTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => $targetDate,
@@ -185,7 +185,7 @@ class TutorJadwalMandiriTest extends TestCase
         $this->assertEquals('Siswa ada acara keluarga mendadak', $sesi->alasan_penggantian);
 
         // Verify replacement session created
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => $newDate,
@@ -258,7 +258,7 @@ class TutorJadwalMandiriTest extends TestCase
             route('tutor.jadwal-rutin.destroy', $rutin)
         );
         $destroyResp->assertRedirect();
-        $this->assertDatabaseMissing('jadwal_rutins', ['id' => $rutin->id]);
+        $this->assertDatabaseMissing('jadwal_rutin', ['id' => $rutin->id]);
     }
 
     public function test_tutor_can_create_custom_duration_session_with_non_sk_tagging(): void

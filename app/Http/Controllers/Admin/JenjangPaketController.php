@@ -29,7 +29,7 @@ class JenjangPaketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jenjang_pakets,kode'],
+            'kode' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jenjang_paket,kode'],
             'nama_jenjang' => ['required', 'string', 'max:100'],
             'tingkat_label' => ['nullable', 'string', 'max:100'],
             'keterangan' => ['nullable', 'string', 'max:255'],
@@ -67,7 +67,7 @@ class JenjangPaketController extends Controller
                 'string',
                 'max:50',
                 'alpha_dash',
-                Rule::unique('jenjang_pakets', 'kode')->ignore($jenjangPaket->id),
+                Rule::unique('jenjang_paket', 'kode')->ignore($jenjangPaket->id),
             ],
             'nama_jenjang' => ['required', 'string', 'max:100'],
             'tingkat_label' => ['nullable', 'string', 'max:100'],

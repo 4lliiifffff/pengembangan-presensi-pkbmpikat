@@ -61,14 +61,14 @@ class SiswaController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'no_absen' => ['required', 'string', 'max:50', 'unique:siswas,no_absen'],
+            'no_absen' => ['required', 'string', 'max:50', 'unique:siswa,no_absen'],
             'nama_siswa' => ['required', 'string', 'max:120'],
             'status_siswa' => ['nullable', 'string', 'in:aktif,alumni,cuti,nonaktif'],
             'is_abk' => ['nullable', 'boolean'],
             'no_hp' => ['required', 'string', 'max:30'],
             'nama_wali' => ['required', 'string', 'max:120'],
             'kelas_id' => ['required', 'exists:kelas,id'],
-            'tutor_id' => ['nullable', 'exists:tutors,id'],
+            'tutor_id' => ['nullable', 'exists:tutor,id'],
         ]);
 
         $validated['is_abk'] = $request->boolean('is_abk');
@@ -121,7 +121,7 @@ class SiswaController extends Controller
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('siswas', 'no_absen')->ignore($siswa->id),
+                Rule::unique('siswa', 'no_absen')->ignore($siswa->id),
             ],
             'nama_siswa' => ['required', 'string', 'max:120'],
             'status_siswa' => ['nullable', 'string', 'in:aktif,alumni,cuti,nonaktif'],
@@ -129,7 +129,7 @@ class SiswaController extends Controller
             'no_hp' => ['required', 'string', 'max:30'],
             'nama_wali' => ['required', 'string', 'max:120'],
             'kelas_id' => ['required', 'exists:kelas,id'],
-            'tutor_id' => ['nullable', 'exists:tutors,id'],
+            'tutor_id' => ['nullable', 'exists:tutor,id'],
         ]);
 
         $validated['is_abk'] = $request->boolean('is_abk');

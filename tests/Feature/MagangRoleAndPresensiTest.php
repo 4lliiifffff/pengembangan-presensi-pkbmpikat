@@ -128,7 +128,7 @@ class MagangRoleAndPresensiTest extends TestCase
         $response->assertRedirect(route('magang.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_karyawans', [
+        $this->assertDatabaseHas('presensi_karyawan', [
             'user_id' => $magangUser->id,
             'tgl_presensi' => Carbon::now('Asia/Jakarta')->toDateString(),
             'status' => 'hadir',
@@ -162,7 +162,7 @@ class MagangRoleAndPresensiTest extends TestCase
         ]);
 
         $response->assertSessionHas('warning');
-        $this->assertDatabaseMissing('presensi_karyawans', [
+        $this->assertDatabaseMissing('presensi_karyawan', [
             'user_id' => $magangUser->id,
         ]);
     }
@@ -247,7 +247,7 @@ class MagangRoleAndPresensiTest extends TestCase
 
         $responseCreate->assertRedirect(route('admin.magang.index'));
         $this->assertDatabaseHas('users', ['email' => 'budi@kampus.ac.id', 'role' => 'magang']);
-        $this->assertDatabaseHas('magangs', ['asal_instansi' => 'Politeknik Negeri']);
+        $this->assertDatabaseHas('magang', ['asal_instansi' => 'Politeknik Negeri']);
 
         $magangUser = User::where('email', 'budi@kampus.ac.id')->first();
 

@@ -41,7 +41,7 @@ class LupaLaporController extends Controller
         $tutor = Auth::user()->tutor;
 
         $data = $request->validate([
-            'siswa_id' => ['required', 'exists:siswas,id'],
+            'siswa_id' => ['required', 'exists:siswa,id'],
             'tanggal' => ['required', 'date', 'before_or_equal:today'],
             'jam_mulai' => ['required', 'date_format:H:i'],
             'jam_selesai' => ['required', 'date_format:H:i', 'after:jam_mulai'],

@@ -97,7 +97,7 @@ class PresensiFotoController extends Controller
 
         // Cek apakah kolom tutor_id ada di tabel presensis (backward compatibility)
         // Sistem lama mungkin tidak memiliki kolom ini
-        $hasPresensiTutorId = Schema::hasColumn('presensis', 'tutor_id');
+        $hasPresensiTutorId = Schema::hasColumn((new Presensi)->getTable(), 'tutor_id');
 
         // Query presensi hari ini milik tutor ini
         $presensiQuery = Presensi::query()->whereDate('tgl_presensi', $today);
@@ -195,8 +195,8 @@ class PresensiFotoController extends Controller
             'siswa_id' => ['required', 'array', 'min:1'],
             'siswa_id.*' => ['integer'],
             'mode' => ['required', Rule::in(['mulai', 'selesai'])], // Mode: clock-in atau clock-out
-            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
+            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'moda_pembelajaran' => ['nullable', Rule::in(['sekolah', 'kunjungan_rumah', 'online'])],
             'durasi_pilihan' => ['nullable', 'numeric', 'min:0.5', 'max:12'],
             'is_gabungan' => ['nullable', 'boolean'],
@@ -222,7 +222,7 @@ class PresensiFotoController extends Controller
 
         // Path direktori penyimpanan foto: presensi/{tutor_id}/{tanggal}/
         $dir = 'presensi/'.$tutor->id.'/'.$today;
-        $hasPresensiTutorId = Schema::hasColumn('presensis', 'tutor_id');
+        $hasPresensiTutorId = Schema::hasColumn((new Presensi)->getTable(), 'tutor_id');
 
         // ─────────────────────────────────────────────
         //  MODE: MULAI (Clock In / Absen Masuk)

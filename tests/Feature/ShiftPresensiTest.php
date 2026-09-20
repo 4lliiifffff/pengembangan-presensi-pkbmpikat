@@ -87,7 +87,7 @@ class ShiftPresensiTest extends TestCase
         $response->assertRedirect(route('admin.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_karyawans', [
+        $this->assertDatabaseHas('presensi_karyawan', [
             'user_id' => $user->id,
             'status' => 'hadir',
         ]);
@@ -121,7 +121,7 @@ class ShiftPresensiTest extends TestCase
         $response->assertRedirect(route('magang.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_karyawans', [
+        $this->assertDatabaseHas('presensi_karyawan', [
             'user_id' => $user->id,
             'status' => 'hadir',
         ]);
@@ -169,7 +169,7 @@ class ShiftPresensiTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'status' => 'hadir',

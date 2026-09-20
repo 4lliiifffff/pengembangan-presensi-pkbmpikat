@@ -21,8 +21,9 @@ trait ResolvesKepsek
 
         $nik = (string) ($user->nik ?? '');
         $email = (string) ($user->email ?? '');
-        $hasNik = Schema::hasColumn('kepala__sekolahs', 'nik');
-        $hasEmail = Schema::hasColumn('kepala__sekolahs', 'email');
+        $tableName = (new Kepala_Sekolah)->getTable();
+        $hasNik = Schema::hasColumn($tableName, 'nik');
+        $hasEmail = Schema::hasColumn($tableName, 'email');
 
         if (($hasNik && $nik !== '') || ($hasEmail && $email !== '')) {
             $kepsek = Kepala_Sekolah::query()

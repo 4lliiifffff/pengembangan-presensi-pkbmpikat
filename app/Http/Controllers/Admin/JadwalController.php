@@ -68,7 +68,7 @@ class JadwalController extends Controller
             'deskripsi' => 'nullable|string|max:1000',
             'tanggal' => 'required|date',
             'lokasi' => 'nullable|string|max:255',
-            'lokasi_presensi_id' => 'nullable|exists:lokasi_presensis,id',
+            'lokasi_presensi_id' => 'nullable|exists:lokasi_presensi,id',
         ], [
             'judul.required' => 'Judul agenda wajib diisi.',
             'tanggal.required' => 'Tanggal wajib diisi.',
@@ -96,7 +96,7 @@ class JadwalController extends Controller
             'deskripsi' => 'nullable|string|max:1000',
             'tanggal' => 'required|date',
             'lokasi' => 'nullable|string|max:255',
-            'lokasi_presensi_id' => 'nullable|exists:lokasi_presensis,id',
+            'lokasi_presensi_id' => 'nullable|exists:lokasi_presensi,id',
         ], [
             'judul.required' => 'Judul agenda wajib diisi.',
             'tanggal.required' => 'Tanggal wajib diisi.',

@@ -12,7 +12,7 @@ class JadwalRutin extends Model
 {
     use HasFactory;
 
-    protected $table = 'jadwal_rutins';
+    protected $table = 'jadwal_rutin';
 
     public const HARI_LABELS = [
         'senin' => 'Senin',

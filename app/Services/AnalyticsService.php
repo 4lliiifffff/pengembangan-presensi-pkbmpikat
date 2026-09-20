@@ -15,7 +15,7 @@ class AnalyticsService
      */
     public function getMonthlyAttendanceTrend(int $months = 6): array
     {
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $hasJamMulai = Schema::hasColumn((new Presensi)->getTable(), 'jam_mulai');
         $trend = [];
 
         $now = Carbon::now('Asia/Jakarta');
@@ -92,7 +92,7 @@ class AnalyticsService
         $startDate = Carbon::createFromDate($targetTahun, $targetBulan, 1)->startOfDay();
         $endDate = $startDate->copy()->endOfMonth()->endOfDay();
 
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $hasJamMulai = Schema::hasColumn((new Presensi)->getTable(), 'jam_mulai');
         $tutors = Tutor::orderBy('nama_lengkap')->get();
 
         $ranked = $tutors->map(function (Tutor $tutor) use ($startDate, $endDate, $hasJamMulai) {

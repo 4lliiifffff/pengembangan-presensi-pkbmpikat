@@ -104,7 +104,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $storeResponse->assertRedirect(route('admin.jadwal-rutin.index'));
         $storeResponse->assertSessionHas('success');
 
-        $this->assertDatabaseHas('jadwal_rutins', [
+        $this->assertDatabaseHas('jadwal_rutin', [
             'siswa_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'hari' => 'selasa',
@@ -136,7 +136,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $this->assertGreaterThan(0, $result['created']);
 
         // Pastikan instance jadwal sesi terbuat dengan jadwal_rutin_id yang tepat
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'jadwal_rutin_id' => $rutin->id,
             'siswa_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
@@ -223,7 +223,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $response->assertRedirect(route('siswa.dashboard'));
         $response->assertSessionHas('warning');
 
-        $this->assertDatabaseMissing('presensi_mandiri_siswas', [
+        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
             'siswa_id' => $this->siswa->id,
             'tgl_presensi' => $today,
         ]);
@@ -259,7 +259,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $response->assertRedirect(route('siswa.presensi'));
         $response->assertSessionHas('warning');
 
-        $this->assertDatabaseMissing('presensi_mandiri_siswas', [
+        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
             'siswa_id' => $this->siswa->id,
             'tgl_presensi' => $today,
         ]);
@@ -296,7 +296,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $response->assertRedirect(route('siswa.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_mandiri_siswas', [
+        $this->assertDatabaseHas('presensi_mandiri_siswa', [
             'siswa_id' => $this->siswa->id,
             'tgl_presensi' => $today,
             'status' => 'hadir',

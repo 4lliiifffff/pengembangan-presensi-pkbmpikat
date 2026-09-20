@@ -56,9 +56,9 @@ class IzinController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'tutor_id' => 'required|exists:tutors,id',
+            'tutor_id' => 'required|exists:tutor,id',
             'siswa_ids' => 'required|array|min:1',
-            'siswa_ids.*' => 'exists:siswas,id',
+            'siswa_ids.*' => 'exists:siswa,id',
             'tanggal' => 'required|date',
         ], [
             'tutor_id.required' => 'Pilih tutor terlebih dahulu.',

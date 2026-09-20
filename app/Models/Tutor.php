@@ -47,6 +47,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class Tutor extends Model
 {
+    protected $table = 'tutor';
+
     /**
      * Kolom yang boleh diisi secara massal (Mass Assignment Whitelist).
      *

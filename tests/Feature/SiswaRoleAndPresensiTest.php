@@ -203,7 +203,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         $response->assertRedirect(route('siswa.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_mandiri_siswas', [
+        $this->assertDatabaseHas('presensi_mandiri_siswa', [
             'siswa_id' => $siswa->id,
             'tgl_presensi' => Carbon::now('Asia/Jakarta')->toDateString(),
             'status' => 'hadir',
@@ -243,7 +243,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $response->assertSessionHas('warning');
-        $this->assertDatabaseMissing('presensi_mandiri_siswas', [
+        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
             'siswa_id' => $siswa->id,
         ]);
     }
@@ -503,7 +503,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         $response->assertRedirect(route('siswa.dashboard'));
         $response->assertSessionHas('warning');
 
-        $this->assertDatabaseHas('presensi_mandiri_siswas', [
+        $this->assertDatabaseHas('presensi_mandiri_siswa', [
             'siswa_id' => $siswa->id,
             'status_kehadiran' => 'terlambat',
             'menit_keterlambatan' => 61,

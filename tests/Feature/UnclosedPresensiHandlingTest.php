@@ -138,7 +138,7 @@ class UnclosedPresensiHandlingTest extends TestCase
 
         $postResponse->assertRedirect(route('tutor.dashboard'));
 
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tgl_presensi' => $today,
@@ -240,7 +240,7 @@ class UnclosedPresensiHandlingTest extends TestCase
         $response->assertRedirect();
 
         // 1. Presensi terupdate dengan jam selesai
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tgl_presensi' => $sessionDate,

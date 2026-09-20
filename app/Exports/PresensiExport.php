@@ -68,8 +68,9 @@ class PresensiExport implements FromCollection, WithCustomStartCell, WithEvents,
 
         $presensis = $query->orderBy('tgl_presensi')->get();
 
-        $hasStatus = Schema::hasColumn('presensis', 'status');
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $presensiTable = (new Presensi)->getTable();
+        $hasStatus = Schema::hasColumn($presensiTable, 'status');
+        $hasJamMulai = Schema::hasColumn($presensiTable, 'jam_mulai');
 
         foreach ($presensis as $p) {
             $status = 'alpha';

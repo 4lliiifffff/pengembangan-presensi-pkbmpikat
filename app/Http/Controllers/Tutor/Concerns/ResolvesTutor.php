@@ -22,8 +22,9 @@ trait ResolvesTutor
         $nik = (string) ($user->nik ?? '');
         $email = (string) ($user->email ?? '');
 
-        $hasTutorNik = Schema::hasColumn('tutors', 'nik');
-        $hasTutorEmail = Schema::hasColumn('tutors', 'email');
+        $tutorTable = (new Tutor)->getTable();
+        $hasTutorNik = Schema::hasColumn($tutorTable, 'nik');
+        $hasTutorEmail = Schema::hasColumn($tutorTable, 'email');
 
         if (($hasTutorNik && $nik !== '') || ($hasTutorEmail && $email !== '')) {
             $tutor = Tutor::query()

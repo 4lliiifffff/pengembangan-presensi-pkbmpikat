@@ -99,11 +99,11 @@ class JadwalRutinController extends Controller
     public function store(Request $request, JadwalRutinService $service): RedirectResponse
     {
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:siswas,id'],
-            'tutor_id' => ['required', 'exists:tutors,id'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
-            'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerjas,id'],
-            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
+            'siswa_id' => ['required', 'exists:siswa,id'],
+            'tutor_id' => ['required', 'exists:tutor,id'],
+            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
+            'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerja,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i', 'after:jam_masuk'],
@@ -183,11 +183,11 @@ class JadwalRutinController extends Controller
     public function update(Request $request, JadwalRutin $jadwalRutin, JadwalRutinService $service): RedirectResponse
     {
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:siswas,id'],
-            'tutor_id' => ['required', 'exists:tutors,id'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
-            'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerjas,id'],
-            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
+            'siswa_id' => ['required', 'exists:siswa,id'],
+            'tutor_id' => ['required', 'exists:tutor,id'],
+            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
+            'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerja,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i', 'after:jam_masuk'],

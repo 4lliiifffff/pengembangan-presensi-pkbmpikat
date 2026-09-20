@@ -101,7 +101,7 @@ class JadwalLokasiTrackingTest extends TestCase
 
         $response->assertRedirect(route('admin.jadwal.index', ['tanggal' => $targetDate]));
 
-        $this->assertDatabaseHas('jadwals', [
+        $this->assertDatabaseHas('jadwal', [
             'judul' => 'Workshop Robotika & Coding',
             'lokasi_presensi_id' => $this->lokasiMitra->id,
             'lokasi' => 'Ruang Lab Cyber',
@@ -164,7 +164,7 @@ class JadwalLokasiTrackingTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => $targetDate,
@@ -199,13 +199,13 @@ class JadwalLokasiTrackingTest extends TestCase
         $response->assertRedirect();
 
         // Original marked dibatalkan
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'id' => $sesi->id,
             'status' => 'dibatalkan',
         ]);
 
         // New replacement session has new location
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => $newDate,

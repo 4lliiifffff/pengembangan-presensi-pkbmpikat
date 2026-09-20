@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Admin extends Model
 {
+    protected $table = 'admin';
+
     // buat mass assigment
     protected $fillable =
         [

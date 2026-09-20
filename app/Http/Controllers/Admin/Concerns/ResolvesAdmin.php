@@ -22,8 +22,9 @@ trait ResolvesAdmin
         $nik = (string) ($user->nik ?? '');
         $email = (string) ($user->email ?? '');
 
-        $hasAdminNik = Schema::hasColumn('admins', 'nik');
-        $hasAdminEmail = Schema::hasColumn('admins', 'email');
+        $adminTable = (new Admin)->getTable();
+        $hasAdminNik = Schema::hasColumn($adminTable, 'nik');
+        $hasAdminEmail = Schema::hasColumn($adminTable, 'email');
 
         if (($hasAdminNik && $nik !== '') || ($hasAdminEmail && $email !== '')) {
             $admin = Admin::query()

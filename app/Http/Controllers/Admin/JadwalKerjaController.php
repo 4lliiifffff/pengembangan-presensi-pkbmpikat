@@ -68,9 +68,9 @@ class JadwalKerjaController extends Controller
     {
         $validated = $request->validate([
             'nama_shift' => ['required', 'string', 'max:100'],
-            'kode_shift' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jadwal_kerjas,kode_shift'],
+            'kode_shift' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jadwal_kerja,kode_shift'],
             'jenis_shift' => ['required', 'string', 'in:umum,kbm'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
+            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i'],
             'durasi_jam' => ['nullable', 'numeric', 'min:0.5', 'max:24'],
@@ -131,9 +131,9 @@ class JadwalKerjaController extends Controller
     {
         $validated = $request->validate([
             'nama_shift' => ['required', 'string', 'max:100'],
-            'kode_shift' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jadwal_kerjas,kode_shift,'.$jadwalKerja->id],
+            'kode_shift' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jadwal_kerja,kode_shift,'.$jadwalKerja->id],
             'jenis_shift' => ['required', 'string', 'in:umum,kbm'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorials,id'],
+            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i'],
             'durasi_jam' => ['nullable', 'numeric', 'min:0.5', 'max:24'],

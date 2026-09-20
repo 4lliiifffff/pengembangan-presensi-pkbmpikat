@@ -287,7 +287,7 @@ class AuthWebController extends Controller
         }
 
         // Khusus role siswa, pastikan data siswa terhubung agar dashboard siswa tidak mengalihkan ke logout
-        if ($role === 'siswa' && class_exists(Siswa::class) && Schema::hasTable('siswas')) {
+        if ($role === 'siswa' && class_exists(Siswa::class) && Schema::hasTable((new Siswa)->getTable())) {
             if (! $user->siswa) {
                 $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
                 if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
@@ -325,7 +325,7 @@ class AuthWebController extends Controller
                     'role' => 'admin',
                     'is_active' => 1,
                 ]);
-                if (class_exists(Admin::class) && Schema::hasTable('admins')) {
+                if (class_exists(Admin::class) && Schema::hasTable((new Admin)->getTable())) {
                     Admin::firstOrCreate(['user_id' => $user->id], [
                         'nik' => $user->nik,
                         'nama_lengkap' => $user->nama_lengkap,
@@ -344,7 +344,7 @@ class AuthWebController extends Controller
                     'role' => 'kepala_sekolah',
                     'is_active' => 1,
                 ]);
-                if (class_exists(Kepala_Sekolah::class) && Schema::hasTable('kepala__sekolahs')) {
+                if (class_exists(Kepala_Sekolah::class) && (Schema::hasTable((new Kepala_Sekolah)->getTable()) || Schema::hasTable('kepala__sekolahs'))) {
                     Kepala_Sekolah::firstOrCreate(['user_id' => $user->id], [
                         'nik' => $user->nik,
                         'nama_lengkap' => $user->nama_lengkap,
@@ -363,7 +363,7 @@ class AuthWebController extends Controller
                     'role' => 'tutor',
                     'is_active' => 1,
                 ]);
-                if (class_exists(Tutor::class) && Schema::hasTable('tutors')) {
+                if (class_exists(Tutor::class) && Schema::hasTable((new Tutor)->getTable())) {
                     Tutor::firstOrCreate(['user_id' => $user->id], [
                         'nik' => $user->nik,
                         'nama_lengkap' => $user->nama_lengkap,
@@ -383,7 +383,7 @@ class AuthWebController extends Controller
                     'role' => 'magang',
                     'is_active' => 1,
                 ]);
-                if (class_exists(Magang::class) && Schema::hasTable('magangs')) {
+                if (class_exists(Magang::class) && Schema::hasTable((new Magang)->getTable())) {
                     Magang::firstOrCreate(['user_id' => $user->id], [
                         'nim_nisn' => '22050974001',
                         'nama_lengkap' => $user->nama_lengkap,
@@ -409,7 +409,7 @@ class AuthWebController extends Controller
                     $k = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'tingkat' => '10']);
                     $kelasId = $k->id;
                 }
-                if (class_exists(Siswa::class) && Schema::hasTable('siswas')) {
+                if (class_exists(Siswa::class) && Schema::hasTable((new Siswa)->getTable())) {
                     Siswa::firstOrCreate(['user_id' => $user->id], [
                         'no_absen' => '001',
                         'nama_siswa' => $user->nama_lengkap,

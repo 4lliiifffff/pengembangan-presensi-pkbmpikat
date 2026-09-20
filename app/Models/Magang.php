@@ -14,6 +14,8 @@ class Magang extends Model
 {
     use HasFactory;
 
+    protected $table = 'magang';
+
     protected $fillable = [
         'user_id',
         'nim_nisn',

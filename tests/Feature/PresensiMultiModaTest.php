@@ -55,7 +55,7 @@ class PresensiMultiModaTest extends TestCase
         ]);
 
         $response->assertRedirect(route('tutor.dashboard'));
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'moda_pembelajaran' => 'online',
@@ -108,7 +108,7 @@ class PresensiMultiModaTest extends TestCase
 
         $response->assertRedirect(route('tutor.presensi'));
         $response->assertSessionHas('warning');
-        $this->assertDatabaseMissing('presensis', [
+        $this->assertDatabaseMissing('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaA->id,
         ]);
@@ -157,11 +157,11 @@ class PresensiMultiModaTest extends TestCase
 
         $response->assertRedirect(route('tutor.presensi'));
         $response->assertSessionHas('warning');
-        $this->assertDatabaseMissing('presensis', [
+        $this->assertDatabaseMissing('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaA->id,
         ]);
-        $this->assertDatabaseMissing('presensis', [
+        $this->assertDatabaseMissing('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaB->id,
         ]);
@@ -208,11 +208,11 @@ class PresensiMultiModaTest extends TestCase
         ]);
 
         $response->assertRedirect(route('tutor.dashboard'));
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaB1->id,
         ]);
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswaB2->id,
         ]);

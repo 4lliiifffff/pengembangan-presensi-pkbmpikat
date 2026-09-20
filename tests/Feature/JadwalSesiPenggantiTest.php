@@ -90,7 +90,7 @@ class JadwalSesiPenggantiTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'jenis_sesi' => 'pengganti',
@@ -115,7 +115,7 @@ class JadwalSesiPenggantiTest extends TestCase
         $response = $this->actingAs($this->tutorUser)->delete(route('tutor.jadwal-sesi.destroy', $sesi));
         $response->assertRedirect();
 
-        $this->assertDatabaseMissing('jadwal_sesis', ['id' => $sesi->id]);
+        $this->assertDatabaseMissing('jadwal_sesi', ['id' => $sesi->id]);
     }
 
     public function test_shift_presensi_service_evaluates_against_jadwal_sesi_time(): void
@@ -173,14 +173,14 @@ class JadwalSesiPenggantiTest extends TestCase
         $response = $this->actingAs($this->tutorUser)->post(route('tutor.presensi.store'), $payload);
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'jadwal_sesi_id' => $sesi->id,
             'status' => 'hadir',
         ]);
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'id' => $sesi->id,
             'status' => 'berlangsung',
         ]);
@@ -198,7 +198,7 @@ class JadwalSesiPenggantiTest extends TestCase
         $pulangResponse = $this->actingAs($this->tutorUser)->post(route('tutor.presensi.store'), $pulangPayload);
         $pulangResponse->assertRedirect();
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'id' => $sesi->id,
             'status' => 'selesai',
         ]);

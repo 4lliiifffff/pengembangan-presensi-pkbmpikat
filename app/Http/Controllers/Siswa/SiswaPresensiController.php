@@ -236,7 +236,7 @@ class SiswaPresensiController extends Controller
 
         $validated = $request->validate([
             'mode' => ['nullable', Rule::in(['mulai', 'masuk'])],
-            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensis,id'],
+            'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'foto' => ['required', 'image', 'max:5120'],
             'lokasi' => ['nullable', 'string', 'max:255'],
             'lokasi_akurasi' => ['nullable', 'numeric'],

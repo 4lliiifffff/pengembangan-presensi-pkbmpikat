@@ -92,9 +92,9 @@ class JadwalSesiImportTest extends TestCase
         $response->assertSessionHas('success');
 
         // Pastikan 4 sesi berhasil disimpan ke database
-        $this->assertDatabaseCount('jadwal_sesis', 4);
+        $this->assertDatabaseCount('jadwal_sesi', 4);
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => '2026-10-05',
@@ -105,7 +105,7 @@ class JadwalSesiImportTest extends TestCase
             'catatan' => 'Pertemuan 1: Aljabar Dasar',
         ]);
 
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => '2026-10-26',
@@ -148,7 +148,7 @@ class JadwalSesiImportTest extends TestCase
         $this->assertEquals('Tutor ada keperluan dinas luar mendadak', $sesi->alasan_penggantian);
 
         // 4. Verifikasi sesi pengganti baru terbentuk
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
             'siswa_id' => $this->siswa->id,
             'tanggal_rencana' => '2026-10-14',
@@ -172,7 +172,7 @@ class JadwalSesiImportTest extends TestCase
         $this->actingAs($this->tutorUser)
             ->post(route('tutor.jadwal-sesi.import'), ['file_excel' => $file1]);
 
-        $this->assertDatabaseCount('jadwal_sesis', 1);
+        $this->assertDatabaseCount('jadwal_sesi', 1);
 
         // Import kedua dengan catatan diperbarui pada jam yang sama
         $csvContentUpdated = "Tanggal,Nomor Absen Siswa,Jam Mulai,Jam Selesai,Catatan\n"
@@ -187,8 +187,8 @@ class JadwalSesiImportTest extends TestCase
         $response->assertSessionHas('success');
 
         // Pastikan tidak ada duplikasi record (tetap 1 sesi)
-        $this->assertDatabaseCount('jadwal_sesis', 1);
-        $this->assertDatabaseHas('jadwal_sesis', [
+        $this->assertDatabaseCount('jadwal_sesi', 1);
+        $this->assertDatabaseHas('jadwal_sesi', [
             'tanggal_rencana' => '2026-11-02',
             'catatan' => 'Pertemuan Pekan 1 (Materi Diperbarui)',
         ]);

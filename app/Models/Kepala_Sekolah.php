@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kepala_Sekolah extends Model
 {
+    protected $table = 'kepala_sekolah';
+
     // buat mass assigment
     protected $fillable =
         [

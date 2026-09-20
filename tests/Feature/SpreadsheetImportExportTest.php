@@ -119,7 +119,7 @@ class SpreadsheetImportExportTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.siswa.index'));
-        $this->assertDatabaseHas('siswas', [
+        $this->assertDatabaseHas('siswa', [
             'no_absen' => 'SISWA-NEW-1',
             'nama_siswa' => 'Rudi Hartono',
             'is_abk' => true,
@@ -167,7 +167,7 @@ class SpreadsheetImportExportTest extends TestCase
             'nik' => '3304123456780001',
             'role' => 'tutor',
         ]);
-        $this->assertDatabaseHas('tutors', [
+        $this->assertDatabaseHas('tutor', [
             'nik' => '3304123456780001',
             'nama_lengkap' => 'Dr. Hendra Wijaya',
         ]);
@@ -185,7 +185,7 @@ class SpreadsheetImportExportTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.jadwal.index'));
-        $this->assertDatabaseHas('jadwals', [
+        $this->assertDatabaseHas('jadwal', [
             'judul' => 'Workshop Persiapan Ujian',
             'tanggal' => '2026-10-15',
             'lokasi' => 'Aula PKBM Pikat',
@@ -222,7 +222,7 @@ class SpreadsheetImportExportTest extends TestCase
         ]);
 
         $response->assertSessionHas('success');
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'tgl_presensi' => '2026-09-10',

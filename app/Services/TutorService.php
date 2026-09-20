@@ -25,7 +25,7 @@ class TutorService
      */
     public function syncKepsekIntoTutors(): void
     {
-        $hasJabatan = Schema::hasColumn('tutors', 'jabatan');
+        $hasJabatan = Schema::hasColumn((new Tutor)->getTable(), 'jabatan');
 
         $ensureTutor = function (array $attrs) use ($hasJabatan): void {
             if (! empty($attrs['user_id']) && Tutor::where('user_id', $attrs['user_id'])->exists()) {
@@ -34,7 +34,7 @@ class TutorService
             if (! empty($attrs['nik']) && Tutor::where('nik', $attrs['nik'])->exists()) {
                 return;
             }
-            if (! empty($attrs['email']) && Schema::hasColumn('tutors', 'email')
+            if (! empty($attrs['email']) && Schema::hasColumn((new Tutor)->getTable(), 'email')
                 && Tutor::where('email', $attrs['email'])->exists()) {
                 return;
             }

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JadwalKerja extends Model
 {
+    protected $table = 'jadwal_kerja';
+
     /**
      * Mass assignment attributes.
      *

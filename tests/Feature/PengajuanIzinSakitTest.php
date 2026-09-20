@@ -104,14 +104,14 @@ class PengajuanIzinSakitTest extends TestCase
         ]);
 
         // Auto-synced records in presensis for 2026-09-20 and 2026-09-21
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'tgl_presensi' => '2026-09-20',
             'status' => 'izin',
         ]);
 
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'tgl_presensi' => '2026-09-21',

@@ -51,7 +51,7 @@ class AdminJenjangPaketTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.jenjang-paket.index'));
-        $this->assertDatabaseHas('jenjang_pakets', [
+        $this->assertDatabaseHas('jenjang_paket', [
             'kode' => 'keaksaraan_fungsional',
             'nama_jenjang' => 'Keaksaraan Fungsional (KF)',
             'is_aktif' => true,
@@ -83,7 +83,7 @@ class AdminJenjangPaketTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.jenjang-paket.index'));
-        $this->assertDatabaseHas('jenjang_pakets', [
+        $this->assertDatabaseHas('jenjang_paket', [
             'id' => $jp->id,
             'nama_jenjang' => 'Vokasi & Keterampilan Terapan',
             'tingkat_label' => 'Dasar - Terampil - Mahir',
@@ -105,7 +105,7 @@ class AdminJenjangPaketTest extends TestCase
 
         $response = $this->actingAs($admin)->patch(route('admin.jenjang-paket.toggleStatus', $jp));
         $response->assertRedirect(route('admin.jenjang-paket.index'));
-        $this->assertDatabaseHas('jenjang_pakets', [
+        $this->assertDatabaseHas('jenjang_paket', [
             'id' => $jp->id,
             'is_aktif' => false,
         ]);
@@ -134,7 +134,7 @@ class AdminJenjangPaketTest extends TestCase
         $response = $this->actingAs($admin)->delete(route('admin.jenjang-paket.destroy', $jp));
         $response->assertRedirect(route('admin.jenjang-paket.index'));
         $response->assertSessionHas('warning');
-        $this->assertDatabaseHas('jenjang_pakets', [
+        $this->assertDatabaseHas('jenjang_paket', [
             'id' => $jp->id,
         ]);
     }
@@ -167,7 +167,7 @@ class AdminJenjangPaketTest extends TestCase
         $response->assertSessionHas('success');
 
         // Master jenjang should be deleted
-        $this->assertDatabaseMissing('jenjang_pakets', [
+        $this->assertDatabaseMissing('jenjang_paket', [
             'id' => $jp->id,
         ]);
 
@@ -221,7 +221,7 @@ class AdminJenjangPaketTest extends TestCase
         $response->assertSessionHas('success');
 
         // Old jenjang should be gone
-        $this->assertDatabaseMissing('jenjang_pakets', ['id' => $jpOld->id]);
+        $this->assertDatabaseMissing('jenjang_paket', ['id' => $jpOld->id]);
 
         // Kelas should be reassigned to jpNew
         $this->assertDatabaseHas('kelas', [

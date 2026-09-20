@@ -64,7 +64,7 @@ class LokasiPresensiController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_lokasi' => ['required', 'string', 'max:255', 'unique:lokasi_presensis,nama_lokasi'],
+            'nama_lokasi' => ['required', 'string', 'max:255', 'unique:lokasi_presensi,nama_lokasi'],
             'alamat' => ['nullable', 'string', 'max:500'],
             'tipe' => ['required', 'string', 'in:pusat,cabang,mitra,kegiatan,lainnya'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -104,7 +104,7 @@ class LokasiPresensiController extends Controller
     public function update(Request $request, LokasiPresensi $lokasiPresensi): RedirectResponse
     {
         $validated = $request->validate([
-            'nama_lokasi' => ['required', 'string', 'max:255', 'unique:lokasi_presensis,nama_lokasi,'.$lokasiPresensi->id],
+            'nama_lokasi' => ['required', 'string', 'max:255', 'unique:lokasi_presensi,nama_lokasi,'.$lokasiPresensi->id],
             'alamat' => ['nullable', 'string', 'max:500'],
             'tipe' => ['required', 'string', 'in:pusat,cabang,mitra,kegiatan,lainnya'],
             'latitude' => ['required', 'numeric', 'between:-90,90'],

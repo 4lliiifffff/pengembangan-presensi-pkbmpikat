@@ -62,7 +62,7 @@ class KelasController extends Controller
 
         $validated = $request->validate([
             'nama_kelas' => ['required', 'string', 'max:100', 'unique:kelas,nama_kelas'],
-            'jenjang_paket_id' => ['required', 'exists:jenjang_pakets,id'],
+            'jenjang_paket_id' => ['required', 'exists:jenjang_paket,id'],
             'tingkat' => ['nullable', 'string', 'max:50'],
             'keterangan' => ['nullable', 'string', 'max:255'],
         ]);
@@ -103,7 +103,7 @@ class KelasController extends Controller
                 'max:100',
                 Rule::unique('kelas', 'nama_kelas')->ignore($kela->id),
             ],
-            'jenjang_paket_id' => ['required', 'exists:jenjang_pakets,id'],
+            'jenjang_paket_id' => ['required', 'exists:jenjang_paket,id'],
             'tingkat' => ['nullable', 'string', 'max:50'],
             'keterangan' => ['nullable', 'string', 'max:255'],
         ]);

@@ -12,7 +12,7 @@ class JadwalSesi extends Model
 {
     use HasFactory;
 
-    protected $table = 'jadwal_sesis';
+    protected $table = 'jadwal_sesi';
 
     protected $fillable = [
         'jadwal_rutin_id',

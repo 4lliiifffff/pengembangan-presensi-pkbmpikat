@@ -66,7 +66,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         ]);
 
         $createResponse->assertRedirect(route('admin.kategori-tutorial.index'));
-        $this->assertDatabaseHas('kategori_tutorials', [
+        $this->assertDatabaseHas('kategori_tutorial', [
             'nama_kategori' => 'Tutorial Khusus Matrikulasi',
             'nominal_honor' => 100000,
         ]);
@@ -78,7 +78,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
 
         $response = $this->actingAs($this->admin)->patch(route('admin.kategori-tutorial.toggleStatus', $kategori));
         $response->assertRedirect(route('admin.kategori-tutorial.index'));
-        $this->assertDatabaseHas('kategori_tutorials', [
+        $this->assertDatabaseHas('kategori_tutorial', [
             'id' => $kategori->id,
             'is_aktif' => false,
         ]);
@@ -92,7 +92,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         ]);
 
         $updateResponse->assertRedirect(route('admin.kategori-tutorial.index'));
-        $this->assertDatabaseHas('kategori_tutorials', [
+        $this->assertDatabaseHas('kategori_tutorial', [
             'id' => $kategori->id,
             'nama_kategori' => 'Tutorial Komunitas 2 Jam Update',
             'nominal_honor' => 85000,
@@ -113,7 +113,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         ]);
 
         $response->assertRedirect(route('admin.siswa.index'));
-        $this->assertDatabaseHas('siswas', [
+        $this->assertDatabaseHas('siswa', [
             'no_absen' => 'SISWA-ABK-01',
             'is_abk' => true,
         ]);
@@ -386,7 +386,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         // 2. Kategori baru yang belum dipakai sama sekali bisa dihapus permanen
         $deleteResponse = $this->actingAs($this->admin)->delete(route('admin.kategori-tutorial.destroy', $kategoriVokasi));
         $deleteResponse->assertRedirect(route('admin.kategori-tutorial.index'));
-        $this->assertDatabaseMissing('kategori_tutorials', ['id' => $kategoriVokasi->id]);
+        $this->assertDatabaseMissing('kategori_tutorial', ['id' => $kategoriVokasi->id]);
 
         // 3. Kategori yang sudah memiliki relasi (misal presensi) tidak bisa dihapus permanen, melainkan di-nonaktifkan
         $kategoriAktif = KategoriTutorial::first();
@@ -412,7 +412,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
         $safeDeleteResponse = $this->actingAs($this->admin)->delete(route('admin.kategori-tutorial.destroy', $kategoriAktif));
         $safeDeleteResponse->assertRedirect(route('admin.kategori-tutorial.index'));
         // Data tetap ada di database namun is_aktif menjadi false
-        $this->assertDatabaseHas('kategori_tutorials', [
+        $this->assertDatabaseHas('kategori_tutorial', [
             'id' => $kategoriAktif->id,
             'is_aktif' => false,
         ]);

@@ -17,7 +17,7 @@ class LaporanPresensiService
         $startDate = Carbon::createFromDate($tahun, $bulan, 1)->startOfDay();
         $endDate = $startDate->copy()->endOfMonth()->endOfDay();
 
-        $hasJamMulai = Schema::hasColumn('presensis', 'jam_mulai');
+        $hasJamMulai = Schema::hasColumn((new Presensi)->getTable(), 'jam_mulai');
 
         $baseQuery = Presensi::whereBetween('tgl_presensi', [$startDate, $endDate]);
         if ($tutorId) {

@@ -11,6 +11,8 @@ class LokasiPresensi extends Model
 {
     use HasFactory;
 
+    protected $table = 'lokasi_presensi';
+
     protected $fillable = [
         'nama_lokasi',
         'alamat',

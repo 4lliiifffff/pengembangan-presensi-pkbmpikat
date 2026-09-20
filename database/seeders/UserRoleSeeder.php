@@ -127,7 +127,7 @@ class UserRoleSeeder extends Seeder
             ]
         );
 
-        if (Schema::hasTable('kepala__sekolahs')) {
+        if (Schema::hasTable('kepala_sekolah') || Schema::hasTable('kepala__sekolahs')) {
             Kepala_Sekolah::updateOrCreate(
                 ['user_id' => $kepsekUser->id],
                 [

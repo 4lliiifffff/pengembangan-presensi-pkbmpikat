@@ -93,7 +93,7 @@ class PengajuanLupaLaporTest extends TestCase
         ]);
 
         // Check auto-upsert into presensis table
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'tgl_presensi' => $pengajuan->tanggal,

@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 class KategoriTutorial extends Model
 {
-    protected $table = 'kategori_tutorials';
+    protected $table = 'kategori_tutorial';
 
     protected $fillable = [
         'nama_kategori',

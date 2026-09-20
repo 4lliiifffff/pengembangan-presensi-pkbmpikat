@@ -13,6 +13,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class PresensiMandiriSiswa extends Model
 {
+    protected $table = 'presensi_mandiri_siswa';
+
     protected $fillable = [
         'siswa_id',
         'lokasi_presensi_id',

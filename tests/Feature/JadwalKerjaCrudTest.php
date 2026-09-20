@@ -95,7 +95,7 @@ class JadwalKerjaCrudTest extends TestCase
         $response->assertRedirect(route('admin.jadwal-kerja.index'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('jadwal_kerjas', [
+        $this->assertDatabaseHas('jadwal_kerja', [
             'kode_shift' => 'TUT_KELOMPOK',
             'durasi_jam' => 2.00,
             'kategori_tutorial_id' => $kategori->id,
@@ -131,7 +131,7 @@ class JadwalKerjaCrudTest extends TestCase
         $response = $this->actingAs($this->adminUser)->put(route('admin.jadwal-kerja.update', $shift), $payload);
         $response->assertRedirect(route('admin.jadwal-kerja.index'));
 
-        $this->assertDatabaseHas('jadwal_kerjas', [
+        $this->assertDatabaseHas('jadwal_kerja', [
             'id' => $shift->id,
             'nama_shift' => 'Shift Diperbarui',
             'jam_masuk' => '08:30:00',
@@ -155,7 +155,7 @@ class JadwalKerjaCrudTest extends TestCase
         $response = $this->actingAs($this->adminUser)->patch(route('admin.jadwal-kerja.toggleStatus', $shift));
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('jadwal_kerjas', [
+        $this->assertDatabaseHas('jadwal_kerja', [
             'id' => $shift->id,
             'is_aktif' => false,
         ]);
@@ -176,7 +176,7 @@ class JadwalKerjaCrudTest extends TestCase
         $response = $this->actingAs($this->adminUser)->delete(route('admin.jadwal-kerja.destroy', $shift));
         $response->assertRedirect(route('admin.jadwal-kerja.index'));
 
-        $this->assertDatabaseMissing('jadwal_kerjas', [
+        $this->assertDatabaseMissing('jadwal_kerja', [
             'id' => $shift->id,
         ]);
     }
@@ -208,7 +208,7 @@ class JadwalKerjaCrudTest extends TestCase
         $response->assertRedirect(route('admin.jadwal-kerja.index'));
 
         // Still exists in DB but deactivated
-        $this->assertDatabaseHas('jadwal_kerjas', [
+        $this->assertDatabaseHas('jadwal_kerja', [
             'id' => $shift->id,
             'is_aktif' => false,
         ]);

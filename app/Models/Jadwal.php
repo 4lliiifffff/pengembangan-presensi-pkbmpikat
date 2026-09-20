@@ -21,6 +21,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class Jadwal extends Model
 {
+    protected $table = 'jadwal';
+
     /**
      * Kolom yang boleh diisi secara massal.
      *

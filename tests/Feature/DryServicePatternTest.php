@@ -48,7 +48,7 @@ class DryServicePatternTest extends TestCase
 
         // Test syncKepsekIntoTutors
         $tutorService->syncKepsekIntoTutors();
-        $this->assertDatabaseHas('tutors', [
+        $this->assertDatabaseHas('tutor', [
             'user_id' => $userKepsek->id,
         ]);
     }
@@ -132,7 +132,7 @@ class DryServicePatternTest extends TestCase
         );
 
         $this->assertEquals(1, $createdCount);
-        $this->assertDatabaseHas('presensis', [
+        $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
             'siswa_id' => $siswa->id,
             'tgl_presensi' => now()->format('Y-m-d'),
