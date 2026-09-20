@@ -44,6 +44,7 @@
 </head>
 
 <body>
+    @include('layouts.components.preloader')
 
     <div class="login-wrapper">
 

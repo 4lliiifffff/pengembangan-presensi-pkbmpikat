@@ -666,6 +666,20 @@ pie title Status Fitur & Pengkondisian Sistem
       - Menghasilkan kanvas beresolusi standar 3:4 (lebar maksimal 960px) dengan orientasi cermin (*mirroring*) yang sinkron.
       - File foto yang dikirim ke backend dan pratinjau `#previewImg` pas 100% dengan bingkai preview (WYSIWYG).
 
+#### 9.7 Fitur Preloader Premium Terpadu (Konsisten & Responsif Mobile)
+- 🟢 **Implementasi Komponen Preloader Multi-Layout**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Menyelaraskan pengalaman navigasi antar halaman dengan indikator pemuatan (*preloader*) yang konsisten, bersih, dan responsif di seluruh tipe perangkat, mengadopsi standar arsitektur dari proyek `suksesmetalabadi`.
+    - **Komponen Blade Terpadu (`resources/views/layouts/components/preloader.blade.php`):**
+      - Menampilkan logo resmi PKBM Pikat (`assets/img/Logo.jpeg`) dengan animasi halus *pulse*, judul sistem, dan bilah animasi ramping (*thin progress bar indicator*).
+      - Di-include secara global ke 4 layout & halaman utama: `layouts.admin`, `layouts.kepsek`, `layouts.presensi` (Tutor, Siswa, Magang, Karyawan), dan `auth.login`.
+    - **Styling CSS & Dukungan Tema (`resources/css/app.css`):**
+      - Desain terpadu dengan z-index `999999`, transisi fade-out `0.3s cubic-bezier(0.4, 0, 0.2, 1)`, dan adaptasi otomatis tema gelap (`[data-theme="dark"]`) berlatar `#0b132b` tanpa efek kedip putih (*zero flash*).
+      - Responsif di perangkat mobile dengan penyesuaian skala pada layar berukuran $\le 380\text{px}$.
+    - **Keandalan & Performa:**
+      - Menghilangkan preloader secara instan saat event `load` selesai, dilengkapi fallback batas waktu 2 detik dan pendeteksi *bfcache* (`pageshow`) agar tidak menghambat pengguna.
+
 ---
 
 

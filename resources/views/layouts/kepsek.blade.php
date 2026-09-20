@@ -36,6 +36,8 @@
     @stack('styles')
 </head>
 <body >
+    @include('layouts.components.preloader')
+
     <div id="appCapsule">
         @include('layouts.components.navigasi_atas', ['roleTitle' => 'Kepala Sekolah', 'titleName' => 'Kepala Sekolah'])
 

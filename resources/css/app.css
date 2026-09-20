@@ -12165,6 +12165,164 @@ body.app-modal-open {
     text-overflow: ellipsis;
 }
 
+/* ============================================================
+   KOMPONEN - PRELOADER PREMIUM (Konsisten & Responsif Mobile)
+   ============================================================ */
+.app-preloader {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: var(--card, #ffffff);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    user-select: none;
+    pointer-events: auto;
+    padding: 24px;
+}
+
+[data-theme="dark"] .app-preloader {
+    background: #0b132b;
+}
+
+.app-preloader.preloader-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.preloader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    max-width: 280px;
+    text-align: center;
+}
+
+.preloader-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.preloader-logo {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 10px 25px -5px rgba(11, 94, 215, 0.25), 0 8px 10px -6px rgba(11, 94, 215, 0.2);
+    border: 2.5px solid rgba(255, 255, 255, 0.9);
+    animation: preloader-pulse 2s ease-in-out infinite;
+}
+
+[data-theme="dark"] .preloader-logo {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+.preloader-text-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.preloader-title {
+    font-family: var(--font-display, 'Outfit', sans-serif);
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text, #0f172a);
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+[data-theme="dark"] .preloader-title {
+    color: #f8fafc;
+}
+
+.preloader-subtitle {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted, #64748b);
+    letter-spacing: 0.03em;
+}
+
+[data-theme="dark"] .preloader-subtitle {
+    color: #94a3b8;
+}
+
+/* Minimalist Thin Loading Bar Track (Inspired by suksesmetalabadi) */
+.preloader-bar-wrap {
+    width: 140px;
+    height: 4px;
+    background: rgba(11, 94, 215, 0.16);
+    border-radius: 9999px;
+    overflow: hidden;
+    position: relative;
+}
+
+[data-theme="dark"] .preloader-bar-wrap {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+/* Animated Preloader Bar */
+.preloader-bar-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #0B5ED7, #38bdf8);
+    border-radius: 9999px;
+    animation: preloader-bar 1.5s infinite cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@keyframes preloader-bar {
+    0% {
+        transform: translateX(-100%);
+    }
+    50% {
+        transform: translateX(0%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes preloader-pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.04);
+    }
+}
+
+/* Responsif Mobile Khusus Layar Kecil (<= 380px) */
+@media (max-width: 380px) {
+    .preloader-logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+    }
+    .preloader-title {
+        font-size: 15px;
+    }
+    .preloader-subtitle {
+        font-size: 11px;
+    }
+    .preloader-bar-wrap {
+        width: 115px;
+    }
+}
+
+
 
 
 

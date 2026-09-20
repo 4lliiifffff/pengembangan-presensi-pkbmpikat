@@ -35,6 +35,8 @@
     @stack('head')
 </head>
 <body >
+    @include('layouts.components.preloader')
+
     <div id="appCapsule">
         @stack('topbar')
 
