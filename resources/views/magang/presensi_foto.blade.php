@@ -899,9 +899,34 @@
                 return;
             }
 
+            // Target aspect ratio standar portrait 3:4 (0.75) sesuai bingkai preview .photoFrame
+            var targetAspect = 3 / 4;
+            var videoWidth = video.videoWidth;
+            var videoHeight = video.videoHeight;
+            var videoAspect = videoWidth / videoHeight;
+            var sx, sy, sWidth, sHeight;
+
+            if (videoAspect > targetAspect) {
+                // Video lebih lebar daripada 3:4 (misal 16:9 atau 4:3), crop horizontal secara simetris
+                sHeight = videoHeight;
+                sWidth = Math.round(videoHeight * targetAspect);
+                sx = Math.round((videoWidth - sWidth) / 2);
+                sy = 0;
+            } else {
+                // Video lebih tinggi daripada 3:4 (misal 9:16), crop vertikal secara simetris
+                sWidth = videoWidth;
+                sHeight = Math.round(videoWidth / targetAspect);
+                sx = 0;
+                sy = Math.round((videoHeight - sHeight) / 2);
+            }
+
+            // Resolusi kanvas output standar 3:4 (maksimum lebar 960px agar tajam & hemat kuota)
+            var outputWidth = Math.min(sWidth, 960);
+            var outputHeight = Math.round(outputWidth / targetAspect);
+
             var canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
+            canvas.width = outputWidth;
+            canvas.height = outputHeight;
             var ctx = canvas.getContext('2d');
 
             if (isMirrored) {
@@ -909,7 +934,7 @@
                 ctx.scale(-1, 1);
             }
 
-            ctx.drawImage(video, 0, 0);
+            ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 
             canvas.toBlob(function(blob) {
                 if (!blob) {

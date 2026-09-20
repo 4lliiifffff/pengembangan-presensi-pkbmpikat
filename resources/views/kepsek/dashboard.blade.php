@@ -64,7 +64,6 @@
                                 </h2>
                                 <span class="text-xs text-muted font-semibold">Histori kinerja 6 bulan terakhir</span>
                             </div>
-                            <span class="badgeDate text-xs px-2 py-1">Chart.js Live</span>
                         </div>
 
                         <div  class="pos-relative w-full h-60">

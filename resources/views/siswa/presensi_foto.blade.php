@@ -930,16 +930,41 @@
             const btnUlangi = document.getElementById('btnUlangi');
             const camBar = document.getElementById('camControlBar');
 
+            // Target aspect ratio standar portrait 3:4 (0.75) sesuai bingkai preview .photoFrame
+            const targetAspect = 3 / 4;
+            const videoWidth = video.videoWidth || 640;
+            const videoHeight = video.videoHeight || 480;
+            const videoAspect = videoWidth / videoHeight;
+            let sx, sy, sWidth, sHeight;
+
+            if (videoAspect > targetAspect) {
+                // Video lebih lebar daripada 3:4 (misal 16:9 atau 4:3), crop horizontal secara simetris
+                sHeight = videoHeight;
+                sWidth = Math.round(videoHeight * targetAspect);
+                sx = Math.round((videoWidth - sWidth) / 2);
+                sy = 0;
+            } else {
+                // Video lebih tinggi daripada 3:4 (misal 9:16), crop vertikal secara simetris
+                sWidth = videoWidth;
+                sHeight = Math.round(videoWidth / targetAspect);
+                sx = 0;
+                sy = Math.round((videoHeight - sHeight) / 2);
+            }
+
+            // Resolusi kanvas output standar 3:4 (maksimum lebar 960px agar tajam & hemat kuota)
+            const outputWidth = Math.min(sWidth, 960);
+            const outputHeight = Math.round(outputWidth / targetAspect);
+
             const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth || 640;
-            canvas.height = video.videoHeight || 480;
+            canvas.width = outputWidth;
+            canvas.height = outputHeight;
             const ctx = canvas.getContext('2d');
 
             if (isMirror) {
                 ctx.translate(canvas.width, 0);
                 ctx.scale(-1, 1);
             }
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 
             canvas.toBlob(function (blob) {
                 const file = new File([blob], 'presensi_siswa_' + Date.now() + '.jpg', { type: 'image/jpeg' });

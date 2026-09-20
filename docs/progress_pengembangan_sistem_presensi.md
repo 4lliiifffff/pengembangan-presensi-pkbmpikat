@@ -652,6 +652,20 @@ pie title Status Fitur & Pengkondisian Sistem
       - Mempertahankan orientasi cermin selfie (`isMirrored = true`) agar pratinjau kamera tampak alami seperti cermin.
       - Mengamankan fungsi `switchCameraFacing()` sebagai proteksi fallback yang menampilkan notifikasi informatif bahwa presensi kehadiran dibatasi hanya untuk kamera depan.
 
+#### 9.6 Penyelarasan Frame Preview & True-Crop Foto Presensi (Portrait 3:4 WYSIWYG)
+- 🟢 **Standarisasi Rasio 3:4 & Eliminasi Mismatch Preview vs Upload**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Sebelumnya wadah kamera `.photoFrame` menggunakan rasio horizontal `4/3` dengan `object-fit: cover`, sementara canvas mengekstrak resolusi mentah sensor kamera (seringkali 9:16 portrait di smartphone) tanpa pemotongan. Akibatnya, pengguna mengalami *cropping* semu di preview tetapi gambar yang terkirim mencakup area yang tidak terlihat saat membidik.
+    - **Penyesuaian UI & Layout:**
+      - Memperbarui kelas `.photoFrame` di `resources/css/app.css` dengan `aspect-ratio: 3/4`, `max-width: 380px`, `max-height: 480px`, dan perataan tengah `margin-left: auto; margin-right: auto` agar ergonomis di layar ponsel dan rapi di desktop.
+    - **Kalkulasi True-Crop pada Canvas (`snapPhoto`):**
+      - Menerapkan algoritma crop simetris pada 4 modul presensi (`karyawan/presensi_foto.blade.php`, `tutor/presensi_foto.blade.php`, `magang/presensi_foto.blade.php`, `siswa/presensi_foto.blade.php`).
+      - Jika rasio video lebih lebar dari 3:4 (misal 16:9 atau 4:3), dilakukan crop horizontal pada kedua sisi secara seimbang.
+      - Jika rasio video lebih tinggi dari 3:4 (misal 9:16 portrait pada HP), dilakukan crop vertikal atas-bawah secara seimbang.
+      - Menghasilkan kanvas beresolusi standar 3:4 (lebar maksimal 960px) dengan orientasi cermin (*mirroring*) yang sinkron.
+      - File foto yang dikirim ke backend dan pratinjau `#previewImg` pas 100% dengan bingkai preview (WYSIWYG).
+
 ---
 
 
