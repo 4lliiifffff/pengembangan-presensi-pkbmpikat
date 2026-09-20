@@ -23,19 +23,19 @@
 
                 <div class="laporanHeaderActions header-actions-group">
                     <a href="{{ $rolePrefix === 'admin' ? route('admin.laporan.index') : route('kepsek.laporan', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
-                        class="btnOutline">
-                        <ion-icon name="bar-chart-outline" class="text-primary"></ion-icon> Log Presensi KBM
+                        class="profileBtnPrimary btn-action-info btn-header-action">
+                        <ion-icon name="bar-chart-outline"></ion-icon> Log Presensi KBM
                     </a>
                     <a href="{{ route($rolePrefix . '.payroll.rekap-excel', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
-                        class="profileBtnPrimary btn-action-success">
+                        class="profileBtnPrimary btn-action-success btn-header-action">
                         <ion-icon name="document-outline"></ion-icon> Export Excel
                     </a>
                     <a href="{{ route($rolePrefix . '.payroll.rekap-pdf', ['bulan' => $bulan, 'tahun' => $tahun]) }}"
-                        class="profileBtnPrimary btn-action-primary">
+                        class="profileBtnPrimary btn-action-primary btn-header-action">
                         <ion-icon name="document-text-outline"></ion-icon> Export PDF
                     </a>
                     @if($rolePrefix === 'admin')
-                        <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple">
+                        <a href="{{ route('admin.kategori-tutorial.index') }}" class="profileBtnPrimary btn-action-purple btn-header-action">
                             <ion-icon name="options-outline"></ion-icon> Master Tarif SK
                         </a>
                         <form method="POST" action="{{ route('admin.payroll.broadcast-notifikasi') }}"
@@ -45,7 +45,7 @@
                             @csrf
                             <input type="hidden" name="bulan" value="{{ $bulan }}">
                             <input type="hidden" name="tahun" value="{{ $tahun }}">
-                            <button type="submit" class="profileBtnPrimary btn-action-purple-light">
+                            <button type="submit" class="profileBtnPrimary btn-action-purple-light btn-header-action">
                                 <ion-icon name="notifications-outline"></ion-icon> Umumkan ke Tutor
                             </button>
                         </form>
@@ -77,8 +77,8 @@
                     </select>
                 </div>
 
-                <div>
-                    <button type="submit" class="btnOutline">
+                <div class="filter-actions-full">
+                    <button type="submit" class="btn-filter-primary">
                         <ion-icon name="filter-outline"></ion-icon> Terapkan Filter
                     </button>
                 </div>

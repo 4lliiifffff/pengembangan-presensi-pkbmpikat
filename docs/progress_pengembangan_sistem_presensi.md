@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 48
+    "Selesai (Completed)" : 49
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -19,7 +19,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
 | 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
-| 2. Core Presensi & Validasi Lokasi | 10 | 9 | 0 | 1 |
+| 2. Core Presensi & Validasi Lokasi | 11 | 10 | 0 | 1 |
 | 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
 | 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 7 | 7 | 0 | 0 |
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
@@ -28,7 +28,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 8. UI/UX Excellence & Responsive Layout | 6 | 6 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **53** | **47** | **0** | **6** |
+| **TOTAL** | **54** | **48** | **0** | **6** |
 
 ---
 
@@ -784,6 +784,8 @@ pie title Status Fitur & Pengkondisian Sistem
 | 34 | **Penanganan Presensi Tanpa Clock-Out Lintas Hari (Fault-Tolerant & Actionable Warning Banner)** | Attendance Recovery | Deteksi sesi lampau belum checkout (`$unclosedPastSession`), non-blocking clock-in hari H+1, banner interaktif dengan 1-klik pre-fill Lupa Lapor (tutor) & konfirmasi WhatsApp (karyawan/magang), sinkronisasi status `jadwal_sesis` ke `'selesai'` dan kelayakan payroll otomatis saat disetujui Kepala Sekolah. Dilengkapi 5 automated tests di `UnclosedPresensiHandlingTest` lulus 100%. | 🟢 Selesai |
 | 35 | **Refactoring Penamaan Tabel Database Bahasa Indonesia Baku (Singular & Eliminasi Double Underscore)** | Database Architecture | Refactoring penamaan 15 tabel domain operasional PKBM agar tidak menggunakan akhiran plural `-s` bahasa Inggris (`jadwal_kerjas` $\rightarrow$ `jadwal_kerja`, `siswas` $\rightarrow$ `siswa`, `tutors` $\rightarrow$ `tutor`, `presensis` $\rightarrow$ `presensi`, dll) serta menghilangkan double underscore (`kepala__sekolahs` $\rightarrow$ `kepala_sekolah`), dengan tetap mempertahankan tabel bawaan autentikasi Laravel `users` sesuai preferensi. Seluruh model Eloquent (`$table`), rules validasi controller (`exists:` / `unique:`), pengecekan dinamis `Schema::has...`, seeder, dan 20+ file unit/feature test diselaraskan 100%. | 🟢 Selesai |
 | 36 | **Penyelarasan Spacing & Responsivitas Mobile Halaman Admin Kelas & Form Master Jenjang (`/admin/kelas` & `/admin/jenjang-paket/create`)** | UI/UX & Responsive | Menghilangkan tampilan sesak/rapat pada `/admin/kelas` dan `/admin/jenjang-paket/create`. Menghadirkan toolbar filter responsif `.kelas-toolbar-card` dengan horizontal scroll pill tabs (`.kelas-tabs-wrapper`), search input terintegrasi dengan tombol clear, banner indikator filter aktif, perombakan kartu kelas menjadi `.kelasCardModern` dengan avatar gradien, info chips tingkat & siswa terstruktur, serta form master jenjang (`create` & `edit`) dengan `.form-grid-responsive` 2-kolom, margin antar-elemen lapang, `.form-field-label`, helper text edukatif, toggle status aktif elegan, dan `.form-action-footer` adaptif mobile. | 🟢 Selesai |
+| 37 | **Penyelesaian Crash Izin Lokasi/Kamera pada Mobile APK & Penamaan `PresensiPKBMPikat-v1.0`** | Mobile APK & Hardening | Mengatasi bug force-close / keluar sendiri saat pengguna menyetujui izin lokasi di Capacitor Android. Solusi: (1) native pre-permission request di `MainActivity.onCreate()` (`CAMERA`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS`), (2) sequential permission flow & graceful GPS fallback (8s high accuracy $\rightarrow$ 10s coarse) di seluruh view presensi foto (Tutor, Karyawan, Magang, Siswa), (3) perbarui nama aplikasi menjadi **`PresensiPKBMPikat-v1.0`** pada `capacitor.config.json` & `strings.xml`, sinkronisasi via `npx cap sync android`, dan kompilasi debug APK siap pasang (`mobile-apk/PresensiPKBMPikat-v1.0.apk`). | 🟢 Selesai |
+| 38 | **Standardisasi Style & Dimensi Tombol Action Header Payroll (`admin.payroll.index`)** | UI/UX Consistency | Menyelaraskan tombol "Log Presensi KBM" menjadi `.profileBtnPrimary.btn-action-info.btn-header-action` (latar cyan-blue solid, teks putih, ikon kontras) serta mengunci ketinggian kelima tombol secara mutlak (`height: 42px !important; min-height: 42px !important; max-height: 42px !important; line-height: 1 !important; padding: 0 16px !important;`) dan wrapper `<form>` (`height: 42px !important;`) di `resources/css/app.css` agar seluruh tombol berdimensi 100% presisi sama di desktop maupun responsif mobile. | 🟢 Selesai |
 
 ---
 

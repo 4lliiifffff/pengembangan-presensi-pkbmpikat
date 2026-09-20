@@ -769,80 +769,89 @@
             if (document.getElementById('mapBox')) refreshLocation();
         }
 
-        function checkPermissions() {
-            // Sembunyikan banner saat mengecek
-            document.getElementById('permWarning').style.display = 'none';
-
-            var camP = navigator.mediaDevices ?
-                navigator.mediaDevices.getUserMedia({
-                    video: true,
-                    audio: false
-                }) :
-                Promise.reject(new Error('no_media_devices'));
-
-            var locP = new Promise(function (resolve, reject) {
-                if (!navigator.geolocation) return reject(new Error('no_geolocation'));
-                navigator.geolocation.getCurrentPosition(resolve, reject, {
-                    enableHighAccuracy: true,
-                    timeout: 6000,
-                    maximumAge: 30000
-                });
-            });
-
-            Promise.all([camP, locP]).then(function (results) {
-                var stream = results[0];
-                if (stream) stream.getTracks().forEach(function (t) {
-                    t.stop();
-                });
-                showMainContent();
-            }).catch(function (err) {
-                var name = err && err.name ? err.name : '';
-                if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
-                    var camTest = navigator.mediaDevices ?
-                        navigator.mediaDevices.getUserMedia({
-                            video: true,
-                            audio: false
-                        })
-                            .then(function (s) {
-                                s.getTracks().forEach(function (t) {
-                                    t.stop();
-                                });
-                                return true;
-                            })
-                            .catch(function () {
-                                return false;
-                            }) :
-                        Promise.resolve(false);
-                    var locTest = new Promise(function (resolve) {
-                        if (!navigator.geolocation) return resolve(false);
-                        navigator.geolocation.getCurrentPosition(function () {
-                            resolve(true);
-                        }, function () {
-                            resolve(false);
-                        }, {
-                            enableHighAccuracy: true,
-                            timeout: 8000,
-                            maximumAge: 0
-                        });
+        function requestCameraPermission() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                return Promise.reject(new Error('no_media_devices'));
+            }
+            return navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            }).then(function (stream) {
+                if (stream) {
+                    stream.getTracks().forEach(function (t) {
+                        t.stop();
                     });
-                    Promise.all([camTest, locTest]).then(function (r) {
-                        if (!r[0] && !r[1]) showGateError(
-                            'Izin <strong >kamera</strong> dan <strong >lokasi</strong> ditolak.<br >Keduanya wajib diaktifkan.'
-                        );
-                        else if (!r[0]) showGateError(
-                            'Izin <strong >kamera</strong> ditolak.<br >Kamera wajib untuk foto presensi.'
-                        );
-                        else showGateError(
-                            'Izin <strong >lokasi</strong> ditolak.<br >Lokasi wajib untuk koordinat presensi.'
-                        );
-                    });
-                } else if (err && err.message === 'no_media_devices') {
-                    showGateError('Peramban tidak mendukung kamera. Gunakan Chrome atau Safari terbaru.');
-                } else {
-                    showGateError(
-                        'Gagal mendapatkan izin kamera/lokasi. Pastikan GPS aktif dan izin diberikan.');
                 }
+                return true;
             });
+        }
+
+        function requestLocationPermission() {
+            return new Promise(function (resolve, reject) {
+                if (!navigator.geolocation) {
+                    return reject(new Error('no_geolocation'));
+                }
+                navigator.geolocation.getCurrentPosition(
+                    function (pos) {
+                        resolve(pos);
+                    },
+                    function (err) {
+                        if (err && (err.code === 2 || err.code === 3)) {
+                            navigator.geolocation.getCurrentPosition(
+                                function (pos) {
+                                    resolve(pos);
+                                },
+                                function (retryErr) {
+                                    reject(retryErr);
+                                },
+                                {
+                                    enableHighAccuracy: false,
+                                    timeout: 10000,
+                                    maximumAge: 60000
+                                }
+                            );
+                        } else {
+                            reject(err);
+                        }
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 8000,
+                        maximumAge: 30000
+                    }
+                );
+            });
+        }
+
+        function checkPermissions() {
+            var permW = document.getElementById('permWarning');
+            if (permW) permW.style.display = 'none';
+
+            requestCameraPermission()
+                .then(function () {
+                    return requestLocationPermission();
+                })
+                .then(function () {
+                    showMainContent();
+                })
+                .catch(function (err) {
+                    var name = err && err.name ? err.name : '';
+                    var code = err && typeof err.code !== 'undefined' ? err.code : null;
+
+                    if (err && err.message === 'no_media_devices') {
+                        showGateError('Peramban tidak mendukung kamera. Gunakan Chrome atau Safari terbaru.');
+                    } else if (err && err.message === 'no_geolocation') {
+                        showGateError('Peramban tidak mendukung geolokasi GPS.');
+                    } else if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || code === 1) {
+                        if (code === 1) {
+                            showGateError('Izin <strong>lokasi GPS</strong> belum diizinkan.<br>Silakan aktifkan GPS dan izinkan akses lokasi.');
+                        } else {
+                            showGateError('Izin <strong>kamera</strong> belum diizinkan.<br>Kamera depan wajib untuk foto selfie presensi.');
+                        }
+                    } else {
+                        showGateError('Gagal mendapatkan izin kamera/lokasi GPS. Pastikan GPS aktif dan izin diberikan.');
+                    }
+                });
         }
 
         document.addEventListener('DOMContentLoaded', function () {

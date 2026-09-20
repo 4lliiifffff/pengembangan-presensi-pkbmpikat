@@ -6200,21 +6200,55 @@ input[type="date"].filterInput {
 
 .laporanHeaderActions>form,
 .payroll-action-form {
-    display: inline-flex;
-    margin: 0;
-    padding: 0;
+    display: inline-flex !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 42px !important;
+    align-items: center !important;
 }
 
+.btn-header-action,
+.laporanHeaderActions>a,
+.laporanHeaderActions>button,
 .laporanHeaderActions>form>button,
 .payroll-action-form>button {
-    height: 38px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    border: none;
-    cursor: pointer;
-    box-sizing: border-box;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 16px !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    font-family: inherit !important;
+    line-height: 1 !important;
+    border-radius: 12px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-sizing: border-box !important;
+    white-space: nowrap !important;
+    width: auto;
+    border: none !important;
+    outline: none !important;
+    cursor: pointer !important;
+    text-decoration: none !important;
+    vertical-align: middle !important;
+    transition: all 0.15s ease !important;
+}
+
+.btn-header-action ion-icon,
+.laporanHeaderActions>a ion-icon,
+.laporanHeaderActions>button ion-icon,
+.laporanHeaderActions>form>button ion-icon,
+.payroll-action-form>button ion-icon {
+    font-size: 17px !important;
+    line-height: 1 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
 }
 
 .btnPayrollShortcut {
@@ -6556,26 +6590,29 @@ input[type="date"].filterInput {
     .laporanHeaderActions .profileBtnPrimary,
     .laporanHeaderActions .profileBtnDanger,
     .laporanHeaderActions .btnPrimary,
-    .laporanHeaderActions .btnOutline {
+    .laporanHeaderActions .btnOutline,
+    .btn-header-action {
         width: 100% !important;
-        min-height: 42px;
-        height: auto;
-        padding: 10px 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        box-sizing: border-box;
-        font-size: 13.5px;
-        line-height: 1.25;
-        white-space: normal;
+        height: 42px !important;
+        min-height: 42px !important;
+        max-height: 42px !important;
+        padding: 0 14px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
+        font-size: 13px !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
     }
 
     .laporanHeaderActions>form {
-        display: flex;
-        width: 100%;
-        margin: 0;
-        padding: 0;
+        display: flex !important;
+        width: 100% !important;
+        height: 42px !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
 }
 
@@ -6629,23 +6666,29 @@ input[type="date"].filterInput {
 
     .laporanHeaderActions>a,
     .laporanHeaderActions>button,
-    .laporanHeaderActions>form>button {
-        min-height: 38px;
-        padding: 6px 10px;
-        font-size: 12px;
-        gap: 5px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        box-sizing: border-box;
+    .laporanHeaderActions>form>button,
+    .btn-header-action {
+        height: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+        padding: 0 10px !important;
+        font-size: 12px !important;
+        line-height: 1 !important;
+        gap: 5px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
     }
 
     .laporanHeaderActions>form {
-        margin: 0;
-        padding: 0;
-        display: flex;
-        width: 100%;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        width: 100% !important;
+        height: 38px !important;
     }
 
     .laporanHeaderActions>form.payroll-action-form,
