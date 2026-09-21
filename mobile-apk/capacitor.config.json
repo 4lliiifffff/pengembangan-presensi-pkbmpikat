@@ -1,7 +1,7 @@
 {
   "$schema": "https://capacitorjs.com/schema.json",
   "appId": "com.pkbmpikat.absen",
-  "appName": "PresensiPKBMPikat-v1.0",
+  "appName": "PresensiPKBMPikat-v1.1",
   "webDir": "public",
   "server": {
     "url": "https://kehadiran.pkbmpikat.com",

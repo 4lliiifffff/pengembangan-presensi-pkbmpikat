@@ -1,6 +1,6 @@
 {
   "name": "presensi-pikat-apk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "APK wrapper untuk Sistem Presensi PKBM Pikat",
   "scripts": {
     "sync": "cap sync",
