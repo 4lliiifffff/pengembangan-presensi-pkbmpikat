@@ -275,8 +275,8 @@
                         </div>
 
                         <div class="mapToolbar">
-                            <button type="button" onclick="refreshLocation(true)">
-                                <ion-icon name="locate-outline"></ion-icon> Perbarui Lokasi Saya
+                            <button type="button" class="btnRefreshLocation" onclick="refreshLocation(true)">
+                                <ion-icon name="locate-outline"></ion-icon> <span>Perbarui Lokasi</span>
                             </button>
                         </div>
                     </div>
@@ -652,8 +652,8 @@
                     </div>
 
                     <div class="mapToolbar">
-                        <button type="button" onclick="refreshLocation(true)">
-                            <ion-icon name="locate-outline"></ion-icon> Perbarui Lokasi Saya
+                        <button type="button" class="btnRefreshLocation" onclick="refreshLocation(true)">
+                            <ion-icon name="locate-outline"></ion-icon> <span>Perbarui Lokasi</span>
                         </button>
                     </div>
                 </div>

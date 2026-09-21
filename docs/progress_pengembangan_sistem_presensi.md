@@ -1,8 +1,8 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 20 September 2026  
+**Tanggal Pembaruan:** 21 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti / Reschedule Future-Proof, & Integrasi Multi-Geofence Titik Lokasi Presensi Terpadu)  
+**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,14 +11,14 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 49
+    "Selesai (Completed)" : 50
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
 
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
-| 1. Keamanan, Infrastruktur & Performa | 7 | 6 | 0 | 1 |
+| 1. Keamanan, Infrastruktur & Performa | 8 | 7 | 0 | 1 |
 | 2. Core Presensi & Validasi Lokasi | 11 | 10 | 0 | 1 |
 | 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
 | 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 7 | 7 | 0 | 0 |
@@ -28,7 +28,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 8. UI/UX Excellence & Responsive Layout | 6 | 6 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **54** | **48** | **0** | **6** |
+| **TOTAL** | **55** | **49** | **0** | **6** |
 
 ---
 
@@ -37,6 +37,15 @@ pie title Status Fitur & Pengkondisian Sistem
 ### 1. Keamanan, Infrastruktur & Performa (System Hardening)
 
 #### 1.1 Keamanan Autentikasi & Akses Berkas
+- 🟢 **Integrasi Autentikasi Lintas Sistem (SIMPIKAT SSO & JIT Provisioning)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    1. **Koneksi Database Sekunder (`simpikat`):** Menambahkan konfigurasi koneksi `simpikat` di `config/database.php` mengarah ke database `db_simpikat` serta variabel environment pendukung di `.env` dan `.env.example`.
+    2. **Service Autentikasi Terdedikasi (`SimpikatAuthService`):** Mengabstraksi pencarian multi-identifier (`nama_pengguna`, `email`, `nomor_nuptk`, `nik`, `nisn`), validasi status akun (`status = 'aktif'`), verifikasi password via standar Bcrypt `Hash::check()`, dan role translation (`super_admin`/`admin` -> `admin`, `tutor` -> `tutor`, `peserta_didik` -> `siswa`).
+    3. **Penolakan Edukatif Akun Non-Presensi:** Akun peran `orang_tua` dan `asesor` dari SIMPIKAT dicegah login dengan respon peringatan yang informatif.
+    4. **Just-In-Time (JIT) Domain Provisioning:** Saat autentikasi SIMPIKAT berhasil, sistem secara otomatis melakukan `updateOrCreate` pada tabel `users` lokal serta tabel profil bisnis pendamping (`tutor`, `siswa`, atau `admin`) agar dashboard dan fitur presensi tidak mengalami fatal error null relation.
+    5. **Integrasi Controller & UI:** Menginjeksi service ke `AuthWebController@process` sebagai fallback lapis ke-4 setelah pengecekan lokal NIK, Email, dan variasi No. Absen siswa, serta menyematkan badge informasi dukungan akun SIMPIKAT pada `login.blade.php`.
+    6. **Automated QA Suite:** 5 skenario pengujian komprehensif di `tests/Feature/SimpikatIntegrationAuthTest.php` lulus 100% (25 assertions).
 - 🟢 **Upgrade Framework Laravel 13 (v13.31.0)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Memperbarui `composer.json` ke `"laravel/framework": "^13.0"` dan `"laravel/tinker": "^3.0"`, menyelaraskan dependensi `nunomaduro/collision`, serta meregenerasi autoloader sehingga aplikasi berjalan stabil di atas versi Laravel 13 terbaru (v13.31.0).
@@ -787,6 +796,8 @@ pie title Status Fitur & Pengkondisian Sistem
 | 37 | **Penyelesaian Crash Izin Lokasi/Kamera pada Mobile APK & Penamaan `PresensiPKBMPikat-v1.0`** | Mobile APK & Hardening | Mengatasi bug force-close / keluar sendiri saat pengguna menyetujui izin lokasi di Capacitor Android. Solusi: (1) native pre-permission request di `MainActivity.onCreate()` (`CAMERA`, `ACCESS_FINE_LOCATION`, `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS`), (2) sequential permission flow & graceful GPS fallback (8s high accuracy $\rightarrow$ 10s coarse) di seluruh view presensi foto (Tutor, Karyawan, Magang, Siswa), (3) perbarui nama aplikasi menjadi **`PresensiPKBMPikat-v1.0`** pada `capacitor.config.json` & `strings.xml`, sinkronisasi via `npx cap sync android`, dan kompilasi debug APK siap pasang (`mobile-apk/PresensiPKBMPikat-v1.0.apk`). | 🟢 Selesai |
 | 38 | **Standardisasi Style & Dimensi Tombol Action Header Payroll (`admin.payroll.index`)** | UI/UX Consistency | Menyelaraskan tombol "Log Presensi KBM" menjadi `.profileBtnPrimary.btn-action-info.btn-header-action` (latar cyan-blue solid, teks putih, ikon kontras) serta mengunci ketinggian kelima tombol secara mutlak (`height: 42px !important; min-height: 42px !important; max-height: 42px !important; line-height: 1 !important; padding: 0 16px !important;`) dan wrapper `<form>` (`height: 42px !important;`) di `resources/css/app.css` agar seluruh tombol berdimensi 100% presisi sama di desktop maupun responsif mobile. | 🟢 Selesai |
 | 39 | **Penyelarasan Presisi Wrapper & Leaflet Map Container (Seamless Edge-to-Edge)** | UI/UX & Map Styling | Menghilangkan celah kosong (blank gap) pada `.mapBox` kamera presensi (Tutor, Karyawan, Magang, Siswa) akibat tinggi fixed `220px` pada `#leafletMap.map-camera-box`, menyelaraskannya ke `width: 100% !important; height: 100% !important; border-radius: inherit !important;` dengan hardware-accelerated clipping `isolation: isolate; transform: translateZ(0);` serta menyempurnakan kontainer `.map-modal-leaflet`, `.pickerMapWrapper`, dan `.overview-map-frame` agar map mengisi wadah secara presisi dan pas. | 🟢 Selesai |
+| 40 | **Redesain Responsif & Ergonomis Tombol Perbarui Lokasi Presensi (`.mapToolbar` / `.btnRefreshLocation`)** | UI/UX & Mobile Ergonomics | Menstandarisasi tombol di 7 titik view presensi kamera lintas 4 peran pengguna (Tutor, Karyawan, Magang, Siswa) dengan class terpadu `.btnRefreshLocation`, ikon `<ion-icon name="locate-outline">`, dan teks baku *"Perbarui Lokasi"*. Menata ulang tata letak `.mapToolbar` agar responsif penuh (`width: 100%`, tinggi sentuh 46px untuk kenyamanan jempol di layar mobile $\le 640$px), animasi hover rotasi ikon 45°, serta kontras tinggi tema terang dan tema gelap. | 🟢 Selesai |
+| 41 | **Migrasi Domain & Penyelarasan Host Target Aplikasi (`kehadiran.pkbmpikat.com`)** | Domain & Environment | Memperbarui target URL server Capacitor Mobile APK dari `https://absen.pkbmpikat.com` ke `https://kehadiran.pkbmpikat.com`, menyelaraskan aset native Android (`capacitor.config.json`), sinkronisasi `npx cap sync android`, serta konfigurasi `APP_URL=https://kehadiran.pkbmpikat.com` dan `SANCTUM_STATEFUL_DOMAINS` di `.env` dan `.env.example`. | 🟢 Selesai |
 
 ---
 

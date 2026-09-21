@@ -15,7 +15,7 @@ class PwaOfflineTest extends TestCase
         $response->assertStatus(200);
 
         $manifestContent = json_decode(File::get(public_path('manifest.json')), true);
-        $this->assertEquals('Smart Presensi PKBM Pikat', $manifestContent['name']);
+        $this->assertEquals('Presensi PKBM Pikat', $manifestContent['name']);
         $this->assertEquals('Presensi Pikat', $manifestContent['short_name']);
         $this->assertEquals('standalone', $manifestContent['display']);
     }

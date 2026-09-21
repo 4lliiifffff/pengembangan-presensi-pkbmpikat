@@ -4,7 +4,7 @@
   "appName": "PresensiPKBMPikat-v1.0",
   "webDir": "public",
   "server": {
-    "url": "https://absen.pkbmpikat.com",
+    "url": "https://kehadiran.pkbmpikat.com",
     "cleartext": false,
     "androidScheme": "https"
   },

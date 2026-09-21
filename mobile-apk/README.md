@@ -1,7 +1,7 @@
 # mobile-apk/
 
 Folder ini berisi project **Capacitor** untuk membungkus aplikasi web Presensi PKBM Pikat
-(`https://absen.pkbmpikat.com`) menjadi file APK Android yang bisa diinstall langsung.
+(`https://kehadiran.pkbmpikat.com`) menjadi file APK Android yang bisa diinstall langsung.
 
 ## Cara Kerja
 
@@ -52,6 +52,6 @@ android/app/build/outputs/apk/release/app-release.apk
 
 ## Catatan
 
-- Perubahan fitur di server `absen.pkbmpikat.com` **otomatis terlihat** di APK tanpa perlu rebuild
+- Perubahan fitur di server `kehadiran.pkbmpikat.com` **otomatis terlihat** di APK tanpa perlu rebuild
 - APK hanya perlu di-rebuild jika ada perubahan permission, icon, atau konfigurasi native
 - APK bisa didistribusikan langsung via file (tidak perlu Play Store)

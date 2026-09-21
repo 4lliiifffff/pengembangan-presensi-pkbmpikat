@@ -119,8 +119,12 @@
                                 <ion-icon name="person-outline"></ion-icon>
                             </span>
                             <input type="text" name="username" id="username" class="login-input"
-                                placeholder="Contoh: 12345 atau email@pkbmpikat.com" value="{{ old('username') }}"
+                                placeholder="Contoh: 12345, username, atau email" value="{{ old('username') }}"
                                 autocomplete="username" inputmode="text" enterkeyhint="next" required autofocus />
+                        </div>
+                        <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.75rem;">
+                            <ion-icon name="checkmark-circle-outline" class="text-primary"></ion-icon>
+                            <span>Mendukung login NIK, No. Absen, &amp; Akun SIMPIKAT</span>
                         </div>
                     </div>
 

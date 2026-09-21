@@ -9,10 +9,12 @@ use App\Models\Magang;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
+use App\Services\SimpikatAuthService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
@@ -25,6 +27,7 @@ use Illuminate\Validation\ValidationException;
  *
  * FITUR UTAMA:
  *   - Login menggunakan NIK (Nomor Induk Karyawan) ATAU Email sebagai username
+ *   - Integrasi Akun SIMPIKAT (Cross-Database Authentication & JIT Provisioning)
  *   - Pengalihan otomatis ke dashboard berdasarkan peran pengguna (admin/tutor/kepala_sekolah)
  *   - Fitur "Remember Me" untuk memperpanjang sesi login
  *   - Logout aman dengan invalidasi sesi dan regenerasi CSRF token
@@ -46,6 +49,10 @@ use Illuminate\Validation\ValidationException;
  */
 class AuthWebController extends Controller
 {
+    public function __construct(
+        protected SimpikatAuthService $simpikatAuthService
+    ) {}
+
     /**
      * Memproses request login dari form halaman login.
      *
@@ -127,7 +134,27 @@ class AuthWebController extends Controller
             }
         }
 
-        // Jika login gagal (tidak ditemukan atau password salah)
+        // 4. Fallback ke Akun Sistem SIMPIKAT (Cross-Database Authentication & JIT Provisioning)
+        if (! $attempt) {
+            try {
+                $simpikatUser = $this->simpikatAuthService->attemptSimpikatLogin($username, $password);
+                if ($simpikatUser) {
+                    Auth::login($simpikatUser, $remember);
+                    $attempt = true;
+                }
+            } catch (ValidationException $e) {
+                $errorMessage = $e->validator->errors()->first('username') ?: $e->getMessage();
+
+                return back()
+                    ->withInput($request->only('username'))
+                    ->with('warning', $errorMessage);
+            } catch (\Throwable $e) {
+                // Catat log jika terjadi kendala tak terduga, lalu biarkan alur peringatan login standar berjalan
+                Log::error('SIMPIKAT Auth Integration Exception: '.$e->getMessage());
+            }
+        }
+
+        // Jika seluruh percobaan login gagal
         if (! $attempt) {
             return back()
                 ->withInput($request->only('username'))

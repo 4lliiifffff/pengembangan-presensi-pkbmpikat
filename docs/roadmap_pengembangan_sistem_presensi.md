@@ -1,14 +1,15 @@
 # ROADMAP DAN PENJABARAN LENGKAP PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 17 September 2026  
+**Tanggal Pembaruan:** 21 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Manajemen Kelas/Paket Relasional, & Penjadwalan Sesi Pengganti / Reschedule Future-Proof)  
+**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
 
 ---
 
 ## 1. KEAMANAN, INFRASTRUKTUR & PERFORMA (SYSTEM HARDENING)
 
 ### 1.1 Keamanan Autentikasi & Akses Berkas
+* 🟢 **Integrasi Autentikasi Lintas Sistem (SIMPIKAT SSO & JIT Provisioning):** [SELESAI] Mengimplementasikan koneksi database sekunder `simpikat` (`db_simpikat`) dan service terdedikasi `SimpikatAuthService` untuk memungkinkan akun pengguna dari portal utama SIMPIKAT (`/www/SIMPIKAT`) login langsung ke sistem Presensi Pikat. Dilengkapi verifikasi hash Bcrypt standar Laravel, validasi peran (admin, tutor, peserta didik/siswa), penolakan akses aman bagi peran non-presensi (orang tua & asesor), dan Just-In-Time (JIT) Provisioning profil domain (`tutor`, `siswa`, `admin`) sehingga seluruh relasi database presensi berjalan konsisten tanpa error null reference.
 * 🟢 **Upgrade Framework Laravel 13 (v13.31.0):** [SELESAI] Memperbarui `composer.json` ke `"laravel/framework": "^13.0"` dan `"laravel/tinker": "^3.0"`, menyelaraskan dependensi `nunomaduro/collision`, serta meregenerasi autoloader sehingga aplikasi berjalan stabil di atas versi Laravel 13 terbaru (v13.31.0).
 * 🟢 **Perbaikan Deprecation Warning PHP 8.5:** [SELESAI] Memperbarui `config/database.php` pada opsi koneksi `mysql` dan `mariadb` menggunakan pengecekan dinamis `(defined('Pdo\Mysql::ATTR_SSL_CA') ? Pdo\Mysql::ATTR_SSL_CA : PDO::MYSQL_ATTR_SSL_CA)` untuk menggantikan konstanta `PDO::MYSQL_ATTR_SSL_CA` yang *deprecated* di PHP 8.5+.
 * 🟢 **Mekanisme Rate Limiting Login:** [SELESAI] Menambahkan pembatasan percobaan login (maksimal 5 kali per menit per IP/akun) menggunakan Laravel `RateLimiter` dan middleware `throttle:login` di `routes/web.php` & `routes/api.php` untuk mencegah serangan *Brute Force*, dilengkapi respon ramah (pesan peringatan web & HTTP 429 JSON API) serta pembersihan counter saat login berhasil.
@@ -407,6 +408,15 @@
 ### 9.10 Penyelarasan Presisi Wrapper & Leaflet Map Container (Seamless Edge-to-Edge)
 * 🟢 **Eliminasi Gap Ketinggian & Blank Space pada Kamera Presensi (`.mapBox`):** [SELESAI] Menghilangkan selisih tinggi 220px vs 240px/280px pada `.map-camera-box` dan `.leaflet-container` di dalam `.mapBox` dengan menyetel `width: 100% !important; height: 100% !important; min-height: 100% !important; border-radius: inherit !important;` serta menambahkan `isolation: isolate; transform: translateZ(0);` agar tile map Leaflet mengisi wadah secara mulus dan terpotong rapi mengikuti sudut lengkung 18px tanpa celah kosong di bawahnya.
 * 🟢 **Harmonisasi Seluruh Wrapper Peta (Modal Verifikasi & Picker Master Lokasi):** [SELESAI] Menyelaraskan kontainer modal verifikasi (`.map-modal-frame-wrapper` & `.map-modal-leaflet`) serta picker lokasi (`.overview-map-frame` & `.pickerMapWrapper`) dengan penyesuaian border-radius (16px), soft shadow, proteksi bleed transform tile map, dan pengisian kontainer 100% penuh.
+
+### 9.11 Redesain Responsif & Ergonomis Tombol Perbarui Lokasi Presensi (`.mapToolbar` / `.btnRefreshLocation`)
+* 🟢 **Harmonisasi Tombol Lintas 4 Peran Presensi:** [SELESAI] Menstandarisasi penulisan tombol di 7 titik template presensi kamera (`tutor`, `karyawan`, `magang`, `siswa`) dengan menyematkan class terpadu `.btnRefreshLocation`, ikon seragam `<ion-icon name="locate-outline">` (sebelumnya hilang di magang dan siswa), dan teks label baku *"Perbarui Lokasi"*.
+* 🟢 **Peningkatan Layout Responsif & Touch Target Mobile Ergonomis:** [SELESAI] Memperbaiki tata letak `.mapToolbar` di `resources/css/app.css` agar secara otomatis menyesuaikan tampilan ponsel (`@media (max-width: 640px)`): tombol melebar 100% penuh (*full-width*) dengan tinggi sentuh ideal 46px untuk kenyamanan jempol satu tangan, efek hover interaktif dengan rotasi ikon `rotate(45deg)`, elevasi bayangan halus, serta integrasi penuh tema gelap (*dark mode* kontras tinggi `#38bdf8`).
+
+### 9.12 Migrasi Domain & Penyelarasan Host Target Aplikasi (`kehadiran.pkbmpikat.com`)
+* 🟢 **Pembaruan Konfigurasi Capacitor Mobile APK:** [SELESAI] Mengalihkan target URL WebView Android dari `https://absen.pkbmpikat.com` menjadi `https://kehadiran.pkbmpikat.com` pada file `mobile-apk/capacitor.config.json` dan aset native Android `mobile-apk/android/app/src/main/assets/capacitor.config.json`, serta sinkronisasi ulang via `npm run sync` (`npx cap sync android`).
+* 🟢 **Penyelarasan Environment Laravel & CORS/Sanctum:** [SELESAI] Mengatur konfigurasi `APP_URL=https://kehadiran.pkbmpikat.com` dan `SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,kehadiran.pkbmpikat.com` pada `.env` dan `.env.example` untuk memastikan rute aset, otentikasi sesi cookie stateful, serta push notification selaras dengan domain baru.
+* 🟢 **Penyelarasan Dokumentasi & Manifest WebView:** [SELESAI] Memperbarui komentar perizinan di `AndroidManifest.xml`, panduan kompilasi APK di `mobile-apk/README.md`, dan placeholder loader `mobile-apk/public/index.html`.
 
 ---
 
