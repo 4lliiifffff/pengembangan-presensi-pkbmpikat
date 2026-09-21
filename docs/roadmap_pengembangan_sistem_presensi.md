@@ -404,6 +404,10 @@
 * 🟢 **Harmonisasi Gaya Tombol Log Presensi KBM:** [SELESAI] Menyelaraskan tombol "Log Presensi KBM" dari `.btnOutline` menjadi `.profileBtnPrimary.btn-action-info.btn-header-action` berlatar solid cyan-blue dengan teks putih kontras dan ikon seragam tanpa override warna, selaras dengan Export Excel (`btn-action-success`), Export PDF (`btn-action-primary`), dan Master Tarif SK (`btn-action-purple`).
 * 🟢 **Penyetaraan Dimensi, Ketinggian (42px) & Font Tombol Form Action Umumkan ke Tutor:** [SELESAI] Menghadirkan class utility `.btn-header-action` dan mengunci ketinggian kelima tombol secara mutlak (`height: 42px !important; min-height: 42px !important; max-height: 42px !important; line-height: 1 !important; padding: 0 16px !important;`), menyelaraskan wrapper form (`height: 42px !important; align-items: center;`), serta mengunci ukuran ikon Ionicons (17px) sehingga kelima tombol memiliki tinggi yang 100% presisi sama di desktop maupun saat transisi breakpoint mobile/tablet.
 
+### 9.10 Penyelarasan Presisi Wrapper & Leaflet Map Container (Seamless Edge-to-Edge)
+* 🟢 **Eliminasi Gap Ketinggian & Blank Space pada Kamera Presensi (`.mapBox`):** [SELESAI] Menghilangkan selisih tinggi 220px vs 240px/280px pada `.map-camera-box` dan `.leaflet-container` di dalam `.mapBox` dengan menyetel `width: 100% !important; height: 100% !important; min-height: 100% !important; border-radius: inherit !important;` serta menambahkan `isolation: isolate; transform: translateZ(0);` agar tile map Leaflet mengisi wadah secara mulus dan terpotong rapi mengikuti sudut lengkung 18px tanpa celah kosong di bawahnya.
+* 🟢 **Harmonisasi Seluruh Wrapper Peta (Modal Verifikasi & Picker Master Lokasi):** [SELESAI] Menyelaraskan kontainer modal verifikasi (`.map-modal-frame-wrapper` & `.map-modal-leaflet`) serta picker lokasi (`.overview-map-frame` & `.pickerMapWrapper`) dengan penyesuaian border-radius (16px), soft shadow, proteksi bleed transform tile map, dan pengisian kontainer 100% penuh.
+
 ---
 
 ## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)

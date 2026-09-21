@@ -8,8 +8,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="theme-color" content="#0B5ED7" />
-    <title>Masuk - Smart Presensi PKBM Pikat</title>
-    <meta name="description" content="Sistem Informasi & Presensi Terpadu PKBM Pintar Berbakat Homeschooling Bandung" />
+    <title>Masuk - Presensi PKBM Pikat</title>
+    <meta name="description" content="Sistem Informasi dan Presensi Terpadu PKBM Pintar Berbakat Bandung" />
     <link rel="icon" type="image/jpeg" href="{{ asset('assets/img/Logo.jpeg') }}" />
     <link rel="apple-touch-icon" href="{{ asset('assets/img/Logo.jpeg') }}" />
 

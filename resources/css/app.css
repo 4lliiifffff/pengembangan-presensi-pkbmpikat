@@ -5049,6 +5049,8 @@ input:checked+.toggleSlider:before {
     position: relative;
     margin-bottom: 16px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    isolation: isolate;
+    transform: translateZ(0);
 }
 
 @media (min-width: 640px) {
@@ -5057,12 +5059,31 @@ input:checked+.toggleSlider:before {
     }
 }
 
+.mapBox .map-camera-box,
+.map-camera-box {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    border-radius: inherit !important;
+    z-index: 1;
+    display: block;
+}
+
+.mapBox .leaflet-container,
+.map-camera-box.leaflet-container,
+.map-camera-box .leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    border-radius: inherit !important;
+}
+
 .mapBox .gmapFrame {
     display: block;
     width: 100%;
     height: 100%;
     border: 0;
-    border-radius: 16px;
+    border-radius: inherit;
 }
 
 .mapPlaceholder {
@@ -14387,18 +14408,29 @@ body.app-modal-open {
 }
 
 .overview-map-frame {
-    height: 340px;
+    height: 360px;
     width: 100%;
-    border-radius: 14px;
+    border-radius: 16px;
     border: 1px solid var(--border, #e2e8f0);
     z-index: 1;
     overflow: hidden;
+    position: relative;
+    isolation: isolate;
+    transform: translateZ(0);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 640px) {
     .overview-map-frame {
         height: 260px;
     }
+}
+
+.overview-map-frame .leaflet-container,
+.overview-map-frame.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit !important;
 }
 
 .form-map-split {
@@ -14424,16 +14456,27 @@ body.app-modal-open {
 .pickerMapWrapper {
     height: 420px;
     width: 100%;
-    border-radius: 14px;
+    border-radius: 16px;
     border: 1px solid var(--border, #e2e8f0);
     z-index: 1;
     overflow: hidden;
+    position: relative;
+    isolation: isolate;
+    transform: translateZ(0);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 640px) {
     .pickerMapWrapper {
         height: 300px;
     }
+}
+
+.pickerMapWrapper .leaflet-container,
+.pickerMapWrapper.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit !important;
 }
 
 .badge-lokasi-pusat {
@@ -14569,21 +14612,35 @@ body.app-modal-open {
 
 .map-modal-frame-wrapper {
     padding: 0 16px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .map-modal-leaflet {
     height: 320px;
     width: 100%;
-    border-radius: 12px;
+    border-radius: 14px;
     border: 1px solid var(--border, #e2e8f0);
     z-index: 1;
     overflow: hidden;
+    position: relative;
+    isolation: isolate;
+    transform: translateZ(0);
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 @media (max-width: 640px) {
     .map-modal-leaflet {
         height: 240px;
     }
+}
+
+.map-modal-leaflet .leaflet-container,
+.map-modal-leaflet.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit !important;
 }
 
 .map-modal-info-grid {
@@ -15305,6 +15362,14 @@ body.app-modal-open {
 
 .pin-svg-wrapper:hover {
     transform: scale(1.12);
+}
+
+/* Universal Leaflet Container Integration */
+.leaflet-container {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: inherit !important;
+    font-family: inherit !important;
 }
 
 /* Leaflet Controls & Popups in Dark Mode */
