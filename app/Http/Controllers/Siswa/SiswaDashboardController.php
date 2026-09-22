@@ -274,21 +274,21 @@ class SiswaDashboardController extends Controller
      */
     public function updatePassword(Request $request)
     {
+        if (! $request->has('current_password') && $request->has('old_password')) {
+            $request->merge(['current_password' => $request->old_password]);
+        }
+
         $request->validate([
-            'old_password' => 'required',
+            'current_password' => ['required', 'current_password'],
             'password' => ['required', 'confirmed', Password::min(6)],
         ]);
 
         $user = Auth::user();
 
-        if (! Hash::check($request->old_password, $user->password)) {
-            return back()->with('warning', 'Password lama tidak sesuai.');
-        }
-
         $user->update([
             'password' => Hash::make($request->password),
         ]);
 
-        return back()->with('success', 'Password berhasil diperbarui.');
+        return back()->with('success', 'Kata sandi berhasil diperbarui.');
     }
 }

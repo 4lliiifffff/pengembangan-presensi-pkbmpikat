@@ -117,7 +117,19 @@
             </div>
         @endif
 
-        @if ($errors->any())
+        @if ($errors->has('file_excel'))
+            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm">
+                <div class="font-bold d-flex items-center gap-2 mb-1">
+                    <ion-icon name="alert-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
+                    <span>Impor berkas jadwal gagal:</span>
+                </div>
+                <ul class="mb-0 ps-4 text-xs">
+                    @foreach ($errors->get('file_excel') as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @elseif ($errors->any())
             <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm">
                 <div class="font-bold d-flex items-center gap-2 mb-1">
                     <ion-icon name="alert-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
@@ -859,7 +871,7 @@
             </div>
 
             <div class="navDrawerBody">
-                @if ($errors->any())
+                @if ($errors->any() && !$errors->has('file_excel'))
                     <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
                         <div class="font-bold d-flex items-center gap-1 mb-1">
                             <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali data jadwal berikut:
@@ -1403,7 +1415,9 @@
         setScheduleMode(initialRecurring);
 
         // Auto-open modal jika ada error validasi
-        @if ($errors->any())
+        @if ($errors->has('file_excel'))
+            bukaModalImportJadwal();
+        @elseif ($errors->any())
             bukaModalJadwalBaru(initialRecurring);
         @endif
 
@@ -1528,6 +1542,19 @@
                     <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
                 </a>
             </div>
+
+            @if ($errors->has('file_excel'))
+                <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
+                    <div class="font-bold d-flex items-center gap-1 mb-1">
+                        <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali berkas yang diunggah:
+                    </div>
+                    <ul class="mb-0 ps-3">
+                        @foreach ($errors->get('file_excel') as $err)
+                            <li>{{ $err }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <form method="POST" action="{{ route('tutor.jadwal-sesi.import') }}" enctype="multipart/form-data">
                 @csrf

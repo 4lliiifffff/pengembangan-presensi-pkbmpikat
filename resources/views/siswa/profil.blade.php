@@ -177,33 +177,42 @@
             </div>
 
             <div class="profileField">
-                <label class="profileFieldLabel" for="current_password">Password Lama</label>
+                <label class="profileFieldLabel" for="current_password">Password Lama / Saat Ini</label>
                 <div class="profileInputGroup">
-                    <input type="password" name="current_password" id="current_password" class="profileInput"
+                    <input type="password" name="current_password" id="current_password" class="profileInput @error('current_password') is-invalid @enderror"
                         placeholder="Masukkan password saat ini" required autocomplete="current-password">
                     <ion-icon name="eye-outline" class="profilePassToggle"
                         onclick="togglePassVisibility('current_password')"></ion-icon>
                 </div>
+                @error('current_password')
+                    <div class="text-danger text-xs mt-1" style="color: #dc2626; font-size: 0.75rem; margin-top: 4px;">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="profileField">
                 <label class="profileFieldLabel" for="new_password">Password Baru</label>
                 <div class="profileInputGroup">
-                    <input type="password" name="password" id="new_password" class="profileInput"
+                    <input type="password" name="password" id="new_password" class="profileInput @error('password') is-invalid @enderror"
                         placeholder="Minimal 8 karakter" required autocomplete="new-password">
                     <ion-icon name="eye-outline" class="profilePassToggle"
                         onclick="togglePassVisibility('new_password')"></ion-icon>
                 </div>
+                @error('password')
+                    <div class="text-danger text-xs mt-1" style="color: #dc2626; font-size: 0.75rem; margin-top: 4px;">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="profileField">
                 <label class="profileFieldLabel" for="confirm_password">Konfirmasi Password Baru</label>
                 <div class="profileInputGroup">
-                    <input type="password" name="password_confirmation" id="confirm_password" class="profileInput"
+                    <input type="password" name="password_confirmation" id="confirm_password" class="profileInput @error('password_confirmation') is-invalid @enderror"
                         placeholder="Ketik ulang password baru" required autocomplete="new-password">
                     <ion-icon name="eye-outline" class="profilePassToggle"
                         onclick="togglePassVisibility('confirm_password')"></ion-icon>
                 </div>
+                @error('password_confirmation')
+                    <div class="text-danger text-xs mt-1" style="color: #dc2626; font-size: 0.75rem; margin-top: 4px;">{{ $message }}</div>
+                @enderror
             </div>
         </div>
     </form>
@@ -303,6 +312,12 @@
                 }
             }
         }
+
+        @if ($errors->has('current_password') || $errors->has('old_password') || $errors->has('password') || $errors->has('password_confirmation'))
+            document.addEventListener('DOMContentLoaded', function() {
+                switchProfileTab('keamanan');
+            });
+        @endif
 
         function submitActiveProfileForm() {
             if (activeProfileTab === 'data') {

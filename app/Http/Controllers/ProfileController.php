@@ -120,17 +120,17 @@ class ProfileController extends Controller
 
     public function updatePassword(Request $request)
     {
-        // Validasi password standar: min 8 karakter dan perlu konfirmasi.
+        if (! $request->has('current_password') && $request->has('old_password')) {
+            $request->merge(['current_password' => $request->old_password]);
+        }
+
+        // Validasi kata sandi dengan rule bawaan Laravel (current_password, min 8, confirmed)
         $request->validate([
-            'current_password' => 'required',
-            'password' => 'required|string|min:8|confirmed',
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
         $user = Auth::user();
-
-        if (! Hash::check($request->current_password, $user->password)) {
-            return back()->with('warning', 'Kata sandi lama tidak sesuai!');
-        }
 
         $user->update([
             'password' => Hash::make($request->password),

@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 51
+    "Selesai (Completed)" : 52
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -26,9 +26,9 @@ pie title Status Fitur & Pengkondisian Sistem
 | 6. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
 | 7. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
 | 8. UI/UX Excellence & Responsive Layout | 6 | 6 | 0 | 0 |
-| 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
+| 9. Codebase, Standardisasi & QA | 6 | 6 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **56** | **50** | **0** | **6** |
+| **TOTAL** | **57** | **51** | **0** | **6** |
 
 ---
 
@@ -777,8 +777,17 @@ pie title Status Fitur & Pengkondisian Sistem
 - 🟢 **Standardisasi Folder Views (`resources/views/layouts/`)**: Konsolidasi layout, navigasi berbahasa Indonesia, dan pembersihan file *dead-code*.
 
 #### 10.2 Automated Testing Suite
-- 🟢 **PHPUnit Test Suite**: Seluruh **141 Feature & Unit Tests** lulus 100% (**597 assertions**).
+- 🟢 **PHPUnit Test Suite**: Seluruh **150 Feature & Unit Tests** lulus 100% (**707 assertions**) termasuk penambahan test suite `ProfilePasswordValidationTest`.
 - 🟢 **Vite Production Assets**: `npm run build` berjalan bersih tanpa error.
+
+#### 10.3 Eliminasi Redundansi & Harmonisasi Validasi Multi-Atribut Bahasa Indonesia Baku, Tab State Persistence & Modal Isolation
+- 🟢 **Standardisasi Rule `current_password` & Eliminasi Redundansi Pesan:**
+  - **Latar Belakang:** Sebelumnya, saat pengguna mengosongkan kedua kolom pada form ganti kata sandi profil, muncul pesan ganda yang membingungkan: *"Terdapat beberapa kesalahan: current password wajib diisi. kata sandi wajib diisi."*. Hal ini terjadi karena penamaan atribut bawaan bahasa Inggris (`current_password`) belum dipetakan, dan validasi kata sandi lama sebelumnya dilakukan manual via `Hash::check()` dengan session flash terpisah.
+  - **Penyelarasan Controller:** Menstandarisasi validasi di `ProfileController`, `MagangDashboardController`, dan `SiswaDashboardController` menggunakan rule bawaan Laravel `'current_password' => ['required', 'current_password']` serta menyelaraskan fallback jika form lama mengirimkan key `old_password`.
+  - **Kamus Validasi Indonesia (`lang/id/validation.php`):** Menambahkan ~50 atribut lokalisasi Indonesia (`current_password` $\rightarrow$ "kata sandi saat ini", `password` $\rightarrow$ "kata sandi baru", `old_password` $\rightarrow$ "kata sandi lama", `password_confirmation` $\rightarrow$ "konfirmasi kata sandi", `nama_lengkap`, `no_hp`, `earliest_minutes`, `tolerance_minutes`, `jenjang_paket_id`, `kategori_tutorial_id`, `file_excel`, dll) serta pesan kustom saat kata sandi saat ini salah (*"Kata sandi saat ini tidak sesuai."*).
+  - **Tab State Persistence Multi-Role (`admin`, `kepsek`, `tutor`, `magang`, `siswa`):** Menghadirkan inline `@error` helper di bawah input kata sandi dan script auto-switch ke tab "Keamanan Sandi" (`switchProfileTab('keamanan')`) saat error validasi password terdeteksi, sehingga tab tidak kembali ke data profil saat reload.
+  - **Isolasi Error Form Modal (`tutor/jadwal_sesi/index.blade.php`):** Memisahkan trigger modal otomatis agar kegagalan upload `file_excel` hanya membuka modal import Excel dan tidak membuka drawer tambah sesi baru.
+  - **QA & Testing:** Menambahkan feature test komprehensif `tests/Feature/ProfilePasswordValidationTest.php` yang memvalidasi 4 skenario profil kata sandi dengan hasil 100% PASS (10 assertions).
 
 ---
 
@@ -831,6 +840,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 43 | **Sinkronisasi Otomatis Titik Lokasi Presensi Sesi Terjadwal & Pre-Selection Siswa** | Schedule & Geofence Sync | Saat tutor/siswa mengakses presensi dari jadwal atau memilih sesi terjadwal, titik lokasi presensi otomatis terpilih di dropdown, radar & geofence map Leaflet otomatis terpusat ke lokasi yang ditentukan pada jadwal, murid otomatis tercentang, dan presensi otomatis terhubung ke `jadwal_sesi_id`. Dilengkapi automated test suite lulus 100%. | 🟢 Selesai |
 | 44 | **Perbaikan Styling Halaman Login & Eliminasi Scroller Ganda (Single Unified Scroller)** | UI/UX & CSS Bugfix | Menghilangkan dua scrollbar vertikal pada halaman login dengan mengisolasi ambient glow ke dalam container fixed (`.login-bg-glow`), menghapus `overflow-x: hidden` pemicu auto-scroll pada `.login-wrapper`, serta menetapkan satu scroller alami pada `html.login-html, body.login-page`. | 🟢 Selesai |
 | 45 | **Integrasi Single Sign-On (SSO) Terpadu Presensi Pikat & SIMPIKAT (Inbound & Outbound)** | Authentication & SSO | Integrasi autentikasi terpusat dua arah berbasis *One-Time HMAC-SHA256 Signed Token* antara portal utama SIMPIKAT (`pkbmpikat.com`) dan Presensi PKBM Pikat (`kehadiran.pkbmpikat.com`). Endpoint Inbound `/sso/simpikat` dengan JIT Provisioning multi-peran & mitigasi session fixation, rute outbound `/sso/ke-simpikat` untuk kembali ke SIMPIKAT, panduan integrasi `docs/panduan_integrasi_sso_simpikat.md`, dan 7 automated tests di `SimpikatSsoAuthTest` lulus 100%. | 🟢 Selesai |
+| 46 | **Eliminasi Redundansi & Harmonisasi Validasi Multi-Atribut Bahasa Indonesia Baku, Tab State Persistence & Modal Isolation** | Validation & UX Polish | Menghilangkan pesan validasi ganda & ambigu (*"current password wajib diisi. kata sandi wajib diisi."*). Standardisasi aturan `current_password` di controller profil (Admin, Kepsek, Tutor, Magang, Siswa), pemetaan kamus atribut ~50 field di `lang/id/validation.php`, penyimpanan state tab profil otomatis ke "Keamanan Sandi" saat error, pesan spesifik kata sandi salah, dan isolasi modal error import Excel jadwal tutor. | 🟢 Selesai |
 
 ---
 
