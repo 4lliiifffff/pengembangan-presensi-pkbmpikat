@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Magang;
 
 use App\Http\Controllers\Controller;
+use App\Models\LokasiPresensi;
 use App\Models\PresensiKaryawan;
 use App\Services\GeofencingService;
 use App\Services\ShiftPresensiService;
@@ -47,6 +48,7 @@ class MagangPresensiController extends Controller
             ->whereDate('tgl_presensi', $today)
             ->first();
 
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
         $kantorLat = (float) config('lokasi.sekolah_lat', -6.9308526492339295);
         $kantorLng = (float) config('lokasi.sekolah_lng', 107.60746330217363);
         $radius = (int) config('lokasi.radius_meter', 100);

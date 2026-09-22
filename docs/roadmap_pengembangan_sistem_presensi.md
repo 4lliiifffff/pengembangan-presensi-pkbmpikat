@@ -129,6 +129,9 @@
   - **Penyelarasan Koordinat & Kontak Resmi PKBM Pikat:** Memperbarui default fallback koordinat ke lokasi riil PKBM Pikat Bandung (`-6.9308526492339295, 107.60746330217363`) serta memperbarui nomor resmi WhatsApp Admin ke `6285156452939` (menggantikan dummy `6281234567890`).
   - **Pembaruan Kartu Shift di UI Presensi:** Kartu shift pada halaman presensi Tutor, Karyawan, dan Magang kini mendeteksi `has_shift`. Jika bernilai `false`, kartu menampilkan jam waktu nyata dan label waktu fleksibel alih-alih peringatan target masuk 08:00 WIB.
   - **Pemeliharaan Fitur Quick Login Pengujian:** Fitur Quick Login pengujian tetap dipertahankan secara utuh sesuai arahan pengujian operasional.
+* 🟢 **Perbaikan Undefined Variable `$lokasiPresensis` pada Presensi Magang:** [SELESAI]
+  - **Akar Masalah:** Method `MagangPresensiController@foto` mengirimkan variable `'lokasiPresensis' => $lokasiPresensis` ke view `magang.presensi_foto`, namun inisialisasi query `$lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();` dan import `use App\Models\LokasiPresensi;` belum ada pada controller, menyebabkan fatal error `ErrorException: Undefined variable $lokasiPresensis` saat mengakses `/magang/presensi`.
+  - **Solusi & Verifikasi:** Mengimpor model `LokasiPresensi`, memanggil query master titik lokasi aktif, dan memverifikasi kelancaran alur presensi magang via test suite `MagangRoleAndPresensiTest` (7 passed, 31 assertions) serta `UnclosedPresensiHandlingTest`.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---
