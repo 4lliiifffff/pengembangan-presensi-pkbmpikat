@@ -22,6 +22,8 @@ class SiswaRoleAndPresensiTest extends TestCase
 {
     use DatabaseTransactions;
 
+    protected Tutor $defaultTutor;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -35,6 +37,16 @@ class SiswaRoleAndPresensiTest extends TestCase
             'latitude' => -7.8011945,
             'longitude' => 110.364917,
             'radius_meter' => 100,
+        ]);
+
+        $tutorUser = User::factory()->create(['role' => 'tutor']);
+        $this->defaultTutor = Tutor::create([
+            'user_id' => $tutorUser->id,
+            'nik' => 'TT'.rand(1000000000, 9999999999),
+            'nama_lengkap' => 'Tutor Default',
+            'email' => 'tutor_def_'.uniqid().'@pkbmpikat.com',
+            'no_hp' => '081234567890',
+            'is_active' => true,
         ]);
     }
 
@@ -189,6 +201,18 @@ class SiswaRoleAndPresensiTest extends TestCase
             'is_abk' => false,
         ]);
 
+        $now = Carbon::now('Asia/Jakarta');
+        $today = $now->toDateString();
+        JadwalSesi::create([
+            'siswa_id' => $siswa->id,
+            'tutor_id' => $this->defaultTutor->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => $now->format('H:i:s'),
+            'jam_pulang_rencana' => $now->copy()->addHours(2)->format('H:i:s'),
+            'durasi_jam' => 2.0,
+            'status' => 'terjadwal',
+        ]);
+
         $this->actingAs($siswaUser);
 
         $foto = UploadedFile::fake()->image('selfie_masuk_siswa.jpg', 640, 480);
@@ -205,7 +229,7 @@ class SiswaRoleAndPresensiTest extends TestCase
 
         $this->assertDatabaseHas('presensi_mandiri_siswa', [
             'siswa_id' => $siswa->id,
-            'tgl_presensi' => Carbon::now('Asia/Jakarta')->toDateString(),
+            'tgl_presensi' => $today,
             'status' => 'hadir',
         ]);
     }
@@ -229,6 +253,17 @@ class SiswaRoleAndPresensiTest extends TestCase
             'kelas_id' => $kls->id,
             'status_siswa' => 'aktif',
             'is_abk' => false,
+        ]);
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+        JadwalSesi::create([
+            'siswa_id' => $siswa->id,
+            'tutor_id' => $this->defaultTutor->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '10:00:00',
+            'durasi_jam' => 2.0,
+            'status' => 'terjadwal',
         ]);
 
         $this->actingAs($siswaUser);

@@ -4886,6 +4886,11 @@ input:checked+.toggleSlider:before {
     border: 1px solid rgba(11, 94, 215, 0.20);
 }
 
+.statusBanner.danger {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.22);
+}
+
 .statusIcon {
     width: 44px;
     height: 44px;
@@ -4909,6 +4914,12 @@ input:checked+.toggleSlider:before {
 .statusIcon.blue {
     background: rgba(11, 94, 215, 0.12);
     color: var(--blue2);
+}
+
+.statusIcon.danger,
+.statusIcon.red {
+    background: rgba(239, 68, 68, 0.15);
+    color: #ef4444;
 }
 
 .statusTitle {
@@ -9905,9 +9916,20 @@ textarea {
     border-color: rgba(26, 115, 232, 0.35);
 }
 
+[data-theme="dark"] .statusBanner.danger {
+    background: rgba(239, 68, 68, 0.16);
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
 [data-theme="dark"] .statusIcon.blue {
     background: rgba(26, 115, 232, 0.20);
     color: #60a5fa;
+}
+
+[data-theme="dark"] .statusIcon.danger,
+[data-theme="dark"] .statusIcon.red {
+    background: rgba(239, 68, 68, 0.22);
+    color: #f87171;
 }
 
 [data-theme="dark"] .badge-flexible {

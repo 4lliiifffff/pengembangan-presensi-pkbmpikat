@@ -132,6 +132,11 @@
 * 🟢 **Perbaikan Undefined Variable `$lokasiPresensis` pada Presensi Magang:** [SELESAI]
   - **Akar Masalah:** Method `MagangPresensiController@foto` mengirimkan variable `'lokasiPresensis' => $lokasiPresensis` ke view `magang.presensi_foto`, namun inisialisasi query `$lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();` dan import `use App\Models\LokasiPresensi;` belum ada pada controller, menyebabkan fatal error `ErrorException: Undefined variable $lokasiPresensis` saat mengakses `/magang/presensi`.
   - **Solusi & Verifikasi:** Mengimpor model `LokasiPresensi`, memanggil query master titik lokasi aktif, dan memverifikasi kelancaran alur presensi magang via test suite `MagangRoleAndPresensiTest` (7 passed, 31 assertions) serta `UnclosedPresensiHandlingTest`.
+* 🟢 **Pengetatan Validasi Jadwal Presensi Siswa (Strict Schedule Gating) & Redesain Responsif Mobile:** [SELESAI]
+  - **Penegakan Jadwal Mandiri Siswa:** Menambahkan kebijakan konfigurasi `config('presensi_sk.strict_schedule_gating')` (default `true`). Jika siswa tidak memiliki sesi belajar aktif pada hari ini (`!$todaySesi`), sistem secara tegas mengunci form kamera dan menampilkan status *"Tidak Ada Jadwal Belajar Hari Ini"* serta kartu edukasi *"Hari Ini Tidak Ada KBM"*, baik saat database jadwal kosong maupun saat tidak terjadwal.
+  - **Penolakan Submission Backend:** `SiswaPresensiController@store` menolak percobaan check-in tanpa jadwal aktif dan mengarahkan kembali ke dashboard dengan notifikasi edukatif.
+  - **Redesain Antarmuka & Responsivitas Mobile:** Mengadopsi design system terpadu `.statusBanner.danger`, container pill badge `.tableEmptyIconWrap.rose`, dukungan tema gelap/terang, tipografi `var(--text)` / `var(--muted)`, serta tombol aksi responsif yang ergonomis untuk layar sentuh ponsel.
+  - **Verifikasi Pengujian Otomatis:** Dilengkapi automated test di `JadwalRutinAndPresensiGatingTest` (8 passed) dan `SiswaRoleAndPresensiTest` (16 passed).
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---

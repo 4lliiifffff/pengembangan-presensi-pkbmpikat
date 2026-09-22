@@ -323,4 +323,38 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
             '--siswa_id' => $this->siswa->id,
         ])->assertExitCode(0);
     }
+
+    public function test_siswa_cannot_checkin_when_no_schedules_in_database_under_strict_mode(): void
+    {
+        // Pastikan tidak ada JadwalRutin dan tidak ada JadwalSesi sama sekali
+        JadwalRutin::where('siswa_id', $this->siswa->id)->delete();
+        JadwalSesi::where('siswa_id', $this->siswa->id)->delete();
+
+        Config::set('presensi_sk.strict_schedule_gating', true);
+
+        // 1. Cek halaman presensi foto terkunci dan menampilkan banner edukasi
+        $viewResponse = $this->actingAs($this->siswaUser)->get(route('siswa.presensi.foto'));
+        $viewResponse->assertStatus(200);
+        $viewResponse->assertSee('Tidak Ada Jadwal Belajar Hari Ini');
+        $viewResponse->assertSee('Hari Ini Tidak Ada KBM');
+
+        // 2. Cek submission store ditolak dan diredirect ke dashboard
+        $foto = UploadedFile::fake()->image('absen_gagal.jpg', 640, 480);
+        $storeResponse = $this->actingAs($this->siswaUser)->post(route('siswa.presensi.store'), [
+            'mode' => 'masuk',
+            'foto' => $foto,
+            'lokasi' => '-7.8011945,110.364917',
+            'lokasi_akurasi' => 15,
+            'lokasi_presensi_id' => $this->lokasi->id,
+        ]);
+
+        $storeResponse->assertRedirect(route('siswa.dashboard'));
+        $storeResponse->assertSessionHas('warning', 'Presensi tidak dapat dilakukan karena Anda tidak memiliki jadwal KBM yang aktif hari ini.');
+
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
+            'siswa_id' => $this->siswa->id,
+            'tgl_presensi' => $today,
+        ]);
+    }
 }

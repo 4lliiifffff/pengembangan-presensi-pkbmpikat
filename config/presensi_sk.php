@@ -41,4 +41,18 @@ return [
     |--------------------------------------------------------------------------
     */
     'default_shift' => 'pagi',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Kebijakan Validasi Jadwal Presensi Siswa (Schedule Gating)
+    |--------------------------------------------------------------------------
+    |
+    | true  : Mode Ketat (Strict) - Siswa WAJIB memiliki jadwal sesi KBM aktif
+    |         hari ini (JadwalSesi). Jika tidak ada jadwal sama sekali di DB,
+    |         halaman presensi terkunci dengan status "Tidak Ada Jadwal Belajar".
+    | false : Mode Longgar (Graceful) - Siswa yang belum pernah memiliki jadwal
+    |         dapat melakukan presensi mandiri terbuka.
+    |
+    */
+    'strict_schedule_gating' => (bool) env('PRESENSI_STRICT_SCHEDULE_GATING', true),
 ];

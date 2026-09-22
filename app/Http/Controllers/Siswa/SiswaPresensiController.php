@@ -68,6 +68,7 @@ class SiswaPresensiController extends Controller
                 ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
         }
 
+        $strictGating = (bool) config('presensi_sk.strict_schedule_gating', true);
         $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
             || JadwalSesi::where('siswa_id', $siswa->id)->exists();
 
@@ -78,7 +79,7 @@ class SiswaPresensiController extends Controller
 
         $sesiEval = null;
         if (! $todayPresensi) {
-            if ($hasConfiguredSchedule && ! $todaySesi) {
+            if (! $todaySesi && ($strictGating || $hasConfiguredSchedule)) {
                 $canCheckIn = false;
                 $gatingReason = 'no_schedule';
                 $gatingMessage = 'Anda tidak memiliki jadwal belajar (KBM) yang terdaftar hari ini.';
@@ -227,10 +228,11 @@ class SiswaPresensiController extends Controller
                 ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
         }
 
+        $strictGating = (bool) config('presensi_sk.strict_schedule_gating', true);
         $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
             || JadwalSesi::where('siswa_id', $siswa->id)->exists();
 
-        if ($hasConfiguredSchedule && ! $todaySesi) {
+        if (! $todaySesi && ($strictGating || $hasConfiguredSchedule)) {
             return redirect()
                 ->route('siswa.dashboard')
                 ->with('warning', 'Presensi tidak dapat dilakukan karena Anda tidak memiliki jadwal KBM yang aktif hari ini.');

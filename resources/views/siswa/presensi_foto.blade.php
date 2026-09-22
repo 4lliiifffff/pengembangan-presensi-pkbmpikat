@@ -203,27 +203,24 @@
             {{-- ── TIME-GATED: TIDAK BISA ABSEN (BELUM WAKTUNYA ATAU TIDAK ADA JADWAL) ── --}}
         @elseif (!$canCheckIn)
             @if ($gatingReason === 'no_schedule')
-                <div class="statusBanner mb-4"
-                    style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22);">
-                    <div class="statusIcon warn" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                <div class="statusBanner danger mb-4">
+                    <div class="statusIcon danger">
                         <ion-icon name="calendar-outline"></ion-icon>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="statusTitle" style="color: #b91c1c;">Tidak Ada Jadwal Belajar Hari Ini</div>
-                        <div class="statusSub" style="color: #64748b;">Presensi mandiri hanya dapat dilakukan saat jadwal KBM aktif.
-                        </div>
+                        <div class="statusTitle text-danger">Tidak Ada Jadwal Belajar Hari Ini</div>
+                        <div class="statusSub">Presensi mandiri hanya dapat dilakukan saat jadwal KBM aktif.</div>
                     </div>
                 </div>
 
                 <div class="data-mobile-card mb-4 text-center p-4">
                     <div class="d-flex justify-content-center mb-3">
-                        <div class="avatar-lg bg-danger-light text-danger rounded-2xl d-flex align-items-center justify-content-center"
-                            style="width: 72px; height: 72px; font-size: 2.2rem;">
+                        <div class="tableEmptyIconWrap rose" style="width: 64px; height: 64px; border-radius: 20px; font-size: 2rem;">
                             <ion-icon name="calendar-outline"></ion-icon>
                         </div>
                     </div>
                     <h3 class="font-extrabold text-base text-dark mb-1">Hari Ini Tidak Ada KBM</h3>
-                    <p class="text-xs text-muted mb-4 max-w-sm mx-auto" style="line-height: 1.5;">
+                    <p class="text-xs text-muted mb-4 max-w-sm mx-auto" style="line-height: 1.6;">
                         Anda tidak memiliki jadwal sesi belajar yang aktif untuk hari ini
                         (<strong>{{ \Carbon\Carbon::parse($today)->translatedFormat('l, d F Y') }}</strong>). Silakan periksa
                         kalender belajar untuk melihat agenda mingguan Anda.
@@ -231,11 +228,11 @@
 
                     <div class="dmc-footer pt-3 border-t-base">
                         <div class="dmc-actions flex-wrap gap-2">
-                            <a href="{{ route('siswa.jadwal') }}" class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
+                            <a href="{{ route('siswa.jadwal') }}" class="profileBtnPrimary text-xs py-2.5 px-3 flex-1 justify-center">
                                 <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal Mingguan
                             </a>
                             <a href="{{ route('siswa.dashboard') }}"
-                                class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
+                                class="profileBtnSecondary text-xs py-2.5 px-3 flex-1 justify-center">
                                 <ion-icon name="home-outline"></ion-icon> Dashboard
                             </a>
                         </div>
