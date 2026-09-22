@@ -3,10 +3,10 @@
     <div class="preloader-content">
         {{-- Brand Logo & Title --}}
         <div class="preloader-brand">
-            <img src="{{ asset('assets/img/Logo.jpeg') }}" alt="PKBM Pikat" class="preloader-logo" />
+            <img src="{{ $logo ?? asset('assets/img/Logo.jpeg') }}" alt="{{ $title ?? 'PKBM Pikat' }}" class="preloader-logo" />
             <div class="preloader-text-group">
-                <span class="preloader-title">PKBM PIKAT</span>
-                <span class="preloader-subtitle">Presensi &amp; Akademik</span>
+                <span class="preloader-title">{{ $title ?? 'PKBM PIKAT' }}</span>
+                <span class="preloader-subtitle">{{ $subtitle ?? 'Presensi & Akademik' }}</span>
             </div>
         </div>
 
