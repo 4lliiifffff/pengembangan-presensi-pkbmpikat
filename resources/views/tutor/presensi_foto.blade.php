@@ -10,7 +10,7 @@
         $user = auth()->user();
         $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Tutor'));
         $initial = strtoupper(substr($displayName, 0, 1));
-        $selectedSiswa = (int) old('siswa_id', request('siswa_id', 0));
+        $selectedSiswa = (int) old('siswa_id', request('siswa_id', $selectedJadwalSesi?->siswa_id ?? 0));
 
         // Tentukan state sesi aktif hari ini
         // Sesi AKTIF = sudah absen masuk (foto_mulai ada) tapi BELUM absen pulang (foto_selesai kosong)
@@ -43,13 +43,13 @@
             }
         }
 
-        $activeLokasi = $activeSesi?->lokasiPresensi;
+        $effectiveLokasi = $activeLokasi ?? ($targetLokasi ?? null);
         $activeModa = (string) ($activeSesi?->moda_pembelajaran ?? '');
-        $initialTargetLat = (float) ($activeLokasi?->latitude ?? config('lokasi.sekolah_lat', -7.8011945));
-        $initialTargetLng = (float) ($activeLokasi?->longitude ?? config('lokasi.sekolah_lng', 110.364917));
-        $initialTargetRadius = (int) ($activeLokasi?->radius_meter ?? config('lokasi.radius_meter', 100));
-        $initialTargetNama = (string) ($activeLokasi?->nama_lokasi ?? config('lokasi.sekolah_nama', 'PKBM Pikat'));
-        $initialTargetAlamat = (string) ($activeLokasi?->alamat ?? '');
+        $initialTargetLat = (float) ($effectiveLokasi?->latitude ?? config('lokasi.sekolah_lat', -7.8011945));
+        $initialTargetLng = (float) ($effectiveLokasi?->longitude ?? config('lokasi.sekolah_lng', 110.364917));
+        $initialTargetRadius = (int) ($effectiveLokasi?->radius_meter ?? config('lokasi.radius_meter', 100));
+        $initialTargetNama = (string) ($effectiveLokasi?->nama_lokasi ?? config('lokasi.sekolah_nama', 'PKBM Pikat'));
+        $initialTargetAlamat = (string) ($effectiveLokasi?->alamat ?? '');
 
         // Mode otomatis: mulai (belum/sudah selesai) atau selesai (sedang berjalan)
         $autoMode = $activeSesi ? 'selesai' : 'mulai';
@@ -63,7 +63,7 @@
             'kepala_sekolah' => route('kepsek.presensi.store'),
             default => route('tutor.presensi.store'),
         };
-        $adminWa = config('app.admin_wa', '6281234567890');
+        $adminWa = config('app.admin_wa', '6285156452939');
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -366,8 +366,12 @@
                         <div>
                             <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal:
                                 {{ $shiftEval['shift_nama'] }}</div>
-                            <div class="text-xs text-muted mt-1">Target Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b>
-                                &bull; Batas Masuk: <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                            @if(!empty($shiftEval['has_shift']))
+                                <div class="text-xs text-muted mt-1">Target Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b>
+                                    &bull; Batas Masuk: <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                            @else
+                                <div class="text-xs text-muted mt-1">Waktu Presensi: <b>{{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i') }} WIB</b> &bull; Presensi fleksibel sesuai sesi bimbingan</div>
+                            @endif
                         </div>
                         <div>
                             @if($shiftEval['status_kehadiran'] === 'tepat_waktu')
@@ -386,28 +390,57 @@
             @endif
 
             @if(isset($scheduledSessionsToday) && $scheduledSessionsToday->count() > 0)
-                <div class="card p-4 rounded-xl border-primary bg-primary-light mb-4">
-                    <div class="d-flex items-center justify-between mb-3">
-                        <div class="font-extrabold text-dark text-sm">Sesi Terjadwal Hari Ini</div>
+                <div class="card p-4 rounded-xl border-primary bg-primary-light mb-4" id="boxScheduledSessions">
+                    <div class="d-flex items-center justify-between mb-3 flex-wrap gap-2">
+                        <div class="d-flex items-center gap-2">
+                            <span class="d-inline-flex p-1.5 rounded-lg bg-primary text-white">
+                                <ion-icon name="calendar-outline"></ion-icon>
+                            </span>
+                            <div>
+                                <div class="font-extrabold text-dark text-sm">Sesi Bimbingan Terjadwal Hari Ini</div>
+                                <div class="text-xs text-muted">Pilih sesi untuk menyinkronkan siswa & titik lokasi secara otomatis</div>
+                            </div>
+                        </div>
                         <span class="badgeCount font-bold">{{ $scheduledSessionsToday->count() }} Sesi</span>
                     </div>
-                    <div class="d-flex flex-col gap-2">
+                    <div class="d-flex flex-col gap-2.5">
                         @foreach($scheduledSessionsToday as $sSesi)
-                            <div class="p-3 rounded-lg bg-card border-base d-flex items-center justify-between gap-3 text-xs">
-                                <div>
-                                    <div class="font-bold text-dark text-sm">{{ $sSesi->siswa->nama_siswa ?? 'Peserta Didik' }}</div>
-                                    <div class="text-muted mt-1">
+                            @php
+                                $sLokasi = $sSesi->lokasiPresensi ?? $sSesi->jadwalRutin?->lokasiPresensi;
+                                $isSelectedThis = (isset($selectedJadwalSesi) && $selectedJadwalSesi?->id === $sSesi->id);
+                            @endphp
+                            <div class="p-3.5 rounded-xl bg-card border-base d-flex items-center justify-between gap-3 text-xs transition-all card-sesi-item {{ $isSelectedThis ? 'border-primary ring-2 ring-primary/20 shadow-sm' : '' }}"
+                                id="sesiItemCard-{{ $sSesi->id }}">
+                                <div class="min-w-0">
+                                    <div class="d-flex items-center gap-2 flex-wrap">
+                                        <span class="font-bold text-dark text-sm">{{ $sSesi->siswa->nama_siswa ?? 'Peserta Didik' }}</span>
                                         <span
                                             class="app-badge {{ $sSesi->jenis_sesi === 'pengganti' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }} text-xxs py-0 px-2">
                                             {{ $sSesi->jenis_label }}
                                         </span>
-                                        Pukul <b>{{ $sSesi->jam_masuk_formatted }} - {{ $sSesi->jam_pulang_formatted }} WIB</b>
-                                        ({{ $sSesi->durasi_jam }} jam)
+                                        @if($isSelectedThis)
+                                            <span class="badge bg-success-light text-success font-bold text-xxs py-0.5 px-2 rounded-md">
+                                                <ion-icon name="checkmark-circle-outline"></ion-icon> Aktif Dipilih
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <div class="text-muted mt-1.5 d-flex items-center gap-2 flex-wrap">
+                                        <span><ion-icon name="time-outline"></ion-icon> <b>{{ $sSesi->jam_masuk_formatted }} - {{ $sSesi->jam_pulang_formatted }} WIB</b> ({{ $sSesi->durasi_jam }} jam)</span>
+                                        @if($sLokasi)
+                                            <span class="badge bg-info-light text-info font-bold text-xxs py-0.5 px-2 rounded-md d-inline-flex items-center gap-1">
+                                                <ion-icon name="location-outline"></ion-icon> {{ $sLokasi->nama_lokasi }}
+                                            </span>
+                                        @endif
+                                        @if($sSesi->kategoriTutorial)
+                                            <span class="text-xs text-secondary font-medium">&bull; {{ $sSesi->kategoriTutorial->nama_kategori }}</span>
+                                        @endif
                                     </div>
                                 </div>
-                                <button type="button" onclick="pilihSiswaSesiTerjadwal({{ $sSesi->siswa_id }})"
-                                    class="profileBtnPrimary py-2 px-3 text-xs">
-                                    Pilih Sesi
+                                <button type="button"
+                                    onclick="pilihSesiTerjadwal({{ $sSesi->id }}, {{ $sSesi->siswa_id }}, {{ $sLokasi?->id ?? 'null' }}, {{ $sSesi->kategori_tutorial_id ?? 'null' }}, {{ $sSesi->durasi_jam ?? 'null' }})"
+                                    class="profileBtnPrimary py-2 px-3 text-xs flex-shrink-0 {{ $isSelectedThis ? 'btn-action-success' : '' }}">
+                                    <ion-icon name="{{ $isSelectedThis ? 'checkmark-circle' : 'finger-print-outline' }}"></ion-icon>
+                                    <span>{{ $isSelectedThis ? 'Terpilih' : 'Pilih Sesi' }}</span>
                                 </button>
                             </div>
                         @endforeach
@@ -426,6 +459,7 @@
             <form method="POST" action="{{ $storeRoute }}" enctype="multipart/form-data" id="presensiForm">
                 @csrf
                 <input type="hidden" name="mode" value="mulai">
+                <input type="hidden" name="jadwal_sesi_id" id="inputJadwalSesiId" value="{{ $selectedJadwalSesi?->id ?? '' }}">
                 <input type="hidden" name="lokasi" id="lokasi" value="">
                 <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
@@ -547,7 +581,8 @@
                                         if ($p?->foto_mulai && !$p?->foto_selesai) {
                                             $badge = ' <span class="text-warning text-xs font-bold">(Sedang Berjalan)</span>';
                                         }
-                                        $isChecked = in_array($siswa->id, (array) old('siswa_id', [])) ? 'checked' : '';
+                                        $isPreselected = old('siswa_id') ? in_array($siswa->id, (array) old('siswa_id', [])) : ($selectedSiswa && (is_array($selectedSiswa) ? in_array($siswa->id, $selectedSiswa) : $siswa->id == $selectedSiswa));
+                                        $isChecked = $isPreselected ? 'checked' : '';
                                         $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
                                     @endphp
                                     <label class="siswa-item-row" data-search="{{ $searchKeyword }}"
@@ -604,12 +639,15 @@
                         <label class="d-block text-sm font-bold text-dark mb-2">
                             Pilih Lokasi Sekolah / Cabang <span class="text-danger">*</span>
                         </label>
+                        @php
+                            $preselectedLokasiId = old('lokasi_presensi_id', $targetLokasi?->id ?? ($activeLokasi?->id ?? null));
+                        @endphp
                         <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()"
                             class="input w-full rounded-xl p-3 text-md font-semibold text-dark border-base bg-card-alt">
                             @forelse($lokasiPresensis as $lok)
                                 <option value="{{ $lok->id }}" data-lat="{{ $lok->latitude }}" data-lng="{{ $lok->longitude }}"
                                     data-radius="{{ $lok->radius_meter }}" data-nama="{{ $lok->nama_lokasi }}"
-                                    data-alamat="{{ $lok->alamat ?? '' }}" {{ (old('lokasi_presensi_id') == $lok->id || ($loop->first && !old('lokasi_presensi_id'))) ? 'selected' : '' }}>
+                                    data-alamat="{{ $lok->alamat ?? '' }}" {{ ($preselectedLokasiId ? $preselectedLokasiId == $lok->id : $loop->first) ? 'selected' : '' }}>
                                     {{ $lok->nama_lokasi }} (Area: {{ $lok->radius_meter }} meter)
                                 </option>
                             @empty
@@ -1651,15 +1689,42 @@
         }
 
         function pilihSiswaSesiTerjadwal(siswaId) {
-            var cbs = document.querySelectorAll('.siswa-checkbox');
-            cbs.forEach(function (cb) {
-                cb.checked = (parseInt(cb.value) === parseInt(siswaId));
-            });
-            updateSelectedSiswaCount();
-            var siswaCard = document.getElementById('cardSiswaSelector');
-            if (siswaCard) {
-                siswaCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            pilihSesiTerjadwal(null, siswaId, null);
+        }
+
+        function pilihSesiTerjadwal(sesiId, siswaId, lokasiId) {
+            var inputSesi = document.getElementById('inputJadwalSesiId');
+            if (inputSesi && sesiId) {
+                inputSesi.value = sesiId;
             }
+
+            if (siswaId) {
+                var cbs = document.querySelectorAll('.siswa-checkbox');
+                cbs.forEach(function (cb) {
+                    cb.checked = (parseInt(cb.value) === parseInt(siswaId));
+                });
+                updateSelectedSiswaCount();
+            }
+
+            if (lokasiId) {
+                var selectLokasi = document.getElementById('selectLokasiPresensi');
+                if (selectLokasi) {
+                    selectLokasi.value = String(lokasiId);
+                    handleLokasiPresensiChange();
+                }
+            }
+
+            // Update badge highlight styling for scheduled sessions
+            var sessionItems = document.querySelectorAll('.session-item-badge');
+            sessionItems.forEach(function (el) {
+                if (sesiId && el.getAttribute('data-sesi-id') == sesiId) {
+                    el.classList.add('border-primary', 'bg-blue-50');
+                    el.classList.remove('border-base');
+                } else {
+                    el.classList.remove('border-primary', 'bg-blue-50');
+                    el.classList.add('border-base');
+                }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -1668,6 +1733,10 @@
                 handleModaChange(selectModa.value);
             }
             updateSelectedSiswaCount();
+
+            @if($selectedJadwalSesi)
+                pilihSesiTerjadwal({{ $selectedJadwalSesi->id }}, {{ $selectedJadwalSesi->siswa_id ?? 'null' }}, {{ $targetLokasi?->id ?? 'null' }});
+            @endif
         });
 
         function retakePhoto() {

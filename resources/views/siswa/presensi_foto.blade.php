@@ -12,7 +12,7 @@
 
         $dashRoute = route('siswa.dashboard');
         $storeRoute = route('siswa.presensi.store');
-        $adminWa = config('app.admin_wa', '6281234567890');
+        $adminWa = config('app.admin_wa', '6285156452939');
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -426,6 +426,7 @@
                 <input type="hidden" name="lokasi" id="lokasi" value="">
                 <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
+                <input type="hidden" name="jadwal_sesi_id" id="inputJadwalSesiId" value="{{ $todaySesi?->id ?? '' }}">
 
                 <div class="card mb-4">
                     <div class="cardTitle">
@@ -435,7 +436,7 @@
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
                     <div class="mb-3" id="boxPilihLokasi">
-                        @if(isset($targetLokasi) && $targetLokasi && $todaySesi?->lokasiPresensi)
+                        @if(isset($targetLokasi) && $targetLokasi)
                             <div class="p-2.5 rounded-xl border border-blue bg-blue-subtle text-xs mb-3 d-flex items-center gap-2"
                                 style="background: rgba(37,99,235,0.08); border: 1px solid rgba(37,99,235,0.25); color: #1d4ed8;">
                                 <ion-icon name="pin-outline" style="font-size: 18px; flex-shrink: 0;"></ion-icon>

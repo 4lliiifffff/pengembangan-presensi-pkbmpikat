@@ -1,6 +1,6 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 21 September 2026  
+**Tanggal Pembaruan:** 22 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
 **Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 50
+    "Selesai (Completed)" : 51
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -19,7 +19,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | Kategori | Jumlah Item Roadmap | Selesai (🟢) | Dalam Proses (🟡) | Belum Dimulai (⚪) |
 |---|---|---|---|---|
 | 1. Keamanan, Infrastruktur & Performa | 8 | 7 | 0 | 1 |
-| 2. Core Presensi & Validasi Lokasi | 11 | 10 | 0 | 1 |
+| 2. Core Presensi & Validasi Lokasi | 12 | 11 | 0 | 1 |
 | 3. Payroll & Master Honorarium SK | 7 | 7 | 0 | 0 |
 | 4. Penjadwalan Sesi Belajar, Reschedule & Jadwal Rutin Siswa (*New*) | 7 | 7 | 0 | 0 |
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
@@ -28,7 +28,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 8. UI/UX Excellence & Responsive Layout | 6 | 6 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 5 | 5 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **55** | **49** | **0** | **6** |
+| **TOTAL** | **56** | **50** | **0** | **6** |
 
 ---
 
@@ -190,6 +190,27 @@ pie title Status Fitur & Pengkondisian Sistem
       - Pada `PresensiService::syncApprovedAttendance()`, saat Kepala Sekolah menyetujui pengajuan Lupa Lapor, status `JadwalSesi` terkait langsung diselaraskan menjadi `'selesai'` dan diikat dengan `presensi_id`. Sesi tersebut otomatis memenuhi kualifikasi `PayrollService` (`whereNotNull('jam_selesai')`) sehingga honorarium tutor dihitung secara akurat dan tidak hangus.
     - **Pengujian Otomatis Komprehensif:**
       - Menambahkan 5 skenario automated tests di `tests/Feature/UnclosedPresensiHandlingTest.php` yang mencakup toleransi clock-in tutor, karyawan, magang, auto-fill form lupa lapor, serta sinkronisasi status sesi & payroll saat approval kepsek (seluruh assertions lulus 100%).
+- 🟢 **Eliminasi Data Dummy & Penyelarasan Jadwal Kerja Fleksibel Operasional PKBM**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang Operasional PKBM:** Pada institusi pendidikan non-formal PKBM Pikat, tutor menyelenggarakan sesi belajar bimbingan secara modular dan berbasis sesi (pagi, siang, sore, malam), bukan jam kerja statis 08:00 - 16:00 WIB. Fallback lama ke shift pagi default memicu penalti keterlambatan fiktif (ratusan menit) saat tabel `jadwal_kerja` di database belum dikonfigurasi.
+    - **Penyelarasan Logika Backend (`ShiftPresensiService`):**
+      - Menghapus array fallback shift pagi hardcoded dari `getShifts()`; mengembalikan `[]` saat database kosong.
+      - Menyesuaikan `detectShift()` agar mengembalikan `null` jika tidak ada shift yang aktif/terdaftar di database.
+      - Mengoptimalkan `evaluateCheckIn()`:
+        1. **Sesi Terjadwal:** Evaluasi dihitung presisi terhadap jam rencana sesi (`JadwalSesi`).
+        2. **Manajemen (Admin & Kepala Sekolah):** Diberikan status `'Jam Kerja Fleksibel (Manajemen)'`, `has_shift = false`, `status_kehadiran = 'tepat_waktu'`, dan `menit_keterlambatan = 0`.
+        3. **Tutor Tanpa Sesi Terjadwal:** Diberikan status `'Sesi Belajar Mandiri'`, `has_shift = false`, `status_kehadiran = 'tepat_waktu'`, dan `menit_keterlambatan = 0`.
+        4. **Karyawan & Magang Tanpa Shift di DB:** Diberikan status `'Presensi Reguler {Role}'`, `has_shift = false`, `status_kehadiran = 'tepat_waktu'`, dan `menit_keterlambatan = 0`.
+    - **Penyelarasan Kontak Resmi & Koordinat PKBM Pikat:**
+      - Mengganti fallback nomor WhatsApp admin `6281234567890` menjadi nomor resmi PKBM Pikat `6285156452939` di `.env`, `config/app.php`, dan seluruh view presensi (`tutor`, `karyawan`, `magang`, `siswa`).
+      - Menyelaraskan koordinat fallback di `config/lokasi.php` dan controller ke titik riil PKBM Pikat Bandung (`-6.9308526492339295, 107.60746330217363`).
+    - **Pembersihan Kartu Shift Antarmuka Kamera:**
+      - Memperbarui kartu jadwal pada `resources/views/tutor/presensi_foto.blade.php`, `resources/views/karyawan/presensi_foto.blade.php`, dan `resources/views/magang/presensi_foto.blade.php` dengan pengecekan `!empty($shiftEval['has_shift'])`. Saat berstatus fleksibel, kartu menampilkan jam waktu nyata dan keterangan fleksibilitas tanpa peringatan batas waktu kaku 08:00 WIB.
+    - **Pemeliharaan Fitur Pengujian Quick Login:**
+      - Fitur Quick Login demo tetap dipertahankan utuh pada `AuthWebController.php`, `resources/views/auth/login.blade.php`, dan `navigasi_atas.blade.php` untuk memfasilitasi kebutuhan pengujian berkelanjutan.
+    - **Pengujian Otomatis (QA Suite):**
+      - Menambahkan pengujian peran kepemimpinan, tutor mandiri, serta karyawan/magang tanpa shift di `tests/Feature/ShiftPresensiTest.php` (5 test cases, 47 assertions lulus 100%).
 - ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition)**
   - **Status:** **PENDING**
   - **Rincian Implementasi:** Mengintegrasikan pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
@@ -554,7 +575,15 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Rincian Implementasi:** Ekspor laporan presensi komprehensif 14 kolom + KPI cards (`PresensiExport.php`), ekspor/import massal data Siswa, Tutor/Karyawan, Jadwal/Agenda, dan Presensi Retroaktif via `maatwebsite/excel`.
 
 #### 6.3 Integrasi Eksternal (Jangka Panjang)
-- ⚪ **Integrasi Akun Terpusat (SSO SIM PKBM Pikat via Sanctum / OAuth2)**: [PENDING]
+- 🟢 **Integrasi Akun Terpusat (SSO SIM PKBM Pikat One-Time Signed Token & Shared Session)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - Autentikasi dua arah antara portal utama SIMPIKAT (`pkbmpikat.com`) dan Presensi PKBM Pikat (`kehadiran.pkbmpikat.com`) berbasis *HMAC-SHA256 One-Time Signed Token*.
+    - Endpoint Inbound `GET /sso/simpikat` yang memvalidasi integritas token kriptografis, masa berlaku (TTL), dan target aplikasi (`presensi`), dilanjutkan dengan *Just-In-Time (JIT) Provisioning* dan auto-login instan tanpa input kata sandi.
+    - Endpoint Outbound `GET /sso/ke-simpikat` bagi pengguna aktif di Presensi untuk berpindah kembali ke portal SIMPIKAT tanpa login ulang.
+    - Opsi *Cross-Subdomain Shared Session* (`SESSION_DOMAIN=.pkbmpikat.com`).
+    - Panduan integrasi kode PHP siap pakai untuk SIMPIKAT pada `docs/panduan_integrasi_sso_simpikat.md`.
+    - Dilengkapi 7 automated tests pada `tests/Feature/SimpikatSsoAuthTest.php` yang lulus 100%.
 - ⚪ **Notifikasi WhatsApp Gateway**: [PENDING]
 
 ---
@@ -799,6 +828,9 @@ pie title Status Fitur & Pengkondisian Sistem
 | 40 | **Redesain Responsif & Ergonomis Tombol Perbarui Lokasi Presensi (`.mapToolbar` / `.btnRefreshLocation`)** | UI/UX & Mobile Ergonomics | Menstandarisasi tombol di 7 titik view presensi kamera lintas 4 peran pengguna (Tutor, Karyawan, Magang, Siswa) dengan class terpadu `.btnRefreshLocation`, ikon `<ion-icon name="locate-outline">`, dan teks baku *"Perbarui Lokasi"*. Menata ulang tata letak `.mapToolbar` agar responsif penuh (`width: 100%`, tinggi sentuh 46px untuk kenyamanan jempol di layar mobile $\le 640$px), animasi hover rotasi ikon 45°, serta kontras tinggi tema terang dan tema gelap. | 🟢 Selesai |
 | 41 | **Migrasi Domain & Penyelarasan Host Target Aplikasi (`kehadiran.pkbmpikat.com`)** | Domain & Environment | Memperbarui target URL server Capacitor Mobile APK dari `https://absen.pkbmpikat.com` ke `https://kehadiran.pkbmpikat.com`, menyelaraskan aset native Android (`capacitor.config.json`), sinkronisasi `npx cap sync android`, serta konfigurasi `APP_URL=https://kehadiran.pkbmpikat.com` dan `SANCTUM_STATEFUL_DOMAINS` di `.env` dan `.env.example`. | 🟢 Selesai |
 | 42 | **Pembaruan Aplikasi Mobile Android Menjadi Versi v1.1 (`PresensiPKBMPikat-v1.1`)** | Mobile APK & Release | Menaikkan versi aplikasi menjadi v1.1 (`package.json` 1.1.0, `appName` "PresensiPKBMPikat-v1.1", `versionCode 2`, `versionName "1.1"`), sinkronisasi aset Capacitor, dan kompilasi ulang paket APK via Gradle (`mobile-apk/PresensiPKBMPikat-v1.1.apk`) terhubung langsung ke `https://kehadiran.pkbmpikat.com`. | 🟢 Selesai |
+| 43 | **Sinkronisasi Otomatis Titik Lokasi Presensi Sesi Terjadwal & Pre-Selection Siswa** | Schedule & Geofence Sync | Saat tutor/siswa mengakses presensi dari jadwal atau memilih sesi terjadwal, titik lokasi presensi otomatis terpilih di dropdown, radar & geofence map Leaflet otomatis terpusat ke lokasi yang ditentukan pada jadwal, murid otomatis tercentang, dan presensi otomatis terhubung ke `jadwal_sesi_id`. Dilengkapi automated test suite lulus 100%. | 🟢 Selesai |
+| 44 | **Perbaikan Styling Halaman Login & Eliminasi Scroller Ganda (Single Unified Scroller)** | UI/UX & CSS Bugfix | Menghilangkan dua scrollbar vertikal pada halaman login dengan mengisolasi ambient glow ke dalam container fixed (`.login-bg-glow`), menghapus `overflow-x: hidden` pemicu auto-scroll pada `.login-wrapper`, serta menetapkan satu scroller alami pada `html.login-html, body.login-page`. | 🟢 Selesai |
+| 45 | **Integrasi Single Sign-On (SSO) Terpadu Presensi Pikat & SIMPIKAT (Inbound & Outbound)** | Authentication & SSO | Integrasi autentikasi terpusat dua arah berbasis *One-Time HMAC-SHA256 Signed Token* antara portal utama SIMPIKAT (`pkbmpikat.com`) dan Presensi PKBM Pikat (`kehadiran.pkbmpikat.com`). Endpoint Inbound `/sso/simpikat` dengan JIT Provisioning multi-peran & mitigasi session fixation, rute outbound `/sso/ke-simpikat` untuk kembali ke SIMPIKAT, panduan integrasi `docs/panduan_integrasi_sso_simpikat.md`, dan 7 automated tests di `SimpikatSsoAuthTest` lulus 100%. | 🟢 Selesai |
 
 ---
 
@@ -807,5 +839,5 @@ pie title Status Fitur & Pengkondisian Sistem
 ### Item Backlog Terencana (Fase Lanjutan):
 - **Master Asesmen & Tugas Penunjang**: Tabel `honor_asesmens` & `honor_penunjangs` (soal STS/SAS, periksa, awas, rapor, rapat, outing).
 - **Secure Storage Foto Presensi**: Pemindahan direktori foto sensitif ke `storage/app/private/` dengan *Temporary Signed URL*.
-- **Integrasi SSO SIM PKBM Pikat & WhatsApp Gateway**: Single Sign-On akun terpusat dan pengiriman notifikasi via WA ke wali murid.
+- **Notifikasi WhatsApp Gateway**: Pengiriman notifikasi kehadiran real-time via WhatsApp ke nomor kontak wali murid.
 - **Laporan Standar Akreditasi Pendidikan Kesetaraan (BAN PDM / PNF)**: Template laporan otomatis yang disesuaikan dengan instrumen akreditasi pendidikan nonformal.

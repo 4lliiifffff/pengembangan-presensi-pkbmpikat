@@ -784,7 +784,7 @@
 
                                         <div class="dmc-actions">
                                             @if($sesi->status === 'terjadwal')
-                                                <a href="{{ route('tutor.presensi') }}" class="profileBtnPrimary text-xs py-1 px-3">
+                                                <a href="{{ route('tutor.presensi', ['jadwal_sesi_id' => $sesi->id]) }}" class="profileBtnPrimary text-xs py-1 px-3">
                                                     <ion-icon name="camera-outline"></ion-icon> Absen Sesi Ini
                                                 </a>
 

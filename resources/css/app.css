@@ -128,6 +128,13 @@ h6 {
 /* ==========================================
    AUTHENTICATION & LOGIN STYLES (MODERN 2026)
    ========================================== */
+html.login-html,
+body.login-page {
+    min-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
 .login-wrapper {
     min-height: 100dvh;
     display: flex;
@@ -136,23 +143,30 @@ h6 {
     padding: 24px 16px;
     background: var(--bg);
     position: relative;
-    overflow-x: hidden;
+    overflow: visible;
     font-family: var(--font-sans);
 }
 
-/* Ambient glow effect */
-.login-wrapper::before,
-.login-wrapper::after {
+/* Ambient glow effect (terisolasi dalam container fixed agar tidak memicu inner scrollbar) */
+.login-bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.login-bg-glow::before,
+.login-bg-glow::after {
     content: '';
     position: absolute;
     border-radius: 50%;
     filter: blur(80px);
     pointer-events: none;
-    z-index: 0;
     opacity: 0.45;
 }
 
-.login-wrapper::before {
+.login-bg-glow::before {
     width: 320px;
     height: 320px;
     background: radial-gradient(circle, #38bdf8 0%, rgba(14, 165, 233, 0) 70%);
@@ -160,7 +174,7 @@ h6 {
     right: -80px;
 }
 
-.login-wrapper::after {
+.login-bg-glow::after {
     width: 360px;
     height: 360px;
     background: radial-gradient(circle, #0284c7 0%, rgba(2, 132, 199, 0) 70%);
@@ -168,12 +182,12 @@ h6 {
     left: -100px;
 }
 
-[data-theme="dark"] .login-wrapper::before {
+[data-theme="dark"] .login-bg-glow::before {
     background: radial-gradient(circle, #0369a1 0%, rgba(3, 105, 161, 0) 70%);
     opacity: 0.3;
 }
 
-[data-theme="dark"] .login-wrapper::after {
+[data-theme="dark"] .login-bg-glow::after {
     background: radial-gradient(circle, #1e3a8a 0%, rgba(30, 58, 138, 0) 70%);
     opacity: 0.35;
 }

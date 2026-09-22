@@ -178,5 +178,45 @@ class ShiftPresensiTest extends TestCase
         $presensi = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa->id)->first();
         $this->assertNotNull($presensi->shift_nama);
         $this->assertNotNull($presensi->status_kehadiran);
+        $this->assertEquals('Sesi Belajar Mandiri', $presensi->shift_nama);
+        $this->assertEquals('tepat_waktu', $presensi->status_kehadiran);
+        $this->assertEquals(0, $presensi->menit_keterlambatan);
+    }
+
+    public function test_leadership_and_tutor_evaluate_as_flexible_without_false_tardiness(): void
+    {
+        $service = new ShiftPresensiService;
+
+        // 1. Admin at 14:00 should not be penalized by dummy 08:00 shift
+        $adminUser = User::factory()->make(['role' => 'admin']);
+        $evalAdmin = $service->evaluateCheckIn(Carbon::parse('2026-09-17 14:30:00', 'Asia/Jakarta'), null, null, null, $adminUser);
+        $this->assertFalse($evalAdmin['has_shift']);
+        $this->assertEquals('Jam Kerja Fleksibel (Manajemen)', $evalAdmin['shift_nama']);
+        $this->assertEquals('tepat_waktu', $evalAdmin['status_kehadiran']);
+        $this->assertEquals(0, $evalAdmin['menit_keterlambatan']);
+        $this->assertFalse($evalAdmin['is_terlambat']);
+
+        // 2. Kepala Sekolah at 16:00
+        $kepsekUser = User::factory()->make(['role' => 'kepala_sekolah']);
+        $evalKepsek = $service->evaluateCheckIn(Carbon::parse('2026-09-17 16:00:00', 'Asia/Jakarta'), null, null, null, $kepsekUser);
+        $this->assertFalse($evalKepsek['has_shift']);
+        $this->assertEquals('Jam Kerja Fleksibel (Manajemen)', $evalKepsek['shift_nama']);
+        $this->assertEquals('tepat_waktu', $evalKepsek['status_kehadiran']);
+
+        // 3. Tutor without session at 15:30
+        $tutorUser = User::factory()->make(['role' => 'tutor']);
+        $evalTutor = $service->evaluateCheckIn(Carbon::parse('2026-09-17 15:30:00', 'Asia/Jakarta'), null, null, null, $tutorUser);
+        $this->assertFalse($evalTutor['has_shift']);
+        $this->assertEquals('Sesi Belajar Mandiri', $evalTutor['shift_nama']);
+        $this->assertEquals('tepat_waktu', $evalTutor['status_kehadiran']);
+        $this->assertEquals(0, $evalTutor['menit_keterlambatan']);
+
+        // 4. Magang without shift configured in database
+        $magangUser = User::factory()->make(['role' => 'magang']);
+        $evalMagang = $service->evaluateCheckIn(Carbon::parse('2026-09-17 09:15:00', 'Asia/Jakarta'), null, null, null, $magangUser);
+        $this->assertFalse($evalMagang['has_shift']);
+        $this->assertEquals('Presensi Reguler Magang', $evalMagang['shift_nama']);
+        $this->assertEquals('tepat_waktu', $evalMagang['status_kehadiran']);
+        $this->assertEquals(0, $evalMagang['menit_keterlambatan']);
     }
 }

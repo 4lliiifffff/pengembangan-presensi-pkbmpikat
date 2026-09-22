@@ -31,7 +31,7 @@
 
         $dashRoute = route('magang.dashboard');
         $storeRoute = route('magang.presensi.store');
-        $adminWa = config('app.admin_wa', '6281234567890');
+        $adminWa = config('app.admin_wa', '6285156452939');
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -60,7 +60,7 @@
             @php
                 $tglUnclosed = \Carbon\Carbon::parse($unclosedPastSession->tgl_presensi, 'Asia/Jakarta');
                 $jamMulaiUnclosed = substr((string) $unclosedPastSession->jam_mulai, 0, 5);
-                $adminWaNumber = config('app.admin_wa', '6281234567890');
+                $adminWaNumber = config('app.admin_wa', '6285156452939');
                 $pesanWa = urlencode("Halo Admin PKBM Pikat, saya {$displayName} (Mahasiswa Magang) terlewat presensi pulang pada hari {$tglUnclosed->translatedFormat('l, d F Y')} (masuk pukul {$jamMulaiUnclosed} WIB). Mohon bantuan konfirmasi presensi magang di sistem. Terima kasih.");
             @endphp
             <div id="bannerUnclosedPastSession" class="statusBanner mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
@@ -253,8 +253,12 @@
                     <div class="card mb-3 p-3 border-base bg-card-alt rounded-xl">
                         <div class="d-flex items-center justify-between flex-wrap gap-2">
                             <div>
-                                <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal Shift: {{ $shiftEval['shift_nama'] }}</div>
-                                <div class="text-xs text-muted">Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b> &bull; Batas: <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                                <div class="text-xs font-bold text-primary text-uppercase tracking-wider">Jadwal: {{ $shiftEval['shift_nama'] }}</div>
+                                @if(!empty($shiftEval['has_shift']))
+                                    <div class="text-xs text-muted">Masuk: <b>{{ $shiftEval['jam_masuk_target'] }} WIB</b> &bull; Batas: <b>{{ $shiftEval['batas_toleransi'] }} WIB</b></div>
+                                @else
+                                    <div class="text-xs text-muted">Waktu: <b>{{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i') }} WIB</b> &bull; Presensi magang reguler</div>
+                                @endif
                             </div>
                             <div>
                                 @if($shiftEval['status_kehadiran'] === 'tepat_waktu')

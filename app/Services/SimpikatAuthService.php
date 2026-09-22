@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -90,6 +91,146 @@ class SimpikatAuthService
     }
 
     /**
+     * Autentikasi dan sinkronisasi akun SIMPIKAT berdasarkan identifier (untuk alur SSO tanpa input password).
+     *
+     * @param  string  $identifier  Username, email, NUPTK, atau NISN/NIK
+     *
+     * @throws ValidationException Jika akun nonaktif atau perannya tidak diizinkan masuk ke Presensi
+     */
+    public function authenticateBySimpikatIdentifier(string $identifier): ?User
+    {
+        $identifier = trim($identifier);
+        if ($identifier === '') {
+            return null;
+        }
+
+        try {
+            $simpikatUser = $this->findSimpikatPengguna($identifier);
+        } catch (\Throwable $e) {
+            Log::warning('SimpikatAuthService: Gagal mengakses koneksi database SIMPIKAT pada SSO.', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+
+        if (! $simpikatUser) {
+            return null;
+        }
+
+        // 1. Validasi peran akun (Role Validation)
+        $peran = (string) ($simpikatUser->peran ?? '');
+        if (in_array($peran, ['orang_tua', 'asesor'], true)) {
+            $labelPeran = $peran === 'orang_tua' ? 'Orang Tua' : 'Asesor';
+            throw ValidationException::withMessages([
+                'username' => "Akun {$labelPeran} SIMPIKAT tidak memiliki akses ke portal presensi mandiri.",
+            ]);
+        }
+
+        // 2. Validasi status akun (harus 'aktif')
+        $status = (string) ($simpikatUser->status ?? 'aktif');
+        if ($status !== 'aktif') {
+            throw ValidationException::withMessages([
+                'username' => "Akun SIMPIKAT Anda saat ini berstatus {$status}. Silakan hubungi administrator.",
+            ]);
+        }
+
+        // 3. Lakukan JIT Provisioning (tanpa overwrite password jika user sudah ada)
+        return $this->provisionUserToPresensi($simpikatUser, null);
+    }
+
+    /**
+     * Buat One-Time Signed Token SSO untuk komunikasi antar aplikasi ekosistem PKBM Pikat.
+     *
+     * @param  string  $identifier  Username, email, atau NIK pengguna
+     * @param  string  $targetApp  Kode identifikasi aplikasi tujuan (default: 'sim')
+     * @param  int|null  $ttl  Waktu hidup token dalam detik (default dari config atau 120s)
+     */
+    public function generateSsoToken(string $identifier, string $targetApp = 'sim', ?int $ttl = null): string
+    {
+        $secret = (string) config('auth.simpikat_sso.secret', config('app.key'));
+        $ttl = $ttl ?? (int) config('auth.simpikat_sso.ttl', 120);
+
+        $payloadData = [
+            'identifier' => trim($identifier),
+            'app' => $targetApp,
+            'nonce' => bin2hex(random_bytes(8)),
+            'exp' => time() + $ttl,
+        ];
+
+        $payloadEncoded = rtrim(strtr(base64_encode(json_encode($payloadData, JSON_THROW_ON_ERROR)), '+/', '-_'), '=');
+        $signature = hash_hmac('sha256', $payloadEncoded, $secret);
+
+        return $payloadEncoded.'.'.$signature;
+    }
+
+    /**
+     * Verifikasi One-Time Signed Token SSO dari sistem luar (misal: SIMPIKAT).
+     *
+     * @param  string  $token  Token bertanda tangan kriptografis format: {payloadEncoded}.{signature}
+     * @param  string  $expectedApp  Target aplikasi yang diharapkan (default: 'presensi')
+     * @return string|null Mengembalikan identifier pengguna jika valid, atau null jika gagal/kedaluwarsa/tamper
+     */
+    public function verifySsoToken(string $token, string $expectedApp = 'presensi'): ?string
+    {
+        $secret = (string) config('auth.simpikat_sso.secret', config('app.key'));
+
+        $parts = explode('.', trim($token));
+        if (count($parts) !== 2) {
+            return null;
+        }
+
+        [$payloadEncoded, $signature] = $parts;
+        $expectedSignature = hash_hmac('sha256', $payloadEncoded, $secret);
+
+        if (! hash_equals($expectedSignature, $signature)) {
+            Log::warning('SimpikatAuthService: SSO signature tidak cocok.');
+
+            return null;
+        }
+
+        $decodedJson = base64_decode(strtr($payloadEncoded, '-_', '+/'));
+        if (! $decodedJson) {
+            return null;
+        }
+
+        try {
+            $data = json_decode($decodedJson, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        if (! is_array($data)) {
+            return null;
+        }
+
+        // Pastikan target aplikasi sesuai
+        if (($data['app'] ?? '') !== $expectedApp) {
+            Log::warning('SimpikatAuthService: SSO target app tidak sesuai.', [
+                'expected' => $expectedApp,
+                'actual' => $data['app'] ?? null,
+            ]);
+
+            return null;
+        }
+
+        // Periksa waktu kedaluwarsa token
+        $expiresAt = (int) ($data['exp'] ?? 0);
+        if ($expiresAt < time()) {
+            Log::info('SimpikatAuthService: SSO token sudah kedaluwarsa.', [
+                'expires_at' => $expiresAt,
+                'now' => time(),
+            ]);
+
+            return null;
+        }
+
+        $identifier = trim((string) ($data['identifier'] ?? ''));
+
+        return $identifier !== '' ? $identifier : null;
+    }
+
+    /**
      * Mencari pengguna di database SIMPIKAT berdasarkan berbagai variasi identifier:
      * - nama_pengguna
      * - email
@@ -146,7 +287,7 @@ class SimpikatAuthService
     /**
      * Melakukan sinkronisasi atau pembuatan user di tabel lokal users dan tabel profil pendampingnya.
      */
-    protected function provisionUserToPresensi(object $simpikatUser, string $plainPassword): User
+    protected function provisionUserToPresensi(object $simpikatUser, ?string $plainPassword = null): User
     {
         $mappedRole = match ($simpikatUser->peran) {
             'super_admin', 'admin' => 'admin',
@@ -168,10 +309,12 @@ class SimpikatAuthService
         }
 
         if ($user) {
-            // Sinkronisasi data terkini & password
+            // Sinkronisasi data terkini & password (jika plainPassword disediakan)
             $user->nama_lengkap = (string) $simpikatUser->nama;
             $user->role = $mappedRole;
-            $user->password = $plainPassword; // Akan otomatis di-hash oleh cast 'hashed'
+            if ($plainPassword !== null && $plainPassword !== '') {
+                $user->password = $plainPassword; // Akan otomatis di-hash oleh cast 'hashed'
+            }
             $user->is_active = 1;
             if (! empty($simpikatUser->email)) {
                 $user->email = (string) $simpikatUser->email;
@@ -183,7 +326,7 @@ class SimpikatAuthService
                 'nik' => $nik,
                 'nama_lengkap' => (string) $simpikatUser->nama,
                 'email' => ! empty($simpikatUser->email) ? (string) $simpikatUser->email : null,
-                'password' => $plainPassword,
+                'password' => ($plainPassword !== null && $plainPassword !== '') ? $plainPassword : Str::random(32),
                 'role' => $mappedRole,
                 'is_active' => 1,
             ]);

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Magang;
 
 use App\Http\Controllers\Controller;
-use App\Models\LokasiPresensi;
 use App\Models\PresensiKaryawan;
 use App\Services\GeofencingService;
 use App\Services\ShiftPresensiService;
@@ -48,11 +47,10 @@ class MagangPresensiController extends Controller
             ->whereDate('tgl_presensi', $today)
             ->first();
 
-        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-        $kantorLat = (float) config('lokasi.sekolah_lat', -7.8011945);
-        $kantorLng = (float) config('lokasi.sekolah_lng', 110.364917);
+        $kantorLat = (float) config('lokasi.sekolah_lat', -6.9308526492339295);
+        $kantorLng = (float) config('lokasi.sekolah_lng', 107.60746330217363);
         $radius = (int) config('lokasi.radius_meter', 100);
-        $shiftEval = $shiftService->evaluateCheckIn();
+        $shiftEval = $shiftService->evaluateCheckIn(Carbon::now('Asia/Jakarta'), null, null, null, $user);
 
         $unclosedPastSession = PresensiKaryawan::with('lokasiPresensi')
             ->where('user_id', $user->id)
@@ -137,7 +135,7 @@ class MagangPresensiController extends Controller
                 return back()->with('warning', $geofenceCheck['message']);
             }
 
-            $shiftEval = $shiftService->evaluateCheckIn($now);
+            $shiftEval = $shiftService->evaluateCheckIn($now, null, null, null, $user);
 
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();

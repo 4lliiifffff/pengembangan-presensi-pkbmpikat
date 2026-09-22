@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" class="login-html">
 
 <head>
     <meta charset="utf-8" />
@@ -43,8 +43,11 @@
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </head>
 
-<body>
+<body class="login-page">
     @include('layouts.components.preloader')
+
+    {{-- Background Ambient Glow terisolasi (fixed) agar tidak menyebabkan scroll ganda --}}
+    <div class="login-bg-glow" aria-hidden="true"></div>
 
     <div class="login-wrapper">
 

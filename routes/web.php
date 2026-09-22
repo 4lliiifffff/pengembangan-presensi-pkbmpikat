@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\LokasiPresensiController;
 use App\Http\Controllers\Admin\MagangController;
 use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Auth\SimpikatSsoController;
 use App\Http\Controllers\AuthWebController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KaryawanPresensiController;
@@ -86,6 +87,10 @@ Route::post('/login', [AuthWebController::class, 'process'])
 // Quick Login Pengujian & Pengembangan (Dev / Testing)
 Route::post('/quick-login', [AuthWebController::class, 'quickLogin'])->name('login.quick');
 Route::get('/quick-login/{role}', [AuthWebController::class, 'quickLoginGet'])->name('login.quick.get');
+
+// Single Sign-On (SSO) Terpadu SIMPIKAT
+Route::get('/sso/simpikat', [SimpikatSsoController::class, 'handle'])->name('sso.simpikat');
+Route::middleware('auth')->get('/sso/ke-simpikat', [SimpikatSsoController::class, 'redirectToSimpikat'])->name('sso.ke-simpikat');
 
 Route::middleware('auth')->prefix('profil')->name('profil.')->group(function () {
     Route::get('/', [ProfileController::class, 'index'])->name('index');

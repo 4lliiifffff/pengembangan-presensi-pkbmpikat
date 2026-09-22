@@ -127,15 +127,36 @@ class PresensiFotoController extends Controller
         // Ambil data master Kategori & Tarif SK yang aktif untuk dropdown presensi
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-        $shiftEval = $shiftService->evaluateCheckIn();
 
-        // Ambil jadwal sesi rencana / sesi pengganti tutor untuk hari ini
-        $scheduledSessionsToday = JadwalSesi::with(['siswa', 'kategoriTutorial', 'lokasiPresensi'])
+        // Ambil jadwal sesi rencana / sesi pengganti tutor untuk hari ini (lengkap dengan lokasi dan master rutin)
+        $scheduledSessionsToday = JadwalSesi::with(['siswa.relKelas', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
             ->where('tutor_id', $tutor->id)
             ->whereDate('tanggal_rencana', $today)
             ->where('status', 'terjadwal')
             ->orderBy('jam_masuk_rencana')
             ->get();
+
+        // Resolusi sesi terjadwal spesifik (jika ada parameter jadwal_sesi_id atau sesi_id dari halaman jadwal)
+        $selectedSesiId = $request->query('jadwal_sesi_id') ?? $request->query('sesi_id');
+        $selectedJadwalSesi = null;
+        if ($selectedSesiId) {
+            $selectedJadwalSesi = $scheduledSessionsToday->firstWhere('id', (int) $selectedSesiId)
+                ?? JadwalSesi::with(['siswa.relKelas', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
+                    ->where('tutor_id', $tutor->id)
+                    ->find($selectedSesiId);
+        }
+        if (! $selectedJadwalSesi && $scheduledSessionsToday->isNotEmpty()) {
+            $selectedJadwalSesi = $scheduledSessionsToday->first();
+        }
+
+        // Evaluasi jadwal presensi tutor berdasarkan sesi KBM riil (atau sesi mandiri jika tanpa jadwal)
+        $shiftEval = $shiftService->evaluateCheckIn(Carbon::now('Asia/Jakarta'), null, null, $selectedJadwalSesi, auth()->user());
+
+        // Tentukan target titik lokasi: prioritas sesi aktif (jika sedang clock-out) -> sesi terjadwal terpilih -> default null
+        $targetLokasi = $globalActiveSesi?->lokasiPresensi
+            ?? $selectedJadwalSesi?->lokasiPresensi
+            ?? $selectedJadwalSesi?->jadwalRutin?->lokasiPresensi
+            ?? null;
 
         // Cek apakah ada sesi lampau (sebelum hari ini) yang belum melakukan presensi pulang (unclosed past session)
         $unclosedPastSessionQuery = Presensi::with('siswa')
@@ -154,6 +175,8 @@ class PresensiFotoController extends Controller
             'siswas' => $siswas,
             'kategoriTutorials' => $kategoriTutorials, // Master tarif SK aktif untuk searchable dropdown
             'lokasiPresensis' => $lokasiPresensis,     // Daftar titik lokasi aktif yang dapat dipilih
+            'targetLokasi' => $targetLokasi,           // Titik lokasi spesifik dari jadwal atau sesi aktif
+            'selectedJadwalSesi' => $selectedJadwalSesi, // Sesi terjadwal yang sedang dipilih untuk presensi
             'presensiToday' => $presensiToday,       // Status presensi per siswa (untuk badge dropdown)
             'globalActiveSesi' => $globalActiveSesi,   // Sesi yang masih berjalan pertama (null jika tidak ada)
             'checkOutEligibility' => $checkOutEligibility, // Status & countdown kelayakan pulang model hibrida
@@ -195,6 +218,7 @@ class PresensiFotoController extends Controller
             'siswa_id' => ['required', 'array', 'min:1'],
             'siswa_id.*' => ['integer'],
             'mode' => ['required', Rule::in(['mulai', 'selesai'])], // Mode: clock-in atau clock-out
+            'jadwal_sesi_id' => ['nullable', 'exists:jadwal_sesi,id'],
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'moda_pembelajaran' => ['nullable', Rule::in(['sekolah', 'kunjungan_rumah', 'online'])],
@@ -228,19 +252,26 @@ class PresensiFotoController extends Controller
         //  MODE: MULAI (Clock In / Absen Masuk)
         // ─────────────────────────────────────────────
         if ($validated['mode'] === 'mulai') {
-            $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)
-                ->whereIn('siswa_id', $validated['siswa_id'])
-                ->whereDate('tanggal_rencana', $today)
-                ->where('status', 'terjadwal')
-                ->first();
+            $jadwalSesi = null;
+            if (! empty($validated['jadwal_sesi_id'])) {
+                $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)->find($validated['jadwal_sesi_id']);
+            }
+            if (! $jadwalSesi) {
+                $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)
+                    ->whereIn('siswa_id', $validated['siswa_id'])
+                    ->whereDate('tanggal_rencana', $today)
+                    ->where('status', 'terjadwal')
+                    ->first();
+            }
 
-            // Validasi Geofencing jika moda sekolah berdasarkan titik yang dipilih (atau dari sesi KBM terjadwal)
+            // Validasi Geofencing jika moda sekolah berdasarkan titik yang dipilih atau titik sesi KBM terjadwal
             $moda = $validated['moda_pembelajaran'] ?? 'sekolah';
+            $resolvedLokasiId = isset($validated['lokasi_presensi_id']) && $validated['lokasi_presensi_id']
+                ? (int) $validated['lokasi_presensi_id']
+                : ($jadwalSesi?->lokasi_presensi_id ?? $jadwalSesi?->jadwalRutin?->lokasi_presensi_id ?? null);
+
             if ($moda === 'sekolah') {
-                $lokasiPresensiId = isset($validated['lokasi_presensi_id']) && $validated['lokasi_presensi_id']
-                    ? (int) $validated['lokasi_presensi_id']
-                    : ($jadwalSesi?->lokasi_presensi_id ?? null);
-                $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
+                $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $resolvedLokasiId);
                 if (! $geofenceCheck['is_valid']) {
                     return back()->with('warning', $geofenceCheck['message']);
                 }
@@ -261,7 +292,7 @@ class PresensiFotoController extends Controller
                 }
             }
 
-            $shiftEval = $shiftService->evaluateCheckIn($now, null, null, $jadwalSesi);
+            $shiftEval = $shiftService->evaluateCheckIn($now, null, null, $jadwalSesi, auth()->user());
 
             // Upload foto masuk ke storage disk 'public'
             $file = $request->file('foto');
@@ -309,7 +340,7 @@ class PresensiFotoController extends Controller
                     $presensi->tutor_id = $tutor->id;
                 }
                 $presensi->siswa_id = (int) $sId;
-                $presensi->lokasi_presensi_id = isset($validated['lokasi_presensi_id']) ? (int) $validated['lokasi_presensi_id'] : null;
+                $presensi->lokasi_presensi_id = $resolvedLokasiId;
                 $presensi->moda_pembelajaran = $moda;
                 $presensi->link_daring = $validated['link_daring'] ?? null;
                 $presensi->durasi_pilihan = $durasiPilihan;
@@ -326,7 +357,7 @@ class PresensiFotoController extends Controller
                 $presensi->status_kehadiran = $shiftEval['status_kehadiran'];
                 $presensi->menit_keterlambatan = $shiftEval['menit_keterlambatan'];
                 $presensi->jadwal_kerja_id = $shiftEval['jadwal_kerja_id'];
-                $presensi->jadwal_sesi_id = $shiftEval['jadwal_sesi_id'];
+                $presensi->jadwal_sesi_id = $jadwalSesi?->id ?? $shiftEval['jadwal_sesi_id'];
                 $presensi->save();
 
                 if ($jadwalSesi) {

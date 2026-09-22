@@ -263,7 +263,7 @@
 
                                         @if($isToday && !$isSudahAbsenHariIni && $sesi->status !== 'dibatalkan')
                                             <div class="dmc-actions mt-3">
-                                                <a href="{{ route('siswa.presensi.foto') }}" class="profileBtnPrimary text-xs py-1.5 px-3 w-full justify-center">
+                                                <a href="{{ route('siswa.presensi.foto', ['jadwal_sesi_id' => $sesi->id]) }}" class="profileBtnPrimary text-xs py-1.5 px-3 w-full justify-center">
                                                     <ion-icon name="camera-outline"></ion-icon> Absen Masuk Sekarang
                                                 </a>
                                             </div>

@@ -54,33 +54,10 @@ class ShiftPresensiService
                 return $result;
             }
         } catch (Throwable) {
-            // Fallback ke config jika query DB gagal saat bootstrap/testing awal
+            // Abaikan kegagalan query tabel jika belum ada
         }
 
-        return config('presensi_sk.shifts', [
-            'pagi' => [
-                'id' => 'pagi',
-                'jadwal_kerja_id' => null,
-                'nama' => 'Shift Pagi',
-                'jam_masuk' => '08:00',
-                'jam_pulang' => '16:00',
-                'durasi_jam' => 8.00,
-                'earliest_minutes' => 30,
-                'tolerance_minutes' => 30,
-                'kategori_tutorial_id' => null,
-            ],
-            'siang' => [
-                'id' => 'siang',
-                'jadwal_kerja_id' => null,
-                'nama' => 'Shift Siang',
-                'jam_masuk' => '13:00',
-                'jam_pulang' => '17:00',
-                'durasi_jam' => 4.00,
-                'earliest_minutes' => 30,
-                'tolerance_minutes' => 30,
-                'kategori_tutorial_id' => null,
-            ],
-        ]);
+        return [];
     }
 
     /**
@@ -106,7 +83,28 @@ class ShiftPresensiService
 
         $shifts = $this->getShifts();
 
-        return $shifts[$key] ?? null;
+        if (isset($shifts[$key])) {
+            return $shifts[$key];
+        }
+
+        // Fallback jika ada template di config untuk key tersebut (misal untuk testing)
+        if (config()->has("presensi_sk.shifts.{$key}")) {
+            $cfg = config("presensi_sk.shifts.{$key}");
+
+            return [
+                'id' => $key,
+                'jadwal_kerja_id' => null,
+                'nama' => $cfg['nama'] ?? ucfirst($key),
+                'jam_masuk' => $cfg['jam_masuk'] ?? '08:00',
+                'jam_pulang' => $cfg['jam_pulang'] ?? '16:00',
+                'durasi_jam' => (float) ($cfg['durasi_jam'] ?? 8.00),
+                'earliest_minutes' => (int) ($cfg['earliest_minutes'] ?? config('presensi_sk.earliest_minutes', 30)),
+                'tolerance_minutes' => (int) ($cfg['tolerance_minutes'] ?? config('presensi_sk.tolerance_minutes', 30)),
+                'kategori_tutorial_id' => null,
+            ];
+        }
+
+        return null;
     }
 
     /**
@@ -122,13 +120,13 @@ class ShiftPresensiService
      *     earliest_minutes: int,
      *     tolerance_minutes: int,
      *     kategori_tutorial_id: int|null
-     * }
+     * }|null
      */
-    public function detectShift(?Carbon $time = null, ?string $preferredKey = null, ?int $kategoriTutorialId = null): array
+    public function detectShift(?Carbon $time = null, ?string $preferredKey = null, ?int $kategoriTutorialId = null): ?array
     {
         $shifts = $this->getShifts();
 
-        // 1. Cek preferred key / kode shift
+        // 1. Cek preferred key / kode shift dari DB
         if ($preferredKey && isset($shifts[$preferredKey])) {
             return $shifts[$preferredKey];
         }
@@ -142,17 +140,26 @@ class ShiftPresensiService
             }
         }
 
-        $now = $time ?? Carbon::now('Asia/Jakarta');
-        $currentTimeStr = $now->format('H:i:s');
+        // 3. Jika ada shift aktif di database, pilih berdasarkan waktu
+        if (! empty($shifts)) {
+            $now = $time ?? Carbon::now('Asia/Jakarta');
+            $currentTimeStr = $now->format('H:i:s');
 
-        // 3. Jika lewat pukul 12:00 dan ada shift siang, pilih shift siang
-        if ($currentTimeStr >= '12:00:00' && isset($shifts['siang'])) {
-            return $shifts['siang'];
+            if ($currentTimeStr >= '12:00:00' && isset($shifts['siang'])) {
+                return $shifts['siang'];
+            }
+
+            $defaultKey = config('presensi_sk.default_shift', 'pagi');
+
+            return $shifts[$defaultKey] ?? reset($shifts);
         }
 
-        $defaultKey = config('presensi_sk.default_shift', 'pagi');
+        // 4. Jika preferred key spesifik dipanggil (misal di automated test)
+        if ($preferredKey) {
+            return $this->getShiftByKey($preferredKey);
+        }
 
-        return $shifts[$defaultKey] ?? reset($shifts);
+        return null;
     }
 
     /**
@@ -162,6 +169,7 @@ class ShiftPresensiService
      * @param  string|null  $shiftKey  Key shift (opsional)
      * @param  int|null  $kategoriTutorialId  ID Kategori Tutorial SK (opsional)
      * @param  JadwalSesi|null  $jadwalSesi  Objek Jadwal Sesi Belajar / Pengganti (opsional)
+     * @param  mixed  $user  Objek User atau role string (opsional)
      * @return array{
      *     shift_id: string|int,
      *     jadwal_kerja_id: int|null,
@@ -175,18 +183,22 @@ class ShiftPresensiService
      *     status_kehadiran: string,
      *     menit_keterlambatan: int,
      *     pesan: string,
-     *     is_terlambat: bool
+     *     is_terlambat: bool,
+     *     has_shift: bool
      * }
      */
     public function evaluateCheckIn(
         ?Carbon $time = null,
         ?string $shiftKey = null,
         ?int $kategoriTutorialId = null,
-        ?JadwalSesi $jadwalSesi = null
+        ?JadwalSesi $jadwalSesi = null,
+        mixed $user = null
     ): array {
         $now = $time ? $time->copy()->setTimezone('Asia/Jakarta') : Carbon::now('Asia/Jakarta');
         $todayDate = $now->toDateString();
+        $userRole = is_object($user) ? ($user->role ?? null) : (is_string($user) ? $user : null);
 
+        // 1. KASUS SESI KBM TERJADWAL (TUTOR)
         if ($jadwalSesi) {
             $shiftId = 'sesi_'.$jadwalSesi->id;
             $jadwalKerjaId = $jadwalSesi->jadwal_kerja_id;
@@ -198,8 +210,91 @@ class ShiftPresensiService
 
             $earliestMinutes = (int) ($jadwalSesi->jadwalKerja->earliest_minutes ?? config('presensi_sk.earliest_minutes', 30));
             $toleranceMinutes = (int) ($jadwalSesi->jadwalKerja->tolerance_minutes ?? config('presensi_sk.tolerance_minutes', 30));
-        } else {
-            $shift = $this->detectShift($now, $shiftKey, $kategoriTutorialId);
+
+            $targetMasuk = Carbon::parse($todayDate.' '.$jamMasuk.':00', 'Asia/Jakarta');
+            $batasAwal = $targetMasuk->copy()->subMinutes($earliestMinutes);
+            $batasToleransi = $targetMasuk->copy()->addMinutes($toleranceMinutes);
+
+            $menitKeterlambatan = 0;
+            $statusKehadiran = 'tepat_waktu';
+            $isTerlambat = false;
+            $pesan = "Presensi masuk tepat waktu ({$shiftNama} {$jamMasuk} WIB).";
+
+            if ($now->lt($batasAwal)) {
+                $statusKehadiran = 'lebih_awal';
+                $pesan = "Presensi masuk lebih awal dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
+            } elseif ($now->gt($batasToleransi)) {
+                $statusKehadiran = 'terlambat';
+                $isTerlambat = true;
+                $menitKeterlambatan = (int) $targetMasuk->diffInMinutes($now, false);
+                if ($menitKeterlambatan < 0) {
+                    $menitKeterlambatan = 0;
+                }
+                $pesan = "Presensi masuk tercatat terlambat {$menitKeterlambatan} menit dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
+            }
+
+            return [
+                'shift_id' => $shiftId,
+                'jadwal_kerja_id' => $jadwalKerjaId,
+                'jadwal_sesi_id' => $jadwalSesiId,
+                'shift_nama' => $shiftNama,
+                'durasi_jam' => $durasiJam,
+                'jam_masuk_target' => $jamMasuk,
+                'jam_pulang_target' => $jamPulang,
+                'batas_awal' => $batasAwal->format('H:i'),
+                'batas_toleransi' => $batasToleransi->format('H:i'),
+                'status_kehadiran' => $statusKehadiran,
+                'menit_keterlambatan' => $menitKeterlambatan,
+                'pesan' => $pesan,
+                'is_terlambat' => $isTerlambat,
+                'has_shift' => true,
+            ];
+        }
+
+        // 2. KASUS PIMPINAN / MANAJEMEN (ADMIN & KEPALA SEKOLAH) -> JAM KERJA FLEKSIBEL
+        if (in_array($userRole, ['admin', 'kepala_sekolah'], true)) {
+            return [
+                'shift_id' => 'fleksibel_manajemen',
+                'jadwal_kerja_id' => null,
+                'jadwal_sesi_id' => null,
+                'shift_nama' => 'Jam Kerja Fleksibel (Manajemen)',
+                'durasi_jam' => 8.00,
+                'jam_masuk_target' => '-',
+                'jam_pulang_target' => '-',
+                'batas_awal' => '-',
+                'batas_toleransi' => '-',
+                'status_kehadiran' => 'tepat_waktu',
+                'menit_keterlambatan' => 0,
+                'pesan' => "Presensi masuk pimpinan/manajemen berhasil dicatat pada {$now->format('H:i')} WIB.",
+                'is_terlambat' => false,
+                'has_shift' => false,
+            ];
+        }
+
+        // 3. KASUS TUTOR TANPA JADWAL SESI (SESI BELAJAR MANDIRI / FLEKSIBEL)
+        if ($userRole === 'tutor') {
+            return [
+                'shift_id' => 'sesi_mandiri',
+                'jadwal_kerja_id' => null,
+                'jadwal_sesi_id' => null,
+                'shift_nama' => 'Sesi Belajar Mandiri',
+                'durasi_jam' => 2.00,
+                'jam_masuk_target' => $now->format('H:i'),
+                'jam_pulang_target' => $now->copy()->addHours(2)->format('H:i'),
+                'batas_awal' => '-',
+                'batas_toleransi' => '-',
+                'status_kehadiran' => 'tepat_waktu',
+                'menit_keterlambatan' => 0,
+                'pesan' => "Presensi sesi belajar mandiri berhasil dicatat pada {$now->format('H:i')} WIB.",
+                'is_terlambat' => false,
+                'has_shift' => false,
+            ];
+        }
+
+        // 4. KASUS EVALUASI DENGAN SHIFT (JIKA ADA SHIFT AKTIF DI DB ATAU PREFERRED KEY)
+        $shift = $this->detectShift($now, $shiftKey, $kategoriTutorialId);
+
+        if ($shift) {
             $shiftId = $shift['id'];
             $jadwalKerjaId = $shift['jadwal_kerja_id'] ?? null;
             $jadwalSesiId = null;
@@ -210,44 +305,65 @@ class ShiftPresensiService
 
             $earliestMinutes = (int) ($shift['earliest_minutes'] ?? config('presensi_sk.earliest_minutes', 30));
             $toleranceMinutes = (int) ($shift['tolerance_minutes'] ?? config('presensi_sk.tolerance_minutes', 30));
-        }
 
-        $targetMasuk = Carbon::parse($todayDate.' '.$jamMasuk.':00', 'Asia/Jakarta');
-        $batasAwal = $targetMasuk->copy()->subMinutes($earliestMinutes);
-        $batasToleransi = $targetMasuk->copy()->addMinutes($toleranceMinutes);
+            $targetMasuk = Carbon::parse($todayDate.' '.$jamMasuk.':00', 'Asia/Jakarta');
+            $batasAwal = $targetMasuk->copy()->subMinutes($earliestMinutes);
+            $batasToleransi = $targetMasuk->copy()->addMinutes($toleranceMinutes);
 
-        $menitKeterlambatan = 0;
-        $statusKehadiran = 'tepat_waktu';
-        $isTerlambat = false;
-        $pesan = "Presensi masuk tepat waktu ({$shiftNama} {$jamMasuk} WIB).";
+            $menitKeterlambatan = 0;
+            $statusKehadiran = 'tepat_waktu';
+            $isTerlambat = false;
+            $pesan = "Presensi masuk tepat waktu ({$shiftNama} {$jamMasuk} WIB).";
 
-        if ($now->lt($batasAwal)) {
-            $statusKehadiran = 'lebih_awal';
-            $pesan = "Presensi masuk lebih awal dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
-        } elseif ($now->gt($batasToleransi)) {
-            $statusKehadiran = 'terlambat';
-            $isTerlambat = true;
-            $menitKeterlambatan = (int) $targetMasuk->diffInMinutes($now, false);
-            if ($menitKeterlambatan < 0) {
-                $menitKeterlambatan = 0;
+            if ($now->lt($batasAwal)) {
+                $statusKehadiran = 'lebih_awal';
+                $pesan = "Presensi masuk lebih awal dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
+            } elseif ($now->gt($batasToleransi)) {
+                $statusKehadiran = 'terlambat';
+                $isTerlambat = true;
+                $menitKeterlambatan = (int) $targetMasuk->diffInMinutes($now, false);
+                if ($menitKeterlambatan < 0) {
+                    $menitKeterlambatan = 0;
+                }
+                $pesan = "Presensi masuk tercatat terlambat {$menitKeterlambatan} menit dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
             }
-            $pesan = "Presensi masuk tercatat terlambat {$menitKeterlambatan} menit dari jadwal {$shiftNama} ({$jamMasuk} WIB).";
+
+            return [
+                'shift_id' => $shiftId,
+                'jadwal_kerja_id' => $jadwalKerjaId,
+                'jadwal_sesi_id' => $jadwalSesiId,
+                'shift_nama' => $shiftNama,
+                'durasi_jam' => $durasiJam,
+                'jam_masuk_target' => $jamMasuk,
+                'jam_pulang_target' => $jamPulang,
+                'batas_awal' => $batasAwal->format('H:i'),
+                'batas_toleransi' => $batasToleransi->format('H:i'),
+                'status_kehadiran' => $statusKehadiran,
+                'menit_keterlambatan' => $menitKeterlambatan,
+                'pesan' => $pesan,
+                'is_terlambat' => $isTerlambat,
+                'has_shift' => true,
+            ];
         }
+
+        // 5. TIDAK ADA SHIFT DI DATABASE: PRESENSI REGULER (FLEKSIBEL TANPA KETERLAMBATAN FIKTIF)
+        $roleTitle = $userRole === 'magang' ? 'Magang' : 'Karyawan';
 
         return [
-            'shift_id' => $shiftId,
-            'jadwal_kerja_id' => $jadwalKerjaId,
-            'jadwal_sesi_id' => $jadwalSesiId,
-            'shift_nama' => $shiftNama,
-            'durasi_jam' => $durasiJam,
-            'jam_masuk_target' => $jamMasuk,
-            'jam_pulang_target' => $jamPulang,
-            'batas_awal' => $batasAwal->format('H:i'),
-            'batas_toleransi' => $batasToleransi->format('H:i'),
-            'status_kehadiran' => $statusKehadiran,
-            'menit_keterlambatan' => $menitKeterlambatan,
-            'pesan' => $pesan,
-            'is_terlambat' => $isTerlambat,
+            'shift_id' => 'reguler',
+            'jadwal_kerja_id' => null,
+            'jadwal_sesi_id' => null,
+            'shift_nama' => "Presensi Reguler {$roleTitle}",
+            'durasi_jam' => 8.00,
+            'jam_masuk_target' => '-',
+            'jam_pulang_target' => '-',
+            'batas_awal' => '-',
+            'batas_toleransi' => '-',
+            'status_kehadiran' => 'tepat_waktu',
+            'menit_keterlambatan' => 0,
+            'pesan' => "Presensi masuk {$roleTitle} berhasil dicatat pada {$now->format('H:i')} WIB.",
+            'is_terlambat' => false,
+            'has_shift' => false,
         ];
     }
 

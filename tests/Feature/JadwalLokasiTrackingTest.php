@@ -238,4 +238,70 @@ class JadwalLokasiTrackingTest extends TestCase
             return $targetLokasi && $targetLokasi->id === $this->lokasiMitra->id;
         });
     }
+
+    public function test_tutor_presensi_foto_page_auto_selects_scheduled_session_location_and_student(): void
+    {
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        $sesi = JadwalSesi::create([
+            'tutor_id' => $this->tutor->id,
+            'siswa_id' => $this->siswa->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '10:00:00',
+            'durasi_jam' => 2.0,
+            'status' => 'terjadwal',
+            'lokasi_presensi_id' => $this->lokasiMitra->id,
+        ]);
+
+        $response = $this->actingAs($this->tutorUser)->get(route('tutor.presensi', [
+            'jadwal_sesi_id' => $sesi->id,
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('selectedJadwalSesi', function ($selected) use ($sesi) {
+            return $selected && $selected->id === $sesi->id;
+        });
+        $response->assertViewHas('targetLokasi', function ($targetLokasi) {
+            return $targetLokasi && $targetLokasi->id === $this->lokasiMitra->id;
+        });
+
+        $content = $response->getContent();
+        $this->assertStringContainsString('id="inputJadwalSesiId" value="'.$sesi->id.'"', $content);
+        $this->assertStringContainsString('value="'.$this->siswa->id.'"', $content);
+        $this->assertStringContainsString('checked', $content);
+        $this->assertStringContainsString('value="'.$this->lokasiMitra->id.'" data-lat="-7.78"', $content);
+    }
+
+    public function test_siswa_presensi_foto_page_auto_selects_requested_jadwal_sesi_id(): void
+    {
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        $sesi = JadwalSesi::create([
+            'tutor_id' => $this->tutor->id,
+            'siswa_id' => $this->siswa->id,
+            'tanggal_rencana' => $today,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '18:00:00',
+            'durasi_jam' => 10.0,
+            'status' => 'terjadwal',
+            'lokasi_presensi_id' => $this->lokasiMitra->id,
+        ]);
+
+        $response = $this->actingAs($this->siswaUser)->get(route('siswa.presensi.foto', [
+            'jadwal_sesi_id' => $sesi->id,
+        ]));
+
+        $response->assertStatus(200);
+        $response->assertViewHas('todaySesi', function ($todaySesi) use ($sesi) {
+            return $todaySesi && $todaySesi->id === $sesi->id;
+        });
+        $response->assertViewHas('targetLokasi', function ($targetLokasi) {
+            return $targetLokasi && $targetLokasi->id === $this->lokasiMitra->id;
+        });
+
+        $content = $response->getContent();
+        $this->assertStringContainsString('id="inputJadwalSesiId" value="'.$sesi->id.'"', $content);
+        $this->assertStringContainsString('value="'.$this->lokasiMitra->id.'"', $content);
+    }
 }

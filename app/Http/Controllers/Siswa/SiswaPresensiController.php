@@ -46,19 +46,27 @@ class SiswaPresensiController extends Controller
             ->whereDate('tgl_presensi', $today)
             ->first();
 
+        $requestedSesiId = request()->query('jadwal_sesi_id') ?? request()->query('sesi_id');
+
         // Cek Jadwal Sesi KBM Hari Ini untuk Smart Time-Gating & Lokasi Target
-        $todaySesiQuery = JadwalSesi::with(['tutor', 'kategoriTutorial', 'lokasiPresensi'])
+        $todaySesiQuery = JadwalSesi::with(['tutor', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
             ->where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
             ->where('status', '!=', 'dibatalkan');
 
-        $todaySesi = (clone $todaySesiQuery)
-            ->where(function ($q) {
-                $q->whereNull('presensi_siswa_id')
-                    ->orWhere('status_kehadiran_siswa', '!=', 'hadir');
-            })
-            ->orderBy('jam_masuk_rencana')
-            ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
+        if ($requestedSesiId) {
+            $todaySesi = (clone $todaySesiQuery)->where('id', $requestedSesiId)->first();
+        }
+
+        if (! isset($todaySesi) || ! $todaySesi) {
+            $todaySesi = (clone $todaySesiQuery)
+                ->where(function ($q) {
+                    $q->whereNull('presensi_siswa_id')
+                        ->orWhere('status_kehadiran_siswa', '!=', 'hadir');
+                })
+                ->orderBy('jam_masuk_rencana')
+                ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
+        }
 
         $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
             || JadwalSesi::where('siswa_id', $siswa->id)->exists();
@@ -137,7 +145,7 @@ class SiswaPresensiController extends Controller
         }
 
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-        $targetLokasi = $todaySesi?->lokasiPresensi;
+        $targetLokasi = $todaySesi?->lokasiPresensi ?? $todaySesi?->jadwalRutin?->lokasiPresensi;
 
         if ($targetLokasi && $targetLokasi->latitude && $targetLokasi->longitude) {
             $kantorLat = (float) $targetLokasi->latitude;
@@ -199,17 +207,25 @@ class SiswaPresensiController extends Controller
         }
 
         // ── Smart Time-Gating Check ──────────────────────────────────────
-        $todaySesiQuery = JadwalSesi::where('siswa_id', $siswa->id)
+        $requestedSesiId = $request->input('jadwal_sesi_id');
+        $todaySesiQuery = JadwalSesi::with(['lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
+            ->where('siswa_id', $siswa->id)
             ->whereDate('tanggal_rencana', $today)
             ->where('status', '!=', 'dibatalkan');
 
-        $todaySesi = (clone $todaySesiQuery)
-            ->where(function ($q) {
-                $q->whereNull('presensi_siswa_id')
-                    ->orWhere('status_kehadiran_siswa', '!=', 'hadir');
-            })
-            ->orderBy('jam_masuk_rencana')
-            ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
+        if ($requestedSesiId) {
+            $todaySesi = (clone $todaySesiQuery)->where('id', $requestedSesiId)->first();
+        }
+
+        if (! isset($todaySesi) || ! $todaySesi) {
+            $todaySesi = (clone $todaySesiQuery)
+                ->where(function ($q) {
+                    $q->whereNull('presensi_siswa_id')
+                        ->orWhere('status_kehadiran_siswa', '!=', 'hadir');
+                })
+                ->orderBy('jam_masuk_rencana')
+                ->first() ?? (clone $todaySesiQuery)->orderBy('jam_masuk_rencana')->first();
+        }
 
         $hasConfiguredSchedule = JadwalRutin::where('siswa_id', $siswa->id)->exists()
             || JadwalSesi::where('siswa_id', $siswa->id)->exists();
@@ -236,6 +252,7 @@ class SiswaPresensiController extends Controller
 
         $validated = $request->validate([
             'mode' => ['nullable', Rule::in(['mulai', 'masuk'])],
+            'jadwal_sesi_id' => ['nullable', 'exists:jadwal_sesi,id'],
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'foto' => ['required', 'image', 'max:5120'],
             'lokasi' => ['nullable', 'string', 'max:255'],
@@ -256,10 +273,10 @@ class SiswaPresensiController extends Controller
             return back()->with('warning', $antiMockCheck['message']);
         }
 
-        // Validasi Geofencing berdasarkan titik lokasi yang dipilih (atau dari sesi aktif)
+        // Validasi Geofencing berdasarkan titik lokasi yang dipilih (atau dari sesi aktif / jadwal rutin)
         $lokasiPresensiId = isset($validated['lokasi_presensi_id']) && $validated['lokasi_presensi_id']
             ? (int) $validated['lokasi_presensi_id']
-            : ($todaySesi?->lokasi_presensi_id ?? null);
+            : ($todaySesi?->lokasi_presensi_id ?? ($todaySesi?->jadwalRutin?->lokasi_presensi_id ?? null));
         $geofenceCheck = $geofencingService->checkSelectedLokasiRadius($validated['lokasi'] ?? null, $lokasiPresensiId);
         if (! $geofenceCheck['is_valid']) {
             return back()->with('warning', $geofenceCheck['message']);

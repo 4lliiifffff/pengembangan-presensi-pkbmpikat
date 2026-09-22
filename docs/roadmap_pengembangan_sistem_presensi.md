@@ -1,6 +1,6 @@
 # ROADMAP DAN PENJABARAN LENGKAP PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 21 September 2026  
+**Tanggal Pembaruan:** 22 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
 **Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
 
@@ -121,6 +121,14 @@
 * 🟢 **Resolusi ArgumentCountError & Penguatan Injeksi Dependency Presensi Magang:** [SELESAI]
   - **Akar Masalah:** Method `MagangPresensiController@index` memanggil internal `$this->foto()` tanpa argumen, padahal signature method `foto(ShiftPresensiService $shiftService)` mewajibkan 1 parameter yang hanya di-*resolve* otomatis oleh container Laravel saat rute dipanggil via router (`route('magang.presensi.foto')`). Pemanggilan method manual `$this->foto()` pada rute `route('magang.presensi')` memicu `ArgumentCountError` (0 passed, exactly 1 expected).
   - **Solusi Arsitektur:** Mempromosikan injeksi `ShiftPresensiService $shiftService` ke constructor controller (`__construct`), mengubah parameter method `foto(?ShiftPresensiService $shiftService = null)` menjadi opsional dengan fallback `$this->shiftService`, serta menambahkan coverage pengujian otomatis untuk `route('magang.presensi')` di `tests/Feature/MagangRoleAndPresensiTest.php` (7 passed, 31 assertions).
+* 🟢 **Eliminasi Data Dummy & Penyelarasan Jadwal Kerja Fleksibel Operasional PKBM:** [SELESAI]
+  - **Penghapusan Penalti Keterlambatan Shift Pagi Fiktif:** Menghilangkan fallback shift pagi hardcoded (08:00 WIB / batas toleransi 08:30 WIB) pada `ShiftPresensiService` saat tabel database `jadwal_kerja` belum dikonfigurasi.
+  - **Evaluasi Berbasis Sesi Belajar Tutor:** Tutor dievaluasi presisi terhadap sesi belajar terjadwal (`JadwalSesi`), atau dicatat secara dinamis sebagai `Sesi Belajar Mandiri` (fleksibel) tanpa penalti keterlambatan palsu saat mengajar di luar jam shift pagi (misal sore atau malam).
+  - **Jam Kerja Fleksibel Manajemen (Admin & Kepala Sekolah):** Peran kepemimpinan yang telah memiliki izin dinas luar / bypass radius dievaluasi sebagai `Jam Kerja Fleksibel (Manajemen)` dengan status tepat waktu otomatis.
+  - **Presensi Reguler Karyawan & Magang:** Karyawan dan Mahasiswa Magang yang belum memiliki shift khusus di database dicatat sebagai `Presensi Reguler {Role}` tanpa penalti keterlambatan fiktif.
+  - **Penyelarasan Koordinat & Kontak Resmi PKBM Pikat:** Memperbarui default fallback koordinat ke lokasi riil PKBM Pikat Bandung (`-6.9308526492339295, 107.60746330217363`) serta memperbarui nomor resmi WhatsApp Admin ke `6285156452939` (menggantikan dummy `6281234567890`).
+  - **Pembaruan Kartu Shift di UI Presensi:** Kartu shift pada halaman presensi Tutor, Karyawan, dan Magang kini mendeteksi `has_shift`. Jika bernilai `false`, kartu menampilkan jam waktu nyata dan label waktu fleksibel alih-alih peringatan target masuk 08:00 WIB.
+  - **Pemeliharaan Fitur Quick Login Pengujian:** Fitur Quick Login pengujian tetap dipertahankan secara utuh sesuai arahan pengujian operasional.
 * ⚪ **Verifikasi Wajah Otomatis (Face Matching / AI Recognition):** [PENDING] Pemrosesan AI untuk membandingkan foto presensi tutor secara real-time dengan foto profil master.
 
 ---
@@ -309,7 +317,7 @@
 
 ### 6.3 WhatsApp Gateway & Single Sign-On (Jangka Panjang)
 * ⚪ **Notifikasi WhatsApp Gateway:** [PENDING] Integrasi WhatsApp Gateway pihak ketiga untuk pengiriman notifikasi langsung ke nomor wali murid.
-* ⚪ **Single Sign-On (SSO via Laravel Sanctum / OAuth2):** [PENDING] Integrasi autentikasi terpusat dengan SIM PKBM Pikat.
+* 🟢 **Single Sign-On (SSO One-Time Signed Token & Shared Session SIMPIKAT):** [SELESAI] Integrasi autentikasi terpusat dua arah dengan portal SIMPIKAT (`pkbmpikat.com`). Mengimplementasikan verifikasi HMAC-SHA256 One-Time Signed Token, auto-login JIT Provisioning ke Presensi (`/sso/simpikat`), alur redirect keluar ke SIMPIKAT (`/sso/ke-simpikat`), serta panduan integrasi modul SIMPIKAT (`docs/panduan_integrasi_sso_simpikat.md`).
 
 ---
 
@@ -418,6 +426,18 @@
 * 🟢 **Peningkatan Versi Aplikasi Menjadi v1.1 (`PresensiPKBMPikat-v1.1`):** [SELESAI] Memperbarui identitas dan versi aplikasi menjadi **`PresensiPKBMPikat-v1.1`** (`package.json` v1.1.0, `capacitor.config.json` appName `PresensiPKBMPikat-v1.1`, `android/app/build.gradle` `versionCode 2` & `versionName "1.1"`, dan `strings.xml`), mengompilasi ulang paket debug Android via Gradle (`gradlew.bat assembleDebug`), dan menghasilkan file distribusi siap pasang [`mobile-apk/PresensiPKBMPikat-v1.1.apk`](file:///c:/laragon/www/pengembangan-presensi-pikat/mobile-apk/PresensiPKBMPikat-v1.1.apk) (~8.2 MB).
 * 🟢 **Penyelarasan Environment Laravel & CORS/Sanctum:** [SELESAI] Mengatur konfigurasi `APP_URL=https://kehadiran.pkbmpikat.com` dan `SANCTUM_STATEFUL_DOMAINS=localhost,127.0.0.1,kehadiran.pkbmpikat.com` pada `.env` dan `.env.example` untuk memastikan rute aset, otentikasi sesi cookie stateful, serta push notification selaras dengan domain baru.
 * 🟢 **Penyelarasan Dokumentasi & Manifest WebView:** [SELESAI] Memperbarui komentar perizinan di `AndroidManifest.xml`, panduan kompilasi APK di `mobile-apk/README.md`, dan placeholder loader `mobile-apk/public/index.html`.
+
+### 9.13 Sinkronisasi Otomatis Titik Lokasi Presensi Sesi Terjadwal & Pre-Selection Siswa (End-to-End Schedule-to-Attendance Flow)
+* 🟢 **Tautan Pintar "Absen Sesi Ini" dengan Binding Jadwal Sesi:** [SELESAI] Memperbarui tombol aksi "Absen Sesi Ini" pada jadwal tutor (`tutor.jadwal-sesi.index`) dan "Absen Masuk Sekarang" pada jadwal siswa (`siswa.jadwal`) untuk meneruskan parameter rute `['jadwal_sesi_id' => $sesi->id]`.
+* 🟢 **Resolusi & Propagasi Lokasi Target di Controller (`PresensiFotoController` & `SiswaPresensiController`):** [SELESAI] Controller mendeteksi parameter `jadwal_sesi_id`, melakukan eager-loading `['lokasiPresensi', 'jadwalRutin.lokasiPresensi']`, memprioritaskan sesi aktif berjalan atau sesi yang dipilih melalui parameter URL, serta menyediakan fallback andal ke lokasi pola rutin mingguan (`$todaySesi->jadwalRutin->lokasiPresensi`).
+* 🟢 **Auto-Select Titik Lokasi & Re-Centering Leaflet Map Radar:** [SELESAI] Form kamera presensi (`tutor/presensi_foto.blade.php` & `siswa/presensi_foto.blade.php`) secara otomatis memilih opsi lokasi yang sesuai di dropdown `#selectLokasiPresensi`, memposisikan titik radar dan geofence circle Leaflet tepat di koordinat lokasi jadwal, menyematkan input tersembunyi `<input type="hidden" name="jadwal_sesi_id">`, dan menampilkan banner info lokasi sesi KBM terjadwal.
+* 🟢 **Pre-Selection Murid Terjadwal & Interaktivitas Sesi:** [SELESAI] Pada form presensi tutor, murid yang terjadwal pada sesi tersebut otomatis tercentang pada checklist murid (`input[name="siswa_id[]"]`). Menghadirkan fungsi JavaScript `pilihSesiTerjadwal(sesiId, siswaId, lokasiId)` pada kartu daftar sesi terjadwal hari ini (`#boxScheduledSessions`) untuk transisi dinamis titik lokasi dan murid saat berpindah sesi dengan 1-klik tanpa reload halaman.
+* 🟢 **Penyimpanan Integritas Data Presensi & Relasi Sesi:** [SELESAI] Metode `store()` pada `PresensiFotoController` dan `SiswaPresensiController` memvalidasi `jadwal_sesi_id`, mengunci `lokasi_presensi_id` sesuai jadwal/pilihan, mengaitkan ID sesi ke rekor presensi, dan menandai `status_kehadiran_siswa = 'hadir'`.
+* 🟢 **Pengujian Komprehensif (Automated Test Suite):** [SELESAI] Menambahkan skenario pengujian pada `JadwalLokasiTrackingTest` (`test_tutor_presensi_foto_page_auto_selects_scheduled_session_location_and_student` dan `test_siswa_presensi_foto_page_auto_selects_requested_jadwal_sesi_id`), seluruh 7 tests lulus 100% (36 assertions).
+
+### 9.14 Perbaikan Styling Halaman Login & Eliminasi Scroller Ganda (Single Unified Scroller)
+* 🟢 **Eliminasi Double Scrollbars pada Halaman Login (`auth/login`):** [SELESAI] Mengidentifikasi dan memperbaiki penyebab munculnya dua scrollbar vertikal pada halaman login. Penyebab utama terjadi karena deklarasi `overflow-x: hidden;` pada `.login-wrapper` yang secara spesifikasi CSS memaksa browser mengkalkulasi `overflow-y: auto;`, ditambah efek ambient glow pseudo-element `::after` dengan posisi `bottom: -100px; left: -100px;` yang memicu ketinggian internal melebihi viewport. Di saat bersamaan, dokumen root `html`/`body` juga memiliki scrollbar viewport sehingga memunculkan dua scroller vertikal berdampingan.
+* 🟢 **Restrukturisasi Wadah Ambient Glow & Penguncian Scrollbar Tunggal:** [SELESAI] Mengisolasi efek visual ambient glow ke dalam kontainer berposisi tetap (`.login-bg-glow { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }`), menyetel `.login-wrapper { overflow: visible; }`, serta menetapkan aturan pengatur scrollbar tunggal alami pada `html.login-html, body.login-page { min-height: 100%; overflow-x: hidden; overflow-y: auto; }`. Seluruh tampilan visual, kartu login split responsif, ambient blur, dan dark mode tetap terjaga sempurna dengan satu scrollbar yang mulus.
 
 ---
 

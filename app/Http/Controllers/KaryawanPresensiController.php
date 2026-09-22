@@ -33,7 +33,7 @@ class KaryawanPresensiController extends Controller
             ->get();
 
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-        $shiftEval = $shiftService->evaluateCheckIn();
+        $shiftEval = $shiftService->evaluateCheckIn(Carbon::now('Asia/Jakarta'), null, null, null, $user);
         $isBypassRadius = $geofencingService->isExemptFromRadius($user);
         $isBypassWaktuTunggu = in_array($user->role, ['admin', 'kepala_sekolah'], true);
 
@@ -106,7 +106,7 @@ class KaryawanPresensiController extends Controller
                 return back()->with('warning', $geofenceCheck['message']);
             }
 
-            $shiftEval = $shiftService->evaluateCheckIn($now);
+            $shiftEval = $shiftService->evaluateCheckIn($now, null, null, null, $user);
 
             $file = $request->file('foto');
             $filename = 'masuk_'.time().'_'.$file->getClientOriginalName();

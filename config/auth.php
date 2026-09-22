@@ -114,4 +114,21 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | SIMPIKAT Single Sign-On (SSO) Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Konfigurasi integrasi SSO terpadu ekosistem PKBM Pintar Berbakat.
+    | Token HMAC-SHA256 digunakan untuk login otomatis dari SIMPIKAT ke Presensi.
+    |
+    */
+
+    'simpikat_sso' => [
+        'secret' => env('SIMPIKAT_SSO_SECRET', env('APP_KEY')),
+        'ttl' => (int) env('SIMPIKAT_SSO_TTL', 120),
+        'app_name' => 'presensi',
+        'simpikat_base_url' => env('SIMPIKAT_BASE_URL', 'https://pkbmpikat.com'),
+    ],
+
 ];
