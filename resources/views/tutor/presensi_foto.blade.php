@@ -129,7 +129,10 @@
         @if ($completedSessions->count() > 0)
             <div class="card mb-4">
                 <div class="cardTitle">
-                    <span><ion-icon name="time-outline"></ion-icon> Riwayat Sesi Hari Ini</span>
+                    <div class="cardTitleStart">
+                        <ion-icon name="time-outline"></ion-icon>
+                        <span>Riwayat Sesi Hari Ini</span>
+                    </div>
                     <span
                         class="badge bg-success-light text-success text-xs px-2.5 py-1 rounded-full font-bold">{{ $completedSessions->count() }}
                         Sesi</span>
@@ -246,7 +249,10 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <span><ion-icon name="location-outline"></ion-icon> Lokasi Presensi Pulang</span>
+                            <div class="cardTitleStart">
+                                <ion-icon name="location-outline"></ion-icon>
+                                <span>Lokasi Presensi Pulang</span>
+                            </div>
                         </div>
                         <div id="mapBox" class="mapBox pos-relative">
                             <div class="mapPlaceholder" id="mapPlaceholder">Menyiapkan peta lokasi...</div>
@@ -283,7 +289,10 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Pulang</span>
+                            <div class="cardTitleStart">
+                                <ion-icon name="camera-outline"></ion-icon>
+                                <span>Foto Presensi Pulang</span>
+                            </div>
                         </div>
                         <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
@@ -321,7 +330,7 @@
                             </div>
 
                             <div class="photoPlaceholder" id="placeholder">
-                                Tekan tombol <b>Buka Kamera</b> untuk mengambil foto kehadiran pulang.
+                                Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi pulang.
                             </div>
                         </div>
 
@@ -449,8 +458,11 @@
             @endif
 
             <div class="statusBanner ready mb-4">
-                <div class="flex-1">
-                    <div class="statusTitle">Belum Melakukan Absen Masuk</div>
+                <div class="statusIcon blue">
+                    <ion-icon name="finger-print-outline"></ion-icon>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="statusTitle">Belum Melakukan Presensi</div>
                     <div class="statusSub">Silakan lengkapi pilihan di bawah untuk memulai sesi mengajar hari ini.</div>
                 </div>
             </div>
@@ -467,7 +479,10 @@
                 {{-- ── CARD 1: INFORMASI SESI MENGAJAR ── --}}
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="options-outline"></ion-icon> Pilihan Sesi Mengajar</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="options-outline"></ion-icon>
+                            <span>Pilihan Sesi Mengajar</span>
+                        </div>
                     </div>
 
                     {{-- 1. Tempat Belajar (Moda) --}}
@@ -631,19 +646,22 @@
                 {{-- ── CARD 2: LOKASI PRESENSI ── --}}
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="location-outline"></ion-icon> Titik Lokasi Presensi</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi Presensi Masuk</span>
+                        </div>
                     </div>
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
                     <div class="mb-3" id="boxPilihLokasi">
-                        <label class="d-block text-sm font-bold text-dark mb-2">
-                            Pilih Lokasi Sekolah / Cabang <span class="text-danger">*</span>
+                        <label class="d-block text-sm font-semibold text-muted mb-2">
+                            Pilih Titik Lokasi Presensi <span class="text-danger">*</span>
                         </label>
                         @php
                             $preselectedLokasiId = old('lokasi_presensi_id', $targetLokasi?->id ?? ($activeLokasi?->id ?? null));
                         @endphp
                         <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()"
-                            class="input w-full rounded-xl p-3 text-md font-semibold text-dark border-base bg-card-alt">
+                            class="select w-full">
                             @forelse($lokasiPresensis as $lok)
                                 <option value="{{ $lok->id }}" data-lat="{{ $lok->latitude }}" data-lng="{{ $lok->longitude }}"
                                     data-radius="{{ $lok->radius_meter }}" data-nama="{{ $lok->nama_lokasi }}"
@@ -699,7 +717,10 @@
                 {{-- ── CARD 3: FOTO KAMERA ── --}}
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Masuk</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="camera-outline"></ion-icon>
+                            <span>Foto Presensi Masuk</span>
+                        </div>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>
@@ -737,7 +758,7 @@
                         </div>
 
                         <div class="photoPlaceholder" id="placeholder">
-                            Tekan tombol <b>Buka Kamera</b> untuk mengambil foto selfie kehadiran.
+                            Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi masuk.
                         </div>
                     </div>
 

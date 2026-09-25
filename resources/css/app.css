@@ -5043,7 +5043,7 @@ input:checked+.toggleSlider:before {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 10px;
+    gap: 12px;
     font-size: 15.5px;
     font-weight: 800;
     color: var(--text);
@@ -5051,6 +5051,14 @@ input:checked+.toggleSlider:before {
     padding-bottom: 12px;
     border-bottom: 1px solid var(--border);
     letter-spacing: -0.2px;
+}
+
+.cardTitleStart,
+.cardTitle > span:first-child,
+.cardTitle > div:first-child {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .cardTitle ion-icon {

@@ -427,8 +427,10 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <ion-icon name="location-outline"></ion-icon>
-                        <span>Lokasi Presensi Masuk</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi Presensi Masuk</span>
+                        </div>
                     </div>
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
@@ -445,7 +447,7 @@
                         @endif
 
                         <label class="d-block text-sm font-semibold text-muted mb-2">
-                            Pilih Lokasi PKBM / Mitra <span class="text-danger">*</span>
+                            Pilih Titik Lokasi Presensi <span class="text-danger">*</span>
                         </label>
                         <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()"
                             class="select w-full">
@@ -503,8 +505,10 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <ion-icon name="camera-outline"></ion-icon>
-                        <span>Foto Presensi Masuk</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="camera-outline"></ion-icon>
+                            <span>Foto Presensi Masuk</span>
+                        </div>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>

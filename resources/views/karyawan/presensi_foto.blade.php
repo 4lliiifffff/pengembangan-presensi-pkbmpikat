@@ -140,7 +140,11 @@
         @if ($completedSessions->count() > 0)
             <div class="card mb-4">
                 <div class="cardTitle">
-                    Riwayat Presensi Hari Ini
+                    <div class="cardTitleStart">
+                        <ion-icon name="time-outline"></ion-icon>
+                        <span>Riwayat Presensi Hari Ini</span>
+                    </div>
+                    <span class="badge bg-success-light text-success text-xs px-2.5 py-1 rounded-full font-bold">{{ $completedSessions->count() }} Presensi</span>
                 </div>
                 @foreach ($completedSessions as $sesi)
                     @php
@@ -255,7 +259,10 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="location-outline"></ion-icon> Lokasi Presensi Pulang</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi Presensi Pulang</span>
+                        </div>
                     </div>
                     <div id="mapBox" class="mapBox pos-relative">
                         <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
@@ -291,7 +298,10 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Pulang</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="camera-outline"></ion-icon>
+                            <span>Foto Presensi Pulang</span>
+                        </div>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>
@@ -386,7 +396,10 @@
             @endif
 
             <div class="statusBanner ready mb-4">
-                <div>
+                <div class="statusIcon blue">
+                    <ion-icon name="finger-print-outline"></ion-icon>
+                </div>
+                <div class="flex-1 min-w-0">
                     <div class="statusTitle">Belum Melakukan Presensi</div>
                     <div class="statusSub">Silakan lakukan presensi masuk hari ini</div>
                 </div>
@@ -402,13 +415,16 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="location-outline"></ion-icon> Lokasi Presensi Masuk</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi Presensi Masuk</span>
+                        </div>
                     </div>
 
                     {{-- Dropdown Pemilihan Titik Lokasi Absen Karyawan --}}
                     <div class="mb-3" id="boxPilihLokasi">
                         <label class="d-flex items-center justify-between text-sm font-semibold text-muted mb-2">
-                            <span>Pilih Lokasi Kerja / Cabang <span class="text-danger">*</span></span>
+                            <span>Pilih Titik Lokasi Presensi <span class="text-danger">*</span></span>
                             @if ($isBypassRadius)
                                 <span class="badge-flexible">
                                     <ion-icon name="shield-checkmark-outline"></ion-icon>
@@ -475,7 +491,10 @@
 
                 <div class="card mb-4">
                     <div class="cardTitle">
-                        <span><ion-icon name="camera-outline"></ion-icon> Foto Presensi Masuk</span>
+                        <div class="cardTitleStart">
+                            <ion-icon name="camera-outline"></ion-icon>
+                            <span>Foto Presensi Masuk</span>
+                        </div>
                     </div>
                     <div class="photoFrame pos-relative overflow-hidden">
                         <video id="videoPreview" playsinline muted></video>

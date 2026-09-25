@@ -134,8 +134,10 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <ion-icon name="location-outline"></ion-icon>
-                            <span>Lokasi Presensi Pulang</span>
+                            <div class="cardTitleStart">
+                                <ion-icon name="location-outline"></ion-icon>
+                                <span>Lokasi Presensi Pulang</span>
+                            </div>
                         </div>
                         <div id="mapBox" class="mapBox pos-relative">
                             <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
@@ -171,8 +173,10 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <ion-icon name="camera-outline"></ion-icon>
-                            <span>Foto Presensi Pulang</span>
+                            <div class="cardTitleStart">
+                                <ion-icon name="camera-outline"></ion-icon>
+                                <span>Foto Presensi Pulang</span>
+                            </div>
                         </div>
                         <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>
@@ -274,7 +278,10 @@
                 @endif
 
                 <div class="statusBanner ready mb-4">
-                    <div>
+                    <div class="statusIcon blue">
+                        <ion-icon name="finger-print-outline"></ion-icon>
+                    </div>
+                    <div class="flex-1 min-w-0">
                         <div class="statusTitle">Belum Melakukan Presensi</div>
                         <div class="statusSub">Silakan lakukan presensi masuk untuk memulai magang hari ini</div>
                     </div>
@@ -290,14 +297,16 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <ion-icon name="location-outline"></ion-icon>
-                            <span>Lokasi Presensi Masuk</span>
+                            <div class="cardTitleStart">
+                                <ion-icon name="location-outline"></ion-icon>
+                                <span>Lokasi Presensi Masuk</span>
+                            </div>
                         </div>
 
                         {{-- Dropdown Pemilihan Titik Lokasi Absen Magang --}}
                         <div class="mb-3" id="boxPilihLokasi">
                             <label class="d-block text-sm font-semibold text-muted mb-2">
-                                Pilih Lokasi Magang / Mitra <span class="text-danger">*</span>
+                                Pilih Titik Lokasi Presensi <span class="text-danger">*</span>
                             </label>
                             <select name="lokasi_presensi_id" id="selectLokasiPresensi" onchange="handleLokasiPresensiChange()" class="select w-full">
                                 @forelse($lokasiPresensis as $lok)
@@ -358,8 +367,10 @@
 
                     <div class="card mb-4">
                         <div class="cardTitle">
-                            <ion-icon name="camera-outline"></ion-icon>
-                            <span>Foto Presensi Masuk</span>
+                            <div class="cardTitleStart">
+                                <ion-icon name="camera-outline"></ion-icon>
+                                <span>Foto Presensi Masuk</span>
+                            </div>
                         </div>
                         <div class="photoFrame pos-relative overflow-hidden">
                             <video id="videoPreview" playsinline muted></video>

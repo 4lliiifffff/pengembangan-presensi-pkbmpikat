@@ -1,8 +1,8 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 22 September 2026  
+**Tanggal Pembaruan:** 23 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
+**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX Halaman Presensi Multi-Peran, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -11,7 +11,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 52
+    "Selesai (Completed)" : 53
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -25,10 +25,10 @@ pie title Status Fitur & Pengkondisian Sistem
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
 | 6. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
 | 7. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
-| 8. UI/UX Excellence & Responsive Layout | 6 | 6 | 0 | 0 |
+| 8. UI/UX Excellence & Responsive Layout | 7 | 7 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 6 | 6 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **57** | **51** | **0** | **6** |
+| **TOTAL** | **58** | **52** | **0** | **6** |
 
 ---
 
@@ -789,6 +789,20 @@ pie title Status Fitur & Pengkondisian Sistem
   - **Isolasi Error Form Modal (`tutor/jadwal_sesi/index.blade.php`):** Memisahkan trigger modal otomatis agar kegagalan upload `file_excel` hanya membuka modal import Excel dan tidak membuka drawer tambah sesi baru.
   - **QA & Testing:** Menambahkan feature test komprehensif `tests/Feature/ProfilePasswordValidationTest.php` yang memvalidasi 4 skenario profil kata sandi dengan hasil 100% PASS (10 assertions).
 
+#### 10.4 Standardisasi Style & Struktur Halaman Presensi Multi-Peran (Karyawan, Tutor, Magang, Siswa)
+- 🟢 **Harmonisasi Elemen Card Title, Form Lokasi, & Camera Box Lintas 4 Peran:**
+  - **Latar Belakang Anomali Visual:** Pada tampilan presensi Magang dan Siswa, ikon kartu dan teks judul terpisah jauh ke ujung kiri dan kanan kartu. Hal ini disebabkan class `.cardTitle` memiliki properti CSS `display: flex; justify-content: space-between; align-items: center;`. Ketika ikon `<ion-icon>` dan judul `<span>` ditaruh langsung sebagai elemen anak setara tanpa pembungkus, flexbox memisahkan keduanya secara ekstrim. Di sisi lain, pada peran Tutor, kartu lokasi dinamai *"Titik Lokasi Presensi"* (bukan *"Lokasi Presensi Masuk"*), dropdown menggunakan custom input bulky daripada `.select.w-full`, dan instruksi placeholder kamera berbeda redaksi.
+  - **Wrapper Semantik `.cardTitleStart`:** Menambahkan aturan CSS `.cardTitleStart, .cardTitle > span:first-child, .cardTitle > div:first-child { display: inline-flex; align-items: center; gap: 10px; }` pada `resources/css/app.css` dan menata ulang HTML di `karyawan`, `tutor`, `magang`, dan `siswa` sehingga icon dan judul selalu berdampingan harmonis, sekaligus mempertahankan slot kanan kartu untuk badge informasi (seperti badge counter riwayat sesi).
+  - **Standardisasi Penamaan Baku Kartu:** Menyelaraskan seluruh penamaan kartu kamera presensi:
+    1. *Lokasi Masuk*: *"Lokasi Presensi Masuk"* dengan icon `location-outline`.
+    2. *Foto Masuk*: *"Foto Presensi Masuk"* dengan icon `camera-outline`.
+    3. *Lokasi Pulang*: *"Lokasi Presensi Pulang"* dengan icon `location-outline`.
+    4. *Foto Pulang*: *"Foto Presensi Pulang"* dengan icon `camera-outline`.
+    5. *Riwayat Sesi / Kehadiran*: *"Riwayat Presensi Hari Ini"* / *"Riwayat Sesi Hari Ini"* dengan icon `time-outline` dan badge hitungan.
+  - **Standardisasi Dropdown Titik Lokasi Presensi (`#selectLokasiPresensi`):** Menyelaraskan dropdown pada form presensi Tutor menjadi `.select.w-full` standar, serta menyeragamkan label di seluruh peran: `Pilih Titik Lokasi Presensi <span class="text-danger">*</span>`.
+  - **Penyelarasan Petunjuk Kamera & Banner Status Presensi:** Menyeragamkan instruksi placeholder sebelum kamera aktif (*"Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi masuk/pulang."*) dan menyelaraskan status banner *"Belum Melakukan Presensi"* pada Karyawan, Tutor, dan Magang menggunakan class `.statusIcon.blue` dan icon `finger-print-outline`.
+  - **QA & Testing:** Aset CSS/JS dikompilasi via `npm run build` (vite v6.4.3), 81 feature test presensi (`php artisan test --filter=Presensi`) lulus 100% (403 assertions), dan Laravel Pint berjalan bersih.
+
 ---
 
 ## 🛠️ 2. PERUBAHAN & PENGKONDISIAN TEKNIS (INFRASTRUKTUR & VCS)
@@ -843,6 +857,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 46 | **Eliminasi Redundansi & Harmonisasi Validasi Multi-Atribut Bahasa Indonesia Baku, Tab State Persistence & Modal Isolation** | Validation & UX Polish | Menghilangkan pesan validasi ganda & ambigu (*"current password wajib diisi. kata sandi wajib diisi."*). Standardisasi aturan `current_password` di controller profil (Admin, Kepsek, Tutor, Magang, Siswa), pemetaan kamus atribut ~50 field di `lang/id/validation.php`, penyimpanan state tab profil otomatis ke "Keamanan Sandi" saat error, pesan spesifik kata sandi salah, dan isolasi modal error import Excel jadwal tutor. | 🟢 Selesai |
 | 47 | **Perbaikan Undefined Variable `$lokasiPresensis` pada Presensi Magang (`MagangPresensiController@foto`)** | Backend Bugfix | Memperbaiki bug `ErrorException: Undefined variable $lokasiPresensis` pada `MagangPresensiController@foto`. Menambahkan import model `LokasiPresensi` dan inisialisasi query `$lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();` untuk mengisi dropdown titik lokasi absen magang/mitra di view `magang/presensi_foto.blade.php`. Terverifikasi 100% lulus seluruh unit & feature test `MagangRoleAndPresensiTest`. | 🟢 Selesai |
 | 48 | **Pengetatan Validasi Jadwal Presensi Siswa (Strict Schedule Gating) & Redesain Layout Responsif Mobile** | Schedule Enforcement & UI/UX | Menegakkan kebijakan presensi ketat via `config('presensi_sk.strict_schedule_gating')` (default `true`) di mana siswa wajib memiliki jadwal sesi aktif hari ini (`!$todaySesi`) untuk dapat melakukan presensi mandiri. Jika database jadwal kosong atau siswa tidak terjadwal hari ini, tombol dan form kamera presensi terkunci otomatis. Mengadopsi styling `.statusBanner.danger` dan empty state card `.tableEmptyIconWrap.rose` yang rapi, modern, dan ergonomis di perangkat mobile. Dilengkapi automated unit & feature tests di `JadwalRutinAndPresensiGatingTest` dan `SiswaRoleAndPresensiTest` lulus 100%. | 🟢 Selesai |
+| 49 | **Standardisasi Style & Struktur Halaman Presensi Multi-Peran (Karyawan, Tutor, Magang, Siswa)** | UI/UX & Layout Standardization | Standardisasi menyeluruh tampilan kartu presensi di 4 peran pengguna: perbaikan pemisahan ekstrim icon & judul melalui wrapper semantik `.cardTitleStart` (`gap: 10px`), penyelarasan judul baku (*"Lokasi Presensi Masuk"*, *"Foto Presensi Masuk"*, *"Lokasi Presensi Pulang"*, *"Foto Presensi Pulang"*), standardisasi dropdown `#selectLokasiPresensi` ke `.select.w-full`, keseragaman label `Pilih Titik Lokasi Presensi *`, petunjuk placeholder kamera seragam, dan banner status *"Belum Melakukan Presensi"* seragam `.statusIcon.blue`. | 🟢 Selesai |
 
 ---
 

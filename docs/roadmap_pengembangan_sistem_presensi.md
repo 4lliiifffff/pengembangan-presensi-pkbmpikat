@@ -1,8 +1,8 @@
 # ROADMAP DAN PENJABARAN LENGKAP PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 22 September 2026  
+**Tanggal Pembaruan:** 23 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
+**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX Halaman Presensi Multi-Peran, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
 
 ---
 
@@ -453,6 +453,18 @@
 * 🟢 **Penyimpanan State Tab Profil Multi-Role (Tab Persistence Saat Error Validasi):** [SELESAI] Memperbaiki perilaku form pada 5 peran pengguna (`admin`, `kepsek`, `tutor`, `magang`, `siswa`) di mana reload halaman saat validasi gagal mereset tab aktif kembali ke tab data pribadi ("Informasi Pribadi"). Menambahkan listener inisialisasi `@if ($errors->has('current_password') || $errors->has('password') || ...)` yang otomatis mengaktifkan tab "Keamanan Sandi" (`switchProfileTab('keamanan')`) serta menyertakan inline error helper `@error` di bawah masing-masing input password.
 * 🟢 **Isolasi Error Form Modal Jadwal Sesi (`tutor/jadwal_sesi/index.blade.php`):** [SELESAI] Memisahkan pemicu modal otomatis saat error validasi. Error `file_excel` kini hanya membuka modal import Excel (`bukaModalImportJadwal()`) dan tidak membuka drawer tambah sesi baru, mencegah tumpang-tindih modal dan menyajikan pesan error tepat sasaran.
 * 🟢 **Automated Testing & QA:** [SELESAI] Menambahkan feature test komprehensif `tests/Feature/ProfilePasswordValidationTest.php` mencakup 4 skenario verifikasi validasi password profil (field kosong, kata sandi saat ini salah, konfirmasi password tidak cocok, dan pembaruan password sukses) yang lulus 100%.
+
+### 9.16 Standardisasi Style & Struktur Halaman Presensi Multi-Peran (Karyawan, Tutor, Magang, Siswa)
+* 🟢 **Harmonisasi Judul Kartu (`.cardTitle`) & Pemulihan Space-Between Flexbox (`.cardTitleStart`):** [SELESAI] Mengidentifikasi dan memperbaiki anomali tampilan pada view presensi Magang dan Siswa di mana icon dan teks judul terpisah jauh ke tepi kiri dan kanan kartu akibat sifat `display: flex; justify-content: space-between;` dari `.cardTitle`. Solusi terintegrasi: menghadirkan wrapper semantic `.cardTitleStart` (`display: inline-flex; align-items: center; gap: 10px;`) di `resources/css/app.css` untuk membungkus icon dan teks secara berdampingan rapat tanpa merusak elemen pendamping di sisi kanan (seperti badge counter riwayat sesi).
+* 🟢 **Standardisasi Penamaan Baku Kartu Lintas 4 Peran:** [SELESAI] Menyelaraskan seluruh penamaan kartu kamera presensi:
+  - *Lokasi Masuk*: Seluruh peran kini seragam menggunakan judul *"Lokasi Presensi Masuk"* (mengoreksi Tutor yang sebelumnya bernama *"Titik Lokasi Presensi"*).
+  - *Foto Masuk*: *"Foto Presensi Masuk"* dengan icon `camera-outline`.
+  - *Lokasi Pulang*: *"Lokasi Presensi Pulang"* dengan icon `location-outline`.
+  - *Foto Pulang*: *"Foto Presensi Pulang"* dengan icon `camera-outline`.
+  - *Riwayat Kehadiran*: *"Riwayat Presensi Hari Ini"* / *"Riwayat Sesi Hari Ini"* dilengkapi badge jumlah sesi/kehadiran.
+* 🟢 **Standardisasi Dropdown Titik Lokasi Presensi (`#selectLokasiPresensi`):** [SELESAI] Menyelaraskan class dropdown pemilih lokasi di form presensi Tutor dari custom input yang bulky menjadi `.select.w-full` standar, serta menyelaraskan label input di seluruh peran menjadi `Pilih Titik Lokasi Presensi <span class="text-danger">*</span>`.
+* 🟢 **Penyelarasan Petunjuk Placeholder Kamera & Status Banner Presensi:** [SELESAI] Menyelaraskan teks instruksi placeholder sebelum kamera diaktifkan (*"Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi masuk/pulang."*), serta menyelaraskan banner status *"Belum Melakukan Presensi"* pada Karyawan, Tutor, dan Magang menggunakan class seragam `.statusIcon.blue` dan icon `finger-print-outline`.
+* 🟢 **Verifikasi & Build Kompilasi:** [SELESAI] Kompilasi CSS & JS (`npm run build`) sukses tanpa warning, 81 feature test presensi (`php artisan test --filter=Presensi`) lulus 100% (403 assertions), dan pemformatan kode Laravel Pint (`vendor/bin/pint --format agent`) bersih.
 
 ---
 
