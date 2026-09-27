@@ -6,15 +6,16 @@ use App\Exports\PresensiExport;
 use App\Exports\PresensiTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\PresensiImport;
-use App\Models\Presensi;
-use App\Models\PresensiKaryawan;
+use App\Models\JenjangPaket;
+use App\Models\kelas as Kelas;
+use App\Models\LokasiPresensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
+use App\Models\User;
 use App\Services\LaporanPresensiService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
 class LaporanController extends Controller
@@ -23,144 +24,74 @@ class LaporanController extends Controller
 
     public function index(Request $request)
     {
-        $startDateStr = $request->get('start_date', Carbon::now('Asia/Jakarta')->toDateString());
+        $activeTab = $request->get('tab', 'tutor');
+
+        $startDateStr = $request->get('start_date', Carbon::now('Asia/Jakarta')->startOfMonth()->toDateString());
         $endDateStr = $request->get('end_date', Carbon::now('Asia/Jakarta')->toDateString());
 
         $startDate = Carbon::parse($startDateStr)->startOfDay();
         $endDate = Carbon::parse($endDateStr)->endOfDay();
 
-        $tutorId = $request->get('tutor_id');
-        $siswaId = $request->get('siswa_id');
-        $statusFilter = $request->get('status');
+        $bulan = (int) $request->get('bulan', Carbon::now('Asia/Jakarta')->month);
+        $tahun = (int) $request->get('tahun', Carbon::now('Asia/Jakarta')->year);
 
-        $presensiTable = (new Presensi)->getTable();
-        $hasStatus = Schema::hasColumn($presensiTable, 'status');
-        $hasJamMulai = Schema::hasColumn($presensiTable, 'jam_mulai');
-        $baseQuery = Presensi::whereBetween('tgl_presensi', [$startDate, $endDate]);
+        $filters = [
+            'start_date' => $startDateStr,
+            'end_date' => $endDateStr,
+            'tutor_id' => $request->get('tutor_id'),
+            'siswa_id' => $request->get('siswa_id'),
+            'user_id' => $request->get('user_id'),
+            'role' => $request->get('role'),
+            'status' => $request->get('status'),
+            'moda_pembelajaran' => $request->get('moda_pembelajaran'),
+            'lokasi_presensi_id' => $request->get('lokasi_presensi_id'),
+            'jenjang_paket_id' => $request->get('jenjang_paket_id'),
+            'kelas_id' => $request->get('kelas_id'),
+        ];
 
-        if ($tutorId) {
-            $baseQuery->where('tutor_id', $tutorId);
-        }
-        if ($siswaId) {
-            $baseQuery->where('siswa_id', $siswaId);
-        }
+        // 1. Ambil Data Tab Spesifik & Agregat
+        $tutorData = $this->laporanService->getLaporanTutorData($filters);
+        $siswaData = $this->laporanService->getLaporanSiswaData($filters);
+        $pegawaiData = $this->laporanService->getLaporanPegawaiData($filters);
+        $magangData = $this->laporanService->getLaporanMagangData($filters);
+        $perizinanData = $this->laporanService->getLaporanPerizinanData($filters);
+        $matriksData = $this->laporanService->getMatriksBulananSiswa($bulan, $tahun, $filters['kelas_id'], $filters['jenjang_paket_id']);
 
-        if ($statusFilter) {
-            if ($statusFilter === 'hadir') {
-                $baseQuery->where('status', 'hadir')->whereNotNull('foto_selesai');
-            } elseif ($statusFilter === 'proses') {
-                $baseQuery->whereNotNull('foto_mulai')->whereNull('foto_selesai');
-            } elseif ($statusFilter === 'izin') {
-                $baseQuery->whereIn('status', ['izin', 'sakit']);
-            } elseif ($statusFilter === 'alpha') {
-                $baseQuery->where('status', 'alpha');
-            }
-        }
+        // 2. Data Visual Charts
+        $chartData = $this->laporanService->getVisualChartData($startDate, $endDate);
 
-        // Kompatibel dengan 2 skema DB: pakai status jika ada, fallback ke jam_mulai.
-        if ($hasStatus) {
-            $totalHadir = (clone $baseQuery)->where('status', 'hadir')->count();
-            $totalIzin = (clone $baseQuery)->where('status', 'izin')->count();
-            $totalAlpha = (clone $baseQuery)->where('status', 'alpha')->count();
-        } else {
-            $hadirColumn = Schema::hasColumn($presensiTable, 'jam_selesai') ? 'jam_selesai' : ($hasJamMulai ? 'jam_mulai' : null);
-            $totalHadir = $hadirColumn ? (clone $baseQuery)->whereNotNull($hadirColumn)->count() : 0;
-            $totalProses = $hasJamMulai ? (clone $baseQuery)->whereNotNull('jam_mulai')->whereNull('jam_selesai')->count() : 0;
-            $totalIzin = 0;
-            $totalAlpha = max((clone $baseQuery)->count() - $totalHadir - $totalProses, 0);
-        }
-
-        $totalSesi = (clone $baseQuery)->count();
-
-        // Kehadiran per tutor (dihitung dari total presensi)
-        $perTutor = Tutor::withCount([
-            'presensis as total_jadwal' => function ($q) use ($startDate, $endDate, $siswaId) {
-                $q->whereBetween('tgl_presensi', [$startDate, $endDate]);
-                if ($siswaId) {
-                    $q->where('siswa_id', $siswaId);
-                }
-            },
-        ])->having('total_jadwal', '>', 0)->orderByDesc('total_jadwal')->get();
-
-        // Presensi terbaru
-        $recentQuery = Presensi::with(['siswa', 'tutor', 'lokasiPresensi'])
-            ->whereBetween('tgl_presensi', [$startDate, $endDate]);
-
-        if ($tutorId) {
-            $recentQuery->where('tutor_id', $tutorId);
-        }
-        if ($siswaId) {
-            $recentQuery->where('siswa_id', $siswaId);
-        }
-
-        $recentPresensi = $recentQuery->orderByDesc('tgl_presensi')
-            ->limit(20)
-            ->get()
-            ->map(function (Presensi $p) use ($hasStatus, $hasJamMulai) {
-                if ($hasStatus) {
-                    return $p;
-                }
-
-                if ($hasJamMulai && $p->jam_mulai) {
-                    $p->status = $p->jam_selesai ? 'hadir' : 'proses';
-                } else {
-                    $p->status = 'alpha';
-                }
-
-                return $p;
-            });
-
-        // Rekap Presensi Karyawan (Admin/Kepsek)
-        $karyawanPresensi = PresensiKaryawan::with(['user', 'lokasiPresensi'])
-            ->whereBetween('tgl_presensi', [$startDate, $endDate])
-            ->orderByDesc('tgl_presensi')
-            ->orderByDesc('id')
-            ->get();
-
-        // Data chart harian (Tren Kehadiran)
-        $dailyStats = Presensi::selectRaw('DATE(tgl_presensi) as date, 
-                SUM(CASE WHEN status = "hadir" AND foto_selesai IS NOT NULL THEN 1 ELSE 0 END) as hadir,
-                SUM(CASE WHEN status IN ("izin", "sakit") THEN 1 ELSE 0 END) as izin')
-            ->whereBetween('tgl_presensi', [$startDate, $endDate]);
-
-        if ($tutorId) {
-            $dailyStats->where('tutor_id', $tutorId);
-        }
-        if ($siswaId) {
-            $dailyStats->where('siswa_id', $siswaId);
-        }
-
-        $dailyData = $dailyStats->groupBy('date')->orderBy('date')->get();
-
-        $chartLabels = $dailyData->map(fn ($d) => Carbon::parse($d->date)->format('d M'))->toArray();
-        $chartDataHadir = $dailyData->pluck('hadir')->toArray();
-        $chartDataIzin = $dailyData->pluck('izin')->toArray();
-
-        // Untuk dikembalikan ke view filter
-        $inputStartDate = $startDate->toDateString();
-        $inputEndDate = $endDate->toDateString();
-
+        // 3. Dataset Master untuk Dropdown Filter
         $tutors = Tutor::orderBy('nama_lengkap')->get();
         $siswas = Siswa::orderBy('nama_siswa')->get();
+        $jenjangPakets = JenjangPaket::aktif()->orderBy('urutan')->get();
+        $kelasList = Kelas::orderBy('nama_kelas')->get();
+        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
+        $pegawaiUsers = User::whereIn('role', ['admin', 'kepala_sekolah', 'karyawan'])->orderBy('nama_lengkap')->get();
+        $magangUsers = User::where('role', 'magang')->orderBy('nama_lengkap')->get();
 
-        return view('admin.laporan.index', compact(
-            'totalHadir',
-            'totalIzin',
-            'totalAlpha',
-            'totalSesi',
-            'perTutor',
-            'recentPresensi',
-            'karyawanPresensi',
-            'chartLabels',
-            'chartDataHadir',
-            'chartDataIzin',
-            'inputStartDate',
-            'inputEndDate',
-            'tutors',
-            'siswas',
-            'tutorId',
-            'siswaId',
-            'statusFilter'
+        return view('admin.laporan.index', array_merge(
+            [
+                'activeTab' => $activeTab,
+                'inputStartDate' => $startDateStr,
+                'inputEndDate' => $endDateStr,
+                'inputBulan' => $bulan,
+                'inputTahun' => $tahun,
+                'filters' => $filters,
+                'tutors' => $tutors,
+                'siswas' => $siswas,
+                'jenjangPakets' => $jenjangPakets,
+                'kelasList' => $kelasList,
+                'lokasiPresensis' => $lokasiPresensis,
+                'pegawaiUsers' => $pegawaiUsers,
+                'magangUsers' => $magangUsers,
+                'tutorData' => $tutorData,
+                'siswaData' => $siswaData,
+                'pegawaiData' => $pegawaiData,
+                'magangData' => $magangData,
+                'perizinanData' => $perizinanData,
+                'matriksData' => $matriksData,
+            ],
+            $chartData
         ));
     }
 
@@ -178,7 +109,7 @@ class LaporanController extends Controller
 
         return Excel::download(
             new PresensiExport($startDate, $endDate, $tutorId, $siswaId, $statusFilter),
-            'Laporan_Presensi_'.$startDate->format('Ymd').'_'.$endDate->format('Ymd').'.xlsx'
+            'Laporan_Presensi_PKBM_Pikat_'.$startDate->format('Ymd').'_'.$endDate->format('Ymd').'.xlsx'
         );
     }
 
@@ -208,65 +139,57 @@ class LaporanController extends Controller
 
     public function exportPdf(Request $request)
     {
+        $tab = $request->get('tab', 'tutor');
         $startDateStr = $request->get('start_date', Carbon::now()->startOfMonth()->toDateString());
-        $endDateStr = $request->get('end_date', Carbon::now()->endOfMonth()->toDateString());
+        $endDateStr = $request->get('end_date', Carbon::now()->toDateString());
 
         $startDate = Carbon::parse($startDateStr)->startOfDay();
         $endDate = Carbon::parse($endDateStr)->endOfDay();
 
-        $tutorId = $request->get('tutor_id');
-        $siswaId = $request->get('siswa_id');
+        $bulan = (int) $request->get('bulan', Carbon::now('Asia/Jakarta')->month);
+        $tahun = (int) $request->get('tahun', Carbon::now('Asia/Jakarta')->year);
 
-        $query = Presensi::with(['siswa', 'tutor'])
-            ->whereBetween('tgl_presensi', [$startDate, $endDate]);
+        $filters = [
+            'start_date' => $startDateStr,
+            'end_date' => $endDateStr,
+            'tutor_id' => $request->get('tutor_id'),
+            'siswa_id' => $request->get('siswa_id'),
+            'user_id' => $request->get('user_id'),
+            'role' => $request->get('role'),
+            'status' => $request->get('status'),
+            'moda_pembelajaran' => $request->get('moda_pembelajaran'),
+            'lokasi_presensi_id' => $request->get('lokasi_presensi_id'),
+            'jenjang_paket_id' => $request->get('jenjang_paket_id'),
+            'kelas_id' => $request->get('kelas_id'),
+        ];
 
-        if ($tutorId) {
-            $query->where('tutor_id', $tutorId);
-        }
-        if ($siswaId) {
-            $query->where('siswa_id', $siswaId);
-        }
+        $tutorData = $this->laporanService->getLaporanTutorData($filters);
+        $siswaData = $this->laporanService->getLaporanSiswaData($filters);
+        $pegawaiData = $this->laporanService->getLaporanPegawaiData($filters);
+        $magangData = $this->laporanService->getLaporanMagangData($filters);
+        $perizinanData = $this->laporanService->getLaporanPerizinanData($filters);
+        $matriksData = $this->laporanService->getMatriksBulananSiswa($bulan, $tahun, $filters['kelas_id'], $filters['jenjang_paket_id']);
 
-        $presensis = $query->orderBy('tgl_presensi')->get();
-
-        $presensiTable = (new Presensi)->getTable();
-        $hasStatus = Schema::hasColumn($presensiTable, 'status');
-        $hasJamMulai = Schema::hasColumn($presensiTable, 'jam_mulai');
-
-        $totalHadir = 0;
-        $totalIzin = 0;
-        $totalAlpha = 0;
-
-        $totalProses = 0;
-
-        foreach ($presensis as $p) {
-            $status = 'alpha';
-            if ($hasStatus) {
-                $status = strtolower($p->status);
-            } elseif ($hasJamMulai && $p->jam_mulai) {
-                $status = $p->jam_selesai ? 'hadir' : 'proses';
-            }
-
-            if ($status === 'hadir') {
-                $totalHadir++;
-            } elseif ($status === 'izin') {
-                $totalIzin++;
-            } elseif ($status === 'proses') {
-                $totalProses++;
-            } else {
-                $totalAlpha++;
-            }
-
-            $p->calculated_status = ucfirst($status);
-        }
+        $tanggalCetak = Carbon::now('Asia/Jakarta');
 
         $pdf = Pdf::loadView('admin.laporan.pdf', compact(
-            'presensis', 'startDate', 'endDate', 'totalHadir', 'totalIzin', 'totalAlpha'
-        ));
+            'tab',
+            'startDate',
+            'endDate',
+            'bulan',
+            'tahun',
+            'filters',
+            'tutorData',
+            'siswaData',
+            'pegawaiData',
+            'magangData',
+            'perizinanData',
+            'matriksData',
+            'tanggalCetak'
+        ))->setPaper('a4', 'landscape');
 
-        // Format PDF kertas A4 Landscape
-        $pdf->setPaper('a4', 'landscape');
+        $filename = 'Laporan_Presensi_PKBM_Pikat_'.strtoupper($tab).'_'.$startDate->format('Ymd').'_'.$endDate->format('Ymd').'.pdf';
 
-        return $pdf->download('Laporan_Presensi_'.$startDate->format('Ymd').'_'.$endDate->format('Ymd').'.pdf');
+        return $pdf->download($filename);
     }
 }

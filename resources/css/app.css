@@ -16525,3 +16525,104 @@ body.app-modal-open {
         width: 115px;
     }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   PUSAT LAPORAN & REKAPITULASI TERPADU (ALL-IN-ONE REPORTING HUB)
+   ══════════════════════════════════════════════════════════════ */
+.laporanNavTabsWrapper {
+    margin: 1.5rem 0 1rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 4px;
+}
+
+.laporanNavTabs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: max-content;
+}
+
+.laporanTabBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 9999px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.laporanTabBtn ion-icon {
+    font-size: 17px;
+}
+
+.laporanTabBtn:hover {
+    color: var(--text-main);
+    border-color: #0b5ed7;
+    background: rgba(11, 94, 215, 0.05);
+}
+
+.laporanTabBtn.active {
+    background: #0b5ed7;
+    color: #ffffff;
+    border-color: #0b5ed7;
+    box-shadow: 0 4px 12px rgba(11, 94, 215, 0.25);
+}
+
+.laporanTabBtn .tabBadge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.06);
+    color: inherit;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.laporanTabBtn.active .tabBadge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+/* Matriks Ledger Bulanan Table */
+.table-matriks-ledger {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table-matriks-ledger th,
+.table-matriks-ledger td {
+    border: 1px solid var(--border-color);
+    text-align: center;
+    vertical-align: middle;
+}
+
+.table-matriks-ledger th.sticky-col-1,
+.table-matriks-ledger td.sticky-col-1 {
+    position: sticky;
+    left: 0;
+    background: var(--bg-card);
+    z-index: 2;
+}
+
+.table-matriks-ledger th.sticky-col-2,
+.table-matriks-ledger td.sticky-col-2 {
+    position: sticky;
+    left: 32px;
+    background: var(--bg-card);
+    z-index: 2;
+    text-align: left;
+}
+
+.table-matriks-ledger thead th {
+    background: var(--bg-card-alt);
+    font-weight: 800;
+}

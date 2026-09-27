@@ -466,6 +466,21 @@
 * 🟢 **Penyelarasan Petunjuk Placeholder Kamera & Status Banner Presensi:** [SELESAI] Menyelaraskan teks instruksi placeholder sebelum kamera diaktifkan (*"Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi masuk/pulang."*), serta menyelaraskan banner status *"Belum Melakukan Presensi"* pada Karyawan, Tutor, dan Magang menggunakan class seragam `.statusIcon.blue` dan icon `finger-print-outline`.
 * 🟢 **Verifikasi & Build Kompilasi:** [SELESAI] Kompilasi CSS & JS (`npm run build`) sukses tanpa warning, 81 feature test presensi (`php artisan test --filter=Presensi`) lulus 100% (403 assertions), dan pemformatan kode Laravel Pint (`vendor/bin/pint --format agent`) bersih.
 
+### 9.17 Pusat Laporan & Rekapitulasi Presensi Terpadu (All-in-One Reporting & Analytics Hub)
+* 🟢 **Integrasi Menyeluruh Pelaporan 4 Entitas Pengguna & 6 Tab Sub-Modul:** [SELESAI]
+  - Menggabungkan seluruh data pelaporan presensi ke dalam satu hub terpadu dengan 6 tab navigasi: **🎓 Presensi Tutor & KBM**, **🎒 Presensi Mandiri Siswa**, **👔 Pegawai, Staf & Pimpinan (Admin/Kepsek)**, **💼 Mahasiswa Magang (PKL)**, **📋 Perizinan & Lupa Lapor**, dan **📊 Matriks Buku Induk (1–31)**.
+* 🟢 **Generator Matriks Buku Induk Bulanan (Ledger Dapodik / Akreditasi Tanggal 1–31):** [SELESAI]
+  - Kalkulasi horizontal tanggal 1 hingga 30/31 dalam sebulan dengan status visual interaktif: `H` (Hadir - Hijau), `I` (Izin - Kuning), `S` (Sakit - Biru), `A` (Alpa - Merah), dan `L` (Libur Minggu).
+  - Dilengkapi perhitungan otomatis total `H`, `I`, `S`, `A` serta persentase keaktifan belajar siswa.
+* 🟢 **Visual Analytics Dashboard & KPI Metrics:** [SELESAI]
+  - Visualisasi Line Chart (Tren Kehadiran Harian Lembaga) dan Donut Chart (Komposisi Moda Belajar Tatap Muka, Kunjungan Rumah, dan Daring) menggunakan Chart.js.
+  - Kartu metrik KPI ringkas di bagian atas untuk pemantauan cepat pimpinan.
+* 🟢 **Dokumen Ekspor Resmi PDF (A4 Landscape) & Spreadsheet Excel:** [SELESAI]
+  - Template PDF formal ber-KOP resmi PKBM Pikat (NPSN, alamat, kontak), tabel terstruktur, dan lembar pengesahan tanda tangan ganda (Pengelola Administrasi & Kepala PKBM).
+* 🟢 **Automated Feature Test Suite & Verifikasi:** [SELESAI]
+  - Feature test `tests/Feature/LaporanPresensiTerpaduTest.php` mencakup 7 pengujian komprehensif (akses 6 tab, kalkulasi durasi & honor SK, lateness siswa, pegawai & magang, agregasi perizinan, matriks 1-31, dan ekspor dokumen) lulus 100% (47 assertions).
+
+
 ---
 
 ## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)
