@@ -432,6 +432,9 @@ class SimpikatAuthService
             // Dapatkan ID Tutor pembimbing yang sesuai dari relasi Rombel SIMPIKAT
             $tutorId = $this->resolveTutorForSimpikatPeserta($peserta);
 
+            // Deteksi otomatis status ABK / Inklusi
+            $isAbk = $this->resolveIsAbkForSimpikatPeserta($peserta);
+
             $noAbsen = 'SW'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT);
             $namaSiswa = $user->nama_lengkap;
             $namaWali = 'Orang Tua / Wali';
@@ -451,7 +454,7 @@ class SimpikatAuthService
                 'kelas_id' => $kelasId,
                 'nama_wali' => substr($namaWali, 0, 50),
                 'no_hp' => substr($noHp, 0, 15),
-                'is_abk' => false,
+                'is_abk' => $isAbk,
             ];
 
             if ($tutorId !== null) {
@@ -627,5 +630,109 @@ class SimpikatAuthService
         ]);
 
         return (int) $kelasBaru->id;
+    }
+
+    /**
+     * Sinkronkan profil pengguna lokal dengan data terbaru di SIMPIKAT jika terhubung.
+     */
+    public function syncUserFromSimpikat(User $user): void
+    {
+        try {
+            $identifier = $user->email ?: $user->nik;
+            if (! $identifier) {
+                return;
+            }
+
+            $simpikatUser = $this->findSimpikatPengguna($identifier);
+            if (! $simpikatUser && $user->role === 'siswa' && $user->siswa) {
+                $noAbsen = (string) $user->siswa->no_absen;
+                if ($noAbsen !== '') {
+                    $simpikatUser = $this->findSimpikatPengguna($noAbsen);
+                }
+            }
+
+            if ($simpikatUser) {
+                $this->provisionDomainProfile($user, $simpikatUser);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('SimpikatAuthService: Sinkronisasi pasca-login SIMPIKAT dilewati.', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Mendeteksi status Anak Berkebutuhan Khusus (ABK) / Inklusi dari data SIMPIKAT.
+     */
+    protected function resolveIsAbkForSimpikatPeserta(?object $peserta): bool
+    {
+        if (! $peserta) {
+            return false;
+        }
+
+        // 1. Cek jika ada kolom eksplisit is_abk atau kebutuhan_khusus
+        if (isset($peserta->is_abk)) {
+            return (bool) $peserta->is_abk;
+        }
+
+        // 2. Cek kolom kelainan jasmani
+        $kelainan = trim((string) ($peserta->kelainan_jasmani ?? ''));
+        $nonAbkValues = [
+            'tidak ada',
+            '-',
+            'nihil',
+            'normal',
+            'tidak',
+            'none',
+            'sehat',
+            'tidak_ada',
+            'tidak ada kelainan',
+            'tidak ada kelainan jasmani',
+            'tidak ada kelainan fisik',
+        ];
+
+        if ($kelainan !== '' && ! in_array(strtolower($kelainan), $nonAbkValues, true)) {
+            return true;
+        }
+
+        // 3. Cek kombinasi teks (kelompok, program, nama, catatan lain) yang menyebut ABK / Inklusi
+        $kombinasiTeks = ($peserta->nama_lengkap ?? '').' '
+            .($peserta->diterima_di_kelompok ?? '').' '
+            .($peserta->program_pendidikan ?? '').' '
+            .($peserta->penyakit_diderita ?? '').' '
+            .($peserta->lain_lain ?? '');
+
+        $abkKeywords = [
+            'abk',
+            'inklusi',
+            'disabilitas',
+            'autis',
+            'autisme',
+            'adhd',
+            'down syndrome',
+            'tunarungu',
+            'tunagrahita',
+            'tunadaksa',
+            'tunanetra',
+            'tunawicara',
+            'tuna rungu',
+            'tuna grahita',
+            'tuna daksa',
+            'tuna netra',
+            'tuna wicara',
+            'slow learner',
+            'lambat belajar',
+            'berkebutuhan khusus',
+            'cerebral palsy',
+            'terapi',
+        ];
+
+        foreach ($abkKeywords as $kw) {
+            if (stripos($kombinasiTeks, $kw) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

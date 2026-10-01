@@ -170,6 +170,11 @@ class AuthWebController extends Controller
                 ->with('warning', 'Akun Anda dinonaktifkan. Silakan hubungi administrator.');
         }
 
+        // Sinkronkan data terbaru dari SIMPIKAT jika akun terhubung (Auto-Sync on Login)
+        if (Auth::check()) {
+            $this->simpikatAuthService->syncUserFromSimpikat(Auth::user());
+        }
+
         // Bersihkan counter RateLimiter karena login berhasil
         $throttleKey = strtolower($username).'|'.$request->ip();
         RateLimiter::clear($throttleKey);

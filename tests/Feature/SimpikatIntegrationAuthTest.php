@@ -7,6 +7,7 @@ use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class SimpikatIntegrationAuthTest extends TestCase
@@ -107,6 +108,45 @@ class SimpikatIntegrationAuthTest extends TestCase
         $this->assertNotNull($siswaProfile->tutor_id);
         $this->assertNotNull($siswaProfile->tutor);
         $this->assertSame('Tutor Pengajar Vokasi', $siswaProfile->tutor->nama_lengkap);
+
+        // Verifikasi status non-ABK
+        $this->assertFalse((bool) $siswaProfile->is_abk);
+    }
+
+    public function test_simpikat_abk_siswa_login_accurately_detects_abk_condition(): void
+    {
+        // Simulasikan data siswa ABK di SIMPIKAT
+        $simpikatDb = DB::connection('simpikat');
+        $originalPeserta = $simpikatDb->table('peserta_didik')->where('pengguna_id', 12)->first();
+
+        $simpikatDb->table('peserta_didik')->where('pengguna_id', 12)->update([
+            'kelainan_jasmani' => 'Autisme Spektrum Ringan (ABK)',
+            'diterima_di_kelompok' => 'Kelas Inklusi Khusus',
+        ]);
+
+        try {
+            $response = $this->post(route('login.process'), [
+                'username' => 'sitinurhaliza',
+                'password' => '12345678',
+            ]);
+
+            $response->assertRedirect(route('siswa.dashboard'));
+            $this->assertAuthenticated();
+
+            $user = auth()->user();
+            $this->assertNotNull($user);
+
+            $siswaProfile = Siswa::where('user_id', $user->id)->first();
+            $this->assertNotNull($siswaProfile);
+            $this->assertTrue((bool) $siswaProfile->is_abk);
+        } finally {
+            if ($originalPeserta) {
+                $simpikatDb->table('peserta_didik')->where('pengguna_id', 12)->update([
+                    'kelainan_jasmani' => $originalPeserta->kelainan_jasmani,
+                    'diterima_di_kelompok' => $originalPeserta->diterima_di_kelompok,
+                ]);
+            }
+        }
     }
 
     public function test_local_presensi_user_login_still_works_seamlessly(): void
