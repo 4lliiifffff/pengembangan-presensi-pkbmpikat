@@ -2,7 +2,7 @@
 
 @section('title', '429 - Terlalu Banyak Permintaan')
 @section('toast_type', 'warning')
-@section('toast_title', 'Terlalu Banyak Permintaan (429)')
+@section('toast_title', 'Batas Permintaan Terlampaui (429)')
 @section('toast_message', $exception->getMessage() ?: 'Sistem mendeteksi terlalu banyak percobaan dalam waktu singkat. Silakan tunggu beberapa saat.')
 
 @section('content')
@@ -22,7 +22,7 @@
 @endphp
 
 <div class="error-code-badge" style="background: rgba(245, 158, 11, 0.12); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.25);">
-    <ion-icon name="speedometer-outline"></ion-icon> ERROR 429 &bull; RATE LIMITED
+    <ion-icon name="speedometer-outline"></ion-icon> KODE 429 &bull; BATAS PERMINTAAN TERLAMPAUI
 </div>
 
 <div class="error-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2);">
@@ -31,7 +31,7 @@
 
 <h1 class="error-title">Terlalu Banyak Permintaan</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Demi keamanan dan kestabilan server, sistem membatasi frekuensi aksi yang dilakukan secara berulang-ulang dalam waktu singkat. Harap tunggu beberapa saat sebelum mencoba kembali.' }}
+    {{ $exception->getMessage() ?: 'Demi keamanan dan kestabilan server, sistem membatasi frekuensi percobaan yang dilakukan secara berulang dalam tempo singkat. Harap tunggu beberapa saat sebelum mencoba kembali.' }}
 </p>
 
 <div class="error-actions-grid">
@@ -39,7 +39,7 @@
         <ion-icon name="refresh-outline"></ion-icon> Coba Lagi
     </button>
     <a href="{{ $targetRoute }}" class="btn-error-secondary">
-        <ion-icon name="home-outline"></ion-icon> Ke Dashboard
+        <ion-icon name="home-outline"></ion-icon> Ke Beranda Utama
     </a>
 </div>
 @endsection

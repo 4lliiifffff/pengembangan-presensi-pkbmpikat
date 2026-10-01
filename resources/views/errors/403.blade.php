@@ -1,9 +1,9 @@
 @extends('errors.layout')
 
-@section('title', '403 - Akses Ditolak (Forbidden)')
+@section('title', '403 - Akses Ditolak')
 @section('toast_type', 'warning')
 @section('toast_title', 'Akses Ditolak (403)')
-@section('toast_message', $exception->getMessage() ?: 'Anda tidak memiliki hak akses atau otoritas untuk membuka halaman ini.')
+@section('toast_message', $exception->getMessage() ?: 'Anda tidak memiliki hak akses atau wewenang untuk membuka halaman ini.')
 
 @section('content')
 @php
@@ -22,21 +22,21 @@
 @endphp
 
 <div class="error-code-badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25);">
-    <ion-icon name="shield-outline"></ion-icon> ERROR 403 &bull; FORBIDDEN
+    <ion-icon name="shield-outline"></ion-icon> KODE 403 &bull; HAK AKSES DIBATASI
 </div>
 
 <div class="error-icon-wrapper" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2);">
     <ion-icon name="hand-left-outline"></ion-icon>
 </div>
 
-<h1 class="error-title">Akses Ditolak / Dibatasi</h1>
+<h1 class="error-title">Hak Akses Dibatasi</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Mohon maaf, akun Anda tidak memiliki izin atau peran yang sesuai untuk mengakses modul/halaman ini. Silakan kembali ke dashboard utama Anda.' }}
+    {{ $exception->getMessage() ?: 'Mohon maaf, akun Anda tidak memiliki izin atau peran yang sesuai untuk mengakses modul ini. Silakan kembali ke beranda utama Anda.' }}
 </p>
 
 <div class="error-actions-grid">
     <a href="{{ $targetRoute }}" class="btn-error-primary">
-        <ion-icon name="home-outline"></ion-icon> Ke Dashboard
+        <ion-icon name="home-outline"></ion-icon> Ke Beranda Utama
     </a>
     <button type="button" onclick="window.history.back()" class="btn-error-secondary">
         <ion-icon name="arrow-back-outline"></ion-icon> Kembali

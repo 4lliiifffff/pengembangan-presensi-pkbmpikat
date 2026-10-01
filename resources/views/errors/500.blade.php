@@ -1,9 +1,9 @@
 @extends('errors.layout')
 
-@section('title', '500 - Terjadi Kesalahan Server')
+@section('title', '500 - Terjadi Kendala Server')
 @section('toast_type', 'danger')
-@section('toast_title', 'Kesalahan Server (500)')
-@section('toast_message', $exception->getMessage() ?: 'Terjadi kendala teknis internal pada server aplikasi.')
+@section('toast_title', 'Kendala Server (500)')
+@section('toast_message', $exception->getMessage() ?: 'Terjadi kendala teknis internal pada pemrosesan server aplikasi.')
 
 @section('content')
 @php
@@ -22,7 +22,7 @@
 @endphp
 
 <div class="error-code-badge" style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25);">
-    <ion-icon name="server-outline"></ion-icon> ERROR 500 &bull; SERVER ERROR
+    <ion-icon name="server-outline"></ion-icon> KODE 500 &bull; KENDALA SERVER
 </div>
 
 <div class="error-icon-wrapper" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.2);">
@@ -31,7 +31,7 @@
 
 <h1 class="error-title">Terjadi Kendala Teknis</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Sistem mengalami gangguan saat memproses permintaan ini. Tim teknis PKBM Pikat sedang menindaklanjuti kendala tersebut. Silakan muat ulang atau coba kembali beberapa saat lagi.' }}
+    {{ $exception->getMessage() ?: 'Sistem mengalami gangguan saat memproses permintaan ini. Tim teknis PKBM Pikat sedang menindaklanjuti kendala tersebut. Silakan muat ulang atau coba beberapa saat lagi.' }}
 </p>
 
 <div class="error-actions-grid">
@@ -39,7 +39,7 @@
         <ion-icon name="refresh-outline"></ion-icon> Muat Ulang Halaman
     </button>
     <a href="{{ $targetRoute }}" class="btn-error-secondary">
-        <ion-icon name="home-outline"></ion-icon> Ke Dashboard
+        <ion-icon name="home-outline"></ion-icon> Ke Beranda Utama
     </a>
 </div>
 @endsection

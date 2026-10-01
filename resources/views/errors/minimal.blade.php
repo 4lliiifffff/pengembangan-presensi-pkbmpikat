@@ -1,9 +1,9 @@
 @extends('errors.layout')
 
-@section('title', ($code ?? 'Error') . ' - Terjadi Kesalahan')
+@section('title', ($code ?? 'Kendala') . ' - Terjadi Kesalahan')
 @section('toast_type', 'warning')
-@section('toast_title', 'Status ' . ($code ?? 'Error'))
-@section('toast_message', $exception->getMessage() ?: ($message ?? 'Terjadi kesalahan saat memproses permintaan Anda.'))
+@section('toast_title', 'Status ' . ($code ?? 'Kendala'))
+@section('toast_message', $exception->getMessage() ?: ($message ?? 'Terjadi kendala saat memproses permintaan Anda.'))
 
 @section('content')
 @php
@@ -22,7 +22,7 @@
 @endphp
 
 <div class="error-code-badge" style="background: rgba(100, 116, 139, 0.12); color: var(--muted); border: 1px solid rgba(100, 116, 139, 0.25);">
-    <ion-icon name="alert-circle-outline"></ion-icon> ERROR {{ $code ?? 'HTTP' }}
+    <ion-icon name="alert-circle-outline"></ion-icon> KODE KESALAHAN {{ $code ?? 'HTTP' }}
 </div>
 
 <div class="error-icon-wrapper" style="background: rgba(100, 116, 139, 0.1); color: var(--muted); border: 1px solid rgba(100, 116, 139, 0.2);">
@@ -31,12 +31,12 @@
 
 <h1 class="error-title">{{ $title ?? 'Terjadi Kesalahan' }}</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: ($message ?? 'Permintaan tidak dapat diselesaikan. Silakan kembali ke dashboard atau muat ulang halaman.') }}
+    {{ $exception->getMessage() ?: ($message ?? 'Permintaan tidak dapat diselesaikan saat ini. Silakan kembali ke beranda atau muat ulang halaman.') }}
 </p>
 
 <div class="error-actions-grid">
     <a href="{{ $targetRoute }}" class="btn-error-primary">
-        <ion-icon name="home-outline"></ion-icon> Ke Dashboard
+        <ion-icon name="home-outline"></ion-icon> Ke Beranda Utama
     </a>
     <button type="button" onclick="window.history.back()" class="btn-error-secondary">
         <ion-icon name="arrow-back-outline"></ion-icon> Kembali

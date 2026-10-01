@@ -1,8 +1,8 @@
 @extends('errors.layout')
 
-@section('title', '401 - Akses Tidak Terautentikasi')
+@section('title', '401 - Akses Belum Terautentikasi')
 @section('toast_type', 'warning')
-@section('toast_title', 'Akses Tidak Terautentikasi (401)')
+@section('toast_title', 'Akses Belum Terautentikasi (401)')
 @section('toast_message', $exception->getMessage() ?: 'Sesi autentikasi tidak valid atau Anda belum masuk ke sistem.')
 
 @section('content')
@@ -22,7 +22,7 @@
 @endphp
 
 <div class="error-code-badge" style="background: rgba(245, 158, 11, 0.12); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.25);">
-    <ion-icon name="key-outline"></ion-icon> ERROR 401 &bull; UNAUTHORIZED
+    <ion-icon name="key-outline"></ion-icon> KODE 401 &bull; BELUM TERAUTENTIKASI
 </div>
 
 <div class="error-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.2);">
@@ -31,7 +31,7 @@
 
 <h1 class="error-title">Akses Belum Terautentikasi</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Anda belum masuk (login) ke sistem atau sesi kredensial login Anda telah berakhir. Silakan masuk terlebih dahulu untuk mengakses halaman ini.' }}
+    {{ $exception->getMessage() ?: 'Anda belum masuk ke akun atau sesi kredensial telah berakhir. Silakan masuk terlebih dahulu untuk melanjutkan akses ke halaman ini.' }}
 </p>
 
 <div class="error-actions-grid">
