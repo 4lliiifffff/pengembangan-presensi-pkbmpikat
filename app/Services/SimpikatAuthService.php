@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\Admin;
+use App\Models\JenjangPaket;
 use App\Models\kelas as Kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -290,9 +291,9 @@ class SimpikatAuthService
     protected function provisionUserToPresensi(object $simpikatUser, ?string $plainPassword = null): User
     {
         $mappedRole = match ($simpikatUser->peran) {
-            'super_admin', 'admin' => 'admin',
+            'super_admin', 'admin', 'kepala_sekolah' => 'admin',
             'tutor' => 'tutor',
-            'peserta_didik' => 'siswa',
+            'peserta_didik', 'murid', 'siswa' => 'siswa',
             default => 'siswa',
         };
 
@@ -387,7 +388,7 @@ class SimpikatAuthService
      */
     protected function provisionDomainProfile(User $user, object $simpikatUser): void
     {
-        if ($user->role === 'admin' && Schema::hasTable('admin')) {
+        if ($user->role === 'admin' && (Schema::hasTable('admins') || Schema::hasTable('admin'))) {
             Admin::updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -397,7 +398,7 @@ class SimpikatAuthService
                     'no_hp' => $user->no_hp ?? '081234567890',
                 ]
             );
-        } elseif ($user->role === 'tutor' && Schema::hasTable('tutor')) {
+        } elseif ($user->role === 'tutor' && (Schema::hasTable('tutors') || Schema::hasTable('tutor'))) {
             $jabatan = ! empty($simpikatUser->gelar_akademik)
                 ? 'Tutor ('.$simpikatUser->gelar_akademik.')'
                 : 'Tutor Pengajar SIMPIKAT';
@@ -413,10 +414,7 @@ class SimpikatAuthService
                     'no_hp' => $user->no_hp ?? '081234567890',
                 ]
             );
-        } elseif ($user->role === 'siswa' && Schema::hasTable('siswa')) {
-            // Dapatkan atau buat kelas fallback jika belum ada
-            $kelasId = $this->resolveFallbackKelasId();
-
+        } elseif ($user->role === 'siswa' && (Schema::hasTable('siswas') || Schema::hasTable('siswa'))) {
             // Coba ambil detail dari peserta_didik SIMPIKAT jika ada
             $peserta = null;
             try {
@@ -427,6 +425,12 @@ class SimpikatAuthService
             } catch (\Throwable) {
                 // Abaikan jika query gagal
             }
+
+            // Dapatkan ID kelas yang sesuai berdasarkan data jenjang & tingkat di SIMPIKAT
+            $kelasId = $this->resolveKelasForSimpikatPeserta($peserta);
+
+            // Dapatkan ID Tutor pembimbing yang sesuai dari relasi Rombel SIMPIKAT
+            $tutorId = $this->resolveTutorForSimpikatPeserta($peserta);
 
             $noAbsen = 'SW'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT);
             $namaSiswa = $user->nama_lengkap;
@@ -440,35 +444,186 @@ class SimpikatAuthService
                 $noHp = (string) ($peserta->nomor_wa ?: ($peserta->telepon_peserta ?: $noHp));
             }
 
+            $siswaPayload = [
+                'no_absen' => substr($noAbsen, 0, 20),
+                'nama_siswa' => $namaSiswa,
+                'status_siswa' => 'aktif',
+                'kelas_id' => $kelasId,
+                'nama_wali' => substr($namaWali, 0, 50),
+                'no_hp' => substr($noHp, 0, 15),
+                'is_abk' => false,
+            ];
+
+            if ($tutorId !== null) {
+                $siswaPayload['tutor_id'] = $tutorId;
+            }
+
             Siswa::updateOrCreate(
                 ['user_id' => $user->id],
-                [
-                    'no_absen' => substr($noAbsen, 0, 20),
-                    'nama_siswa' => $namaSiswa,
-                    'status_siswa' => 'aktif',
-                    'kelas_id' => $kelasId,
-                    'nama_wali' => substr($namaWali, 0, 50),
-                    'no_hp' => substr($noHp, 0, 15),
-                    'is_abk' => false,
-                ]
+                $siswaPayload
             );
         }
     }
 
     /**
-     * Memastikan ada ID kelas yang tersedia untuk relasi tabel siswa.
+     * Menemukan ID Tutor di Presensi berdasarkan relasi Rombel pembimbing di SIMPIKAT.
+     */
+    protected function resolveTutorForSimpikatPeserta(?object $peserta): ?int
+    {
+        if (! $peserta) {
+            return null;
+        }
+
+        try {
+            $program = trim((string) ($peserta->program_pendidikan ?? ''));
+            $tingkat = trim((string) ($peserta->tingkat_kelas ?? ''));
+            $diterimaTingkat = trim((string) ($peserta->diterima_di_tingkat ?? ''));
+
+            $tingkatNum = null;
+            if (preg_match('/\b(1[0-2]|[1-9])\b/', $tingkat, $m)) {
+                $tingkatNum = $m[1];
+            } elseif (preg_match('/\b(1[0-2]|[1-9])\b/', $diterimaTingkat, $m)) {
+                $tingkatNum = $m[1];
+            }
+
+            // 1. Cari rombel di SIMPIKAT yang cocok
+            $rombelQuery = DB::connection($this->connection)->table('rombel');
+            if ($program !== '') {
+                $rombelQuery->where('program', 'LIKE', '%'.$program.'%');
+            }
+            if ($tingkatNum !== null) {
+                $rombelQuery->where('tingkat', (string) $tingkatNum);
+            }
+
+            $rombel = $rombelQuery->first();
+            $simpikatTutorId = $rombel?->tutor_id;
+
+            // 2. Fallback ke rombel_mata_pelajaran jika kolom tutor_id di rombel kosong
+            if (! $simpikatTutorId && $rombel) {
+                $rombelMapel = DB::connection($this->connection)
+                    ->table('rombel_mata_pelajaran')
+                    ->where('rombel_id', $rombel->id)
+                    ->whereNotNull('tutor_id')
+                    ->first();
+                $simpikatTutorId = $rombelMapel?->tutor_id;
+            }
+
+            if (! $simpikatTutorId) {
+                return null;
+            }
+
+            // 3. Ambil data pengguna Tutor di database SIMPIKAT
+            $simpikatTutor = DB::connection($this->connection)
+                ->table('pengguna')
+                ->where('id', $simpikatTutorId)
+                ->first();
+
+            if (! $simpikatTutor) {
+                return null;
+            }
+
+            // 4. Sinkronkan / dapatkan user dan profil Tutor di Presensi
+            $tutorUser = $this->provisionUserToPresensi($simpikatTutor, null);
+            $presensiTutor = Tutor::where('user_id', $tutorUser->id)->first();
+
+            return $presensiTutor ? (int) $presensiTutor->id : null;
+        } catch (\Throwable $e) {
+            Log::warning('SimpikatAuthService: Gagal memetakan relasi Tutor SIMPIKAT untuk siswa.', [
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Menemukan atau memetakan ID kelas di sistem Presensi berdasarkan data jenjang & tingkat kelas di SIMPIKAT.
+     */
+    protected function resolveKelasForSimpikatPeserta(?object $peserta): int
+    {
+        if (! $peserta) {
+            return $this->resolveFallbackKelasId();
+        }
+
+        $program = trim((string) ($peserta->program_pendidikan ?? ''));
+        $tingkat = trim((string) ($peserta->tingkat_kelas ?? ''));
+        $diterimaTingkat = trim((string) ($peserta->diterima_di_tingkat ?? ''));
+
+        // Ekstraksi angka tingkat (1 - 12)
+        $tingkatNum = null;
+        if (preg_match('/\b(1[0-2]|[1-9])\b/', $tingkat, $m)) {
+            $tingkatNum = $m[1];
+        } elseif (preg_match('/\b(1[0-2]|[1-9])\b/', $diterimaTingkat, $m)) {
+            $tingkatNum = $m[1];
+        }
+
+        // Tentukan Kode Jenjang (paket_a, paket_b, paket_c)
+        $jenjangKode = null;
+        if (stripos($program, 'Paket A') !== false || stripos($program, 'Setara SD') !== false) {
+            $jenjangKode = 'paket_a';
+        } elseif (stripos($program, 'Paket B') !== false || stripos($program, 'Setara SMP') !== false) {
+            $jenjangKode = 'paket_b';
+        } elseif (stripos($program, 'Paket C') !== false || stripos($program, 'Setara SMA') !== false) {
+            $jenjangKode = 'paket_c';
+        }
+
+        // Inferensi jenjang jika tidak eksplisit dari nama program
+        if (! $jenjangKode && $tingkatNum) {
+            $t = (int) $tingkatNum;
+            if ($t >= 1 && $t <= 6) {
+                $jenjangKode = 'paket_a';
+            } elseif ($t >= 7 && $t <= 9) {
+                $jenjangKode = 'paket_b';
+            } elseif ($t >= 10 && $t <= 12) {
+                $jenjangKode = 'paket_c';
+            }
+        }
+
+        $jenjang = $jenjangKode ? JenjangPaket::where('kode', $jenjangKode)->first() : null;
+
+        // 1. Pencarian presisi: Jenjang Paket + Tingkat
+        if ($jenjang && $tingkatNum) {
+            $matchedKelas = Kelas::where('jenjang_paket_id', $jenjang->id)
+                ->where('tingkat', (string) $tingkatNum)
+                ->first();
+            if ($matchedKelas) {
+                return (int) $matchedKelas->id;
+            }
+        }
+
+        // 2. Pencarian berdasarkan Tingkat (1 - 12)
+        if ($tingkatNum) {
+            $matchedKelas = Kelas::where('tingkat', (string) $tingkatNum)->first();
+            if ($matchedKelas) {
+                return (int) $matchedKelas->id;
+            }
+        }
+
+        // 3. Pencarian kelas pertama pada Jenjang yang sama
+        if ($jenjang) {
+            $matchedKelas = Kelas::where('jenjang_paket_id', $jenjang->id)->first();
+            if ($matchedKelas) {
+                return (int) $matchedKelas->id;
+            }
+        }
+
+        return $this->resolveFallbackKelasId();
+    }
+
+    /**
+     * Memastikan ada ID kelas yang tersedia untuk relasi tabel siswa (fallback jika tidak ada informasi).
      */
     protected function resolveFallbackKelasId(): int
     {
-        $kelas = Kelas::first();
+        $kelas = Kelas::where('nama_kelas', 'like', '%Paket C%')->first() ?? Kelas::first();
         if ($kelas) {
             return (int) $kelas->id;
         }
 
         $kelasBaru = Kelas::create([
-            'nama_kelas' => 'Kelas Reguler (SIMPIKAT)',
-            'tingkat' => 'Umum',
-            'keterangan' => 'Kelas otomatis untuk warga belajar sinkronisasi SIMPIKAT',
+            'nama_kelas' => 'Paket C - Kelas 10',
+            'tingkat' => '10',
+            'keterangan' => 'Kelas default sistem untuk warga belajar sinkronisasi SIMPIKAT',
         ]);
 
         return (int) $kelasBaru->id;

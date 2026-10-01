@@ -1,9 +1,9 @@
 # PROGRESS PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 27 September 2026  
+**Tanggal Pembaruan:** 01 Oktober 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
 **Dokumentasi Resmi:** Tersedia dokumen formal Software Requirements Specification (SRS) berstandar IEEE pada `docs/srs_sistem_informasi_presensi_pkbmpikat.md`  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX Halaman Presensi Multi-Peran, Master Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, Integrasi Autentikasi Lintas Sistem SIMPIKAT, & SRS IEEE)  
+**Status Proyek:** Fase 1-6 (Keamanan, Multi-Moda, Multi-Geofence, Payroll SK, Standardisasi Seeder Jenjang Paket A/B/C Kelas 1-12, UI Toast Global, Searchable Select, Web Push, SIMPIKAT SSO, & SRS IEEE)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 
 ---
@@ -46,9 +46,9 @@ pie title Status Fitur & Pengkondisian Sistem
     1. **Koneksi Database Sekunder (`simpikat`):** Menambahkan konfigurasi koneksi `simpikat` di `config/database.php` mengarah ke database `db_simpikat` serta variabel environment pendukung di `.env` dan `.env.example`.
     2. **Service Autentikasi Terdedikasi (`SimpikatAuthService`):** Mengabstraksi pencarian multi-identifier (`nama_pengguna`, `email`, `nomor_nuptk`, `nik`, `nisn`), validasi status akun (`status = 'aktif'`), verifikasi password via standar Bcrypt `Hash::check()`, dan role translation (`super_admin`/`admin` -> `admin`, `tutor` -> `tutor`, `peserta_didik` -> `siswa`).
     3. **Penolakan Edukatif Akun Non-Presensi:** Akun peran `orang_tua` dan `asesor` dari SIMPIKAT dicegah login dengan respon peringatan yang informatif.
-    4. **Just-In-Time (JIT) Domain Provisioning:** Saat autentikasi SIMPIKAT berhasil, sistem secara otomatis melakukan `updateOrCreate` pada tabel `users` lokal serta tabel profil bisnis pendamping (`tutor`, `siswa`, atau `admin`) agar dashboard dan fitur presensi tidak mengalami fatal error null relation.
+    4. **Just-In-Time (JIT) Domain Provisioning & Resolusi Jenjang, Kelas, dan Relasi Tutor:** Saat autentikasi SIMPIKAT berhasil, sistem secara otomatis melakukan `updateOrCreate` pada tabel `users` lokal serta tabel profil bisnis pendamping (`tutor`, `siswa`, atau `admin`). Khusus siswa, sistem mengekstrak `program_pendidikan` dan `tingkat_kelas` dari database SIMPIKAT dan memetakannya secara presisi ke 12 kelas terstruktur (`Paket A - Kelas 1-6`, `Paket B - Kelas 7-9`, `Paket C - Kelas 10-12`), sekaligus menautkan `tutor_id` pembimbing rombel yang relevan dari SIMPIKAT.
     5. **Integrasi Controller & UI:** Menginjeksi service ke `AuthWebController@process` sebagai fallback lapis ke-4 setelah pengecekan lokal NIK, Email, dan variasi No. Absen siswa, serta menyematkan badge informasi dukungan akun SIMPIKAT pada `login.blade.php`.
-    6. **Automated QA Suite:** 5 skenario pengujian komprehensif di `tests/Feature/SimpikatIntegrationAuthTest.php` lulus 100% (25 assertions).
+    6. **Automated QA Suite:** 6 skenario pengujian komprehensif di `tests/Feature/SimpikatIntegrationAuthTest.php` dan 7 pengujian di `tests/Feature/SimpikatSsoAuthTest.php` lulus 100% (72 assertions).
 - 🟢 **Upgrade Framework Laravel 13 (v13.31.0)**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:** Memperbarui `composer.json` ke `"laravel/framework": "^13.0"` dan `"laravel/tinker": "^3.0"`, menyelaraskan dependensi `nunomaduro/collision`, serta meregenerasi autoloader sehingga aplikasi berjalan stabil di atas versi Laravel 13 terbaru (v13.31.0).

@@ -42,18 +42,20 @@ class JenjangPaketSeeder extends Seeder
 
         $allowedKodes = ['paket_a', 'paket_b', 'paket_c'];
 
-        // 1. Buat atau perbarui 3 Jenjang Pokok
+        // 1. Buat atau perbarui 3 Jenjang Pokok (Paket A, B, C)
+        $jenjangModels = [];
         foreach ($jenjangList as $item) {
-            JenjangPaket::updateOrCreate(
+            $jenjangModels[$item['kode']] = JenjangPaket::updateOrCreate(
                 ['kode' => $item['kode']],
                 $item
             );
         }
 
-        // 2. Ambil ID Paket C sebagai fallback jika ada kelas lama yang terikat ke jenjang non-A/B/C
-        $paketC = JenjangPaket::where('kode', 'paket_c')->first();
+        $paketA = $jenjangModels['paket_a'];
+        $paketB = $jenjangModels['paket_b'];
+        $paketC = $jenjangModels['paket_c'];
 
-        // 3. Bersihkan jenjang di luar Paket A, B, C
+        // 2. Bersihkan jenjang di luar Paket A, B, C jika ada
         $obsoleteJenjangs = JenjangPaket::whereNotIn('kode', $allowedKodes)->get();
         foreach ($obsoleteJenjangs as $obsolete) {
             if ($paketC) {
@@ -62,6 +64,34 @@ class JenjangPaketSeeder extends Seeder
                 ]);
             }
             $obsolete->delete();
+        }
+
+        // 3. Buat atau Sinkronkan Master 12 Kelas (Kelas 1 s/d 12)
+        $classes = [
+            // Paket A (Kelas 1 - 6)
+            ['nama_kelas' => 'Paket A - Kelas 1', 'tingkat' => '1', 'jenjang_paket_id' => $paketA->id, 'keterangan' => 'Tingkat 1 Paket A'],
+            ['nama_kelas' => 'Paket A - Kelas 2', 'tingkat' => '2', 'jenjang_paket_id' => $paketA->id, 'keterangan' => 'Tingkat 2 Paket A'],
+            ['nama_kelas' => 'Paket A - Kelas 3', 'tingkat' => '3', 'jenjang_paket_id' => $paketA->id, 'keterangan' => 'Tingkat 3 Paket A'],
+            ['nama_kelas' => 'Paket A - Kelas 4', 'tingkat' => '4', 'jenjang_paket_id' => $paketA->id, 'keterangan' => 'Tingkat 4 Paket A'],
+            ['nama_kelas' => 'Paket A - Kelas 5', 'tingkat' => '5', 'jenjang_paket_id' => $paketA->id, 'keterangan' => 'Tingkat 5 Paket A'],
+            ['nama_kelas' => 'Paket A - Kelas 6', 'tingkat' => '6', 'jenjang_paket_id' => $paketA->id, 'keterangan' => 'Tingkat 6 Paket A'],
+
+            // Paket B (Kelas 7 - 9)
+            ['nama_kelas' => 'Paket B - Kelas 7', 'tingkat' => '7', 'jenjang_paket_id' => $paketB->id, 'keterangan' => 'Tingkat 7 Paket B'],
+            ['nama_kelas' => 'Paket B - Kelas 8', 'tingkat' => '8', 'jenjang_paket_id' => $paketB->id, 'keterangan' => 'Tingkat 8 Paket B'],
+            ['nama_kelas' => 'Paket B - Kelas 9', 'tingkat' => '9', 'jenjang_paket_id' => $paketB->id, 'keterangan' => 'Tingkat 9 Paket B'],
+
+            // Paket C (Kelas 10 - 12)
+            ['nama_kelas' => 'Paket C - Kelas 10', 'tingkat' => '10', 'jenjang_paket_id' => $paketC->id, 'keterangan' => 'Tingkat 10 Paket C'],
+            ['nama_kelas' => 'Paket C - Kelas 11', 'tingkat' => '11', 'jenjang_paket_id' => $paketC->id, 'keterangan' => 'Tingkat 11 Paket C'],
+            ['nama_kelas' => 'Paket C - Kelas 12', 'tingkat' => '12', 'jenjang_paket_id' => $paketC->id, 'keterangan' => 'Tingkat 12 Paket C'],
+        ];
+
+        foreach ($classes as $cls) {
+            kelas::updateOrCreate(
+                ['nama_kelas' => $cls['nama_kelas']],
+                $cls
+            );
         }
     }
 }

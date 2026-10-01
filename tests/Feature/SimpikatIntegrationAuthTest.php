@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Admin;
+use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
@@ -77,6 +78,35 @@ class SimpikatIntegrationAuthTest extends TestCase
         $response->assertRedirect();
         $response->assertSessionHas('warning', 'Username/NIK atau password salah.');
         $this->assertGuest();
+    }
+
+    public function test_simpikat_siswa_login_accurately_provisions_jenjang_and_kelas(): void
+    {
+        // budisantoso terdaftar di SIMPIKAT sebagai siswa Paket C Tingkat 12
+        $response = $this->post(route('login.process'), [
+            'username' => 'budisantoso',
+            'password' => '12345678',
+        ]);
+
+        $response->assertRedirect(route('siswa.dashboard'));
+        $this->assertAuthenticated();
+
+        $user = auth()->user();
+        $this->assertNotNull($user);
+        $this->assertSame('siswa', $user->role);
+
+        // Verifikasi profil Siswa di-provisioning dan kelasnya sesuai (Paket C - Kelas 12)
+        $siswaProfile = Siswa::where('user_id', $user->id)->first();
+        $this->assertNotNull($siswaProfile);
+        $this->assertNotNull($siswaProfile->kelas);
+        $this->assertSame('Paket C - Kelas 12', $siswaProfile->kelas->nama_kelas);
+        $this->assertSame('12', $siswaProfile->kelas->tingkat);
+        $this->assertSame('paket_c', $siswaProfile->kelas->jenjang_paket);
+
+        // Verifikasi relasi Tutor pembimbing dari rombel SIMPIKAT terhubung
+        $this->assertNotNull($siswaProfile->tutor_id);
+        $this->assertNotNull($siswaProfile->tutor);
+        $this->assertSame('Tutor Pengajar Vokasi', $siswaProfile->tutor->nama_lengkap);
     }
 
     public function test_local_presensi_user_login_still_works_seamlessly(): void

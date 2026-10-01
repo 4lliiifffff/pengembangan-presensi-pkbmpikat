@@ -9,10 +9,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            AdminSeeder::class,
+            // 1. Master Fondasi Sistem
+            JenjangPaketSeeder::class,
+            KategoriTutorialSeeder::class,
+            LokasiPresensiSeeder::class,
+            JadwalKerjaSeeder::class,
+
+            // 2. Akun Pengguna & Profil Entitas
             UserRoleSeeder::class,
             MagangSeeder::class,
+            SiswaSeeder::class,
             SiswaUserSeeder::class,
+
+            // 3. Kalender & Jadwal Operasional KBM
+            JadwalSeeder::class,
+            JadwalRutinSeeder::class,
         ]);
     }
 }
