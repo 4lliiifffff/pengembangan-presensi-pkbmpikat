@@ -12,7 +12,7 @@
 
 ```mermaid
 pie title Status Fitur & Pengkondisian Sistem
-    "Selesai (Completed)" : 54
+    "Selesai (Completed)" : 55
     "Dalam Proses (In Progress)" : 0
     "Belum Dimulai / Backlog (Pending)" : 6
 ```
@@ -26,10 +26,11 @@ pie title Status Fitur & Pengkondisian Sistem
 | 5. Master Data Relasional & Siklus Siswa | 4 | 4 | 0 | 0 |
 | 6. Integrasi & Web Push Notifikasi | 5 | 3 | 0 | 2 |
 | 7. Executive Dashboard & Analytics | 3 | 2 | 0 | 1 |
-| 8. UI/UX Excellence & Responsive Layout | 8 | 8 | 0 | 0 |
+| 8. UI/UX Excellence & Responsive Layout | 9 | 9 | 0 | 0 |
 | 9. Codebase, Standardisasi & QA | 6 | 6 | 0 | 0 |
 | **Tambahan (Infrastruktur Teknis & VCS)** | **3** | **3** | **0** | **0** |
-| **TOTAL** | **59** | **53** | **0** | **6** |
+| **TOTAL** | **60** | **54** | **0** | **6** |
+
 
 
 ---
@@ -861,6 +862,8 @@ pie title Status Fitur & Pengkondisian Sistem
 | 48 | **Pengetatan Validasi Jadwal Presensi Siswa (Strict Schedule Gating) & Redesain Layout Responsif Mobile** | Schedule Enforcement & UI/UX | Menegakkan kebijakan presensi ketat via `config('presensi_sk.strict_schedule_gating')` (default `true`) di mana siswa wajib memiliki jadwal sesi aktif hari ini (`!$todaySesi`) untuk dapat melakukan presensi mandiri. Jika database jadwal kosong atau siswa tidak terjadwal hari ini, tombol dan form kamera presensi terkunci otomatis. Mengadopsi styling `.statusBanner.danger` dan empty state card `.tableEmptyIconWrap.rose` yang rapi, modern, dan ergonomis di perangkat mobile. Dilengkapi automated unit & feature tests di `JadwalRutinAndPresensiGatingTest` dan `SiswaRoleAndPresensiTest` lulus 100%. | 🟢 Selesai |
 | 50 | **Pusat Laporan &amp; Rekapitulasi Terpadu (All-in-One Reporting &amp; Analytics Hub)** | Reporting &amp; Analytics Hub | Integrasi menyeluruh pelaporan 4 entitas pengguna (Tutor, Siswa, Pegawai, Magang), rekapitulasi perizinan/lupa lapor, generator matriks buku induk bulanan (tanggal 1–31) berstandar Dapodik &amp; Akreditasi BAN PDM, visual analytics Chart.js (tren harian, komposisi moda, jenjang), ekspor PDF A4 Landscape resmi ber-KOP &amp; tanda tangan pimpinan, ekspor Excel terpadu, dan automated test suite (`LaporanPresensiTerpaduTest` 7 passed, 47 assertions). | 🟢 Selesai |
 | 51 | **Standardisasi Dropdown Searchable &amp; Suite Antarmuka Mobile Responsif (Searchable Dropdown System)** | UI/UX &amp; Mobile Ergonomics | Engine murni Vanilla JS berkecepatan tinggi (`searchable-select.js`), sinkronisasi dua arah ke native `<select>`, pencarian instan dengan highlight teks cocok, navigasi keyboard lengkap, styling CSS Design System &amp; Dark Mode (`searchable-select.css`), serta transformasi mobile khusus menjadi **Bottom Sheet Drawer** layar sentuh ($\le 640$px) dengan font 16px anti-zoom iOS dan touch target min 48px. | 🟢 Selesai |
+| 52 | **Standardisasi Halaman Error Terpadu &amp; Notifikasi Floating Toast Multi-Status (Unified Error Page &amp; Toast Suite)** | Error Handling &amp; Toast Notification | Suite lengkap halaman error (401, 403, 404, 419, 429, 500, 503, dan minimal fallback) dengan kartu glassmorphism terpadu, ambient glow adaptif tema gelap/terang, tombol aksi pemulihan/dashboard, pemicu otomatis floating toast (`AppNotification.toast`), penanganan anggun `TokenMismatchException` di `bootstrap/app.php` dengan flash warning toast, dan 7 automated tests lulus 100%. | 🟢 Selesai |
+
 
 
 ---

@@ -495,11 +495,23 @@
   - Indikator chevron yang berputar halus, status focus ring lembut, badge checkmark aktif, dan tombol clear cepat (`×`).
 * 🟢 **Suite Responsif Mobile Khusus (Touch-Optimized Bottom Sheet <= 640px):** [SELESAI]
   - Pada layar smartphone ($\le 640$px), dropdown bertransformasi menjadi **Bottom Sheet Drawer** modern dengan latar *frosted glass* (`backdrop-filter: blur(4px)`), handle bar, judul field otomatis, search input dengan ukuran font 16px (mencegah auto-zoom pada iOS Safari), touch target tinggi ergonomis (min 48px), serta area scroll lancar yang tidak terpotong oleh keyboard virtual.
-  - Pada desktop/tablet ($> 640$px), tampil sebagai floating dropdown cerdas dengan deteksi batas viewport (auto drop-up / drop-down).
+### 9.19 Standardisasi Halaman Error Terpadu & Notifikasi Floating Toast Multi-Status (Unified Error Page & Toast Suite)
+* 🟢 **Arsitektur Base Error Layout (`resources/views/errors/layout.blade.php`):** [SELESAI]
+  - Mengintegrasikan design system modern PKBM Pikat (kartu glassmorphism, background ambient glow adaptif, font Inter & Outfit, tombol switcher Dark/Light mode).
+  - Dilengkapi auto-trigger JavaScript yang secara otomatis memicu floating toast `AppNotification.toast({ type, title, message })` saat halaman error dirender.
+* 🟢 **Suite Halaman Error Terstruktur (401, 403, 404, 419, 429, 500, 503 & Minimal Fallback):** [SELESAI]
+  - **401 Unauthorized (`401.blade.php`):** Notifikasi toast peringatan, ikon kunci, pesan edukasi sesi autentikasi belum masuk/kedaluwarsa, dan tombol cepat "Masuk Sekarang".
+  - **403 Forbidden (`403.blade.php`):** Notifikasi toast peringatan, ikon tameng, penjelasan hak akses peran dibatasi, dan tombol cerdas "Ke Dashboard".
+  - **404 Not Found (`404.blade.php`):** Notifikasi toast informasi, ikon kompas/pencarian, dan tombol navigasi kembali/dashboard.
+  - **419 Page Expired (`419.blade.php`):** Notifikasi toast peringatan sesi form kedaluwarsa, dan tombol "Muat Ulang Halaman".
+  - **429 Rate Limited (`429.blade.php`):** Notifikasi toast pembatasan frekuensi permintaan server, dan tombol "Coba Lagi".
+  - **500 Internal Error (`500.blade.php`):** Notifikasi toast bahaya kendala server, dan tombol pemulihan.
+  - **503 Maintenance (`503.blade.php`):** Status pemeliharaan berkala sistem.
+  - **Minimal Fallback (`minimal.blade.php`):** Penanganan dinamis untuk status kode HTTP lainnya.
+* 🟢 **Penanganan Exception Toleran di Kernel (`bootstrap/app.php`):** [SELESAI]
+  - Menangani `TokenMismatchException` (CSRF expired) secara anggun: jika form dikirim saat sesi habis, sistem otomatis me-redirect kembali ke halaman form dengan data input tersimpan (`withInput`) dan pesan toast flash warning (*"Sesi Anda telah kedaluwarsa. Silakan coba kirim ulang form."*) tanpa memicu crash kasar.
+* 🟢 **Automated Testing Suite:** [SELESAI] 7 skenario pengujian komprehensif di `tests/Feature/ErrorPagesToastTest.php` lulus 100% (17 assertions).
 
-
-
----
 
 ## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)
  
