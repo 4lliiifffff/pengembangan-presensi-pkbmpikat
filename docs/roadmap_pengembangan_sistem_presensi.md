@@ -1,8 +1,9 @@
 # ROADMAP DAN PENJABARAN LENGKAP PENGEMBANGAN SISTEM PRESENSI DIGITAL PKBM PIKAT
 
-**Tanggal Pembaruan:** 23 September 2026  
+**Tanggal Pembaruan:** 27 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX Halaman Presensi Multi-Peran, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, & Integrasi Autentikasi Lintas Sistem SIMPIKAT)  
+**Dokumentasi Resmi:** Tersedia dokumen formal Software Requirements Specification (SRS) berstandar IEEE pada `docs/srs_sistem_informasi_presensi_pkbmpikat.md`  
+**Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX Halaman Presensi Multi-Peran, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, Integrasi Autentikasi Lintas Sistem SIMPIKAT, & SRS IEEE)  
 
 ---
 
@@ -479,6 +480,23 @@
   - Template PDF formal ber-KOP resmi PKBM Pikat (NPSN, alamat, kontak), tabel terstruktur, dan lembar pengesahan tanda tangan ganda (Pengelola Administrasi & Kepala PKBM).
 * 🟢 **Automated Feature Test Suite & Verifikasi:** [SELESAI]
   - Feature test `tests/Feature/LaporanPresensiTerpaduTest.php` mencakup 7 pengujian komprehensif (akses 6 tab, kalkulasi durasi & honor SK, lateness siswa, pegawai & magang, agregasi perizinan, matriks 1-31, dan ekspor dokumen) lulus 100% (47 assertions).
+
+### 9.18 Standardisasi Dropdown Searchable & Suite Antarmuka Mobile Responsif (Global Searchable Dropdown System)
+* 🟢 **Analisis Komprehensif Arsitektur Dropdown:** [SELESAI] Melakukan audit menyeluruh pada seluruh modul (Admin, Kepala Sekolah, Tutor, Siswa, Magang, Karyawan). Menemukan bahwa mayoritas dropdown sebelumnya masih berupa tag native HTML `<select>` tanpa fitur pencarian (kecuali widget multi-checkbox khusus murid di `presensi_foto.blade.php`), sehingga menyulitkan pemilihan data siswa, tutor, kelas, dan lokasi yang berjumlah puluhan hingga ratusan.
+* 🟢 **Pengembangan Engine Vanilla JS Searchable Select (`resources/js/searchable-select.js`):** [SELESAI]
+  - Engine murni Vanilla JS berkecepatan tinggi tanpa dependensi eksternal yang membengkakkan bundle.
+  - **Sinkronisasi Dua Arah (Two-Way Live Sync):** Terintegrasi langsung dengan `<select>` native, menjaga `name`, `id`, `required`, validasi HTML5, form submission, dan meneruskan event `change` serta `input` secara otomatis (`dispatchEvent(new Event('change'))`) sehingga seluruh listener `onchange="this.form.submit()"` maupun skrip dinamis tetap bekerja 100% tanpa perubahan backend.
+  - **Pencarian Instan & Highlight Teks Real-Time:** Filter fuzzy substring pada teks opsi dan grup dengan penyorotan warna teks yang cocok (`.ss-highlight`).
+  - **Dukungan Optgroup & Navigasi Keyboard Penuh:** Mendukung pengelompokan `<optgroup label="...">`, navigasi `ArrowUp`, `ArrowDown`, `Enter` untuk memilih, dan `Escape` untuk menutup.
+  - **Observasi DOM Dinamis (`MutationObserver`):** Mendeteksi otomatis perubahan opsi atau status `disabled` pada select dinamis tanpa perlu inisialisasi ulang manual.
+* 🟢 **Desain Konsisten Design System & Dark Mode (`resources/css/searchable-select.css`):** [SELESAI]
+  - Terintegrasi harmonis dengan CSS variable PKBM Pikat (`--card`, `--input-bg`, `--border`, `--text`, `--blue`, `--blue2`, `--radius-md`).
+  - Dukungan penuh Dark Mode (`[data-theme="dark"]`).
+  - Indikator chevron yang berputar halus, status focus ring lembut, badge checkmark aktif, dan tombol clear cepat (`×`).
+* 🟢 **Suite Responsif Mobile Khusus (Touch-Optimized Bottom Sheet <= 640px):** [SELESAI]
+  - Pada layar smartphone ($\le 640$px), dropdown bertransformasi menjadi **Bottom Sheet Drawer** modern dengan latar *frosted glass* (`backdrop-filter: blur(4px)`), handle bar, judul field otomatis, search input dengan ukuran font 16px (mencegah auto-zoom pada iOS Safari), touch target tinggi ergonomis (min 48px), serta area scroll lancar yang tidak terpotong oleh keyboard virtual.
+  - Pada desktop/tablet ($> 640$px), tampil sebagai floating dropdown cerdas dengan deteksi batas viewport (auto drop-up / drop-down).
+
 
 
 ---

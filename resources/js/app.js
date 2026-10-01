@@ -4,4 +4,6 @@ import './app-notifications';
 import './offline-presensi';
 import './push-notification';
 import './leaflet-presensi';
+import './searchable-select';
+
 
