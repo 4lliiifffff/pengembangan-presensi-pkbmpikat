@@ -1,9 +1,21 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Sistem mengalami gangguan saat memproses permintaan ini. Tim teknis PKBM Pikat sedang menindaklanjuti kendala tersebut. Silakan muat ulang atau coba beberapa saat lagi.';
+    if ($rawMsg) {
+        if (preg_match('/Server Error/i', $rawMsg)) {
+            $indoDesc = 'Terjadi kendala teknis internal pada pemrosesan server aplikasi.';
+        } elseif (preg_match('/kendala|gangguan|server|galat|kesalahan/i', $rawMsg)) {
+            $indoDesc = $rawMsg;
+        }
+    }
+@endphp
+
 @section('title', '500 - Terjadi Kendala Server')
 @section('toast_type', 'danger')
 @section('toast_title', 'Kendala Server (500)')
-@section('toast_message', $exception->getMessage() ?: 'Terjadi kendala teknis internal pada pemrosesan server aplikasi.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +43,7 @@
 
 <h1 class="error-title">Terjadi Kendala Teknis</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Sistem mengalami gangguan saat memproses permintaan ini. Tim teknis PKBM Pikat sedang menindaklanjuti kendala tersebut. Silakan muat ulang atau coba beberapa saat lagi.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

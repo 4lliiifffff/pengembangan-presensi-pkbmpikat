@@ -398,11 +398,17 @@ class AppNotificationManager {
 
     escapeHtml(str) {
         if (!str) return '';
+        // Decode any existing HTML entities first to avoid &quot; / &amp; double-escaping
+        const txt = document.createElement('textarea');
+        txt.innerHTML = String(str);
+        const decoded = txt.value;
+
         const div = document.createElement('div');
-        div.textContent = str;
+        div.textContent = decoded;
         return div.innerHTML;
     }
 }
+
 
 // Inisialisasi Global Instance
 const appNotification = new AppNotificationManager();

@@ -1,9 +1,21 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Mohon maaf, akun Anda tidak memiliki izin atau peran yang sesuai untuk mengakses modul ini. Silakan kembali ke beranda utama Anda.';
+    if ($rawMsg) {
+        if (preg_match('/This action is unauthorized/i', $rawMsg) || preg_match('/Access denied/i', $rawMsg) || preg_match('/Forbidden/i', $rawMsg)) {
+            $indoDesc = 'Anda tidak memiliki hak akses atau wewenang untuk membuka halaman ini.';
+        } elseif (!preg_match('/[a-zA-Z]/', $rawMsg) || preg_match('/akses|izin|wewenang|peran/i', $rawMsg)) {
+            $indoDesc = $rawMsg;
+        }
+    }
+@endphp
+
 @section('title', '403 - Akses Ditolak')
 @section('toast_type', 'warning')
 @section('toast_title', 'Akses Ditolak (403)')
-@section('toast_message', $exception->getMessage() ?: 'Anda tidak memiliki hak akses atau wewenang untuk membuka halaman ini.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +43,7 @@
 
 <h1 class="error-title">Hak Akses Dibatasi</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Mohon maaf, akun Anda tidak memiliki izin atau peran yang sesuai untuk mengakses modul ini. Silakan kembali ke beranda utama Anda.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

@@ -216,22 +216,31 @@
             }
 
             // Otomatis Munculkan Floating Toast Notifikasi Error
-            const toastType = "@yield('toast_type', 'warning')";
-            const toastTitle = "@yield('toast_title', 'Perhatian')";
-            const toastMessage = "@yield('toast_message', 'Terjadi kesalahan saat memproses halaman ini.')";
+            @php
+                $tType = trim($__env->yieldContent('toast_type', 'warning'));
+                $tTitle = trim($__env->yieldContent('toast_title', 'Perhatian'));
+                $tMsg = trim($__env->yieldContent('toast_message', 'Terjadi kesalahan saat memproses halaman ini.'));
+            @endphp
+
+            const toastPayload = {!! json_encode([
+                'type' => $tType,
+                'title' => $tTitle,
+                'message' => html_entity_decode($tMsg, ENT_QUOTES, 'UTF-8'),
+            ], JSON_UNESCAPED_UNICODE) !!};
 
             setTimeout(() => {
                 if (window.AppNotification && typeof window.AppNotification.toast === 'function') {
                     window.AppNotification.toast({
-                        type: toastType,
-                        title: toastTitle,
-                        message: toastMessage,
+                        type: toastPayload.type || 'warning',
+                        title: toastPayload.title || 'Perhatian',
+                        message: toastPayload.message,
                         duration: 6000
                     });
                 }
             }, 300);
         });
     </script>
+
 </body>
 
 </html>

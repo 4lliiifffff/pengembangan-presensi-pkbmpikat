@@ -1,9 +1,17 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Aplikasi presensi PKBM Pikat sedang dalam proses pemeliharaan untuk meningkatkan performa layanan. Aplikasi akan segera kembali aktif dalam beberapa saat.';
+    if ($rawMsg && preg_match('/pemeliharaan|perawatan|peningkatan/i', $rawMsg)) {
+        $indoDesc = $rawMsg;
+    }
+@endphp
+
 @section('title', '503 - Layanan Sedang Pemeliharaan')
 @section('toast_type', 'info')
 @section('toast_title', 'Pemeliharaan Sistem (503)')
-@section('toast_message', $exception->getMessage() ?: 'Sistem sedang dalam proses peningkatan dan pemeliharaan berkala.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 <div class="error-code-badge" style="background: rgba(11, 94, 215, 0.12); color: #0b5ed7; border: 1px solid rgba(11, 94, 215, 0.25);">
@@ -16,7 +24,7 @@
 
 <h1 class="error-title">Sedang Pemeliharaan Sistem</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Aplikasi presensi PKBM Pikat sedang dalam proses pemeliharaan untuk meningkatkan performa layanan. Aplikasi akan segera kembali aktif dalam beberapa saat.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

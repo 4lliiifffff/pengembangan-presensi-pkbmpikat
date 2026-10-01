@@ -1,9 +1,21 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Halaman telah terbuka terlalu lama tanpa aktivitas sehingga token keamanan form kedaluwarsa. Silakan muat ulang halaman untuk melanjutkan kembali.';
+    if ($rawMsg) {
+        if (preg_match('/CSRF token mismatch|Page expired/i', $rawMsg)) {
+            $indoDesc = 'Sesi keamanan form telah kedaluwarsa. Silakan muat ulang halaman.';
+        } elseif (preg_match('/sesi|token|kedaluwarsa|muat ulang/i', $rawMsg)) {
+            $indoDesc = $rawMsg;
+        }
+    }
+@endphp
+
 @section('title', '419 - Sesi Halaman Kedaluwarsa')
 @section('toast_type', 'warning')
 @section('toast_title', 'Sesi Kedaluwarsa (419)')
-@section('toast_message', $exception->getMessage() ?: 'Token keamanan form atau sesi peramban Anda telah kedaluwarsa. Silakan muat ulang halaman.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +43,7 @@
 
 <h1 class="error-title">Sesi Halaman Kedaluwarsa</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Halaman telah terbuka terlalu lama tanpa aktivitas sehingga token keamanan form kedaluwarsa. Silakan muat ulang halaman untuk melanjutkan kembali.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

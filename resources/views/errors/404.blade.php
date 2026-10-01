@@ -1,9 +1,21 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Tautan yang Anda tuju mungkin salah ketik, sudah kedaluwarsa, atau telah dipindahkan ke rute lain oleh pengelola sistem.';
+    if ($rawMsg) {
+        if (preg_match('/The route\s+(.*?)\s+could not be found/i', $rawMsg, $m)) {
+            $indoDesc = 'Rute halaman \'' . $m[1] . '\' tidak ditemukan atau belum terdaftar di sistem.';
+        } elseif (preg_match('/not found/i', $rawMsg)) {
+            $indoDesc = 'Halaman atau data yang Anda cari tidak dapat ditemukan.';
+        }
+    }
+@endphp
+
 @section('title', '404 - Halaman Tidak Ditemukan')
 @section('toast_type', 'info')
 @section('toast_title', 'Halaman Tidak Ditemukan (404)')
-@section('toast_message', $exception->getMessage() ?: 'Alamat URL atau sumber daya yang Anda tuju tidak tersedia atau telah dipindahkan.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +43,7 @@
 
 <h1 class="error-title">Halaman Tidak Ditemukan</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Tautan yang Anda tuju mungkin salah ketik, sudah kedaluwarsa, atau telah dipindahkan ke rute lain oleh pengelola sistem.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

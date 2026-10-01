@@ -135,6 +135,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/presensi', [KaryawanPresensiController::class, 'store'])->name('presensi.store');
     // Kelola Izin Tutor
     Route::get('/izin', [IzinController::class, 'index'])->name('izin.index');
+    Route::get('/pengajuan-izin', [IzinController::class, 'index'])->name('pengajuan-izin');
     Route::post('/izin', [IzinController::class, 'store'])->name('izin.store');
     Route::delete('/izin/{id}', [IzinController::class, 'destroy'])->name('izin.destroy');
     Route::get('/izin/siswa/{tutorId}', [IzinController::class, 'getSiswaByTutor'])->name('izin.siswa');

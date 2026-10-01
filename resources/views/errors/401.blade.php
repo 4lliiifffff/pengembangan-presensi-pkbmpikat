@@ -1,9 +1,21 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Anda belum masuk ke akun atau sesi kredensial telah berakhir. Silakan masuk terlebih dahulu untuk melanjutkan akses ke halaman ini.';
+    if ($rawMsg) {
+        if (preg_match('/Unauthenticated/i', $rawMsg)) {
+            $indoDesc = 'Sesi masuk Anda belum terautentikasi. Silakan masuk terlebih dahulu.';
+        } elseif (preg_match('/masuk|login|sesi|kredensial/i', $rawMsg)) {
+            $indoDesc = $rawMsg;
+        }
+    }
+@endphp
+
 @section('title', '401 - Akses Belum Terautentikasi')
 @section('toast_type', 'warning')
 @section('toast_title', 'Akses Belum Terautentikasi (401)')
-@section('toast_message', $exception->getMessage() ?: 'Sesi autentikasi tidak valid atau Anda belum masuk ke sistem.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +43,7 @@
 
 <h1 class="error-title">Akses Belum Terautentikasi</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Anda belum masuk ke akun atau sesi kredensial telah berakhir. Silakan masuk terlebih dahulu untuk melanjutkan akses ke halaman ini.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

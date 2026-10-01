@@ -1,9 +1,31 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : ($message ?? '');
+    $indoDesc = 'Permintaan tidak dapat diselesaikan saat ini. Silakan kembali ke beranda atau muat ulang halaman.';
+    if ($rawMsg) {
+        if (preg_match('/The route\s+(.*?)\s+could not be found/i', $rawMsg, $m)) {
+            $indoDesc = 'Rute halaman \'' . $m[1] . '\' tidak ditemukan atau belum terdaftar di sistem.';
+        } elseif (preg_match('/Unauthenticated/i', $rawMsg)) {
+            $indoDesc = 'Sesi akun Anda belum terautentikasi. Silakan masuk terlebih dahulu.';
+        } elseif (preg_match('/This action is unauthorized/i', $rawMsg) || preg_match('/Access denied/i', $rawMsg) || preg_match('/Forbidden/i', $rawMsg)) {
+            $indoDesc = 'Anda tidak memiliki hak akses atau wewenang untuk membuka halaman ini.';
+        } elseif (preg_match('/CSRF token mismatch/i', $rawMsg) || preg_match('/Page expired/i', $rawMsg)) {
+            $indoDesc = 'Sesi keamanan form telah kedaluwarsa. Silakan muat ulang halaman.';
+        } elseif (preg_match('/Too Many Attempts/i', $rawMsg) || preg_match('/Too Many Requests/i', $rawMsg)) {
+            $indoDesc = 'Terlalu banyak permintaan dalam waktu singkat. Silakan tunggu beberapa saat.';
+        } elseif (preg_match('/Server Error/i', $rawMsg)) {
+            $indoDesc = 'Terjadi kendala teknis internal pada server aplikasi.';
+        } else {
+            $indoDesc = $rawMsg;
+        }
+    }
+@endphp
+
 @section('title', ($code ?? 'Kendala') . ' - Terjadi Kesalahan')
 @section('toast_type', 'warning')
 @section('toast_title', 'Status ' . ($code ?? 'Kendala'))
-@section('toast_message', $exception->getMessage() ?: ($message ?? 'Terjadi kendala saat memproses permintaan Anda.'))
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +53,7 @@
 
 <h1 class="error-title">{{ $title ?? 'Terjadi Kesalahan' }}</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: ($message ?? 'Permintaan tidak dapat diselesaikan saat ini. Silakan kembali ke beranda atau muat ulang halaman.') }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">

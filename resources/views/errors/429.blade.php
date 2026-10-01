@@ -1,9 +1,21 @@
 @extends('errors.layout')
 
+@php
+    $rawMsg = isset($exception) ? $exception->getMessage() : '';
+    $indoDesc = 'Demi keamanan dan kestabilan server, sistem membatasi frekuensi percobaan yang dilakukan secara berulang dalam tempo singkat. Harap tunggu beberapa saat sebelum mencoba kembali.';
+    if ($rawMsg) {
+        if (preg_match('/Too Many Attempts|Too Many Requests/i', $rawMsg)) {
+            $indoDesc = 'Terlalu banyak permintaan dalam waktu singkat. Silakan tunggu beberapa saat.';
+        } elseif (preg_match('/permintaan|batas|tunggu/i', $rawMsg)) {
+            $indoDesc = $rawMsg;
+        }
+    }
+@endphp
+
 @section('title', '429 - Terlalu Banyak Permintaan')
 @section('toast_type', 'warning')
 @section('toast_title', 'Batas Permintaan Terlampaui (429)')
-@section('toast_message', $exception->getMessage() ?: 'Sistem mendeteksi terlalu banyak percobaan dalam waktu singkat. Silakan tunggu beberapa saat.')
+@section('toast_message', $indoDesc)
 
 @section('content')
 @php
@@ -31,7 +43,7 @@
 
 <h1 class="error-title">Terlalu Banyak Permintaan</h1>
 <p class="error-description">
-    {{ $exception->getMessage() ?: 'Demi keamanan dan kestabilan server, sistem membatasi frekuensi percobaan yang dilakukan secara berulang dalam tempo singkat. Harap tunggu beberapa saat sebelum mencoba kembali.' }}
+    {{ $indoDesc }}
 </p>
 
 <div class="error-actions-grid">
