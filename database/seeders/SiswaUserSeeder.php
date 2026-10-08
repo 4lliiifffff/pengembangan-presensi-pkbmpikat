@@ -32,14 +32,17 @@ class SiswaUserSeeder extends Seeder
         if (! $siswa1) {
             $siswa1 = Siswa::create([
                 'no_absen' => '001',
+                'nama_murid' => 'Zeldi',
                 'nama_siswa' => 'Zeldi',
                 'no_hp' => '081234567001',
                 'nama_wali' => 'Bambang Pratama',
                 'kelas_id' => $defaultKelasId,
+                'status_murid' => 'aktif',
                 'status_siswa' => 'aktif',
             ]);
         } else {
             $siswa1->update([
+                'nama_murid' => 'Zeldi',
                 'nama_siswa' => 'Zeldi',
             ]);
         }
@@ -49,7 +52,7 @@ class SiswaUserSeeder extends Seeder
             $user1->update([
                 'nik' => 'SW0001',
                 'email' => 'siswa001@pkbmpikat.com',
-                'nama_lengkap' => $siswa1->nama_siswa,
+                'nama_lengkap' => $siswa1->nama_murid ?? $siswa1->nama_siswa,
                 'password' => $passwordHash,
                 'role' => 'siswa',
                 'no_hp' => $siswa1->no_hp ?? '081234567001',
@@ -59,7 +62,7 @@ class SiswaUserSeeder extends Seeder
             $user1 = User::create([
                 'nik' => 'SW0001',
                 'email' => 'siswa001@pkbmpikat.com',
-                'nama_lengkap' => $siswa1->nama_siswa,
+                'nama_lengkap' => $siswa1->nama_murid ?? $siswa1->nama_siswa,
                 'password' => $passwordHash,
                 'role' => 'siswa',
                 'no_hp' => $siswa1->no_hp ?? '081234567001',
@@ -73,10 +76,12 @@ class SiswaUserSeeder extends Seeder
         if (! $siswa2) {
             $siswa2 = Siswa::create([
                 'no_absen' => '002',
+                'nama_murid' => 'Siti Nurhaliza',
                 'nama_siswa' => 'Siti Nurhaliza',
                 'no_hp' => '081234567002',
                 'nama_wali' => 'Suryani',
                 'kelas_id' => $defaultKelasId,
+                'status_murid' => 'aktif',
                 'status_siswa' => 'aktif',
             ]);
         }
@@ -86,7 +91,7 @@ class SiswaUserSeeder extends Seeder
             $user2->update([
                 'nik' => 'SW0002',
                 'email' => 'siswa002@pkbmpikat.com',
-                'nama_lengkap' => $siswa2->nama_siswa,
+                'nama_lengkap' => $siswa2->nama_murid ?? $siswa2->nama_siswa,
                 'password' => $passwordHash,
                 'role' => 'siswa',
                 'no_hp' => $siswa2->no_hp ?? '081234567002',
@@ -96,7 +101,7 @@ class SiswaUserSeeder extends Seeder
             $user2 = User::create([
                 'nik' => 'SW0002',
                 'email' => 'siswa002@pkbmpikat.com',
-                'nama_lengkap' => $siswa2->nama_siswa,
+                'nama_lengkap' => $siswa2->nama_murid ?? $siswa2->nama_siswa,
                 'password' => $passwordHash,
                 'role' => 'siswa',
                 'no_hp' => $siswa2->no_hp ?? '081234567002',
@@ -105,12 +110,12 @@ class SiswaUserSeeder extends Seeder
         }
         $siswa2->update(['user_id' => $user2->id]);
 
-        // 3. Hubungkan siswa lainnya yang belum memiliki akun jika ada
+        // 3. Hubungkan murid lainnya yang belum memiliki akun jika ada
         $unlinkedSiswas = Siswa::whereNull('user_id')->limit(10)->get();
         foreach ($unlinkedSiswas as $sw) {
             $email = 'siswa'.$sw->id.'@pkbmpikat.com';
             $nik = 'SW'.str_pad($sw->id, 5, '0', STR_PAD_LEFT);
-            $nama = $sw->nama_siswa ?: ('Siswa PKBM '.$sw->id);
+            $nama = $sw->nama_murid ?? ($sw->nama_siswa ?: ('Murid PKBM '.$sw->id));
 
             $u = User::updateOrCreate(
                 ['email' => $email],

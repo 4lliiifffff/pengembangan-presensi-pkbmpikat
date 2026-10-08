@@ -134,7 +134,7 @@ class DryServicePatternTest extends TestCase
         $this->assertEquals(1, $createdCount);
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'tgl_presensi' => now()->format('Y-m-d'),
             'status' => 'izin',
         ]);

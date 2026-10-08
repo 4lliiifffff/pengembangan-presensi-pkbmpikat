@@ -275,7 +275,7 @@ class MultiRoleNotificationAndReminderTest extends TestCase
             'is_mocked' => '0',
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $response->assertSessionHas('success');
     }
 }

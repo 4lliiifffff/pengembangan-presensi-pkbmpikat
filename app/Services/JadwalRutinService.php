@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Jadwal;
 use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
+use App\Models\Murid;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 
@@ -18,7 +19,7 @@ class JadwalRutinService
     public function generateSesiForPeriod(
         string $startDate,
         string $endDate,
-        ?int $siswaId = null,
+        ?int $muridId = null,
         ?int $tutorId = null,
         bool $skipHolidays = false
     ): array {
@@ -65,7 +66,7 @@ class JadwalRutinService
             // Ambil master jadwal rutin yang aktif pada hari ini
             $rutins = JadwalRutin::active()
                 ->byHari($dayName)
-                ->when($siswaId, fn ($q) => $q->where('siswa_id', $siswaId))
+                ->when($muridId, fn ($q) => $q->where('murid_id', $muridId))
                 ->when($tutorId, fn ($q) => $q->where('tutor_id', $tutorId))
                 ->where(function ($q) use ($dateStr) {
                     $q->whereNull('berlaku_mulai')->orWhere('berlaku_mulai', '<=', $dateStr);
@@ -76,8 +77,10 @@ class JadwalRutinService
                 ->get();
 
             foreach ($rutins as $rutin) {
-                // Cek anti-duplikasi: apakah siswa sudah memiliki sesi pada tanggal & jam tersebut atau dari jadwal_rutin_id ini
-                $exists = JadwalSesi::where('siswa_id', $rutin->siswa_id)
+                $targetMuridId = $rutin->murid_id;
+
+                // Cek anti-duplikasi: apakah murid sudah memiliki sesi pada tanggal & jam tersebut atau dari jadwal_rutin_id ini
+                $exists = JadwalSesi::where('murid_id', $targetMuridId)
                     ->whereDate('tanggal_rencana', $dateStr)
                     ->where(function ($q) use ($rutin) {
                         $q->where('jadwal_rutin_id', $rutin->id)
@@ -99,7 +102,8 @@ class JadwalRutinService
                 JadwalSesi::create([
                     'jadwal_rutin_id' => $rutin->id,
                     'tutor_id' => $rutin->tutor_id,
-                    'siswa_id' => $rutin->siswa_id,
+                    'murid_id' => $targetMuridId,
+                    'siswa_id' => $targetMuridId,
                     'kategori_tutorial_id' => $rutin->kategori_tutorial_id,
                     'jadwal_kerja_id' => $rutin->jadwal_kerja_id,
                     'lokasi_presensi_id' => $rutin->lokasi_presensi_id,
@@ -109,6 +113,7 @@ class JadwalRutinService
                     'durasi_jam' => $rutin->durasi_jam,
                     'jenis_sesi' => 'reguler',
                     'status' => $status,
+                    'status_kehadiran_murid' => 'belum_presensi',
                     'status_kehadiran_siswa' => 'belum_presensi',
                     'catatan' => $catatan,
                 ]);
@@ -132,7 +137,7 @@ class JadwalRutinService
      */
     public function generateForNextWeeks(
         int $weeks = 4,
-        ?int $siswaId = null,
+        ?int $muridId = null,
         ?int $tutorId = null,
         bool $skipHolidays = false
     ): array {
@@ -140,7 +145,7 @@ class JadwalRutinService
         $today = Carbon::now($tz)->toDateString();
         $endDate = Carbon::now($tz)->addWeeks(max(1, $weeks))->toDateString();
 
-        return $this->generateSesiForPeriod($today, $endDate, $siswaId, $tutorId, $skipHolidays);
+        return $this->generateSesiForPeriod($today, $endDate, $muridId, $tutorId, $skipHolidays);
     }
 
     /**
@@ -150,12 +155,14 @@ class JadwalRutinService
     {
         $tz = 'Asia/Jakarta';
         $today = Carbon::now($tz)->toDateString();
+        $targetMuridId = $jadwalRutin->murid_id ?: $jadwalRutin->siswa_id;
 
         // Cari sesi reguler masa depan yang belum selesai / belum presensi
         $futureSesis = JadwalSesi::where('jadwal_rutin_id', $jadwalRutin->id)
             ->whereDate('tanggal_rencana', '>=', $today)
             ->where('status', 'terjadwal')
             ->whereNull('presensi_id')
+            ->whereNull('presensi_murid_id')
             ->whereNull('presensi_siswa_id')
             ->get();
 
@@ -163,7 +170,8 @@ class JadwalRutinService
         foreach ($futureSesis as $sesi) {
             $sesi->update([
                 'tutor_id' => $jadwalRutin->tutor_id,
-                'siswa_id' => $jadwalRutin->siswa_id,
+                'murid_id' => $targetMuridId,
+                'siswa_id' => $targetMuridId,
                 'kategori_tutorial_id' => $jadwalRutin->kategori_tutorial_id,
                 'jadwal_kerja_id' => $jadwalRutin->jadwal_kerja_id,
                 'lokasi_presensi_id' => $jadwalRutin->lokasi_presensi_id,
@@ -178,7 +186,7 @@ class JadwalRutinService
     }
 
     /**
-     * Buat master jadwal rutin baru langsung oleh Tutor untuk siswa bimbingannya.
+     * Buat master jadwal rutin baru langsung oleh Tutor untuk murid bimbingannya.
      *
      * @param  array<string, mixed>  $data
      * @return array{rutin: JadwalRutin, generated: array{created: int, skipped: int, holidays: int, total_processed: int}}
@@ -191,6 +199,11 @@ class JadwalRutinService
         $data['tutor_id'] = $tutorId;
         $data['is_active'] = $data['is_active'] ?? true;
         $data['berlaku_mulai'] = $data['berlaku_mulai'] ?? $today;
+        if (isset($data['siswa_id']) && ! isset($data['murid_id'])) {
+            $data['murid_id'] = $data['siswa_id'];
+        } elseif (isset($data['murid_id']) && ! isset($data['siswa_id'])) {
+            $data['siswa_id'] = $data['murid_id'];
+        }
 
         $rutin = JadwalRutin::create($data);
 
@@ -200,8 +213,6 @@ class JadwalRutinService
         if ($autoGenerate) {
             $startDate = $rutin->berlaku_mulai ? $rutin->berlaku_mulai->toDateString() : $today;
 
-            // Jika berlaku_sampai ditentukan, generate hingga tanggal tersebut.
-            // Jika kosong (terbuka), generate untuk 4 minggu ke depan secara berkala.
             if (! empty($rutin->berlaku_sampai)) {
                 $endDate = $rutin->berlaku_sampai->toDateString();
             } else {
@@ -211,7 +222,7 @@ class JadwalRutinService
             $generatedStats = $this->generateSesiForPeriod(
                 $startDate,
                 $endDate,
-                $rutin->siswa_id,
+                $rutin->murid_id ?: $rutin->siswa_id,
                 $rutin->tutor_id
             );
         }
@@ -223,7 +234,7 @@ class JadwalRutinService
     }
 
     /**
-     * Reschedule sesi KBM (Opsi 2: Sesi lama dibatalkan dengan riwayat alasan, sesi baru dibuat sebagai pengganti).
+     * Reschedule sesi KBM.
      */
     public function rescheduleSesi(
         JadwalSesi $oldSesi,
@@ -260,11 +271,14 @@ class JadwalRutinService
             }
         }
 
+        $targetMuridId = $oldSesi->murid_id ?: $oldSesi->siswa_id;
+
         // 3. Buat sesi pengganti baru
         return JadwalSesi::create([
             'jadwal_rutin_id' => $oldSesi->jadwal_rutin_id,
             'tutor_id' => $oldSesi->tutor_id,
-            'siswa_id' => $oldSesi->siswa_id,
+            'murid_id' => $targetMuridId,
+            'siswa_id' => $targetMuridId,
             'kategori_tutorial_id' => $oldSesi->kategori_tutorial_id,
             'jadwal_kerja_id' => $oldSesi->jadwal_kerja_id,
             'lokasi_presensi_id' => $lokasiPresensiId ?? $oldSesi->lokasi_presensi_id,
@@ -274,6 +288,7 @@ class JadwalRutinService
             'durasi_jam' => $durasiJam,
             'jenis_sesi' => 'pengganti',
             'status' => 'terjadwal',
+            'status_kehadiran_murid' => 'belum_presensi',
             'status_kehadiran_siswa' => 'belum_presensi',
             'tanggal_asli' => $oldSesi->tanggal_rencana,
             'alasan_penggantian' => $alasan,

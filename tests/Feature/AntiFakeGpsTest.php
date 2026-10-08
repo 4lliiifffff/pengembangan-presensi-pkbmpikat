@@ -85,7 +85,7 @@ class AntiFakeGpsTest extends TestCase
         $response->assertSessionHas('success');
 
         $this->assertDatabaseHas('presensi', [
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'tutor_id' => $tutor->id,
             'lokasi_akurasi' => 12.50,
             'is_mocked' => false,
@@ -133,7 +133,7 @@ class AntiFakeGpsTest extends TestCase
         $this->assertStringContainsString('Fake GPS', $warning);
 
         $this->assertDatabaseMissing('presensi', [
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'tutor_id' => $tutor->id,
         ]);
     }
@@ -179,7 +179,7 @@ class AntiFakeGpsTest extends TestCase
         $this->assertStringContainsString('terlalu rendah', $warning);
 
         $this->assertDatabaseMissing('presensi', [
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'tutor_id' => $tutor->id,
         ]);
     }

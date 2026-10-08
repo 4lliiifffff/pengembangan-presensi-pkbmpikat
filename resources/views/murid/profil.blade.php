@@ -1,21 +1,21 @@
 @extends('layouts.presensi')
 
-@section('title', 'Profil Siswa')
+@section('title', 'Profil Murid')
 
 @php
     $user = Auth::user();
-    $siswa = $user->siswa;
-    $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
+    $murid = $user->murid ?? $user->siswa;
+    $displayName = (string) ($murid->nama_murid ?? ($murid->nama_siswa ?? ($murid->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Murid PKBM')))));
     $initial = strtoupper(substr($displayName, 0, 1));
     $fotoUrl = $user->foto_url;
 @endphp
 
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
-        'titleName' => 'Profil Siswa',
-        'subTitle' => $displayName . ' • Siswa',
-        'dashRoute' => route('siswa.dashboard'),
-        'backRoute' => route('siswa.dashboard'),
+        'titleName' => 'Profil Murid',
+        'subTitle' => $displayName . ' • Murid',
+        'dashRoute' => route('murid.dashboard'),
+        'backRoute' => route('murid.dashboard'),
     ])
 @endpush
 
@@ -39,8 +39,8 @@
         <div class="profileName">{{ $displayName }}</div>
         <div class="profileRoleBadge badgeMagang">
             <ion-icon name="school-outline"></ion-icon>
-            {{ $siswa?->kelas?->nama_kelas ?? 'Siswa PKBM' }}
-            ({{ $siswa?->masterJenjang?->nama_jenjang ?? ($siswa?->jenjang_paket_label ?? 'Paket PKBM') }})
+            {{ $murid?->kelas?->nama_kelas ?? 'Murid PKBM' }}
+            ({{ $murid?->masterJenjang?->nama_jenjang ?? ($murid?->jenjang_paket_label ?? 'Paket PKBM') }})
         </div>
 
         {{-- Stats Kehadiran --}}
@@ -64,7 +64,7 @@
     <div class="profileTabs">
         <button type="button" class="profileTabBtn active" id="tabBtnData" onclick="switchProfileTab('data')">
             <ion-icon name="person-outline"></ion-icon>
-            <span>Data Siswa</span>
+            <span>Data Murid</span>
         </button>
         <button type="button" class="profileTabBtn" id="tabBtnKeamanan" onclick="switchProfileTab('keamanan')">
             <ion-icon name="key-outline"></ion-icon>
@@ -91,7 +91,7 @@
         </div>
     @endif
 
-    {{-- ── TAB 1: FORM DATA SISWA ── --}}
+    {{-- ── TAB 1: FORM DATA MURID ── --}}
     <form action="{{ route('profil.update') }}" method="POST" enctype="multipart/form-data" id="formData">
         @csrf
         @method('PATCH')
@@ -100,7 +100,7 @@
         <input type="file" name="foto" id="fotoUpload" accept=".png,.jpg,.jpeg,image/*" class="d-none"
             onchange="previewProfileImage(event)">
 
-        {{-- Detail Akademik Siswa --}}
+        {{-- Detail Akademik Murid --}}
         <div class="profileCard">
             <div class="profileSectionTitle">
                 <ion-icon name="information-circle-outline" class="text-lg text-primary"></ion-icon>
@@ -109,29 +109,29 @@
 
             <div class="profileInfoRow">
                 <span class="profileInfoLabel">NISN / No. Absen / NIK</span>
-                <span class="profileInfoValue">{{ $siswa?->nisn ?: ($siswa?->no_absen ?: ($user->nik ?: '-')) }}</span>
+                <span class="profileInfoValue">{{ $murid?->nisn ?: ($murid?->no_absen ?: ($user->nik ?: '-')) }}</span>
             </div>
             <div class="profileInfoRow">
                 <span class="profileInfoLabel">Kelas (Rombel)</span>
-                <span class="profileInfoValue">{{ $siswa?->kelas?->nama_kelas ?: '-' }}</span>
+                <span class="profileInfoValue">{{ $murid?->kelas?->nama_kelas ?: '-' }}</span>
             </div>
             <div class="profileInfoRow">
                 <span class="profileInfoLabel">Jenjang / Program Paket</span>
                 <span
-                    class="profileInfoValue">{{ $siswa?->masterJenjang?->nama_jenjang ?: ($siswa?->jenjang_paket_label ?: '-') }}</span>
+                    class="profileInfoValue">{{ $murid?->masterJenjang?->nama_jenjang ?: ($murid?->jenjang_paket_label ?: '-') }}</span>
             </div>
             <div class="profileInfoRow">
                 <span class="profileInfoLabel">Jenis Kelamin</span>
                 <span class="profileInfoValue">
-                    {{ $siswa?->jenis_kelamin === 'L' ? 'Laki-laki' : ($siswa?->jenis_kelamin === 'P' ? 'Perempuan' : '-') }}
+                    {{ $murid?->jenis_kelamin === 'L' ? 'Laki-laki' : ($murid?->jenis_kelamin === 'P' ? 'Perempuan' : '-') }}
                 </span>
             </div>
             <div class="profileInfoRow">
-                <span class="profileInfoLabel">Status Siswa</span>
+                <span class="profileInfoLabel">Status Murid</span>
                 <span class="profileInfoValue">
-                    <span class="badge {{ $siswa?->status === 'aktif' ? 'bg-success' : 'bg-secondary' }}"
+                    <span class="badge {{ ($murid?->status_murid ?? $murid?->status) === 'aktif' ? 'bg-success' : 'bg-secondary' }}"
                         style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px;">
-                        {{ ucfirst($siswa?->status ?? 'Aktif') }}
+                        {{ ucfirst($murid?->status_murid ?? ($murid?->status ?? 'Aktif')) }}
                     </span>
                 </span>
             </div>
@@ -147,7 +147,7 @@
             <div class="profileField">
                 <label class="profileFieldLabel" for="nama_lengkap">Nama Lengkap</label>
                 <input type="text" name="nama_lengkap" id="nama_lengkap" class="profileInput"
-                    value="{{ old('nama_lengkap', $user->nama_lengkap ?? ($user->name ?? $siswa?->nama_lengkap)) }}"
+                    value="{{ old('nama_lengkap', $user->nama_lengkap ?? ($user->name ?? ($murid?->nama_murid ?? $murid?->nama_lengkap))) }}"
                     placeholder="Nama Lengkap" required>
             </div>
 
@@ -160,7 +160,7 @@
             <div class="profileField">
                 <label class="profileFieldLabel" for="no_hp">No. WhatsApp / HP</label>
                 <input type="tel" name="no_hp" id="no_hp" class="profileInput"
-                    value="{{ old('no_hp', $user->no_hp ?? $siswa?->no_hp) }}" placeholder="08xx-xxxx-xxxx">
+                    value="{{ old('no_hp', $user->no_hp ?? $murid?->no_hp) }}" placeholder="08xx-xxxx-xxxx">
             </div>
         </div>
     </form>

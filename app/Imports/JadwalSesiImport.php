@@ -53,7 +53,7 @@ class JadwalSesiImport implements ToCollection, WithHeadingRow, WithValidation
                 ]);
 
                 $rawSiswa = $this->getColumnValue($row, [
-                    'nomor_absen_siswa', 'nomor_absen', 'no_absen', 'nis', 'nama_siswa', 'siswa',
+                    'nomor_absen_murid', 'nomor_absen_siswa', 'nomor_absen', 'no_absen', 'nis', 'nama_murid', 'murid', 'nama_siswa', 'siswa',
                 ]);
 
                 $rawKategori = $this->getColumnValue($row, [
@@ -142,18 +142,18 @@ class JadwalSesiImport implements ToCollection, WithHeadingRow, WithValidation
                     continue;
                 }
 
-                // 5. Resolusi Siswa (cek no_absen / nis, fallback ke nama_siswa)
+                // 5. Resolusi Murid (cek no_absen / nis, fallback ke nama_murid)
                 $siswa = Siswa::where('no_absen', $rawSiswa)->first();
                 if (! $siswa) {
-                    $siswa = Siswa::whereRaw('LOWER(nama_siswa) = ?', [strtolower($rawSiswa)])->first();
+                    $siswa = Siswa::whereRaw('LOWER(nama_murid) = ?', [strtolower($rawSiswa)])->first();
                 }
                 if (! $siswa) {
-                    $siswa = Siswa::where('nama_siswa', 'like', '%'.$rawSiswa.'%')->first();
+                    $siswa = Siswa::where('nama_murid', 'like', '%'.$rawSiswa.'%')->first();
                 }
 
                 if (! $siswa) {
                     $this->skippedCount++;
-                    $this->importErrors[] = "Baris {$rowNumber}: Siswa dengan identitas '{$rawSiswa}' tidak ditemukan di sistem.";
+                    $this->importErrors[] = "Baris {$rowNumber}: Murid dengan identitas '{$rawSiswa}' tidak ditemukan di sistem.";
 
                     continue;
                 }
@@ -170,7 +170,7 @@ class JadwalSesiImport implements ToCollection, WithHeadingRow, WithValidation
 
                 // 7. Cek Sesi Duplikat (Idempotensi)
                 $existing = JadwalSesi::where('tutor_id', $tutorId)
-                    ->where('siswa_id', $siswa->id)
+                    ->where('murid_id', $siswa->id)
                     ->whereDate('tanggal_rencana', $parsedTanggal)
                     ->where('jam_masuk_rencana', $parsedJamMasuk)
                     ->first();
@@ -195,6 +195,7 @@ class JadwalSesiImport implements ToCollection, WithHeadingRow, WithValidation
                 // 8. Buat Jadwal Sesi Baru
                 JadwalSesi::create([
                     'tutor_id' => $tutorId,
+                    'murid_id' => $siswa->id,
                     'siswa_id' => $siswa->id,
                     'kategori_tutorial_id' => $kategoriId,
                     'tanggal_rencana' => $parsedTanggal,
@@ -203,6 +204,7 @@ class JadwalSesiImport implements ToCollection, WithHeadingRow, WithValidation
                     'durasi_jam' => $durasiJam,
                     'jenis_sesi' => 'reguler',
                     'status' => 'terjadwal',
+                    'status_kehadiran_murid' => 'belum_presensi',
                     'status_kehadiran_siswa' => 'belum_presensi',
                     'catatan' => $rawCatatan ?: 'Diimpor dari berkas Excel jadwal mengajar',
                 ]);

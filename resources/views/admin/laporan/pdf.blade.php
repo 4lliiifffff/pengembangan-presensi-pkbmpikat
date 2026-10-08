@@ -149,11 +149,11 @@
     <div class="report-title-box">
         @php
             $judul = match($tab) {
-                'siswa' => 'LAPORAN REKAPITULASI PRESENSI MANDIRI SISWA',
+                'murid', 'siswa' => 'LAPORAN REKAPITULASI PRESENSI MANDIRI MURID',
                 'pegawai' => 'LAPORAN PRESENSI PEGAWAI, STAF & PIMPINAN',
                 'magang' => 'LAPORAN PRESENSI MAHASISWA MAGANG & SISWA PKL',
                 'perizinan' => 'LAPORAN PERIZINAN, SAKIT & DISPENSASI LUPA LAPOR',
-                'matriks' => 'BUKU INDUK LEDGER PRESENSI BULANAN PESERTA DIDIK',
+                'matriks' => 'BUKU INDUK LEDGER PRESENSI BULANAN MURID',
                 default => 'LAPORAN REKAPITULASI PRESENSI TUTOR & KBM'
             };
         @endphp
@@ -193,23 +193,24 @@
                 </td>
             </tr>
         </table>
-    @elseif($tab === 'siswa')
+    @elseif($tab === 'murid' || $tab === 'siswa')
+        @php $mData = $muridData ?? $siswaData; @endphp
         <table class="kpi-row">
             <tr>
                 <td class="kpi-box" style="width: 25%;">
-                    <div class="kpi-val">{{ $siswaData['totalPresensi'] }}</div>
+                    <div class="kpi-val">{{ $mData['totalPresensi'] }}</div>
                     <div class="kpi-lbl">Total Check-In</div>
                 </td>
                 <td class="kpi-box" style="width: 25%;">
-                    <div class="kpi-val text-success">{{ $siswaData['totalHadir'] }}</div>
+                    <div class="kpi-val text-success">{{ $mData['totalHadir'] }}</div>
                     <div class="kpi-lbl">Tepat Waktu</div>
                 </td>
                 <td class="kpi-box" style="width: 25%;">
-                    <div class="kpi-val" style="color:#f59e0b;">{{ $siswaData['totalTerlambat'] }}</div>
+                    <div class="kpi-val" style="color:#f59e0b;">{{ $mData['totalTerlambat'] }}</div>
                     <div class="kpi-lbl">Terlambat</div>
                 </td>
                 <td class="kpi-box" style="width: 25%;">
-                    <div class="kpi-val text-danger">{{ $siswaData['totalIzin'] + $siswaData['totalSakit'] + $siswaData['totalAlpha'] }}</div>
+                    <div class="kpi-val text-danger">{{ $mData['totalIzin'] + $mData['totalSakit'] + $mData['totalAlpha'] }}</div>
                     <div class="kpi-lbl">Izin/Sakit/Alpha</div>
                 </td>
             </tr>
@@ -227,7 +228,7 @@
                     <th style="width: 22px;">No</th>
                     <th style="width: 60px;">Tanggal</th>
                     <th>Nama Tutor</th>
-                    <th>Nama Siswa &amp; Kelas</th>
+                    <th>Nama Murid &amp; Kelas</th>
                     <th style="width: 80px;">Moda Belajar</th>
                     <th style="width: 65px;">Jam Masuk/Pulang</th>
                     <th style="width: 45px;">Durasi</th>
@@ -239,14 +240,15 @@
                 @forelse($tutorData['records'] as $idx => $p)
                     @php
                         $durasiMenit = ($p->jam_mulai && $p->jam_selesai) ? \Carbon\Carbon::parse($p->jam_mulai)->diffInMinutes(\Carbon\Carbon::parse($p->jam_selesai)) : 0;
+                        $muridObj = $p->murid ?? $p->siswa;
                     @endphp
                     <tr>
                         <td class="text-center">{{ $idx + 1 }}</td>
                         <td class="text-center font-bold">{{ \Carbon\Carbon::parse($p->tgl_presensi)->format('d/m/Y') }}</td>
                         <td class="font-bold">{{ $p->tutor->nama_lengkap ?? '-' }}</td>
                         <td>
-                            {{ $p->siswa->nama_siswa ?? '-' }} 
-                            <span class="text-muted">({{ $p->siswa->relKelas->nama_kelas ?? '-' }})</span>
+                            {{ $muridObj->nama_murid ?? ($muridObj->nama_siswa ?? '-') }} 
+                            <span class="text-muted">({{ $muridObj->relKelas->nama_kelas ?? '-' }})</span>
                         </td>
                         <td class="text-center">{{ $p->moda_label ?? 'Tatap Muka' }}</td>
                         <td class="text-center font-bold">
@@ -265,13 +267,14 @@
             </tbody>
         </table>
 
-    @elseif($tab === 'siswa')
+    @elseif($tab === 'murid' || $tab === 'siswa')
+        @php $mData = $muridData ?? $siswaData; @endphp
         <table class="data-table">
             <thead>
                 <tr>
                     <th style="width: 22px;">No</th>
                     <th style="width: 65px;">Tanggal</th>
-                    <th>Nama Siswa</th>
+                    <th>Nama Murid</th>
                     <th>Kelas / Jenjang</th>
                     <th style="width: 60px;">Jam Masuk</th>
                     <th style="width: 70px;">Status</th>
@@ -279,18 +282,19 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($siswaData['records'] as $idx => $ps)
+                @forelse($mData['records'] as $idx => $ps)
+                    @php $m = $ps->murid ?? $ps->siswa; @endphp
                     <tr>
                         <td class="text-center">{{ $idx + 1 }}</td>
                         <td class="text-center font-bold">{{ \Carbon\Carbon::parse($ps->tgl_presensi)->format('d/m/Y') }}</td>
-                        <td class="font-bold">{{ $ps->siswa->nama_siswa ?? '-' }}</td>
-                        <td>{{ $ps->siswa->relKelas->nama_kelas ?? '-' }} ({{ $ps->siswa->jenjang_paket_label ?? '-' }})</td>
+                        <td class="font-bold">{{ $m->nama_murid ?? ($m->nama_siswa ?? '-') }}</td>
+                        <td>{{ $m->relKelas->nama_kelas ?? '-' }} ({{ $m->jenjang_paket_label ?? '-' }})</td>
                         <td class="text-center font-bold text-success">{{ $ps->jam_masuk ? \Carbon\Carbon::parse($ps->jam_masuk)->format('H:i') : '-' }}</td>
                         <td class="text-center">{{ $ps->status_label }}</td>
                         <td>{{ $ps->lokasiPresensi?->nama_lokasi ?? 'Sekolah PKBM' }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="text-center text-muted">Tidak ada data presensi siswa.</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted">Tidak ada data presensi murid.</td></tr>
                 @endforelse
             </tbody>
         </table>
@@ -365,7 +369,7 @@
             <thead>
                 <tr>
                     <th style="width: 15px;">No</th>
-                    <th style="width: 90px;">Nama Siswa</th>
+                    <th style="width: 90px;">Nama Murid</th>
                     <th style="width: 60px;">Kelas</th>
                     @for($d = 1; $d <= $matriksData['daysInMonth']; $d++)
                         <th style="width: 12px; padding: 2px 1px;" class="text-center">{{ $d }}</th>
@@ -379,10 +383,11 @@
             </thead>
             <tbody>
                 @forelse($matriksData['matrix'] as $idx => $row)
+                    @php $rowMurid = $row['murid'] ?? $row['siswa']; @endphp
                     <tr>
                         <td class="text-center">{{ $idx + 1 }}</td>
-                        <td class="font-bold">{{ $row['siswa']->nama_siswa }}</td>
-                        <td>{{ $row['siswa']->relKelas->nama_kelas ?? '-' }}</td>
+                        <td class="font-bold">{{ $rowMurid->nama_murid ?? ($rowMurid->nama_siswa ?? '-') }}</td>
+                        <td>{{ $rowMurid->relKelas->nama_kelas ?? '-' }}</td>
                         @foreach($row['days'] as $dayInfo)
                             <td class="text-center" style="padding: 2px 1px; font-weight: bold;">
                                 {{ $dayInfo['status'] }}
@@ -395,7 +400,7 @@
                         <td class="text-center font-bold">{{ $row['keaktifan'] }}%</td>
                     </tr>
                 @empty
-                    <tr><td colspan="{{ 3 + $matriksData['daysInMonth'] + 5 }}" class="text-center text-muted">Tidak ada data siswa.</td></tr>
+                    <tr><td colspan="{{ 3 + $matriksData['daysInMonth'] + 5 }}" class="text-center text-muted">Tidak ada data murid.</td></tr>
                 @endforelse
             </tbody>
         </table>

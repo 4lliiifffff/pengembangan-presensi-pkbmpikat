@@ -204,7 +204,8 @@
                             @forelse($latest as $item)
                                 @php
                                     $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
-                                    $siswaName = $item->siswa->nama_siswa ?? ($item->siswa_id ?? 'Siswa');
+                                    $itemMurid = $item->murid ?? $item->siswa;
+                                    $siswaName = $itemMurid->nama_murid ?? ($itemMurid->nama_siswa ?? ($item->murid_id ?? ($item->siswa_id ?? 'Murid')));
                                     $initial = strtoupper(substr((string) $tutorName, 0, 1));
                                     $pillClass = $item->status_class ?? 'pending';
                                     $statusLabel = $item->status_label ?? strtoupper((string) $item->status);

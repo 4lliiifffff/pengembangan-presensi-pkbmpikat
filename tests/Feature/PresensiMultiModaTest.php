@@ -57,7 +57,7 @@ class PresensiMultiModaTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'moda_pembelajaran' => 'online',
             'link_daring' => 'https://meet.google.com/abc-defg-hij',
         ]);
@@ -110,7 +110,7 @@ class PresensiMultiModaTest extends TestCase
         $response->assertSessionHas('warning');
         $this->assertDatabaseMissing('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswaA->id,
+            'murid_id' => $siswaA->id,
         ]);
     }
 
@@ -159,11 +159,11 @@ class PresensiMultiModaTest extends TestCase
         $response->assertSessionHas('warning');
         $this->assertDatabaseMissing('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswaA->id,
+            'murid_id' => $siswaA->id,
         ]);
         $this->assertDatabaseMissing('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswaB->id,
+            'murid_id' => $siswaB->id,
         ]);
     }
 
@@ -210,11 +210,11 @@ class PresensiMultiModaTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswaB1->id,
+            'murid_id' => $siswaB1->id,
         ]);
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswaB2->id,
+            'murid_id' => $siswaB2->id,
         ]);
     }
 
@@ -262,8 +262,8 @@ class PresensiMultiModaTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
 
         // Harus otomatis terdeteksi sebagai Gabungan Komunitas (SK Rp 50.000,- per rombel)
-        $presensi1 = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa1->id)->first();
-        $presensi2 = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa2->id)->first();
+        $presensi1 = Presensi::where('tutor_id', $tutor->id)->where('murid_id', $siswa1->id)->first();
+        $presensi2 = Presensi::where('tutor_id', $tutor->id)->where('murid_id', $siswa2->id)->first();
 
         $this->assertNotNull($presensi1);
         $this->assertNotNull($presensi2);
@@ -313,7 +313,7 @@ class PresensiMultiModaTest extends TestCase
         $response->assertRedirect(route('tutor.dashboard'));
 
         // Harus otomatis terdeteksi sebagai 1 Rombel Tutorial Komunitas Standar (Rp 75.000,-)
-        $presensi1 = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa1->id)->first();
+        $presensi1 = Presensi::where('tutor_id', $tutor->id)->where('murid_id', $siswa1->id)->first();
         $this->assertNotNull($presensi1);
         $this->assertEquals(75000.0, (float) $presensi1->nominal_honor_snapshot);
     }

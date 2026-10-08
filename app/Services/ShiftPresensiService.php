@@ -203,7 +203,8 @@ class ShiftPresensiService
             $shiftId = 'sesi_'.$jadwalSesi->id;
             $jadwalKerjaId = $jadwalSesi->jadwal_kerja_id;
             $jadwalSesiId = $jadwalSesi->id;
-            $shiftNama = $jadwalSesi->jenis_label.($jadwalSesi->siswa ? ' - '.$jadwalSesi->siswa->nama_siswa : '');
+            $muridNama = $jadwalSesi->murid?->nama_murid ?? $jadwalSesi->siswa?->nama_murid ?? $jadwalSesi->siswa?->nama_siswa;
+            $shiftNama = $jadwalSesi->jenis_label.($muridNama ? ' - '.$muridNama : '');
             $durasiJam = (float) $jadwalSesi->durasi_jam;
             $jamMasuk = $jadwalSesi->jam_masuk_formatted;
             $jamPulang = $jadwalSesi->jam_pulang_formatted;
@@ -406,9 +407,10 @@ class ShiftPresensiService
         if (! $jadwalSesi && $presensi->jadwal_sesi_id) {
             $jadwalSesi = JadwalSesi::find($presensi->jadwal_sesi_id);
         }
-        if (! $jadwalSesi && $presensi->tutor_id && $presensi->siswa_id) {
+        $targetMuridId = $presensi->murid_id ?: $presensi->siswa_id;
+        if (! $jadwalSesi && $presensi->tutor_id && $targetMuridId) {
             $jadwalSesi = JadwalSesi::where('tutor_id', $presensi->tutor_id)
-                ->where('siswa_id', $presensi->siswa_id)
+                ->where('murid_id', $targetMuridId)
                 ->whereDate('tanggal_rencana', $tglPresensi)
                 ->first();
         }

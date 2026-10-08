@@ -165,7 +165,7 @@
                 <div class="recentWrap">
                     @forelse($recentPresensi as $p)
                         @php
-                            $siswaLabel = $p->siswa->nama_siswa ?? 'Siswa #' . $p->siswa_id;
+                            $siswaLabel = $p->murid?->nama_murid ?? ($p->siswa?->nama_murid ?? ($p->siswa?->nama_siswa ?? 'Murid #' . ($p->murid_id ?? $p->siswa_id)));
                             $hari = \Carbon\Carbon::parse($p->tgl_presensi)->locale('id')->translatedFormat('l, d F Y');
                             $jamMulai = $p->jam_mulai ? substr((string) $p->jam_mulai, 0, 5) : '-';
                             $jamSelesai = $p->jam_selesai ? substr((string) $p->jam_selesai, 0, 5) : '-';

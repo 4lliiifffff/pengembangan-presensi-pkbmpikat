@@ -43,7 +43,7 @@
             </a>
             <a href="{{ route('admin.jadwal-rutin.index') }}" class="calendarNavTab">
                 <ion-icon name="repeat-outline"></ion-icon>
-                <span>Master Jadwal Rutin Siswa</span>
+                <span>Master Jadwal Rutin Murid</span>
             </a>
         </div>
 

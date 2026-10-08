@@ -96,14 +96,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Relasi: User memiliki satu profil Siswa (One-to-One / HasOne).
-     * Hanya berlaku jika user memiliki role = 'siswa'.
+     * Relasi: User memiliki satu profil Murid (One-to-One / HasOne).
+     * Hanya berlaku jika user memiliki role = 'murid' (atau 'siswa' legacy).
+     *
+     * @return HasOne
+     */
+    public function murid()
+    {
+        return $this->hasOne(Murid::class, 'user_id');
+    }
+
+    /**
+     * Alias relasi murid untuk backward compatibility.
      *
      * @return HasOne
      */
     public function siswa()
     {
-        return $this->hasOne(Siswa::class);
+        return $this->murid();
     }
 
     /**

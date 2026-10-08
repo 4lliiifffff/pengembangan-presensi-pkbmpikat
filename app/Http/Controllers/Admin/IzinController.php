@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Murid;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Services\PresensiService;
@@ -24,7 +25,7 @@ class IzinController extends Controller
     {
         $tutors = $this->tutorService->getAssignableTutors();
 
-        $riwayatIzin = Presensi::with(['tutor', 'siswa'])
+        $riwayatIzin = Presensi::with(['tutor', 'murid'])
             ->where('status', 'izin')
             ->orderByDesc('tgl_presensi')
             ->orderByDesc('id')
@@ -35,19 +36,30 @@ class IzinController extends Controller
     }
 
     /**
-     * AJAX: ambil daftar siswa yang pernah diajar oleh tutor tertentu.
+     * AJAX: ambil daftar murid yang pernah diajar oleh tutor tertentu.
      */
+    public function getMuridByTutor($tutorId)
+    {
+        $muridIds = Presensi::where('tutor_id', $tutorId)
+            ->distinct()
+            ->pluck('murid_id');
+
+        if ($muridIds->filter()->isEmpty()) {
+            $muridIds = Presensi::where('tutor_id', $tutorId)
+                ->distinct()
+                ->pluck('siswa_id');
+        }
+
+        $murids = Murid::whereIn('id', $muridIds)
+            ->orderBy('nama_murid')
+            ->get(['id', 'nama_murid']);
+
+        return response()->json($murids);
+    }
+
     public function getSiswaByTutor($tutorId)
     {
-        $siswaIds = Presensi::where('tutor_id', $tutorId)
-            ->distinct()
-            ->pluck('siswa_id');
-
-        $siswas = Siswa::whereIn('id', $siswaIds)
-            ->orderBy('nama_siswa')
-            ->get(['id', 'nama_siswa']);
-
-        return response()->json($siswas);
+        return $this->getMuridByTutor($tutorId);
     }
 
     /**
@@ -58,11 +70,11 @@ class IzinController extends Controller
         $request->validate([
             'tutor_id' => 'required|exists:tutor,id',
             'siswa_ids' => 'required|array|min:1',
-            'siswa_ids.*' => 'exists:siswa,id',
+            'siswa_ids.*' => 'exists:murid,id',
             'tanggal' => 'required|date',
         ], [
             'tutor_id.required' => 'Pilih tutor terlebih dahulu.',
-            'siswa_ids.required' => 'Pilih minimal 1 siswa.',
+            'siswa_ids.required' => 'Pilih minimal 1 murid.',
             'tanggal.required' => 'Tanggal wajib diisi.',
         ]);
 
@@ -71,13 +83,13 @@ class IzinController extends Controller
 
         $count = $this->presensiService->syncApprovedAttendance(
             tutorId: $tutorId,
-            siswaIds: $request->siswa_ids,
+            muridIds: $request->siswa_ids,
             startDateStr: $tanggal,
             status: 'izin'
         );
 
         return redirect()->route('admin.izin.index')
-            ->with('success', "Berhasil memberikan Izin untuk {$count} siswa pada tanggal {$tanggal}.");
+            ->with('success', "Berhasil memberikan Izin untuk {$count} murid pada tanggal {$tanggal}.");
     }
 
     /**

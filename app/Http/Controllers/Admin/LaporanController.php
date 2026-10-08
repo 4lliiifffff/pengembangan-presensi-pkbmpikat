@@ -62,7 +62,8 @@ class LaporanController extends Controller
 
         // 3. Dataset Master untuk Dropdown Filter
         $tutors = Tutor::orderBy('nama_lengkap')->get();
-        $siswas = Siswa::orderBy('nama_siswa')->get();
+        $siswas = Siswa::orderBy('nama_murid')->get();
+        $murids = $siswas;
         $jenjangPakets = JenjangPaket::aktif()->orderBy('urutan')->get();
         $kelasList = Kelas::orderBy('nama_kelas')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
@@ -79,6 +80,7 @@ class LaporanController extends Controller
                 'filters' => $filters,
                 'tutors' => $tutors,
                 'siswas' => $siswas,
+                'murids' => $murids,
                 'jenjangPakets' => $jenjangPakets,
                 'kelasList' => $kelasList,
                 'lokasiPresensis' => $lokasiPresensis,

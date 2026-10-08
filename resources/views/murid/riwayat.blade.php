@@ -1,21 +1,21 @@
 @extends('layouts.presensi')
 
-@section('title', 'Riwayat Absensi Siswa')
+@section('title', 'Riwayat Absensi Murid')
 
 @php
     use Carbon\Carbon;
     $user = auth()->user();
-    $siswa = $user->siswa;
-    $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
+    $murid = $user->murid ?? $user->siswa;
+    $displayName = (string) ($murid->nama_murid ?? ($murid->nama_siswa ?? ($murid->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Murid PKBM')))));
     $initial = strtoupper(substr($displayName, 0, 1));
 @endphp
 
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
         'titleName' => 'Riwayat Absensi',
-        'subTitle' => $displayName . ' • Siswa',
-        'dashRoute' => route('siswa.dashboard'),
-        'backRoute' => route('siswa.dashboard'),
+        'subTitle' => $displayName . ' • Murid',
+        'dashRoute' => route('murid.dashboard'),
+        'backRoute' => route('murid.dashboard'),
     ])
 @endpush
 
@@ -27,7 +27,7 @@
         <div class="laporanHeader">
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
-                    <div class="laporanHeaderLabel">LOG KEHADIRAN MANDIRI SISWA</div>
+                    <div class="laporanHeaderLabel">LOG KEHADIRAN MANDIRI MURID</div>
                     <h1 class="laporanHeaderTitle">Riwayat Presensi Mandiri</h1>
                     <div class="laporanHeaderSub">Periode:
                         {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('F Y') }}</div>
@@ -35,7 +35,7 @@
                         jam pulang, dan verifikasi foto.</p>
                 </div>
                 <div class="laporanHeaderActions">
-                    <a href="{{ route('siswa.presensi.foto') }}" class="profileBtnPrimary">
+                    <a href="{{ route('murid.presensi.foto') }}" class="profileBtnPrimary">
                         <ion-icon name="camera-outline"></ion-icon> Absen Hari Ini
                     </a>
                 </div>
@@ -54,7 +54,7 @@
             </div>
 
             <!-- FILTER BULAN & STATUS -->
-            <form action="{{ route('siswa.riwayat') }}" method="GET" class="riwayatFilterForm">
+            <form action="{{ route('murid.riwayat') }}" method="GET" class="riwayatFilterForm">
                 <div>
                     <input type="month" name="tanggal" value="{{ substr($selectedDate, 0, 7) }}"
                         onchange="this.form.submit()" class="profileInput text-sm">

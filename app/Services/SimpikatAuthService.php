@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Models\Admin;
 use App\Models\JenjangPaket;
 use App\Models\kelas as Kelas;
+use App\Models\Murid;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
@@ -25,7 +26,7 @@ use Illuminate\Validation\ValidationException;
  * 1. Cross-Database Lookup (pencarian pengguna di tabel pengguna SIMPIKAT)
  * 2. Verifikasi Kredensial via Bcrypt Hash::check()
  * 3. Pemetaan Peran (Role Mapping) & Kebijakan Hak Akses
- * 4. Just-In-Time (JIT) Provisioning (sinkronisasi tabel users dan profil tutor/siswa/admin)
+ * 4. Just-In-Time (JIT) Provisioning (sinkronisasi tabel users dan profil tutor/murid/admin)
  */
 class SimpikatAuthService
 {
@@ -236,7 +237,7 @@ class SimpikatAuthService
      * - nama_pengguna
      * - email
      * - nomor_nuptk
-     * - nik / nisn / nomor_induk pada tabel peserta_didik (jika siswa)
+     * - nik / nisn / nomor_induk pada tabel peserta_didik (jika murid/siswa)
      */
     protected function findSimpikatPengguna(string $identifier): ?object
     {
@@ -265,7 +266,7 @@ class SimpikatAuthService
             // Abaikan jika kolom tidak ada
         }
 
-        // 3. Cari di tabel peserta_didik (jika siswa memasukkan NISN/NIK/No Induk)
+        // 3. Cari di tabel peserta_didik (jika murid memasukkan NISN/NIK/No Induk)
         try {
             $peserta = $db->table('peserta_didik')
                 ->where('nik', $identifier)
@@ -293,8 +294,8 @@ class SimpikatAuthService
         $mappedRole = match ($simpikatUser->peran) {
             'super_admin', 'admin', 'kepala_sekolah' => 'admin',
             'tutor' => 'tutor',
-            'peserta_didik', 'murid', 'siswa' => 'siswa',
-            default => 'siswa',
+            'peserta_didik', 'murid', 'siswa' => 'murid',
+            default => 'murid',
         };
 
         $nik = $this->resolveNikForUser($simpikatUser, $mappedRole);
@@ -349,8 +350,8 @@ class SimpikatAuthService
             return substr((string) $simpikatUser->nomor_nuptk, 0, 20);
         }
 
-        // 2. Jika peserta didik, periksa apakah ada NIK / NISN di tabel peserta_didik SIMPIKAT
-        if ($role === 'siswa') {
+        // 2. Jika murid / peserta didik, periksa apakah ada NIK / NISN di tabel peserta_didik SIMPIKAT
+        if ($role === 'murid' || $role === 'siswa') {
             try {
                 $peserta = DB::connection($this->connection)
                     ->table('peserta_didik')
@@ -362,17 +363,17 @@ class SimpikatAuthService
                         return substr((string) $peserta->nik, 0, 20);
                     }
                     if (! empty($peserta->nisn)) {
-                        return substr('SW'.(string) $peserta->nisn, 0, 20);
+                        return substr('MRD'.(string) $peserta->nisn, 0, 20);
                     }
                     if (! empty($peserta->nomor_induk)) {
-                        return substr('SW'.(string) $peserta->nomor_induk, 0, 20);
+                        return substr('MRD'.(string) $peserta->nomor_induk, 0, 20);
                     }
                 }
             } catch (\Throwable) {
                 // Abaikan jika tabel tidak ditemukan
             }
 
-            return 'SW'.str_pad((string) $simpikatUser->id, 4, '0', STR_PAD_LEFT);
+            return 'MRD'.str_pad((string) $simpikatUser->id, 4, '0', STR_PAD_LEFT);
         }
 
         if ($role === 'admin') {
@@ -383,7 +384,7 @@ class SimpikatAuthService
     }
 
     /**
-     * Memastikan tabel detail profil (tutor, siswa, admin) memiliki record yang sesuai
+     * Memastikan tabel detail profil (tutor, murid, admin) memiliki record yang sesuai
      * agar relasi Eloquent di dashboard tidak melempar null reference error.
      */
     protected function provisionDomainProfile(User $user, object $simpikatUser): void
@@ -414,7 +415,7 @@ class SimpikatAuthService
                     'no_hp' => $user->no_hp ?? '081234567890',
                 ]
             );
-        } elseif ($user->role === 'siswa' && (Schema::hasTable('siswas') || Schema::hasTable('siswa'))) {
+        } elseif (($user->role === 'murid' || $user->role === 'siswa') && (Schema::hasTable('murid') || Schema::hasTable('siswa') || Schema::hasTable('siswas'))) {
             // Coba ambil detail dari peserta_didik SIMPIKAT jika ada
             $peserta = null;
             try {
@@ -435,21 +436,23 @@ class SimpikatAuthService
             // Deteksi otomatis status ABK / Inklusi
             $isAbk = $this->resolveIsAbkForSimpikatPeserta($peserta);
 
-            $noAbsen = 'SW'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT);
-            $namaSiswa = $user->nama_lengkap;
+            $noAbsen = 'MRD'.str_pad((string) $user->id, 4, '0', STR_PAD_LEFT);
+            $namaMurid = $user->nama_lengkap;
             $namaWali = 'Orang Tua / Wali';
             $noHp = '081234567890';
 
             if ($peserta) {
                 $noAbsen = (string) ($peserta->nomor_induk ?: ($peserta->nisn ?: $noAbsen));
-                $namaSiswa = (string) ($peserta->nama_lengkap ?: $namaSiswa);
+                $namaMurid = (string) ($peserta->nama_lengkap ?: $namaMurid);
                 $namaWali = (string) ($peserta->nama_wali ?: ($peserta->nama_ayah ?: $namaWali));
                 $noHp = (string) ($peserta->nomor_wa ?: ($peserta->telepon_peserta ?: $noHp));
             }
 
-            $siswaPayload = [
+            $muridPayload = [
                 'no_absen' => substr($noAbsen, 0, 20),
-                'nama_siswa' => $namaSiswa,
+                'nama_murid' => $namaMurid,
+                'nama_siswa' => $namaMurid,
+                'status_murid' => 'aktif',
                 'status_siswa' => 'aktif',
                 'kelas_id' => $kelasId,
                 'nama_wali' => substr($namaWali, 0, 50),
@@ -458,12 +461,12 @@ class SimpikatAuthService
             ];
 
             if ($tutorId !== null) {
-                $siswaPayload['tutor_id'] = $tutorId;
+                $muridPayload['tutor_id'] = $tutorId;
             }
 
-            Siswa::updateOrCreate(
+            Murid::updateOrCreate(
                 ['user_id' => $user->id],
-                $siswaPayload
+                $muridPayload
             );
         }
     }

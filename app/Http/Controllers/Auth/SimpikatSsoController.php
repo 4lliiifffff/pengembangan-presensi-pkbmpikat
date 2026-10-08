@@ -90,7 +90,7 @@ class SimpikatSsoController extends Controller
             'tutor' => redirect()->route('tutor.dashboard')->with('success', 'Login otomatis berhasil dari SIMPIKAT. Selamat datang!'),
             'kepala_sekolah' => redirect()->route('kepsek.dashboard')->with('success', 'Login otomatis berhasil dari SIMPIKAT. Selamat datang!'),
             'magang' => redirect()->route('magang.dashboard')->with('success', 'Login otomatis berhasil dari SIMPIKAT. Selamat datang!'),
-            'siswa' => redirect()->route('siswa.dashboard')->with('success', 'Login otomatis berhasil dari SIMPIKAT. Selamat datang!'),
+            'murid', 'siswa' => redirect()->route('murid.dashboard')->with('success', 'Login otomatis berhasil dari SIMPIKAT. Selamat datang!'),
             default => redirect()->route('login')->with('warning', 'Peran akun tidak dikenali untuk portal presensi.'),
         };
     }

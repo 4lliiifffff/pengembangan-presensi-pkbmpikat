@@ -120,7 +120,7 @@ class KelasController extends Controller
         if ($kela->siswas()->exists()) {
             return redirect()
                 ->route('admin.kelas.index')
-                ->with('warning', 'Kelas tidak bisa dihapus karena masih dipakai oleh '.$kela->siswas()->count().' data siswa.');
+                ->with('warning', 'Kelas tidak bisa dihapus karena masih dipakai oleh '.$kela->siswas()->count().' data murid.');
         }
 
         $kela->delete();

@@ -29,14 +29,15 @@ class JadwalRutinController extends Controller
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
-                $q->whereHas('siswa', fn ($s) => $s->where('nama_siswa', 'like', "%{$search}%"))
+                $q->whereHas('siswa', fn ($s) => $s->where('nama_murid', 'like', "%{$search}%"))
                     ->orWhereHas('tutor', fn ($t) => $t->where('nama_lengkap', 'like', "%{$search}%"))
                     ->orWhere('keterangan', 'like', "%{$search}%");
             });
         }
 
-        if ($request->filled('siswa_id')) {
-            $query->where('siswa_id', $request->input('siswa_id'));
+        $muridFilterId = $request->input('murid_id', $request->input('siswa_id'));
+        if (! empty($muridFilterId)) {
+            $query->where('murid_id', $muridFilterId);
         }
 
         if ($request->filled('tutor_id')) {
@@ -59,22 +60,25 @@ class JadwalRutinController extends Controller
         $stats = [
             'total' => JadwalRutin::count(),
             'active' => JadwalRutin::where('is_active', true)->count(),
-            'siswa_count' => JadwalRutin::distinct('siswa_id')->count('siswa_id'),
+            'murid_count' => JadwalRutin::distinct('murid_id')->count('murid_id'),
+            'siswa_count' => JadwalRutin::distinct('murid_id')->count('murid_id'),
             'tutor_count' => JadwalRutin::distinct('tutor_id')->count('tutor_id'),
         ];
 
-        $siswas = Siswa::aktif()->orderBy('nama_siswa')->get(['id', 'nama_siswa', 'no_absen', 'kelas_id']);
+        $siswas = Siswa::aktif()->orderBy('nama_murid')->get(['id', 'nama_murid', 'no_absen', 'kelas_id']);
+        $murids = $siswas;
         $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get(['id', 'nama_lengkap']);
 
-        return view('admin.jadwal_rutin.index', compact('jadwalRutins', 'stats', 'siswas', 'tutors'));
+        return view('admin.jadwal_rutin.index', compact('jadwalRutins', 'stats', 'siswas', 'murids', 'tutors'));
     }
 
     /**
-     * Form tambah jadwal rutin KBM baru untuk siswa tertentu.
+     * Form tambah jadwal rutin KBM baru untuk murid tertentu.
      */
     public function create(): View
     {
-        $siswas = Siswa::aktif()->orderBy('nama_siswa')->get();
+        $siswas = Siswa::aktif()->orderBy('nama_murid')->get();
+        $murids = $siswas;
         $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
         $jadwalKerjas = JadwalKerja::active()->where('jenis_shift', 'kbm')->orderBy('urutan')->get();
@@ -90,7 +94,7 @@ class JadwalRutinController extends Controller
             'minggu' => 'Minggu',
         ];
 
-        return view('admin.jadwal_rutin.create', compact('siswas', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
+        return view('admin.jadwal_rutin.create', compact('siswas', 'murids', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
     }
 
     /**
@@ -98,8 +102,12 @@ class JadwalRutinController extends Controller
      */
     public function store(Request $request, JadwalRutinService $service): RedirectResponse
     {
+        if (! $request->filled('siswa_id') && $request->filled('murid_id')) {
+            $request->merge(['siswa_id' => $request->input('murid_id')]);
+        }
+
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:siswa,id'],
+            'siswa_id' => ['required', 'exists:murid,id'],
             'tutor_id' => ['required', 'exists:tutor,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerja,id'],
@@ -114,7 +122,7 @@ class JadwalRutinController extends Controller
             'is_active' => ['nullable', 'boolean'],
             'auto_generate' => ['nullable', 'boolean'],
         ], [
-            'siswa_id.required' => 'Pilih siswa terlebih dahulu.',
+            'siswa_id.required' => 'Pilih murid terlebih dahulu.',
             'tutor_id.required' => 'Pilih tutor pengampu terlebih dahulu.',
             'hari.required' => 'Pilih hari belajar rutin dalam seminggu.',
             'jam_masuk.required' => 'Jam mulai belajar wajib diisi.',
@@ -150,7 +158,7 @@ class JadwalRutinController extends Controller
         }
 
         return redirect()->route('admin.jadwal-rutin.index')
-            ->with('success', "Master Jadwal Rutin KBM untuk siswa berhasil dibuat.{$genInfo}");
+            ->with('success', "Master Jadwal Rutin KBM untuk murid berhasil dibuat.{$genInfo}");
     }
 
     /**
@@ -158,7 +166,8 @@ class JadwalRutinController extends Controller
      */
     public function edit(JadwalRutin $jadwalRutin): View
     {
-        $siswas = Siswa::aktif()->orderBy('nama_siswa')->get();
+        $siswas = Siswa::aktif()->orderBy('nama_murid')->get();
+        $murids = $siswas;
         $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
         $jadwalKerjas = JadwalKerja::active()->where('jenis_shift', 'kbm')->orderBy('urutan')->get();
@@ -174,7 +183,7 @@ class JadwalRutinController extends Controller
             'minggu' => 'Minggu',
         ];
 
-        return view('admin.jadwal_rutin.edit', compact('jadwalRutin', 'siswas', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
+        return view('admin.jadwal_rutin.edit', compact('jadwalRutin', 'siswas', 'murids', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
     }
 
     /**
@@ -182,8 +191,12 @@ class JadwalRutinController extends Controller
      */
     public function update(Request $request, JadwalRutin $jadwalRutin, JadwalRutinService $service): RedirectResponse
     {
+        if (! $request->filled('siswa_id') && $request->filled('murid_id')) {
+            $request->merge(['siswa_id' => $request->input('murid_id')]);
+        }
+
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:siswa,id'],
+            'siswa_id' => ['required', 'exists:murid,id'],
             'tutor_id' => ['required', 'exists:tutor,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerja,id'],
@@ -197,6 +210,13 @@ class JadwalRutinController extends Controller
             'keterangan' => ['nullable', 'string', 'max:1000'],
             'is_active' => ['nullable', 'boolean'],
             'sync_future' => ['nullable', 'boolean'],
+        ], [
+            'siswa_id.required' => 'Pilih murid terlebih dahulu.',
+            'tutor_id.required' => 'Pilih tutor pengampu terlebih dahulu.',
+            'hari.required' => 'Pilih hari belajar rutin dalam seminggu.',
+            'jam_masuk.required' => 'Jam mulai belajar wajib diisi.',
+            'jam_pulang.required' => 'Jam selesai belajar wajib diisi.',
+            'jam_pulang.after' => 'Jam selesai harus lebih akhir dari jam mulai.',
         ]);
 
         if (empty($validated['durasi_jam'])) {
@@ -249,7 +269,7 @@ class JadwalRutinController extends Controller
     public function generateManual(Request $request, JadwalRutinService $service): RedirectResponse
     {
         $weeks = (int) $request->input('weeks', 4);
-        $siswaId = $request->filled('siswa_id') ? (int) $request->input('siswa_id') : null;
+        $siswaId = $request->filled('murid_id') ? (int) $request->input('murid_id') : ($request->filled('siswa_id') ? (int) $request->input('siswa_id') : null);
         $tutorId = $request->filled('tutor_id') ? (int) $request->input('tutor_id') : null;
         $skipHolidays = $request->boolean('skip_holidays');
 

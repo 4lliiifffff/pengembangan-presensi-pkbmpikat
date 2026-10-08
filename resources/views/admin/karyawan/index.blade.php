@@ -174,9 +174,9 @@
                 <ion-icon name="school-outline"></ion-icon>
             </div>
             <div class="account-stat-content">
-                <div class="account-stat-label">Peserta Didik (Siswa)</div>
-                <div class="account-stat-value">{{ $siswaCount }}</div>
-                <div class="account-stat-sub">Presensi Mandiri Siswa</div>
+                <div class="account-stat-label">Murid</div>
+                <div class="account-stat-value">{{ $muridCount ?? $siswaCount }}</div>
+                <div class="account-stat-sub">Presensi Mandiri Murid</div>
             </div>
         </div>
 
@@ -216,8 +216,8 @@
                         <option value="tutor" {{ $currentRole === 'tutor' ? 'selected' : '' }}>
                             Pendidik / Tutor ({{ $tutorCount }})
                         </option>
-                        <option value="siswa" {{ $currentRole === 'siswa' ? 'selected' : '' }}>
-                            Peserta Didik / Siswa ({{ $siswaCount }})
+                        <option value="murid" {{ $currentRole === 'murid' || $currentRole === 'siswa' ? 'selected' : '' }}>
+                            Murid ({{ $muridCount ?? $siswaCount }})
                         </option>
                         <option value="magang" {{ $currentRole === 'magang' ? 'selected' : '' }}>
                             Mahasiswa Magang ({{ $magangCount }})
@@ -300,7 +300,7 @@
                                 'admin' => 'Administrator',
                                 'tutor' => 'Tutor / Pengajar',
                                 'kepala_sekolah' => 'Kepala Sekolah',
-                                'siswa' => 'Peserta Didik (Siswa)',
+                                'murid', 'siswa' => 'Murid',
                                 'magang' => 'Mahasiswa Magang',
                                 default => ucfirst(str_replace('_', ' ', (string) $k->role)),
                             };
@@ -308,11 +308,12 @@
                                 'admin' => 'badge-role-admin',
                                 'tutor' => 'badge-role-tutor',
                                 'kepala_sekolah' => 'badge-role-kepsek',
-                                'siswa' => 'badge-role-siswa',
+                                'murid', 'siswa' => 'badge-role-siswa',
                                 'magang' => 'badge-role-magang',
                                 default => 'badge-role-admin',
                             };
                             $initial = strtoupper(substr($displayName, 0, 1));
+                            $muridObj = $k->murid ?? $k->siswa;
                         @endphp
                         <tr>
                             <td class="p-3 font-bold text-muted">
@@ -331,8 +332,8 @@
                             </td>
                             <td class="font-bold font-mono text-dark">
                                 {{ $k->nik ?? '-' }}
-                                @if($k->role === 'siswa' && $k->siswa)
-                                    <span class="text-xs text-muted d-block font-sans">No Absen: {{ $k->siswa->no_absen }}</span>
+                                @if(($k->role === 'murid' || $k->role === 'siswa') && $muridObj)
+                                    <span class="text-xs text-muted d-block font-sans">No Absen: {{ $muridObj->no_absen }}</span>
                                 @endif
                             </td>
                             <td>
@@ -341,12 +342,12 @@
                                 </span>
                             </td>
                             <td>
-                                @if($k->role === 'siswa' && $k->siswa)
+                                @if(($k->role === 'murid' || $k->role === 'siswa') && $muridObj)
                                     <div class="text-sm font-semibold text-dark">
-                                        {{ $k->siswa->relKelas?->nama_kelas ?? 'Tanpa Kelas' }}
+                                        {{ $muridObj->relKelas?->nama_kelas ?? 'Tanpa Kelas' }}
                                     </div>
-                                    <a href="{{ route('admin.siswa.index', ['search' => $k->siswa->nama_siswa]) }}" class="text-xs text-primary font-bold">
-                                        Lihat Data Siswa &rarr;
+                                    <a href="{{ route('admin.murid.index', ['search' => $muridObj->nama_murid ?? $muridObj->nama_siswa]) }}" class="text-xs text-primary font-bold">
+                                        Lihat Data Murid &rarr;
                                     </a>
                                 @elseif($k->role === 'tutor')
                                     <div class="text-sm text-dark font-semibold">Tenaga Pendidik</div>
@@ -444,7 +445,7 @@
                     'admin' => 'Administrator',
                     'tutor' => 'Tutor / Pengajar',
                     'kepala_sekolah' => 'Kepala Sekolah',
-                    'siswa' => 'Peserta Didik (Siswa)',
+                    'murid', 'siswa' => 'Murid',
                     'magang' => 'Mahasiswa Magang',
                     default => ucfirst(str_replace('_', ' ', (string) $k->role)),
                 };
@@ -452,11 +453,12 @@
                     'admin' => 'badge-role-admin',
                     'tutor' => 'badge-role-tutor',
                     'kepala_sekolah' => 'badge-role-kepsek',
-                    'siswa' => 'badge-role-siswa',
+                    'murid', 'siswa' => 'badge-role-siswa',
                     'magang' => 'badge-role-magang',
                     default => 'badge-role-admin',
                 };
                 $initial = strtoupper(substr($displayName, 0, 1));
+                $muridObj = $k->murid ?? $k->siswa;
             @endphp
             <div class="data-mobile-card">
                 <div class="dmc-header">
@@ -502,11 +504,11 @@
                         </div>
                     </div>
 
-                    @if($k->role === 'siswa' && $k->siswa)
+                    @if(($k->role === 'murid' || $k->role === 'siswa') && $muridObj)
                         <div class="dmc-field" style="grid-column: span 2;">
                             <div class="dmc-label">Kelas &amp; Program</div>
                             <div class="dmc-value text-sm font-bold text-dark">
-                                {{ $k->siswa->relKelas?->nama_kelas ?? 'Tanpa Kelas' }} (No Absen: {{ $k->siswa->no_absen }})
+                                {{ $muridObj->relKelas?->nama_kelas ?? 'Tanpa Kelas' }} (No Absen: {{ $muridObj->no_absen }})
                             </div>
                         </div>
                     @endif

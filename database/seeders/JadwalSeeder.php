@@ -24,7 +24,7 @@ class JadwalSeeder extends Seeder
             ],
             [
                 'judul' => 'Workshop Keterampilan Digital & Desain Grafis',
-                'deskripsi' => 'Pelatihan pengoperasian aplikasi desain dan komputer untuk seluruh peserta didik Paket C dan Vokasi.',
+                'deskripsi' => 'Pelatihan pengoperasian aplikasi desain dan komputer untuk seluruh murid Paket C dan Vokasi.',
                 'tanggal' => $today->copy()->addDays(2)->toDateString(),
                 'lokasi' => 'Lab Komputer PKBM Pikat',
             ],
@@ -36,13 +36,13 @@ class JadwalSeeder extends Seeder
             ],
             [
                 'judul' => 'Rapat Koordinasi & Pembinaan Tutor Bulanan',
-                'deskripsi' => 'Evaluasi kinerja tutor, rekapitulasi kehadiran peserta didik, dan briefing kurikulum kesetaraan.',
+                'deskripsi' => 'Evaluasi kinerja tutor, rekapitulasi kehadiran murid, dan briefing kurikulum kesetaraan.',
                 'tanggal' => $today->copy()->addDays(14)->toDateString(),
                 'lokasi' => 'Ruang Rapat Utama PKBM Pikat',
             ],
             [
-                'judul' => 'Sosialisasi Uji Kesetaraan & Pembekalan Siswa Akhir',
-                'deskripsi' => 'Pengarahan bagi peserta didik tingkat akhir (Kelas 6, 9, dan 12) menghadapi asesmen nasional.',
+                'judul' => 'Sosialisasi Uji Kesetaraan & Pembekalan Murid Akhir',
+                'deskripsi' => 'Pengarahan bagi murid tingkat akhir (Kelas 6, 9, dan 12) menghadapi asesmen nasional.',
                 'tanggal' => $today->copy()->subDays(3)->toDateString(),
                 'lokasi' => 'Aula PKBM Pikat',
             ],

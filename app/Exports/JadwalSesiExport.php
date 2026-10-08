@@ -43,10 +43,12 @@ class JadwalSesiExport implements FromCollection, WithEvents, WithHeadings, With
             default => 'Terjadwal',
         };
 
+        $murid = $sesi->murid ?? $sesi->siswa;
+
         return [
             $sesi->tanggal_rencana ? $sesi->tanggal_rencana->format('Y-m-d') : '',
-            $sesi->siswa?->no_absen ?? '',
-            $sesi->siswa?->nama_siswa ?? '',
+            $murid?->no_absen ?? '',
+            $murid?->nama_murid ?? ($murid?->nama_siswa ?? ''),
             substr((string) $sesi->jam_masuk_rencana, 0, 5),
             substr((string) $sesi->jam_pulang_rencana, 0, 5),
             (string) $sesi->durasi_jam,
@@ -61,8 +63,8 @@ class JadwalSesiExport implements FromCollection, WithEvents, WithHeadings, With
     {
         return [
             'Tanggal Sesi (YYYY-MM-DD)',
-            'Nomor Absen Siswa',
-            'Nama Siswa',
+            'Nomor Absen Murid',
+            'Nama Murid',
             'Jam Mulai',
             'Jam Selesai',
             'Durasi (Jam)',

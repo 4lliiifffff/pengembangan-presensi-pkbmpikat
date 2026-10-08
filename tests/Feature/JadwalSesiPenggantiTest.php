@@ -92,7 +92,7 @@ class JadwalSesiPenggantiTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'jenis_sesi' => 'pengganti',
             'jam_masuk_rencana' => '14:00:00',
             'status' => 'terjadwal',
@@ -175,7 +175,7 @@ class JadwalSesiPenggantiTest extends TestCase
 
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'jadwal_sesi_id' => $sesi->id,
             'status' => 'hadir',
         ]);

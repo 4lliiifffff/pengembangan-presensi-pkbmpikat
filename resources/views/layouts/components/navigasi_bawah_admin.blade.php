@@ -88,13 +88,13 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.siswa.index') }}" class="navDrawerCard {{ request()->routeIs('admin.siswa.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.murid.index') }}" class="navDrawerCard {{ request()->routeIs('admin.murid.*') || request()->routeIs('admin.siswa.*') ? 'active' : '' }}">
                         <div class="navCardIcon blue">
                             <ion-icon name="school-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Data Siswa</div>
-                            <div class="navCardDesc">Peserta Didik & ABK</div>
+                            <div class="navCardTitle">Data Murid</div>
+                            <div class="navCardDesc">Murid PKBM & ABK</div>
                         </div>
                     </a>
 
@@ -153,7 +153,7 @@
                         </div>
                         <div class="navCardMeta">
                             <div class="navCardTitle">Agenda KBM</div>
-                            <div class="navCardDesc">Jadwal Tutorial Siswa</div>
+                            <div class="navCardDesc">Jadwal Tutorial Murid</div>
                         </div>
                     </a>
 
@@ -162,7 +162,7 @@
                             <ion-icon name="repeat-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Jadwal Rutin Siswa</div>
+                            <div class="navCardTitle">Jadwal Rutin Murid</div>
                             <div class="navCardDesc">Pola Mingguan & Time-Gating</div>
                         </div>
                     </a>

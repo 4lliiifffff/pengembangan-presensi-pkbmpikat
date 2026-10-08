@@ -85,10 +85,18 @@ class kelas extends Model
     }
 
     /**
-     * Relasi ke data Siswa dalam kelas ini.
+     * Relasi ke data Murid dalam kelas ini.
+     */
+    public function murids(): HasMany
+    {
+        return $this->hasMany(Murid::class, 'kelas_id');
+    }
+
+    /**
+     * Alias relasi siswas untuk backward compatibility.
      */
     public function siswas(): HasMany
     {
-        return $this->hasMany(Siswa::class, 'kelas_id');
+        return $this->murids();
     }
 }

@@ -1,12 +1,12 @@
 @extends('layouts.presensi')
 
-@section('title', 'Dashboard Siswa')
+@section('title', 'Dashboard Murid')
 
 @php
     $user = auth()->user();
-    $siswa = $user->siswa;
-    $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
-    $subTitle = 'Portal Peserta Didik • PKBM Pikat';
+    $murid = $user->murid ?? $user->siswa;
+    $displayName = (string) ($murid->nama_murid ?? ($murid->nama_siswa ?? ($murid->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Murid PKBM')))));
+    $subTitle = 'Portal Murid • PKBM Pikat';
     $initial = strtoupper(substr($displayName, 0, 1));
 @endphp
 
@@ -22,8 +22,8 @@
     <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
-                <div class="laporanHeaderLabel">PORTAL PEMBELAJARAN &amp; PRESENSI SISWA</div>
-                <h1 class="laporanHeaderTitle">Dashboard Siswa</h1>
+                <div class="laporanHeaderLabel">PORTAL PEMBELAJARAN &amp; PRESENSI MURID</div>
+                <h1 class="laporanHeaderTitle">Dashboard Murid</h1>
                 <div class="laporanHeaderSub">Selamat datang kembali, {{ $displayName }}!</div>
                 <p class="laporanHeaderDesc">Catat kehadiran mandiri Anda saat tiba di PKBM Pikat dan pantau jadwal
                     pembelajaran serta agenda kegiatan.</p>
@@ -38,7 +38,7 @@
     </div>
 
     <div class="dashboardGrid">
-        {{-- ── KOLOM KIRI: WAKTU, STATUS PRESENSI HARI INI & INFORMASI SISWA ── --}}
+        {{-- ── KOLOM KIRI: WAKTU, STATUS PRESENSI HARI INI & INFORMASI MURID ── --}}
         <div class="dashboardCol">
             {{-- ── JAM REALTIME ── --}}
             <div class="clockCard">
@@ -87,8 +87,8 @@
                 </div>
             </div>
 
-            {{-- ── INFORMASI SISWA & KELAS ── --}}
-            @if ($siswa)
+            {{-- ── INFORMASI MURID & KELAS ── --}}
+            @if ($murid)
                 <div class="magangInfoCard">
                     <div class="magangInfoHead">
                         <div class="magangInfoIcon">
@@ -96,42 +96,42 @@
                         </div>
                         <div class="min-w-0 flex-1">
                             <div class="magangInfoTitle">
-                                {{ $siswa->kelas?->nama_kelas ?? 'Kelas Siswa' }}
+                                {{ $murid->kelas?->nama_kelas ?? 'Kelas Murid' }}
                             </div>
                             <div class="magangInfoSub">
-                                {{ $siswa->masterJenjang?->nama_jenjang ?? $siswa->jenjang_paket_label }} • No. Absen:
-                                {{ $siswa->no_absen ?? '-' }}
+                                {{ $murid->masterJenjang?->nama_jenjang ?? $murid->jenjang_paket_label }} • No. Absen:
+                                {{ $murid->no_absen ?? '-' }}
                             </div>
                         </div>
                     </div>
                     <div class="magangInfoGrid">
                         <div class="magangInfoItem">
-                            <span class="magangInfoItemLbl">Status Siswa</span>
+                            <span class="magangInfoItemLbl">Status Murid</span>
                             <span class="magangInfoItemVal">
-                                <span class="badge {{ $siswa->status === 'aktif' ? 'bg-success' : 'bg-secondary' }}"
+                                <span class="badge {{ ($murid->status_murid ?? $murid->status) === 'aktif' ? 'bg-success' : 'bg-secondary' }}"
                                     style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px;">
-                                    {{ ucfirst($siswa->status ?? 'Aktif') }}
+                                    {{ ucfirst($murid->status_murid ?? ($murid->status ?? 'Aktif')) }}
                                 </span>
                             </span>
                         </div>
                         <div class="magangInfoItem">
                             <span class="magangInfoItemLbl">NISN / NIK</span>
                             <span class="magangInfoItemVal">
-                                {{ $siswa->nisn ?? ($user->nik ?? '-') }}
+                                {{ $murid->nisn ?? ($user->nik ?? '-') }}
                             </span>
                         </div>
                         <div class="magangInfoItem">
                             <span class="magangInfoItemLbl">Nama Wali</span>
                             <span class="magangInfoItemVal">
-                                {{ $siswa->nama_wali ?? '-' }}
+                                {{ $murid->nama_wali ?? '-' }}
                             </span>
                         </div>
                         <div class="magangInfoItem">
                             <span class="magangInfoItemLbl">Kebutuhan Khusus</span>
                             <span class="magangInfoItemVal">
-                                <span class="badge {{ $siswa->is_abk ? 'bg-warning' : 'bg-light text-dark' }}"
+                                <span class="badge {{ $murid->is_abk ? 'bg-warning' : 'bg-light text-dark' }}"
                                     style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px;">
-                                    {{ $siswa->is_abk ? 'ABK (Inklusi)' : 'Reguler' }}
+                                    {{ $murid->is_abk ? 'ABK (Inklusi)' : 'Reguler' }}
                                 </span>
                             </span>
                         </div>
@@ -147,7 +147,7 @@
                             <ion-icon name="calendar-clear-outline" class="text-primary"></ion-icon>
                             <span>Agenda &amp; Jadwal PKBM</span>
                         </h2>
-                        <a href="{{ route('siswa.jadwal') }}" class="text-xs font-bold text-primary text-decoration-none">
+                        <a href="{{ route('murid.jadwal') }}" class="text-xs font-bold text-primary text-decoration-none">
                             Lihat Kalender &rsaquo;
                         </a>
                     </div>
@@ -207,7 +207,7 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="{{ route('siswa.presensi.foto') }}"
+                        <a href="{{ route('murid.presensi.foto') }}"
                             class="btn btn-sm btn-light px-3 py-2 rounded-lg font-bold text-xs">
                             Lihat Kartu Presensi &rsaquo;
                         </a>
@@ -221,7 +221,7 @@
                     <div class="magangCtaDesc">
                         Ambil foto selfie kehadiran mandiri untuk mencatat kehadiran Anda hari ini di PKBM Pikat.
                     </div>
-                    <a href="{{ route('siswa.presensi.foto') }}" class="magangCtaBtn">
+                    <a href="{{ route('murid.presensi.foto') }}" class="magangCtaBtn">
                         <ion-icon name="camera-outline" class="icon-md"></ion-icon>
                         <span>Absen Masuk Sekarang</span>
                     </a>
@@ -236,7 +236,7 @@
                             <ion-icon name="book-outline" class="text-primary"></ion-icon>
                             <span>Jadwal Sesi Belajar Hari Ini</span>
                         </h2>
-                        <a href="{{ route('siswa.jadwal') }}" class="text-xs font-bold text-primary text-decoration-none">
+                        <a href="{{ route('murid.jadwal') }}" class="text-xs font-bold text-primary text-decoration-none">
                             Lihat Semua &rsaquo;
                         </a>
                     </div>
@@ -247,7 +247,7 @@
                                 $jamSelesai = substr((string) $sesi->jam_pulang_rencana, 0, 5);
                                 $tutorNama = $sesi->tutor?->nama_lengkap ?? 'Tutor Pengajar';
                                 $katNama = $sesi->kategoriTutorial?->nama_kategori ?? 'Tutorial KBM';
-                                $isHadirSesi = ($sesi->status_kehadiran_siswa === 'hadir');
+                                $isHadirSesi = ($sesi->status_kehadiran_murid === 'hadir' || $sesi->status_kehadiran_siswa === 'hadir');
                             @endphp
                             <div class="recentItem">
                                 <div class="recentLeft">
@@ -308,7 +308,7 @@
                         <ion-icon name="time-outline" class="text-primary"></ion-icon>
                         <span>Riwayat Kehadiran Terbaru</span>
                     </h2>
-                    <a href="{{ route('siswa.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
+                    <a href="{{ route('murid.riwayat') }}" class="mutedLink">Lihat Semua &rsaquo;</a>
                 </div>
 
                 <div class="recentWrap">

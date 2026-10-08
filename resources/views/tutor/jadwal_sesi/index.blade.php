@@ -50,7 +50,7 @@
                     @if ($activeTab === 'rutin')
                         <div class="laporanHeaderLabel">MASTER POLA BERULANG</div>
                         <h1 class="laporanHeaderTitle">Pola Rutin Mengajar</h1>
-                        <div class="laporanHeaderSub">Kelola pola hari dan jam belajar mingguan mandiri bersama peserta didik
+                        <div class="laporanHeaderSub">Kelola pola hari dan jam belajar mingguan mandiri bersama murid
                             bimbingan Anda.</div>
                         <p class="laporanHeaderDesc">Pola rutin otomatis berulang setiap minggu dan meng-generate sesi kalender
                             belajar murid.</p>
@@ -181,7 +181,7 @@
                         <ion-icon name="sync-outline" class="text-primary"></ion-icon> Master Pola Rutin Mingguan Anda
                     </h2>
                     <p class="text-xs text-muted m-0 mt-1">Jadwal ini berulang otomatis tiap minggu dan meng-generate sesi
-                        kalender belajar siswa.</p>
+                        kalender belajar murid.</p>
                 </div>
 
                 @if ($jadwalRutins->count() > 0)
@@ -204,14 +204,15 @@
                             @foreach ($jadwalRutins as $rutin)
                                 @php
                                     $hariSlug = strtolower((string) $rutin->hari);
+                                    $rutinMurid = $rutin->murid ?? $rutin->siswa;
                                 @endphp
                                 <div class="data-mobile-card">
                                     <div class="dmc-header">
                                         <div>
-                                            <h3 class="dmc-title">{{ $rutin->siswa->nama_siswa ?? 'Peserta Didik' }}</h3>
+                                            <h3 class="dmc-title">{{ $rutinMurid->nama_murid ?? ($rutinMurid->nama_siswa ?? 'Murid') }}</h3>
                                             <div class="dmc-subtitle">
-                                                No. Absen: <strong>{{ $rutin->siswa->no_absen ?? '-' }}</strong> ·
-                                                {{ $rutin->siswa->nama_kelas_lengkap ?? 'Reguler' }}
+                                                No. Absen: <strong>{{ $rutinMurid->no_absen ?? '-' }}</strong> ·
+                                                {{ $rutinMurid->nama_kelas_lengkap ?? 'Reguler' }}
                                             </div>
                                         </div>
                                         <div class="flex-col gap-1 flex-items-end">
@@ -327,7 +328,7 @@
                             <ion-icon name="repeat-outline"></ion-icon>
                         </div>
                         <div class="emptyAgendaTitle">Belum Ada Master Pola Rutin</div>
-                        <div class="emptyAgendaDesc">Anda belum membuat pola jadwal berulang mingguan dengan siswa. Pola rutin
+                        <div class="emptyAgendaDesc">Anda belum membuat pola jadwal berulang mingguan dengan murid. Pola rutin
                             otomatis men-generate sesi kalender belajar setiap pekannya.</div>
                         <div class="mt-3">
                             <button type="button" onclick="bukaModalJadwalBaru(true)"
@@ -440,9 +441,10 @@
                         </div>
                         <div>
                             @foreach($sesiHariIni as $sesi)
+                                @php $sesiMurid = $sesi->murid ?? $sesi->siswa; @endphp
                                 <div class="sesiSummaryItem">
                                     <div>
-                                        <div class="font-bold text-sm text-dark">{{ $sesi->siswa->nama_siswa ?? 'Peserta Didik' }}</div>
+                                        <div class="font-bold text-sm text-dark">{{ $sesiMurid->nama_murid ?? ($sesiMurid->nama_siswa ?? 'Murid') }}</div>
                                         <div class="text-xs text-muted">
                                             {{ $sesi->kategoriTutorial->nama_kategori ?? 'Tutorial KBM' }} &bull;
                                             {{ $sesi->durasi_jam }} Jam
@@ -686,10 +688,11 @@
 
                         <div class="mobile-card-list" style="display: flex !important; gap: 12px;">
                             @foreach($sesiHariIni as $sesi)
+                                @php $sesiMurid = $sesi->murid ?? $sesi->siswa; @endphp
                                 <div class="data-mobile-card">
                                     <div class="dmc-header">
                                         <div>
-                                            <h3 class="dmc-title">{{ $sesi->siswa->nama_siswa ?? 'Peserta Didik' }}</h3>
+                                            <h3 class="dmc-title">{{ $sesiMurid->nama_murid ?? ($sesiMurid->nama_siswa ?? 'Murid') }}</h3>
                                             <div class="dmc-subtitle">
                                                 <span
                                                     class="app-badge {{ $sesi->jenis_sesi === 'pengganti' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }}">
@@ -725,13 +728,13 @@
                                         </div>
 
                                         <div class="dmc-field">
-                                            <div class="dmc-label">Kehadiran Siswa</div>
+                                            <div class="dmc-label">Kehadiran Murid</div>
                                             <div class="dmc-value">
-                                                @if($sesi->status_kehadiran_siswa === 'hadir')
+                                                @if($sesi->status_kehadiran_siswa === 'hadir' || $sesi->status_kehadiran_murid === 'hadir')
                                                     <span class="app-badge badge-status-aktif">Hadir Mandiri</span>
-                                                @elseif($sesi->status_kehadiran_siswa === 'izin')
+                                                @elseif($sesi->status_kehadiran_siswa === 'izin' || $sesi->status_kehadiran_murid === 'izin')
                                                     <span class="app-badge badge-abk">Izin</span>
-                                                @elseif($sesi->status_kehadiran_siswa === 'sakit')
+                                                @elseif($sesi->status_kehadiran_siswa === 'sakit' || $sesi->status_kehadiran_murid === 'sakit')
                                                     <span class="app-badge badge-status-cuti">Sakit</span>
                                                 @else
                                                     <span class="text-xs text-muted">Belum Presensi</span>
@@ -801,7 +804,7 @@
                                                 </a>
 
                                                 <button type="button"
-                                                    onclick="bukaModalReschedule({{ $sesi->id }}, '{{ addslashes($sesi->siswa->nama_siswa ?? 'Siswa') }}', '{{ $sesi->tanggal_rencana->format('Y-m-d') }}', '{{ substr((string) $sesi->jam_masuk_rencana, 0, 5) }}', '{{ substr((string) $sesi->jam_pulang_rencana, 0, 5) }}', '{{ $sesi->lokasi_presensi_id ?? $sesi->jadwalRutin?->lokasi_presensi_id ?? '' }}')"
+                                                    onclick="bukaModalReschedule({{ $sesi->id }}, '{{ addslashes($sesi->murid?->nama_murid ?? $sesi->siswa?->nama_murid ?? 'Murid') }}', '{{ $sesi->tanggal_rencana->format('Y-m-d') }}', '{{ substr((string) $sesi->jam_masuk_rencana, 0, 5) }}', '{{ substr((string) $sesi->jam_pulang_rencana, 0, 5) }}', '{{ $sesi->lokasi_presensi_id ?? $sesi->jadwalRutin?->lokasi_presensi_id ?? '' }}')"
                                                     class="smallBtn btn-table-action"
                                                     style="background: rgba(37,99,235,0.08); color: #2563eb; border: 1px solid rgba(37,99,235,0.2);">
                                                     <ion-icon name="repeat-outline"></ion-icon> Reschedule
@@ -839,7 +842,7 @@
                             <ion-icon name="school-outline"></ion-icon>
                         </div>
                         <div class="emptyAgendaTitle">Belum Ada Sesi KBM Terjadwal</div>
-                        <div class="emptyAgendaDesc">Tidak ada agenda sesi belajar mengajar dengan peserta didik pada
+                        <div class="emptyAgendaDesc">Tidak ada agenda sesi belajar mengajar dengan murid pada
                             <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
                         <div class="mt-3">
                             <button type="button" onclick="bukaModalJadwalBaru(false)"
@@ -903,14 +906,14 @@
                         </label>
                     </div>
 
-                    {{-- Field: Siswa --}}
+                    {{-- Field: Murid --}}
                     <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Pilih Murid / Siswa <span class="text-danger">*</span></label>
+                        <label class="filterFieldLabel">Pilih Murid <span class="text-danger">*</span></label>
                         <select name="siswa_id" class="filterSelect" required>
-                            <option value="">-- Pilih Siswa Bimbingan --</option>
+                            <option value="">-- Pilih Murid Bimbingan --</option>
                             @foreach($siswas as $s)
                                 <option value="{{ $s->id }}" {{ (string) old('siswa_id') === (string) $s->id ? 'selected' : '' }}>
-                                    {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} -
+                                    {{ $s->nama_murid ?? $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} -
                                     {{ $s->nama_kelas_lengkap ?? 'Reguler' }})
                                 </option>
                             @endforeach
@@ -1064,14 +1067,14 @@
                         <label class="filterFieldLabel">Titik Lokasi Presensi KBM <span
                                 class="text-xs text-muted font-normal">(Titik Geofence Absen)</span></label>
                         <select name="lokasi_presensi_id" id="modalLokasiPresensi" class="filterSelect">
-                            <option value="">-- Lokasi Default PKBM / Sesuai Siswa --</option>
+                            <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
                             @foreach($lokasiPresensis as $lok)
                                 <option value="{{ $lok->id }}" {{ (string) old('lokasi_presensi_id') === (string) $lok->id ? 'selected' : '' }}>
                                     📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
                                 </option>
                             @endforeach
                         </select>
-                        <span class="field-help-text">Jika dipilih, presensi tutor dan siswa akan diarahkan dan dilacak pada
+                        <span class="field-help-text">Jika dipilih, presensi tutor dan murid akan diarahkan dan dilacak pada
                             radius koordinat titik ini.</span>
                     </div>
 
@@ -1163,7 +1166,7 @@
                         <label class="filterFieldLabel">Alasan Pemindahan / Reschedule <span
                                 class="text-danger">*</span></label>
                         <textarea name="alasan_penggantian" rows="2"
-                            placeholder="Contoh: Siswa sedang sakit demam, diganti hari Sabtu..." class="profileInput"
+                            placeholder="Contoh: Murid sedang sakit demam, diganti hari Sabtu..." class="profileInput"
                             style="height: auto;" required></textarea>
                     </div>
 
@@ -1207,7 +1210,7 @@
                 labelSingle.style.background = 'transparent';
                 labelSingle.style.boxShadow = 'none';
                 labelSingle.style.color = 'var(--muted)';
-                title.textContent = 'Buat Jadwal Rutin Mingguan Siswa';
+                title.textContent = 'Buat Jadwal Rutin Mingguan Murid';
 
                 inMasukRutin.classList.remove('d-none');
                 inPulangRutin.classList.remove('d-none');
@@ -1533,7 +1536,7 @@
                     </div>
                     <div class="import-template-texts">
                         <div class="import-template-title">Gunakan Template Format Excel</div>
-                        <div class="import-template-desc">Unduh format resmi untuk memastikan data tanggal, jam, dan siswa
+                        <div class="import-template-desc">Unduh format resmi untuk memastikan data tanggal, jam, dan murid
                             terbaca tepat.</div>
                     </div>
                 </div>

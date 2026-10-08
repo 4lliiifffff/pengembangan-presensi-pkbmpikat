@@ -16,7 +16,7 @@
                         <b>{{ \Carbon\Carbon::parse($inputEndDate)->translatedFormat('d F Y') }}</b>
                     </div>
                     <p class="laporanHeaderDesc">
-                        Monitoring terintegrasi kehadiran 4 entitas: Tutor (KBM &amp; Honor SK), Presensi Mandiri Siswa, Pegawai &amp; Manajemen, Mahasiswa Magang (PKL), Log Perizinan, serta Buku Induk Presensi Bulanan.
+                        Monitoring terintegrasi kehadiran 4 entitas: Tutor (KBM &amp; Honor SK), Presensi Mandiri Murid, Pegawai &amp; Manajemen, Mahasiswa Magang (PKL), Log Perizinan, serta Buku Induk Presensi Bulanan.
                     </p>
                 </div>
                 <div class="laporanHeaderActions">
@@ -36,9 +36,9 @@
                 <div class="text-xs text-muted mt-1">{{ $tutorData['totalJamKbm'] }} Jam Efektif KBM</div>
             </div>
             <div class="statCard">
-                <div class="statNum blue">{{ $siswaData['totalHadir'] }}</div>
-                <div class="statLabel">Presensi Siswa Hadir</div>
-                <div class="text-xs text-muted mt-1">{{ $siswaData['totalTerlambat'] }} Terlambat Masuk</div>
+                <div class="statNum blue">{{ ($muridData ?? $siswaData)['totalHadir'] }}</div>
+                <div class="statLabel">Presensi Murid Hadir</div>
+                <div class="text-xs text-muted mt-1">{{ ($muridData ?? $siswaData)['totalTerlambat'] }} Terlambat Masuk</div>
             </div>
             <div class="statCard">
                 <div class="statNum purple" style="color: #8b5cf6;">{{ $pegawaiData['totalHadir'] + $magangData['totalHadir'] }}</div>
@@ -81,10 +81,10 @@
                     <span>Presensi Tutor</span>
                     <span class="tabBadge">{{ $tutorData['totalSesi'] }}</span>
                 </a>
-                <a href="{{ request()->fullUrlWithQuery(['tab' => 'siswa']) }}" class="laporanTabBtn {{ $activeTab === 'siswa' ? 'active' : '' }}">
+                <a href="{{ request()->fullUrlWithQuery(['tab' => 'murid']) }}" class="laporanTabBtn {{ in_array($activeTab, ['murid', 'siswa']) ? 'active' : '' }}">
                     <ion-icon name="person-outline"></ion-icon>
-                    <span>Presensi Mandiri Siswa</span>
-                    <span class="tabBadge">{{ $siswaData['totalPresensi'] }}</span>
+                    <span>Presensi Mandiri Murid</span>
+                    <span class="tabBadge">{{ ($muridData ?? $siswaData)['totalPresensi'] }}</span>
                 </a>
                 <a href="{{ request()->fullUrlWithQuery(['tab' => 'pegawai']) }}" class="laporanTabBtn {{ $activeTab === 'pegawai' ? 'active' : '' }}">
                     <ion-icon name="briefcase-outline"></ion-icon>
@@ -104,7 +104,7 @@
                 <a href="{{ request()->fullUrlWithQuery(['tab' => 'matriks']) }}" class="laporanTabBtn {{ $activeTab === 'matriks' ? 'active' : '' }}">
                     <ion-icon name="grid-outline"></ion-icon>
                     <span>Matriks Buku Induk (1–31)</span>
-                    <span class="tabBadge">{{ $matriksData['totalSiswa'] }} Siswa</span>
+                    <span class="tabBadge">{{ $matriksData['totalSiswa'] }} Murid</span>
                 </a>
             </div>
         </div>
@@ -192,14 +192,14 @@
                             </div>
                         @endif
 
-                        @if($activeTab === 'tutor' || $activeTab === 'siswa')
+                        @if($activeTab === 'tutor' || in_array($activeTab, ['murid', 'siswa']))
                             <div class="filterField">
-                                <label class="filterFieldLabel">Siswa</label>
-                                <select name="siswa_id" class="filterSelect">
-                                    <option value="">Semua Siswa</option>
-                                    @foreach ($siswas as $siswa)
-                                        <option value="{{ $siswa->id }}" {{ ($filters['siswa_id'] ?? '') == $siswa->id ? 'selected' : '' }}>
-                                            {{ $siswa->nama_siswa }}
+                                <label class="filterFieldLabel">Murid</label>
+                                <select name="murid_id" class="filterSelect">
+                                    <option value="">Semua Murid</option>
+                                    @foreach (($murids ?? $siswas) as $murid)
+                                        <option value="{{ $murid->id }}" {{ (($filters['murid_id'] ?? ($filters['siswa_id'] ?? '')) == $murid->id) ? 'selected' : '' }}>
+                                            {{ $murid->nama_murid ?? $murid->nama_siswa }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -365,7 +365,7 @@
                                 <th class="table-col-num">NO</th>
                                 <th>TANGGAL</th>
                                 <th>TUTOR</th>
-                                <th>SISWA &amp; KELAS</th>
+                                <th>MURID &amp; KELAS</th>
                                 <th>MODA</th>
                                 <th>MASUK - SELESAI</th>
                                 <th>DURASI</th>
@@ -378,8 +378,9 @@
                             @forelse($tutorData['records'] as $index => $presensi)
                                 @php
                                     $tutorName = $presensi->tutor->nama_lengkap ?? 'Tutor';
-                                    $siswaName = $presensi->siswa->nama_siswa ?? '-';
-                                    $kelasName = $presensi->siswa->relKelas->nama_kelas ?? '-';
+                                    $muridObj = $presensi->murid ?? $presensi->siswa;
+                                    $muridName = $muridObj->nama_murid ?? ($muridObj->nama_siswa ?? '-');
+                                    $kelasName = $muridObj->relKelas->nama_kelas ?? '-';
                                     $tgl = \Carbon\Carbon::parse($presensi->tgl_presensi)->format('d/m/y');
                                     $jamMasuk = $presensi->jam_mulai ? \Carbon\Carbon::parse($presensi->jam_mulai)->format('H:i') : '-';
                                     $jamSelesai = $presensi->jam_selesai ? \Carbon\Carbon::parse($presensi->jam_selesai)->format('H:i') : '-';
@@ -393,7 +394,7 @@
                                     <td class="font-bold white-space-nowrap">{{ $tgl }}</td>
                                     <td class="font-semibold text-dark">{{ $tutorName }}</td>
                                     <td>
-                                        <div class="font-semibold text-dark">{{ $siswaName }}</div>
+                                        <div class="font-semibold text-dark">{{ $muridName }}</div>
                                         <div class="text-xs text-muted">{{ $kelasName }}</div>
                                     </td>
                                     <td>
@@ -460,7 +461,8 @@
                 @forelse($tutorData['records'] as $index => $presensi)
                     @php
                         $tutorName = $presensi->tutor->nama_lengkap ?? 'Tutor';
-                        $siswaName = $presensi->siswa->nama_siswa ?? '-';
+                        $muridObj = $presensi->murid ?? $presensi->siswa;
+                        $muridName = $muridObj->nama_murid ?? ($muridObj->nama_siswa ?? '-');
                         $tgl = \Carbon\Carbon::parse($presensi->tgl_presensi)->format('d/m/Y');
                         $jamMasuk = $presensi->jam_mulai ? \Carbon\Carbon::parse($presensi->jam_mulai)->format('H:i') : '-';
                         $jamSelesai = $presensi->jam_selesai ? \Carbon\Carbon::parse($presensi->jam_selesai)->format('H:i') : '-';
@@ -470,7 +472,7 @@
                         <div class="dmc-header">
                             <div>
                                 <h3 class="dmc-title">{{ $tutorName }}</h3>
-                                <div class="dmc-subtitle">{{ $tgl }} &bull; Siswa: <b class="text-dark">{{ $siswaName }}</b></div>
+                                <div class="dmc-subtitle">{{ $tgl }} &bull; Murid: <b class="text-dark">{{ $muridName }}</b></div>
                             </div>
                             <span class="badge text-xs {{ $presensi->moda_pembelajaran === 'online' ? 'bg-info-light text-info' : 'bg-success-light text-success' }}">
                                 {{ $presensi->moda_label ?? 'Tatap Muka' }}
@@ -522,12 +524,12 @@
         @endif
 
         {{-- ══════════════════════════════════════════════════════════════ --}}
-        {{-- ── TAB 2: PRESENSI MANDIRI SISWA ── --}}
+        {{-- ── TAB 2: PRESENSI MANDIRI MURID ── --}}
         {{-- ══════════════════════════════════════════════════════════════ --}}
-        @if($activeTab === 'siswa')
+        @if($activeTab === 'murid' || $activeTab === 'siswa')
             <div class="sectionRow flex-between flex-wrap gap-2">
-                <h2>Log Presensi Mandiri Siswa (Peserta Didik)</h2>
-                <span class="badgeCount">{{ $siswaData['records']->count() }} Rekaman Siswa</span>
+                <h2>Log Presensi Mandiri Murid</h2>
+                <span class="badgeCount">{{ ($muridData ?? $siswaData)['records']->count() }} Rekaman Murid</span>
             </div>
 
             {{-- Desktop Table --}}
@@ -538,7 +540,7 @@
                             <tr>
                                 <th class="table-col-num">NO</th>
                                 <th>TANGGAL</th>
-                                <th>NAMA SISWA</th>
+                                <th>NAMA MURID</th>
                                 <th>KELAS / JENJANG</th>
                                 <th>JAM CHECK-IN</th>
                                 <th>STATUS</th>
@@ -549,9 +551,10 @@
                         <tbody>
                             @forelse($siswaData['records'] as $index => $ps)
                                 @php
-                                    $sName = $ps->siswa->nama_siswa ?? '-';
-                                    $sKelas = $ps->siswa->relKelas->nama_kelas ?? '-';
-                                    $sJenjang = $ps->siswa->jenjang_paket_label ?? '-';
+                                    $sMurid = $ps->murid ?? $ps->siswa;
+                                    $sName = $sMurid->nama_murid ?? ($sMurid->nama_siswa ?? '-');
+                                    $sKelas = $sMurid->relKelas->nama_kelas ?? '-';
+                                    $sJenjang = $sMurid->jenjang_paket_label ?? '-';
                                     $tgl = \Carbon\Carbon::parse($ps->tgl_presensi)->format('d/m/Y');
                                     $jamMasuk = $ps->jam_masuk ? \Carbon\Carbon::parse($ps->jam_masuk)->format('H:i') : '-';
                                     $lokasi = $ps->lokasi_masuk ?? '-';
@@ -572,7 +575,7 @@
                                     </td>
                                     <td>
                                         @if ($ps->foto_masuk)
-                                            <img src="{{ $ps->foto_masuk_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $ps->foto_masuk_url }}', 'Presensi Siswa - {{ $sName }}')">
+                                            <img src="{{ $ps->foto_masuk_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $ps->foto_masuk_url }}', 'Presensi Murid - {{ $sName }}')">
                                         @else
                                             <div class="fotoPlaceholder">M -</div>
                                         @endif
@@ -586,7 +589,7 @@
                                                 $tLng = $titikLok?->longitude ?? '';
                                                 $tRad = $titikLok?->radius_meter ?? '';
                                             @endphp
-                                            <button type="button" class="mapBtn" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($sName) }}', 'Presensi Siswa Mandiri', '{{ addslashes($tNama) }}', '{{ $tLat }}', '{{ $tLng }}', '{{ $tRad }}')">
+                                            <button type="button" class="mapBtn" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($sName) }}', 'Presensi Murid Mandiri', '{{ addslashes($tNama) }}', '{{ $tLat }}', '{{ $tLng }}', '{{ $tRad }}')">
                                                 <ion-icon name="map-outline"></ion-icon>
                                             </button>
                                         @else
@@ -599,8 +602,8 @@
                                     <td colspan="8" class="table-empty-cell">
                                         <div class="tableEmptyState">
                                             <div class="tableEmptyIconWrap"><ion-icon name="person-outline"></ion-icon></div>
-                                            <div class="tableEmptyTitle">Belum Ada Presensi Mandiri Siswa</div>
-                                            <div class="tableEmptyDesc">Tidak ada log presensi siswa pada filter tanggal yang dipilih.</div>
+                                            <div class="tableEmptyTitle">Belum Ada Presensi Mandiri Murid</div>
+                                            <div class="tableEmptyDesc">Tidak ada log presensi murid pada filter tanggal yang dipilih.</div>
                                         </div>
                                     </td>
                                 </tr>
@@ -614,8 +617,9 @@
             <div class="mobile-card-list">
                 @forelse($siswaData['records'] as $index => $ps)
                     @php
-                        $sName = $ps->siswa->nama_siswa ?? '-';
-                        $sKelas = $ps->siswa->relKelas->nama_kelas ?? '-';
+                        $sMurid = $ps->murid ?? $ps->siswa;
+                        $sName = $sMurid->nama_murid ?? ($sMurid->nama_siswa ?? '-');
+                        $sKelas = $sMurid->relKelas->nama_kelas ?? '-';
                         $tgl = \Carbon\Carbon::parse($ps->tgl_presensi)->format('d/m/Y');
                         $jamMasuk = $ps->jam_masuk ? \Carbon\Carbon::parse($ps->jam_masuk)->format('H:i') : '-';
                     @endphp
@@ -637,7 +641,7 @@
                             <div class="dmc-field">
                                 <div class="dmc-label">Foto Selfie</div>
                                 @if ($ps->foto_masuk)
-                                    <img src="{{ $ps->foto_masuk_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $ps->foto_masuk_url }}', 'Presensi Siswa - {{ $sName }}')">
+                                    <img src="{{ $ps->foto_masuk_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $ps->foto_masuk_url }}', 'Presensi Murid - {{ $sName }}')">
                                 @else
                                     <span class="text-muted">-</span>
                                 @endif
@@ -647,7 +651,7 @@
                 @empty
                     <div class="tableEmptyCard">
                         <div class="tableEmptyIconWrap"><ion-icon name="person-outline"></ion-icon></div>
-                        <div class="tableEmptyTitle">Belum Ada Presensi Siswa</div>
+                        <div class="tableEmptyTitle">Belum Ada Presensi Murid</div>
                     </div>
                 @endforelse
             </div>
@@ -921,7 +925,7 @@
                             <tr>
                                 <th class="p-3 w-10">No</th>
                                 <th>Tutor</th>
-                                <th>Siswa</th>
+                                <th>Murid</th>
                                 <th>Tanggal Mengajar</th>
                                 <th>Jam Sesi</th>
                                 <th>Alasan</th>
@@ -930,10 +934,13 @@
                         </thead>
                         <tbody>
                             @forelse($perizinanData['lupaRecords'] as $idx => $lp)
+                                @php
+                                    $lpMurid = $lp->murid ?? $lp->siswa;
+                                @endphp
                                 <tr>
                                     <td class="p-3 font-bold text-muted">{{ $idx + 1 }}</td>
                                     <td class="font-semibold text-dark">{{ $lp->tutor->nama_lengkap ?? '-' }}</td>
-                                    <td class="font-semibold">{{ $lp->siswa->nama_siswa ?? '-' }}</td>
+                                    <td class="font-semibold">{{ $lpMurid->nama_murid ?? ($lpMurid->nama_siswa ?? '-') }}</td>
                                     <td class="font-bold white-space-nowrap">{{ \Carbon\Carbon::parse($lp->tanggal)->format('d/m/Y') }}</td>
                                     <td class="font-bold text-success">{{ $lp->jam_mulai }} - {{ $lp->jam_selesai }}</td>
                                     <td class="text-xs text-dark">{{ $lp->alasan }}</td>
@@ -962,7 +969,7 @@
                 <div>
                     <h2>Buku Induk Presensi Bulanan (Ledger Dapodik / Akreditasi)</h2>
                     <div class="text-xs text-muted">
-                        Bulan: <b>{{ \Carbon\Carbon::create(null, $inputBulan, 1)->translatedFormat('F') }} {{ $inputTahun }}</b> &bull; Total: <b>{{ $matriksData['totalSiswa'] }} Peserta Didik Aktif</b>
+                        Bulan: <b>{{ \Carbon\Carbon::create(null, $inputBulan, 1)->translatedFormat('F') }} {{ $inputTahun }}</b> &bull; Total: <b>{{ $matriksData['totalSiswa'] }} Murid Aktif</b>
                     </div>
                 </div>
                 <div class="d-flex items-center gap-2">
@@ -978,7 +985,7 @@
                     <thead>
                         <tr>
                             <th class="p-2 w-8 text-center sticky-col-1">NO</th>
-                            <th class="p-2 sticky-col-2" style="min-width: 160px;">NAMA SISWA</th>
+                            <th class="p-2 sticky-col-2" style="min-width: 160px;">NAMA MURID</th>
                             <th class="p-2" style="min-width: 110px;">KELAS</th>
                             @for($d = 1; $d <= $matriksData['daysInMonth']; $d++)
                                 @php
@@ -1000,12 +1007,12 @@
                     <tbody>
                         @forelse($matriksData['matrix'] as $index => $row)
                             @php
-                                $siswa = $row['siswa'];
-                                $kelas = $siswa->relKelas->nama_kelas ?? '-';
+                                $murid = $row['murid'] ?? $row['siswa'];
+                                $kelas = $murid->relKelas->nama_kelas ?? '-';
                             @endphp
                             <tr>
                                 <td class="p-2 font-bold text-muted text-center sticky-col-1">{{ $index + 1 }}</td>
-                                <td class="p-2 font-bold text-dark sticky-col-2 white-space-nowrap">{{ $siswa->nama_siswa }}</td>
+                                <td class="p-2 font-bold text-dark sticky-col-2 white-space-nowrap">{{ $murid->nama_murid ?? $murid->nama_siswa }}</td>
                                 <td class="p-2 text-muted white-space-nowrap">{{ $kelas }}</td>
                                 @foreach($row['days'] as $dNum => $dayInfo)
                                     @php
@@ -1034,7 +1041,7 @@
                         @empty
                             <tr>
                                 <td colspan="{{ 4 + $matriksData['daysInMonth'] + 5 }}" class="text-center p-6 text-muted">
-                                    Tidak ada data siswa aktif yang cocok dengan filter yang dipilih.
+                                    Tidak ada data murid aktif yang cocok dengan filter yang dipilih.
                                 </td>
                             </tr>
                         @endforelse

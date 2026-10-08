@@ -89,9 +89,9 @@ class PayrollService
                 $durasiJam = 1.0;
             }
 
-            $siswa = $p->siswa;
+            $siswa = $p->murid ?? $p->siswa;
             $siswaId = $siswa ? $siswa->id : 0;
-            $namaSiswa = $siswa ? $siswa->nama_siswa : 'Siswa Umum';
+            $namaSiswa = $siswa ? ($siswa->nama_murid ?? $siswa->nama_siswa) : 'Murid Umum';
             $isAbk = $siswa ? (bool) $siswa->is_abk : false;
 
             // Hitung honor sesi menggunakan engine baru (snapshot / flat per sesi)
@@ -116,7 +116,9 @@ class PayrollService
 
             if (! isset($siswaSummary[$siswaId])) {
                 $siswaSummary[$siswaId] = [
+                    'murid_id' => $siswaId,
                     'siswa_id' => $siswaId,
+                    'nama_murid' => $namaSiswa,
                     'nama_siswa' => $namaSiswa,
                     'is_abk' => $isAbk,
                     'is_abk_label' => $isAbk ? 'ABK' : 'Reguler',
@@ -141,6 +143,7 @@ class PayrollService
                 'durasi_pilihan' => $p->durasi_pilihan ?? $durasiJam,
                 'durasi_sk' => $durasiSk,
                 'is_sesuai_sk' => $isDurasiSesuaiSk,
+                'nama_murid' => $namaSiswa,
                 'nama_siswa' => $namaSiswa,
                 'is_abk' => $isAbk,
                 'kategori_nama' => $kategoriNama,

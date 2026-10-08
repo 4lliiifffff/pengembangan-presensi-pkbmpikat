@@ -140,7 +140,7 @@ class UnclosedPresensiHandlingTest extends TestCase
 
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tgl_presensi' => $today,
         ]);
     }
@@ -242,7 +242,7 @@ class UnclosedPresensiHandlingTest extends TestCase
         // 1. Presensi terupdate dengan jam selesai
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tgl_presensi' => $sessionDate,
             'jam_selesai' => '12:00',
             'status' => 'hadir',

@@ -1,17 +1,17 @@
 @extends('layouts.presensi')
 
-@section('title', 'Presensi Siswa')
+@section('title', 'Presensi Murid')
 
 
 @section('content')
     @php
         $user = auth()->user();
-        $siswa = $user->siswa;
-        $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
+        $murid = $user->murid ?? $user->siswa;
+        $displayName = (string) ($murid->nama_murid ?? ($murid->nama_siswa ?? ($murid->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Murid PKBM')))));
         $initial = strtoupper(substr($displayName, 0, 1));
 
-        $dashRoute = route('siswa.dashboard');
-        $storeRoute = route('siswa.presensi.store');
+        $dashRoute = route('murid.dashboard');
+        $storeRoute = route('murid.presensi.store');
         $adminWa = config('app.admin_wa', '6285156452939');
     @endphp
 
@@ -64,7 +64,7 @@
                 </div>
             </div>
 
-            {{-- Kartu Bukti Kehadiran Siswa --}}
+            {{-- Kartu Bukti Kehadiran Murid --}}
             <div class="data-mobile-card mb-4">
                 <div class="dmc-header">
                     <div class="d-flex items-center gap-2">
@@ -114,12 +114,12 @@
                     <div class="min-w-0 flex-1">
                         <h4 class="font-extrabold text-base text-dark mb-0.5 truncate">{{ $displayName }}</h4>
                         <div class="text-xs text-muted font-semibold mb-1">
-                            {{ $siswa?->kelas?->nama_kelas ?? 'Kelas Siswa' }} &bull; No. Absen:
-                            <strong>{{ $siswa?->no_absen ?? '-' }}</strong>
+                            {{ $murid?->kelas?->nama_kelas ?? 'Kelas Murid' }} &bull; No. Absen:
+                            <strong>{{ $murid?->no_absen ?? '-' }}</strong>
                         </div>
                         <div class="text-xs text-muted">
                             NISN/NIK: <span
-                                class="font-mono font-semibold text-dark">{{ $siswa?->nisn ?? ($user->nik ?? '-') }}</span>
+                                class="font-mono font-semibold text-dark">{{ $murid?->nisn ?? ($user->nik ?? '-') }}</span>
                         </div>
                     </div>
                 </div>
@@ -184,15 +184,15 @@
                 {{-- Action Buttons --}}
                 <div class="dmc-footer">
                     <div class="dmc-actions flex-wrap gap-2">
-                        <a href="{{ route('siswa.dashboard') }}"
+                        <a href="{{ route('murid.dashboard') }}"
                             class="profileBtnPrimary text-xs py-2 px-3 flex-1 justify-center">
                             <ion-icon name="home-outline"></ion-icon> Dashboard
                         </a>
-                        <a href="{{ route('siswa.jadwal') }}"
+                        <a href="{{ route('murid.jadwal') }}"
                             class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                             <ion-icon name="calendar-outline"></ion-icon> Jadwal
                         </a>
-                        <a href="{{ route('siswa.riwayat') }}"
+                        <a href="{{ route('murid.riwayat') }}"
                             class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                             <ion-icon name="time-outline"></ion-icon> Riwayat
                         </a>
@@ -228,10 +228,10 @@
 
                     <div class="dmc-footer pt-3 border-t-base">
                         <div class="dmc-actions flex-wrap gap-2">
-                            <a href="{{ route('siswa.jadwal') }}" class="profileBtnPrimary text-xs py-2.5 px-3 flex-1 justify-center">
+                            <a href="{{ route('murid.jadwal') }}" class="profileBtnPrimary text-xs py-2.5 px-3 flex-1 justify-center">
                                 <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal Mingguan
                             </a>
-                            <a href="{{ route('siswa.dashboard') }}"
+                            <a href="{{ route('murid.dashboard') }}"
                                 class="profileBtnSecondary text-xs py-2.5 px-3 flex-1 justify-center">
                                 <ion-icon name="home-outline"></ion-icon> Dashboard
                             </a>
@@ -320,11 +320,11 @@
 
                     <div class="dmc-footer pt-3 border-t-base">
                         <div class="dmc-actions flex-wrap gap-2">
-                            <a href="{{ route('siswa.dashboard') }}"
+                            <a href="{{ route('murid.dashboard') }}"
                                 class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                                 <ion-icon name="home-outline"></ion-icon> Dashboard
                             </a>
-                            <a href="{{ route('siswa.jadwal') }}"
+                            <a href="{{ route('murid.jadwal') }}"
                                 class="profileBtnSecondary text-xs py-2 px-3 flex-1 justify-center">
                                 <ion-icon name="calendar-outline"></ion-icon> Lihat Jadwal
                             </a>
@@ -348,7 +348,7 @@
                             }
 
                             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60)) / (1000 * 60));
                             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
                             if (clockEl) {
@@ -577,10 +577,10 @@
                     </button>
 
                     <div class="presensi-aux-actions">
-                        <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin PKBM Pikat, saya siswa (' . $displayName . ') ingin menginformasikan perihal izin/kendala presensi hari ini: ') }}"
+                        <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin PKBM Pikat, saya murid (' . $displayName . ') ingin menginformasikan perihal izin/kendala presensi hari ini: ') }}"
                             target="_blank" class="wa-support-btn">
                             <ion-icon name="logo-whatsapp"></ion-icon>
-                            <span>Izin / Kendala Siswa (Hubungi Admin)</span>
+                            <span>Izin / Kendala Murid (Hubungi Admin)</span>
                         </a>
                     </div>
                 </div>
@@ -1094,7 +1094,7 @@
             ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
 
             canvas.toBlob(function (blob) {
-                const file = new File([blob], 'presensi_siswa_' + Date.now() + '.jpg', { type: 'image/jpeg' });
+                const file = new File([blob], 'presensi_murid_' + Date.now() + '.jpg', { type: 'image/jpeg' });
                 const dt = new DataTransfer();
                 dt.items.add(file);
                 fotoInput.files = dt.files;

@@ -25,6 +25,7 @@ class JadwalRutin extends Model
     ];
 
     protected $fillable = [
+        'murid_id',
         'siswa_id',
         'tutor_id',
         'kategori_tutorial_id',
@@ -50,11 +51,43 @@ class JadwalRutin extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (JadwalRutin $rutin) {
+            if (empty($rutin->attributes['murid_id']) && ! empty($rutin->attributes['siswa_id'])) {
+                $rutin->attributes['murid_id'] = $rutin->attributes['siswa_id'];
+            }
+            unset($rutin->attributes['siswa_id']);
+        });
+
+        static::updating(function (JadwalRutin $rutin) {
+            if (empty($rutin->attributes['murid_id']) && ! empty($rutin->attributes['siswa_id'])) {
+                $rutin->attributes['murid_id'] = $rutin->attributes['siswa_id'];
+            }
+            unset($rutin->attributes['siswa_id']);
+        });
+    }
+
+    public function getSiswaIdAttribute()
+    {
+        return $this->attributes['murid_id'] ?? ($this->attributes['siswa_id'] ?? null);
+    }
+
+    public function setSiswaIdAttribute($value): void
+    {
+        $this->attributes['murid_id'] = $value;
+    }
+
     // ── Relationships ──────────────────────────────────────────────────────────
+
+    public function murid(): BelongsTo
+    {
+        return $this->belongsTo(Murid::class, 'murid_id');
+    }
 
     public function siswa(): BelongsTo
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->murid();
     }
 
     public function tutor(): BelongsTo
@@ -94,9 +127,16 @@ class JadwalRutin extends Model
         return $query->where('hari', strtolower($hari));
     }
 
+    public function scopeForMurid(Builder $query, int $muridId): Builder
+    {
+        return $query->where(function ($q) use ($muridId) {
+            $q->where('murid_id', $muridId)->orWhere('siswa_id', $muridId);
+        });
+    }
+
     public function scopeForSiswa(Builder $query, int $siswaId): Builder
     {
-        return $query->where('siswa_id', $siswaId);
+        return $this->scopeForMurid($query, $siswaId);
     }
 
     public function scopeForTutor(Builder $query, int $tutorId): Builder

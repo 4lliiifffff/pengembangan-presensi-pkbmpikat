@@ -3,8 +3,8 @@
 namespace App\Services;
 
 use App\Models\JadwalSesi;
+use App\Models\Murid;
 use App\Models\Presensi;
-use App\Models\Siswa;
 use Carbon\Carbon;
 
 class PresensiService
@@ -14,36 +14,42 @@ class PresensiService
      */
     public function syncApprovedAttendance(
         int $tutorId,
-        int|array $siswaIds,
-        string $startDateStr,
+        int|array $muridIds = [],
+        string $startDateStr = '',
         ?string $endDateStr = null,
         string $status = 'hadir',
         ?string $jamMulai = null,
         ?string $jamSelesai = null,
-        ?string $materi = null
+        ?string $materi = null,
+        int|array $siswaIds = []
     ): int {
-        $startDate = Carbon::parse($startDateStr);
+        if (empty($muridIds) && ! empty($siswaIds)) {
+            $muridIds = $siswaIds;
+        }
+
+        $startDate = Carbon::parse($startDateStr ?: now()->toDateString());
         $endDate = $endDateStr ? Carbon::parse($endDateStr) : $startDate->copy();
 
-        $targetSiswaIds = is_array($siswaIds) ? $siswaIds : [$siswaIds];
+        $targetMuridIds = is_array($muridIds) ? $muridIds : [$muridIds];
 
-        if (empty($targetSiswaIds)) {
-            $targetSiswaIds = Presensi::where('tutor_id', $tutorId)->distinct()->pluck('siswa_id')->toArray();
-            if (empty($targetSiswaIds)) {
-                $targetSiswaIds = Siswa::pluck('id')->take(1)->toArray();
+        if (empty($targetMuridIds)) {
+            $targetMuridIds = Presensi::where('tutor_id', $tutorId)->distinct()->pluck('murid_id')->filter()->toArray();
+            if (empty($targetMuridIds)) {
+                $targetMuridIds = Murid::pluck('id')->take(1)->toArray();
             }
         }
 
         $count = 0;
         for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-            foreach ($targetSiswaIds as $siswaId) {
+            foreach ($targetMuridIds as $muridId) {
                 $presensi = Presensi::updateOrCreate(
                     [
                         'tutor_id' => $tutorId,
-                        'siswa_id' => $siswaId,
+                        'murid_id' => $muridId,
                         'tgl_presensi' => $date->toDateString(),
                     ],
                     [
+                        'siswa_id' => $muridId,
                         'jam_mulai' => $jamMulai,
                         'jam_selesai' => $jamSelesai,
                         'status' => $status,
@@ -53,7 +59,7 @@ class PresensiService
 
                 // Sinkronisasi status sesi KBM terkait jika ada
                 JadwalSesi::where('tutor_id', $tutorId)
-                    ->where('siswa_id', $siswaId)
+                    ->where('murid_id', $muridId)
                     ->whereDate('tanggal_rencana', $date->toDateString())
                     ->where('status', '!=', 'dibatalkan')
                     ->update([

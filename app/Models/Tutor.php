@@ -117,6 +117,22 @@ class Tutor extends Model
     }
 
     /**
+     * Relasi: Tutor membimbing banyak Murid.
+     */
+    public function murids(): HasMany
+    {
+        return $this->hasMany(Murid::class, 'tutor_id');
+    }
+
+    /**
+     * Alias relasi murids untuk backward compatibility.
+     */
+    public function siswas(): HasMany
+    {
+        return $this->murids();
+    }
+
+    /**
      * Accessor: Mengembalikan URL foto profil tutor dengan fallback ke akun user.
      */
     public function getFotoUrlAttribute(): ?string

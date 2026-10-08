@@ -26,7 +26,8 @@ class Presensi extends Model
     protected $fillable =
         [
             'tutor_id',               // ID tutor yang melakukan presensi
-            'siswa_id',               // ID siswa yang diajar dalam sesi ini
+            'murid_id',               // ID murid yang diajar dalam sesi ini
+            'siswa_id',               // ID murid legacy compatibility
             'lokasi_presensi_id',     // ID titik lokasi presensi yang dipilih (opsional/nullable)
             'moda_pembelajaran',      // Moda: 'sekolah', 'kunjungan_rumah', atau 'online'
             'link_daring',            // Link ruang pertemuan online (misal: Zoom/GMeet link)
@@ -63,6 +64,35 @@ class Presensi extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::creating(function (Presensi $presensi) {
+            if (empty($presensi->attributes['murid_id']) && ! empty($presensi->attributes['siswa_id'])) {
+                $presensi->attributes['murid_id'] = $presensi->attributes['siswa_id'];
+            }
+            unset($presensi->attributes['siswa_id']);
+        });
+
+        static::updating(function (Presensi $presensi) {
+            if (isset($presensi->attributes['siswa_id'])) {
+                if (empty($presensi->attributes['murid_id']) && ! empty($presensi->attributes['siswa_id'])) {
+                    $presensi->attributes['murid_id'] = $presensi->attributes['siswa_id'];
+                }
+                unset($presensi->attributes['siswa_id']);
+            }
+        });
+    }
+
+    public function getSiswaIdAttribute(): ?int
+    {
+        return $this->attributes['murid_id'] ?? null;
+    }
+
+    public function setSiswaIdAttribute($value): void
+    {
+        $this->attributes['murid_id'] = $value;
+    }
+
     /**
      * Accessor: Label Moda Pembelajaran dalam Bahasa Indonesia baku.
      */
@@ -94,9 +124,6 @@ class Presensi extends Model
     /**
      * Relasi: Presensi dimiliki oleh satu Tutor (Many-to-One / BelongsTo).
      *
-     * Dengan relasi ini, kita bisa mengakses data tutor dari presensi:
-     *   $presensi->tutor->nama_lengkap
-     *
      * @return BelongsTo
      */
     public function tutor()
@@ -105,16 +132,19 @@ class Presensi extends Model
     }
 
     /**
-     * Relasi: Presensi terkait dengan satu Siswa (Many-to-One / BelongsTo).
-     *
-     * Dengan relasi ini, kita bisa mengakses data siswa dari presensi:
-     *   $presensi->siswa->nama_siswa
-     *
-     * @return BelongsTo
+     * Relasi: Presensi terkait dengan satu Murid (Many-to-One / BelongsTo).
      */
-    public function siswa()
+    public function murid(): BelongsTo
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->belongsTo(Murid::class, 'murid_id');
+    }
+
+    /**
+     * Alias relasi murid untuk backward compatibility.
+     */
+    public function siswa(): BelongsTo
+    {
+        return $this->murid();
     }
 
     /**

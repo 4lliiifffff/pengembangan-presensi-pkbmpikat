@@ -118,7 +118,8 @@ class JadwalSesiController extends Controller
             ->whereDate('tanggal_rencana', $today)
             ->count();
 
-        $siswas = Siswa::where('tutor_id', $tutor->id)->orWhereNull('tutor_id')->orderBy('nama_siswa')->get();
+        $siswas = Siswa::where('tutor_id', $tutor->id)->orWhereNull('tutor_id')->orderBy('nama_murid')->get();
+        $murids = $siswas;
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
@@ -136,6 +137,7 @@ class JadwalSesiController extends Controller
             'monthDays',
             'monthCounts',
             'siswas',
+            'murids',
             'kategoriTutorials',
             'lokasiPresensis'
         ));
@@ -175,7 +177,7 @@ class JadwalSesiController extends Controller
         if ($isRecurring) {
             // ── Opsi A: Jadwal Rutin Berulang Mingguan ──
             $validated = $request->validate([
-                'siswa_id' => ['required', 'exists:siswa,id'],
+                'siswa_id' => ['required', 'exists:murid,id'],
                 'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
                 'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
                 'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
@@ -258,7 +260,7 @@ class JadwalSesiController extends Controller
 
         // ── Opsi B: Sesi Tunggal / Sesi Pengganti Sekali ──
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:siswa,id'],
+            'siswa_id' => ['required', 'exists:murid,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'tanggal_rencana' => ['required', 'date'],
@@ -270,7 +272,7 @@ class JadwalSesiController extends Controller
             'alasan_penggantian' => ['nullable', 'string', 'max:1000'],
             'catatan' => ['nullable', 'string', 'max:1000'],
         ], [
-            'siswa_id.required' => 'Pilih siswa bimbingan terlebih dahulu.',
+            'siswa_id.required' => 'Pilih murid bimbingan terlebih dahulu.',
             'tanggal_rencana.required' => 'Tanggal rencana sesi wajib diisi.',
             'jam_masuk_rencana.required' => 'Jam mulai belajar wajib diisi.',
             'jam_pulang_rencana.required' => 'Jam selesai belajar wajib diisi.',
@@ -415,7 +417,7 @@ class JadwalSesiController extends Controller
         }
 
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:siswa,id'],
+            'siswa_id' => ['required', 'exists:murid,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'tanggal_rencana' => ['required', 'date'],

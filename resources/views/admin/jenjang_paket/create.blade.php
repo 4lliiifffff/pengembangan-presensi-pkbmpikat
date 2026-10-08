@@ -80,7 +80,7 @@
                 {{-- Keterangan / Deskripsi Program --}}
                 <div class="form-field-wrapper form-grid-full">
                     <label class="form-field-label" for="keterangan">Keterangan / Deskripsi Program</label>
-                    <textarea name="keterangan" id="keterangan" rows="3" placeholder="Deskripsi singkat kurikulum, sasaran peserta didik, atau kompetensi program..." class="profileInput h-auto p-3">{{ old('keterangan') }}</textarea>
+                    <textarea name="keterangan" id="keterangan" rows="3" placeholder="Deskripsi singkat kurikulum, sasaran murid, atau kompetensi program..." class="profileInput h-auto p-3">{{ old('keterangan') }}</textarea>
                 </div>
 
                 {{-- Checkbox Status Aktif --}}

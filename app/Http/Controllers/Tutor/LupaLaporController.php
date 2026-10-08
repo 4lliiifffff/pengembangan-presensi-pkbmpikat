@@ -20,17 +20,18 @@ class LupaLaporController extends Controller
     {
         $tutor = Auth::user()->tutor;
 
-        // Daftar siswa untuk pilihan (semua siswa)
-        $siswaList = Siswa::orderBy('nama_siswa')->get();
+        // Daftar murid untuk pilihan (semua murid)
+        $siswaList = Siswa::orderBy('nama_murid')->get();
+        $muridList = $siswaList;
 
         // Riwayat pengajuan milik tutor ini, terbaru dulu
-        $riwayat = PengajuanLupaLapor::with('siswa')
+        $riwayat = PengajuanLupaLapor::with(['murid', 'siswa'])
             ->where('tutor_id', $tutor->id)
             ->orderByDesc('tanggal')
             ->orderByDesc('id')
             ->get();
 
-        return view('tutor.lupa_lapor', compact('siswaList', 'riwayat'));
+        return view('tutor.lupa_lapor', compact('siswaList', 'muridList', 'riwayat'));
     }
 
     /**
@@ -40,15 +41,19 @@ class LupaLaporController extends Controller
     {
         $tutor = Auth::user()->tutor;
 
+        if (! $request->filled('siswa_id') && $request->filled('murid_id')) {
+            $request->merge(['siswa_id' => $request->input('murid_id')]);
+        }
+
         $data = $request->validate([
-            'siswa_id' => ['required', 'exists:siswa,id'],
+            'siswa_id' => ['required', 'exists:murid,id'],
             'tanggal' => ['required', 'date', 'before_or_equal:today'],
             'jam_mulai' => ['required', 'date_format:H:i'],
             'jam_selesai' => ['required', 'date_format:H:i', 'after:jam_mulai'],
             'alasan' => ['required', 'string', 'min:10', 'max:1000'],
         ], [
-            'siswa_id.required' => 'Pilih siswa terlebih dahulu.',
-            'siswa_id.exists' => 'Siswa tidak ditemukan.',
+            'siswa_id.required' => 'Pilih murid terlebih dahulu.',
+            'siswa_id.exists' => 'Murid tidak ditemukan.',
             'tanggal.required' => 'Tanggal wajib diisi.',
             'tanggal.before_or_equal' => 'Tanggal tidak boleh di masa depan.',
             'jam_mulai.required' => 'Jam mulai wajib diisi.',

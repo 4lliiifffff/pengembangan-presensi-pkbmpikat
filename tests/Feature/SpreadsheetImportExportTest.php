@@ -118,10 +118,10 @@ class SpreadsheetImportExportTest extends TestCase
             'file_excel' => $file,
         ]);
 
-        $response->assertRedirect(route('admin.siswa.index'));
-        $this->assertDatabaseHas('siswa', [
+        $response->assertRedirect(route('admin.murid.index'));
+        $this->assertDatabaseHas('murid', [
             'no_absen' => 'SISWA-NEW-1',
-            'nama_siswa' => 'Rudi Hartono',
+            'nama_murid' => 'Rudi Hartono',
             'is_abk' => true,
         ]);
     }
@@ -224,7 +224,7 @@ class SpreadsheetImportExportTest extends TestCase
         $response->assertSessionHas('success');
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'tgl_presensi' => '2026-09-10',
             'moda_pembelajaran' => 'kunjungan_rumah',
             'status' => 'hadir',

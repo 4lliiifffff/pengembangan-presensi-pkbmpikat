@@ -87,7 +87,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
     {
         $response = $this->actingAs($this->adminUser)->get(route('admin.jadwal-rutin.index'));
         $response->assertStatus(200);
-        $response->assertSee('Master Jadwal Rutin KBM Siswa');
+        $response->assertSee('Master Jadwal Rutin KBM Murid');
 
         $storeResponse = $this->actingAs($this->adminUser)->post(route('admin.jadwal-rutin.store'), [
             'siswa_id' => $this->siswa->id,
@@ -105,7 +105,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $storeResponse->assertSessionHas('success');
 
         $this->assertDatabaseHas('jadwal_rutin', [
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'hari' => 'selasa',
             'jam_masuk' => '09:00:00',
@@ -117,7 +117,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
     public function test_jadwal_rutin_service_generates_sessions_correctly(): void
     {
         $rutin = JadwalRutin::create([
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'hari' => 'rabu',
             'jam_masuk' => '13:00',
@@ -138,7 +138,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         // Pastikan instance jadwal sesi terbuat dengan jadwal_rutin_id yang tepat
         $this->assertDatabaseHas('jadwal_sesi', [
             'jadwal_rutin_id' => $rutin->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'jam_masuk_rencana' => '13:00:00',
             'jam_pulang_rencana' => '15:00:00',
@@ -148,7 +148,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
     public function test_reschedule_single_session_does_not_mutate_master_rutin(): void
     {
         $rutin = JadwalRutin::create([
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'hari' => 'kamis',
             'jam_masuk' => '09:00',
@@ -159,7 +159,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
 
         $sesi = JadwalSesi::create([
             'jadwal_rutin_id' => $rutin->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'tanggal_rencana' => '2026-10-08',
             'jam_masuk_rencana' => '09:00:00',
@@ -198,7 +198,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
 
         // Siswa memiliki jadwal rutin di hari Selasa, hari ini Senin
         JadwalRutin::create([
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'hari' => 'selasa',
             'jam_masuk' => '09:00',
@@ -208,7 +208,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         ]);
 
         // Pastikan tidak ada jadwal untuk siswa pada hari ini (Senin)
-        JadwalSesi::where('siswa_id', $this->siswa->id)->whereDate('tanggal_rencana', $today)->delete();
+        JadwalSesi::where('murid_id', $this->siswa->id)->whereDate('tanggal_rencana', $today)->delete();
 
         $foto = UploadedFile::fake()->image('absen.jpg', 640, 480);
 
@@ -220,11 +220,11 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
             'lokasi_presensi_id' => $this->lokasi->id,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $response->assertSessionHas('warning');
 
-        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
-            'siswa_id' => $this->siswa->id,
+        $this->assertDatabaseMissing('presensi_mandiri_murid', [
+            'murid_id' => $this->siswa->id,
             'tgl_presensi' => $today,
         ]);
     }
@@ -237,7 +237,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
         JadwalSesi::create([
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'tanggal_rencana' => $today,
             'jam_masuk_rencana' => '09:00:00',
@@ -256,11 +256,11 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
             'lokasi_presensi_id' => $this->lokasi->id,
         ]);
 
-        $response->assertRedirect(route('siswa.presensi'));
+        $response->assertRedirect();
         $response->assertSessionHas('warning');
 
-        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
-            'siswa_id' => $this->siswa->id,
+        $this->assertDatabaseMissing('presensi_mandiri_murid', [
+            'murid_id' => $this->siswa->id,
             'tgl_presensi' => $today,
         ]);
     }
@@ -273,14 +273,14 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
         $sesi = JadwalSesi::create([
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'tanggal_rencana' => $today,
             'jam_masuk_rencana' => '09:00:00',
             'jam_pulang_rencana' => '11:00:00',
             'durasi_jam' => 2.00,
             'status' => 'terjadwal',
-            'status_kehadiran_siswa' => 'belum_presensi',
+            'status_kehadiran_murid' => 'belum_presensi',
         ]);
 
         $foto = UploadedFile::fake()->image('absen_sah.jpg', 640, 480);
@@ -293,23 +293,23 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
             'lokasi_presensi_id' => $this->lokasi->id,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_mandiri_siswa', [
-            'siswa_id' => $this->siswa->id,
+        $this->assertDatabaseHas('presensi_mandiri_murid', [
+            'murid_id' => $this->siswa->id,
             'tgl_presensi' => $today,
             'status' => 'hadir',
         ]);
 
         // Status sesi juga ter-link
-        $this->assertEquals('hadir', $sesi->fresh()->status_kehadiran_siswa);
+        $this->assertEquals('hadir', $sesi->fresh()->status_kehadiran_murid);
     }
 
     public function test_artisan_command_generates_sessions(): void
     {
         JadwalRutin::create([
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tutor_id' => $this->tutor->id,
             'hari' => 'jumat',
             'jam_masuk' => '10:00',
@@ -320,15 +320,15 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
 
         $this->artisan('jadwal:generate-sesi', [
             '--weeks' => 2,
-            '--siswa_id' => $this->siswa->id,
+            '--murid_id' => $this->siswa->id,
         ])->assertExitCode(0);
     }
 
     public function test_siswa_cannot_checkin_when_no_schedules_in_database_under_strict_mode(): void
     {
         // Pastikan tidak ada JadwalRutin dan tidak ada JadwalSesi sama sekali
-        JadwalRutin::where('siswa_id', $this->siswa->id)->delete();
-        JadwalSesi::where('siswa_id', $this->siswa->id)->delete();
+        JadwalRutin::where('murid_id', $this->siswa->id)->delete();
+        JadwalSesi::where('murid_id', $this->siswa->id)->delete();
 
         Config::set('presensi_sk.strict_schedule_gating', true);
 
@@ -348,12 +348,12 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
             'lokasi_presensi_id' => $this->lokasi->id,
         ]);
 
-        $storeResponse->assertRedirect(route('siswa.dashboard'));
+        $storeResponse->assertRedirect(route('murid.dashboard'));
         $storeResponse->assertSessionHas('warning', 'Presensi tidak dapat dilakukan karena Anda tidak memiliki jadwal KBM yang aktif hari ini.');
 
         $today = Carbon::now('Asia/Jakarta')->toDateString();
-        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
-            'siswa_id' => $this->siswa->id,
+        $this->assertDatabaseMissing('presensi_mandiri_murid', [
+            'murid_id' => $this->siswa->id,
             'tgl_presensi' => $today,
         ]);
     }

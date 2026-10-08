@@ -166,7 +166,7 @@ class JadwalLokasiTrackingTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => $targetDate,
             'lokasi_presensi_id' => $this->lokasiMitra->id,
         ]);
@@ -207,7 +207,7 @@ class JadwalLokasiTrackingTest extends TestCase
         // New replacement session has new location
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => $newDate,
             'jenis_sesi' => 'pengganti',
             'lokasi_presensi_id' => $this->lokasiMitra->id,
@@ -276,6 +276,7 @@ class JadwalLokasiTrackingTest extends TestCase
     public function test_siswa_presensi_foto_page_auto_selects_requested_jadwal_sesi_id(): void
     {
         $today = Carbon::now('Asia/Jakarta')->toDateString();
+        Carbon::setTestNow(Carbon::parse($today.' 08:15:00', 'Asia/Jakarta'));
 
         $sesi = JadwalSesi::create([
             'tutor_id' => $this->tutor->id,
@@ -303,5 +304,7 @@ class JadwalLokasiTrackingTest extends TestCase
         $content = $response->getContent();
         $this->assertStringContainsString('id="inputJadwalSesiId" value="'.$sesi->id.'"', $content);
         $this->assertStringContainsString('value="'.$this->lokasiMitra->id.'"', $content);
+
+        Carbon::setTestNow();
     }
 }

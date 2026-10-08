@@ -10,7 +10,7 @@ Artisan::command('inspire', function () {
 
 // ── Penjadwalan Notifikasi & Pengingat Otomatis PKBM PIKAT ──
 
-// 1. Pengingat Pagi Hari (06:30 WIB): Jadwal Mengajar Tutor, Sesi Belajar Siswa, & Shift Magang
+// 1. Pengingat Pagi Hari (06:30 WIB): Jadwal Mengajar Tutor, Sesi Belajar Murid, & Shift Magang
 Schedule::command('presensi:send-reminder --type=morning --role=all')
     ->dailyAt('06:30')
     ->timezone('Asia/Jakarta');

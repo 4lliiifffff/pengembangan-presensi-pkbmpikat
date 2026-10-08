@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Edit Master Jadwal Rutin Siswa - Admin')
+@section('title', 'Edit Master Jadwal Rutin Murid - Admin')
 
 @section('content')
 
@@ -9,9 +9,9 @@
         <div class="laporanHeader">
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
-                    <div class="laporanHeaderLabel">PENJADWALAN KBM SISWA</div>
-                    <h1 class="laporanHeaderTitle">Edit Master Jadwal Rutin Siswa</h1>
-                    <div class="laporanHeaderSub">Ubah konfigurasi hari, jam belajar, atau tutor pengampu untuk siswa</div>
+                    <div class="laporanHeaderLabel">PENJADWALAN KBM MURID</div>
+                    <h1 class="laporanHeaderTitle">Edit Master Jadwal Rutin Murid</h1>
+                    <div class="laporanHeaderSub">Ubah konfigurasi hari, jam belajar, atau tutor pengampu untuk murid</div>
                 </div>
                 <div class="laporanHeaderActions">
                     <a href="{{ route('admin.jadwal-rutin.index') }}" class="btnOutline">
@@ -41,13 +41,13 @@
                 <div class="form-grid-responsive mb-4">
                     <div class="form-field-wrapper">
                         <label class="form-field-label">
-                            Pilih Siswa Bimbingan <span class="text-danger">*</span>
+                            Pilih Murid Bimbingan <span class="text-danger">*</span>
                         </label>
-                        <select name="siswa_id" required class="filterSelect">
-                            <option value="">-- Pilih Siswa --</option>
-                            @foreach ($siswas as $s)
-                                <option value="{{ $s->id }}" {{ old('siswa_id', $jadwalRutin->siswa_id) == $s->id ? 'selected' : '' }}>
-                                    {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }}) -
+                        <select name="murid_id" required class="filterSelect">
+                            <option value="">-- Pilih Murid --</option>
+                            @foreach (($murids ?? $siswas) as $s)
+                                <option value="{{ $s->id }}" {{ old('murid_id', old('siswa_id', $jadwalRutin->murid_id ?? $jadwalRutin->siswa_id)) == $s->id ? 'selected' : '' }}>
+                                    {{ $s->nama_murid ?? $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }}) -
                                     {{ $s->nama_kelas_lengkap ?? 'Reguler' }}
                                 </option>
                             @endforeach
@@ -96,7 +96,7 @@
                                 </option>
                             @endforeach
                         </select>
-                        <div class="field-help-text">Siswa dan Tutor akan otomatis diarahkan melakukan presensi pada titik
+                        <div class="field-help-text">Murid dan Tutor akan otomatis diarahkan melakukan presensi pada titik
                             lokasi ini.</div>
                     </div>
                 </div>
@@ -148,11 +148,11 @@
                 <div class="info-callout-box mb-4">
                     <div class="info-callout-title">
                         <span><ion-icon name="time-outline" class="text-primary"></ion-icon> Jendela Waktu Presensi
-                            Siswa</span>
+                            Murid</span>
                         <span class="app-badge badge-status-aktif">Auto Time-Gating</span>
                     </div>
                     <div class="info-callout-desc">
-                        Siswa bimbingan dapat mulai melakukan presensi masuk mandiri <strong>30 menit sebelum jam
+                        Murid bimbingan dapat mulai melakukan presensi masuk mandiri <strong>30 menit sebelum jam
                             mulai</strong> (pukul <strong id="previewEarlyTime">08:30</strong> WIB).
                     </div>
                 </div>

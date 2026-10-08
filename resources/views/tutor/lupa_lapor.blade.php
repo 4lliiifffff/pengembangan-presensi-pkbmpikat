@@ -85,14 +85,14 @@
                     <div class="llFormTitle">Data Pengajuan</div>
 
                     <div class="llFormCard">
-                        {{-- Siswa --}}
+                        {{-- Murid --}}
                         <div>
-                            <div class="fieldLabel">Siswa <span class="req">*</span></div>
+                            <div class="fieldLabel">Murid <span class="req">*</span></div>
                             <select name="siswa_id" class="input" required>
-                                <option value="">- Pilih Siswa -</option>
+                                <option value="">- Pilih Murid -</option>
                                 @foreach($siswaList as $siswa)
                                     <option value="{{ $siswa->id }}" {{ (string) old('siswa_id', request('siswa_id')) === (string) $siswa->id ? 'selected' : '' }}>
-                                        {{ $siswa->nama_siswa }}
+                                        {{ $siswa->nama_murid ?? $siswa->nama_siswa }}
                                     </option>
                                 @endforeach
                             </select>
@@ -155,7 +155,7 @@
                                     <div class="llDate">{{ $tgl }}</div>
                                     <div class="llSiswa">
                                         <ion-icon name="person-outline" class="text-xs align-middle"></ion-icon>
-                                        {{ $item->siswa->nama_siswa ?? 'Siswa #' . $item->siswa_id }}
+                                        {{ $item->murid->nama_murid ?? ($item->siswa->nama_siswa ?? 'Murid #' . $item->siswa_id) }}
                                     </div>
                                 </div>
                                 <div class="d-flex flex-col items-end gap-1">

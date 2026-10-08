@@ -4,11 +4,12 @@ namespace App\Services;
 
 use App\Models\JenjangPaket;
 use App\Models\Magang;
+use App\Models\Murid;
 use App\Models\PengajuanIzinSakit;
 use App\Models\PengajuanLupaLapor;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
-use App\Models\PresensiMandiriSiswa;
+use App\Models\PresensiMandiriMurid;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use Carbon\Carbon;
@@ -25,21 +26,21 @@ class LaporanPresensiService
         $endDate = Carbon::parse($filters['end_date'] ?? Carbon::now('Asia/Jakarta')->endOfDay()->toDateString())->endOfDay();
 
         $tutorId = $filters['tutor_id'] ?? null;
-        $siswaId = $filters['siswa_id'] ?? null;
+        $muridId = $filters['murid_id'] ?? ($filters['siswa_id'] ?? null);
         $statusFilter = $filters['status'] ?? null;
         $modaFilter = $filters['moda_pembelajaran'] ?? null;
         $lokasiId = $filters['lokasi_presensi_id'] ?? null;
         $jenjangId = $filters['jenjang_paket_id'] ?? null;
         $kelasId = $filters['kelas_id'] ?? null;
 
-        $query = Presensi::with(['tutor.user', 'siswa.relKelas.masterJenjang', 'lokasiPresensi', 'kategoriTutorial'])
+        $query = Presensi::with(['tutor.user', 'murid.relKelas.masterJenjang', 'lokasiPresensi', 'kategoriTutorial'])
             ->whereBetween('tgl_presensi', [$startDate->toDateString(), $endDate->toDateString()]);
 
         if ($tutorId) {
             $query->where('tutor_id', $tutorId);
         }
-        if ($siswaId) {
-            $query->where('siswa_id', $siswaId);
+        if ($muridId) {
+            $query->where('murid_id', $muridId);
         }
         if ($modaFilter) {
             $query->where('moda_pembelajaran', $modaFilter);
@@ -48,10 +49,10 @@ class LaporanPresensiService
             $query->where('lokasi_presensi_id', $lokasiId);
         }
         if ($kelasId) {
-            $query->whereHas('siswa', fn ($q) => $q->where('kelas_id', $kelasId));
+            $query->whereHas('murid', fn ($q) => $q->where('kelas_id', $kelasId));
         }
         if ($jenjangId) {
-            $query->whereHas('siswa.relKelas', fn ($q) => $q->where('jenjang_paket_id', $jenjangId));
+            $query->whereHas('murid.relKelas', fn ($q) => $q->where('jenjang_paket_id', $jenjangId));
         }
 
         if ($statusFilter) {
@@ -109,30 +110,30 @@ class LaporanPresensiService
     }
 
     /**
-     * Dapatkan data lengkap laporan presensi mandiri Siswa.
+     * Dapatkan data lengkap laporan presensi mandiri Murid.
      */
-    public function getLaporanSiswaData(array $filters): array
+    public function getLaporanMuridData(array $filters): array
     {
         $startDate = Carbon::parse($filters['start_date'] ?? Carbon::now('Asia/Jakarta')->startOfMonth()->toDateString())->startOfDay();
         $endDate = Carbon::parse($filters['end_date'] ?? Carbon::now('Asia/Jakarta')->endOfDay()->toDateString())->endOfDay();
 
-        $siswaId = $filters['siswa_id'] ?? null;
+        $muridId = $filters['murid_id'] ?? ($filters['siswa_id'] ?? null);
         $kelasId = $filters['kelas_id'] ?? null;
         $jenjangId = $filters['jenjang_paket_id'] ?? null;
         $statusFilter = $filters['status'] ?? null;
         $lokasiId = $filters['lokasi_presensi_id'] ?? null;
 
-        $query = PresensiMandiriSiswa::with(['siswa.relKelas.masterJenjang', 'lokasiPresensi'])
+        $query = PresensiMandiriMurid::with(['murid.relKelas.masterJenjang', 'lokasiPresensi'])
             ->whereBetween('tgl_presensi', [$startDate->toDateString(), $endDate->toDateString()]);
 
-        if ($siswaId) {
-            $query->where('siswa_id', $siswaId);
+        if ($muridId) {
+            $query->where('murid_id', $muridId);
         }
         if ($kelasId) {
-            $query->whereHas('siswa', fn ($q) => $q->where('kelas_id', $kelasId));
+            $query->whereHas('murid', fn ($q) => $q->where('kelas_id', $kelasId));
         }
         if ($jenjangId) {
-            $query->whereHas('siswa.relKelas', fn ($q) => $q->where('jenjang_paket_id', $jenjangId));
+            $query->whereHas('murid.relKelas', fn ($q) => $q->where('jenjang_paket_id', $jenjangId));
         }
         if ($lokasiId) {
             $query->where('lokasi_presensi_id', $lokasiId);
@@ -165,6 +166,12 @@ class LaporanPresensiService
             'totalSakit' => $totalSakit,
             'totalAlpha' => $totalAlpha,
         ];
+    }
+
+    /** Alias untuk backward compatibility */
+    public function getLaporanSiswaData(array $filters): array
+    {
+        return $this->getLaporanMuridData($filters);
     }
 
     /**
@@ -289,7 +296,7 @@ class LaporanPresensiService
         $izinRecords = $izinQuery->orderByDesc('tgl_mulai')->get();
 
         // 2. Pengajuan Lupa Lapor
-        $lupaQuery = PengajuanLupaLapor::with(['tutor.user', 'siswa'])
+        $lupaQuery = PengajuanLupaLapor::with(['tutor.user', 'murid'])
             ->whereBetween('tanggal', [$startDate->toDateString(), $endDate->toDateString()]);
 
         if ($tutorId) {
@@ -322,27 +329,27 @@ class LaporanPresensiService
     /**
      * Dapatkan data matriks presensi bulanan (Buku Induk Ledger Tanggal 1-31).
      */
-    public function getMatriksBulananSiswa(int $bulan, int $tahun, ?int $kelasId = null, ?int $jenjangId = null): array
+    public function getMatriksBulananMurid(int $bulan, int $tahun, ?int $kelasId = null, ?int $jenjangId = null): array
     {
         $start = Carbon::createFromDate($tahun, $bulan, 1)->startOfDay();
         $end = $start->copy()->endOfMonth()->endOfDay();
         $daysInMonth = $start->daysInMonth;
 
-        $siswaQuery = Siswa::with(['relKelas.masterJenjang'])
-            ->where('status_siswa', 'aktif')
-            ->orderBy('nama_siswa');
+        $muridQuery = Murid::with(['relKelas.masterJenjang'])
+            ->where('status_murid', 'aktif')
+            ->orderBy('nama_murid');
 
         if ($kelasId) {
-            $siswaQuery->where('kelas_id', $kelasId);
+            $muridQuery->where('kelas_id', $kelasId);
         }
         if ($jenjangId) {
-            $siswaQuery->whereHas('relKelas', fn ($q) => $q->where('jenjang_paket_id', $jenjangId));
+            $muridQuery->whereHas('relKelas', fn ($q) => $q->where('jenjang_paket_id', $jenjangId));
         }
 
-        $siswas = $siswaQuery->get();
+        $murids = $muridQuery->get();
 
         // Ambil data presensi mandiri dalam bulan ini
-        $presensis = PresensiMandiriSiswa::whereBetween('tgl_presensi', [$start->toDateString(), $end->toDateString()])
+        $presensis = PresensiMandiriMurid::whereBetween('tgl_presensi', [$start->toDateString(), $end->toDateString()])
             ->get();
 
         // Ambil juga data presensi tutor (kegiatan KBM) sebagai fallback jika presensi mandiri belum ada
@@ -352,7 +359,7 @@ class LaporanPresensiService
 
         $matrix = [];
 
-        foreach ($siswas as $siswa) {
+        foreach ($murids as $murid) {
             $rowDays = [];
             $hadirCount = 0;
             $izinCount = 0;
@@ -365,7 +372,7 @@ class LaporanPresensiService
                 $isSunday = ($dayCarbon->dayOfWeek === Carbon::SUNDAY);
 
                 // Cek presensi mandiri
-                $pRecord = $presensis->first(fn ($p) => $p->siswa_id === $siswa->id && $p->tgl_presensi === $dateStr);
+                $pRecord = $presensis->first(fn ($p) => ($p->murid_id === $murid->id || $p->siswa_id === $murid->id) && $p->tgl_presensi === $dateStr);
 
                 $status = '-';
                 if ($pRecord) {
@@ -384,7 +391,7 @@ class LaporanPresensiService
                     }
                 } else {
                     // Cek presensi KBM dari tutor
-                    $pTutorRecord = $presensiTutor->first(fn ($p) => $p->siswa_id === $siswa->id && $p->tgl_presensi === $dateStr);
+                    $pTutorRecord = $presensiTutor->first(fn ($p) => ($p->murid_id === $murid->id || $p->siswa_id === $murid->id) && $p->tgl_presensi === $dateStr);
                     if ($pTutorRecord) {
                         $status = 'H';
                         $hadirCount++;
@@ -405,7 +412,8 @@ class LaporanPresensiService
             $keaktifan = $totalSesi > 0 ? round(($hadirCount / $totalSesi) * 100) : 0;
 
             $matrix[] = [
-                'siswa' => $siswa,
+                'murid' => $murid,
+                'siswa' => $murid, // compatibility
                 'days' => $rowDays,
                 'hadir' => $hadirCount,
                 'izin' => $izinCount,
@@ -421,8 +429,15 @@ class LaporanPresensiService
             'tahun' => $tahun,
             'daysInMonth' => $daysInMonth,
             'matrix' => $matrix,
-            'totalSiswa' => $siswas->count(),
+            'totalMurid' => $murids->count(),
+            'totalSiswa' => $murids->count(),
         ];
+    }
+
+    /** Alias untuk backward compatibility */
+    public function getMatriksBulananSiswa(int $bulan, int $tahun, ?int $kelasId = null, ?int $jenjangId = null): array
+    {
+        return $this->getMatriksBulananMurid($bulan, $tahun, $kelasId, $jenjangId);
     }
 
     /**
@@ -457,15 +472,15 @@ class LaporanPresensiService
             $modaStats['online'] ?? 0,
         ];
 
-        // 3. Distribusi Kehadiran per Jenjang Paket Siswa
+        // 3. Distribusi Kehadiran per Jenjang Paket Murid
         $jenjangs = JenjangPaket::aktif()->orderBy('urutan')->get();
         $jenjangLabels = [];
         $jenjangData = [];
 
         foreach ($jenjangs as $j) {
-            $count = PresensiMandiriSiswa::whereBetween('tgl_presensi', [$startDate->toDateString(), $endDate->toDateString()])
+            $count = PresensiMandiriMurid::whereBetween('tgl_presensi', [$startDate->toDateString(), $endDate->toDateString()])
                 ->where('status', 'hadir')
-                ->whereHas('siswa.relKelas', fn ($q) => $q->where('jenjang_paket_id', $j->id))
+                ->whereHas('murid.relKelas', fn ($q) => $q->where('jenjang_paket_id', $j->id))
                 ->count();
 
             $jenjangLabels[] = $j->nama_jenjang;
@@ -484,9 +499,9 @@ class LaporanPresensiService
     }
 
     /**
-     * Dapatkan rekapitulasi presensi tutor per periode bulan dan tahun (Legacy compatibility).
+     * Dapatkan rekapitulasi presensi tutor per periode bulan dan tahun.
      */
-    public function getRekapTutorBulanan(int $bulan, int $tahun, ?int $tutorId = null, ?int $siswaId = null): array
+    public function getRekapTutorBulanan(int $bulan, int $tahun, ?int $tutorId = null, ?int $muridId = null): array
     {
         $startDate = Carbon::createFromDate($tahun, $bulan, 1)->startOfDay();
         $endDate = $startDate->copy()->endOfMonth()->endOfDay();
@@ -497,8 +512,8 @@ class LaporanPresensiService
         if ($tutorId) {
             $baseQuery->where('tutor_id', $tutorId);
         }
-        if ($siswaId) {
-            $baseQuery->where('siswa_id', $siswaId);
+        if ($muridId) {
+            $baseQuery->where('murid_id', $muridId);
         }
 
         $totalHadir = (clone $baseQuery)->whereNotNull('jam_selesai')->count();
@@ -519,12 +534,12 @@ class LaporanPresensiService
         }
         $tutors = $tutorsQuery->get();
 
-        $rekapTutor = $tutors->map(function (Tutor $tutor) use ($startDate, $endDate, $hariKerja, $hasJamMulai, $siswaId) {
+        $rekapTutor = $tutors->map(function (Tutor $tutor) use ($startDate, $endDate, $hariKerja, $hasJamMulai, $muridId) {
             $tutorPresensi = Presensi::where('tutor_id', $tutor->id)
                 ->whereBetween('tgl_presensi', [$startDate, $endDate]);
 
-            if ($siswaId) {
-                $tutorPresensi->where('siswa_id', $siswaId);
+            if ($muridId) {
+                $tutorPresensi->where('murid_id', $muridId);
             }
 
             $totalSesiTutor = (clone $tutorPresensi)->count();

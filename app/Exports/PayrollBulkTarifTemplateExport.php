@@ -14,14 +14,14 @@ class PayrollBulkTarifTemplateExport implements FromCollection, WithEvents, With
 {
     public function collection()
     {
-        return Siswa::with(['relKelas', 'tutor'])->orderBy('nama_siswa')->get();
+        return Siswa::with(['relKelas', 'tutor'])->orderBy('nama_murid')->get();
     }
 
     public function map($siswa): array
     {
         return [
             $siswa->no_absen,
-            $siswa->nama_siswa,
+            $siswa->nama_murid ?? $siswa->nama_siswa,
             $siswa->relKelas->nama_kelas ?? '-',
             $siswa->jenjang_paket_label,
             $siswa->is_abk_label,
@@ -33,7 +33,7 @@ class PayrollBulkTarifTemplateExport implements FromCollection, WithEvents, With
     {
         return [
             'Nomor Absen (NIS)',
-            'Nama Siswa',
+            'Nama Murid',
             'Kelas / Rombel',
             'Jenjang Paket',
             'Status ABK (ABK / Reguler)',

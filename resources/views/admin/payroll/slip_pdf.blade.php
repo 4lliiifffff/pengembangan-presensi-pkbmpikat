@@ -143,7 +143,7 @@
         <thead>
             <tr>
                 <th style="width: 5%;">No</th>
-                <th style="width: 35%;">Nama Siswa</th>
+                <th style="width: 35%;">Nama Murid</th>
                 <th style="width: 15%; text-align: center;">Status</th>
                 <th style="width: 15%; text-align: center;">Total Sesi</th>
                 <th style="width: 15%; text-align: center;">Total Jam</th>
@@ -151,10 +151,10 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($payroll['siswa_summary'] as $idx => $s)
+            @forelse($payroll['murid_summary'] ?? ($payroll['siswa_summary'] ?? []) as $idx => $s)
                 <tr>
                     <td style="text-align: center;">{{ $idx + 1 }}</td>
-                    <td><strong>{{ $s['nama_siswa'] }}</strong></td>
+                    <td><strong>{{ $s['nama_murid'] ?? ($s['nama_siswa'] ?? 'Murid') }}</strong></td>
                     <td style="text-align: center;">{{ $s['is_abk_label'] ?? ($s['is_abk'] ? 'ABK' : 'Reguler') }}</td>
                     <td style="text-align: center;">{{ $s['total_sesi'] }} pertemuan</td>
                     <td style="text-align: center;">{{ $s['total_jam'] }} Jam</td>

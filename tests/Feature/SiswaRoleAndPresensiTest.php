@@ -83,7 +83,7 @@ class SiswaRoleAndPresensiTest extends TestCase
             'password' => 'password123',
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
     }
 
     public function test_siswa_can_login_with_sw001_variation_or_no_absen(): void
@@ -114,7 +114,7 @@ class SiswaRoleAndPresensiTest extends TestCase
                 'username' => $usernameInput,
                 'password' => 'password123',
             ]);
-            $res->assertRedirect(route('siswa.dashboard'));
+            $res->assertRedirect(route('murid.dashboard'));
         }
     }
 
@@ -142,10 +142,10 @@ class SiswaRoleAndPresensiTest extends TestCase
         $this->actingAs($siswaUser);
 
         $responseAdmin = $this->get(route('admin.dashboard'));
-        $responseAdmin->assertRedirect(route('siswa.dashboard'));
+        $responseAdmin->assertRedirect(route('murid.dashboard'));
 
         $responseTutor = $this->get(route('tutor.dashboard'));
-        $responseTutor->assertRedirect(route('siswa.dashboard'));
+        $responseTutor->assertRedirect(route('murid.dashboard'));
     }
 
     public function test_siswa_can_view_dashboard_and_presensi_camera_page(): void
@@ -224,11 +224,11 @@ class SiswaRoleAndPresensiTest extends TestCase
             'foto' => $foto,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $response->assertSessionHas('success');
 
-        $this->assertDatabaseHas('presensi_mandiri_siswa', [
-            'siswa_id' => $siswa->id,
+        $this->assertDatabaseHas('presensi_mandiri_murid', [
+            'murid_id' => $siswa->id,
             'tgl_presensi' => $today,
             'status' => 'hadir',
         ]);
@@ -278,8 +278,8 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $response->assertSessionHas('warning');
-        $this->assertDatabaseMissing('presensi_mandiri_siswa', [
-            'siswa_id' => $siswa->id,
+        $this->assertDatabaseMissing('presensi_mandiri_murid', [
+            'murid_id' => $siswa->id,
         ]);
     }
 
@@ -327,11 +327,11 @@ class SiswaRoleAndPresensiTest extends TestCase
             'foto' => $foto,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $response->assertSessionHas('warning');
 
         // Pastikan jumlah presensi hari ini tetap 1
-        $this->assertEquals(1, PresensiMandiriSiswa::where('siswa_id', $siswa->id)->whereDate('tgl_presensi', $today)->count());
+        $this->assertEquals(1, PresensiMandiriSiswa::where('murid_id', $siswa->id)->whereDate('tgl_presensi', $today)->count());
     }
 
     public function test_siswa_check_in_links_to_scheduled_jadwal_sesi(): void
@@ -390,7 +390,7 @@ class SiswaRoleAndPresensiTest extends TestCase
             'foto' => $foto,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $jadwalSesi->refresh();
 
         $this->assertEquals('hadir', $jadwalSesi->status_kehadiran_siswa);
@@ -462,7 +462,7 @@ class SiswaRoleAndPresensiTest extends TestCase
             'foto' => $foto,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $jadwalSesi->refresh();
 
         $this->assertEquals('hadir', $jadwalSesi->status_kehadiran_siswa);
@@ -535,11 +535,11 @@ class SiswaRoleAndPresensiTest extends TestCase
             'foto' => $foto,
         ]);
 
-        $response->assertRedirect(route('siswa.dashboard'));
+        $response->assertRedirect(route('murid.dashboard'));
         $response->assertSessionHas('warning');
 
-        $this->assertDatabaseHas('presensi_mandiri_siswa', [
-            'siswa_id' => $siswa->id,
+        $this->assertDatabaseHas('presensi_mandiri_murid', [
+            'murid_id' => $siswa->id,
             'status_kehadiran' => 'terlambat',
             'menit_keterlambatan' => 61,
         ]);
@@ -605,7 +605,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         $this->assertNotNull($siswa->user_id);
         $this->assertNotNull($siswa->user);
         $this->assertEquals('Rendra Pratama', $siswa->user->nama_lengkap);
-        $this->assertEquals('siswa', $siswa->user->role);
+        $this->assertEquals('murid', $siswa->user->role);
         $this->assertEquals(1, $siswa->user->is_active);
         $this->assertEquals('089988776655', $siswa->user->no_hp);
     }
@@ -665,7 +665,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         $this->actingAs($admin);
 
         $response = $this->post(route('admin.siswa.resetPassword', $siswa));
-        $response->assertRedirect(route('admin.siswa.show', $siswa));
+        $response->assertRedirect(route('admin.murid.show', ['murid' => $siswa->id]));
         $response->assertSessionHas('success');
 
         // Pastikan siswa bisa login dengan password123 setelah direset
@@ -674,7 +674,7 @@ class SiswaRoleAndPresensiTest extends TestCase
             'username' => $siswa->user->email,
             'password' => 'password123',
         ]);
-        $loginRes->assertRedirect(route('siswa.dashboard'));
+        $loginRes->assertRedirect(route('murid.dashboard'));
     }
 
     public function test_siswa_can_view_jadwal_page_with_calendar_and_sessions(): void
@@ -722,7 +722,7 @@ class SiswaRoleAndPresensiTest extends TestCase
 
         $response = $this->get(route('siswa.jadwal'));
         $response->assertStatus(200);
-        $response->assertSee('Jadwal Siswa PKBM');
+        $response->assertSee('Jadwal Murid PKBM');
         $response->assertSee('Tutor Matematika Hebat');
         $response->assertSee('09:00');
         $response->assertSee('11:00');

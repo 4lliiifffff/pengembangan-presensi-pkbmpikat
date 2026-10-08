@@ -105,7 +105,7 @@ class TutorJadwalMandiriTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_rutin', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'hari' => 'kamis',
             'jam_masuk' => '13:30:00',
             'jam_pulang' => '15:30:00',
@@ -113,7 +113,7 @@ class TutorJadwalMandiriTest extends TestCase
         ]);
 
         $rutin = JadwalRutin::where('tutor_id', $this->tutor->id)
-            ->where('siswa_id', $this->siswa->id)
+            ->where('murid_id', $this->siswa->id)
             ->first();
 
         $this->assertNotNull($rutin);
@@ -140,7 +140,7 @@ class TutorJadwalMandiriTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => $targetDate,
             'jam_masuk_rencana' => '10:00:00',
             'jam_pulang_rencana' => '12:00:00',
@@ -187,7 +187,7 @@ class TutorJadwalMandiriTest extends TestCase
         // Verify replacement session created
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => $newDate,
             'jam_masuk_rencana' => '14:00:00',
             'jam_pulang_rencana' => '16:00:00',

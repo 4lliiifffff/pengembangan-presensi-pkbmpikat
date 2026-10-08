@@ -83,7 +83,7 @@ class KepsekDashboardController extends Controller
         $bulan = (int) $request->get('bulan', Carbon::now()->month);
         $tahun = (int) $request->get('tahun', Carbon::now()->year);
         $tutorId = $request->get('tutor_id') ? (int) $request->get('tutor_id') : null;
-        $siswaId = $request->get('siswa_id') ? (int) $request->get('siswa_id') : null;
+        $siswaId = $request->get('murid_id', $request->get('siswa_id')) ? (int) $request->get('murid_id', $request->get('siswa_id')) : null;
 
         $rekapData = $this->laporanService->getRekapTutorBulanan($bulan, $tahun, $tutorId, $siswaId);
 
@@ -98,12 +98,13 @@ class KepsekDashboardController extends Controller
         $tahunOptions = range(Carbon::now()->year, Carbon::now()->year - 3);
 
         $allTutors = Tutor::orderBy('nama_lengkap')->get();
-        $allSiswas = Siswa::orderBy('nama_siswa')->get();
+        $allSiswas = Siswa::orderBy('nama_murid')->get();
+        $allMurids = $allSiswas;
 
         return view('kepsek.laporan', compact(
             'rekapTutor', 'totalHadir', 'totalIzin', 'totalSesi',
             'totalTutorAktif', 'startDate', 'endDate',
-            'bulan', 'tahun', 'tahunOptions', 'allTutors', 'allSiswas', 'tutorId', 'siswaId'
+            'bulan', 'tahun', 'tahunOptions', 'allTutors', 'allSiswas', 'allMurids', 'tutorId', 'siswaId'
         ));
     }
 
@@ -127,7 +128,7 @@ class KepsekDashboardController extends Controller
             $baseQuery->where('tutor_id', $tutorId);
         }
         if ($siswaId) {
-            $baseQuery->where('siswa_id', $siswaId);
+            $baseQuery->where('murid_id', $siswaId);
         }
 
         $totalHadir = (clone $baseQuery)->whereNotNull('jam_selesai')->count();
@@ -153,7 +154,7 @@ class KepsekDashboardController extends Controller
                 ->whereBetween('tgl_presensi', [$startDate, $endDate]);
 
             if ($siswaId) {
-                $tutorPresensi->where('siswa_id', $siswaId);
+                $tutorPresensi->where('murid_id', $siswaId);
             }
             $totalSesiTutor = (clone $tutorPresensi)->count();
             $hadirCount = (clone $tutorPresensi)->whereNotNull('jam_selesai')->count();
@@ -226,7 +227,7 @@ class KepsekDashboardController extends Controller
             $cari = $request->cari;
             $query->where(function ($q) use ($cari) {
                 $q->whereHas('tutor', fn ($t) => $t->where('nama_lengkap', 'like', "%{$cari}%"))
-                    ->orWhereHas('siswa', fn ($s) => $s->where('nama_siswa', 'like', "%{$cari}%"));
+                    ->orWhereHas('siswa', fn ($s) => $s->where('nama_murid', 'like', "%{$cari}%"));
             });
         }
 
@@ -246,7 +247,7 @@ class KepsekDashboardController extends Controller
 
         $this->presensiService->syncApprovedAttendance(
             tutorId: $item->tutor_id,
-            siswaIds: $item->siswa_id,
+            muridIds: (int) ($item->murid_id ?: $item->siswa_id),
             startDateStr: $item->tanggal,
             status: 'hadir',
             jamMulai: $item->jam_mulai,
@@ -380,7 +381,7 @@ class KepsekDashboardController extends Controller
         $endDate = Carbon::parse($endDateStr)->endOfDay();
 
         $tutorId = $request->get('tutor_id');
-        $siswaId = $request->get('siswa_id');
+        $siswaId = $request->get('murid_id', $request->get('siswa_id'));
         $statusFilter = $request->get('status');
 
         $query = Presensi::with(['siswa', 'tutor'])
@@ -390,7 +391,7 @@ class KepsekDashboardController extends Controller
             $query->where('tutor_id', $tutorId);
         }
         if ($siswaId) {
-            $query->where('siswa_id', $siswaId);
+            $query->where('murid_id', $siswaId);
         }
 
         if ($statusFilter) {
@@ -409,7 +410,8 @@ class KepsekDashboardController extends Controller
             ->withQueryString();
 
         $tutors = Tutor::orderBy('nama_lengkap')->get();
-        $siswas = Siswa::orderBy('nama_siswa')->get();
+        $siswas = Siswa::orderBy('nama_murid')->get();
+        $murids = $siswas;
 
         $karyawanPresensi = PresensiKaryawan::with('user')
             ->whereBetween('tgl_presensi', [$startDate, $endDate])
@@ -419,7 +421,7 @@ class KepsekDashboardController extends Controller
 
         return view('kepsek.presensi', compact(
             'presensi', 'karyawanPresensi', 'startDateStr', 'endDateStr',
-            'tutors', 'siswas', 'tutorId', 'siswaId', 'statusFilter'
+            'tutors', 'siswas', 'murids', 'tutorId', 'siswaId', 'statusFilter'
         ));
     }
 

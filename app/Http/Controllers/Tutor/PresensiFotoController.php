@@ -92,8 +92,9 @@ class PresensiFotoController extends Controller
         // Gunakan timezone WIB (Asia/Jakarta) untuk konsistensi waktu Indonesia
         $today = Carbon::now('Asia/Jakarta')->toDateString();
 
-        // Ambil semua siswa yang diajar oleh tutor ini (tutor_id == login tutor id)
-        $siswas = Siswa::where('tutor_id', $tutor->id)->orderBy('nama_siswa')->get();
+        // Ambil semua murid yang diajar oleh tutor ini (tutor_id == login tutor id)
+        $siswas = Siswa::where('tutor_id', $tutor->id)->orderBy('nama_murid')->get();
+        $murids = $siswas;
 
         // Cek apakah kolom tutor_id ada di tabel presensis (backward compatibility)
         // Sistem lama mungkin tidak memiliki kolom ini
@@ -107,11 +108,11 @@ class PresensiFotoController extends Controller
         }
 
         // Ambil semua presensi hari ini (diurutkan terbaru di atas)
-        $allPresensiToday = $presensiQuery->with(['siswa', 'jadwalSesi'])->orderByDesc('id')->get();
+        $allPresensiToday = $presensiQuery->with(['murid', 'siswa', 'jadwalSesi'])->orderByDesc('id')->get();
 
-        // Untuk dropdown: ambil record terbaru per siswa (untuk menampilkan status siswa)
-        // groupBy siswa_id → map ke item pertama (terbaru) di setiap grup
-        $presensiToday = $allPresensiToday->groupBy('siswa_id')->map(fn ($items) => $items->first());
+        // Untuk dropdown: ambil record terbaru per murid (untuk menampilkan status murid)
+        // groupBy murid_id / siswa_id → map ke item pertama (terbaru) di setiap grup
+        $presensiToday = $allPresensiToday->groupBy(fn ($item) => $item->murid_id ?? $item->siswa_id)->map(fn ($items) => $items->first());
 
         $activeSessions = $allPresensiToday->filter(fn ($p) => $p->foto_mulai && ! $p->foto_selesai)->values();
         $globalActiveSesi = $activeSessions->first();
@@ -129,7 +130,7 @@ class PresensiFotoController extends Controller
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
         // Ambil jadwal sesi rencana / sesi pengganti tutor untuk hari ini (lengkap dengan lokasi dan master rutin)
-        $scheduledSessionsToday = JadwalSesi::with(['siswa.relKelas', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
+        $scheduledSessionsToday = JadwalSesi::with(['murid.relKelas', 'siswa.relKelas', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
             ->where('tutor_id', $tutor->id)
             ->whereDate('tanggal_rencana', $today)
             ->where('status', 'terjadwal')
@@ -141,7 +142,7 @@ class PresensiFotoController extends Controller
         $selectedJadwalSesi = null;
         if ($selectedSesiId) {
             $selectedJadwalSesi = $scheduledSessionsToday->firstWhere('id', (int) $selectedSesiId)
-                ?? JadwalSesi::with(['siswa.relKelas', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
+                ?? JadwalSesi::with(['murid.relKelas', 'siswa.relKelas', 'kategoriTutorial', 'lokasiPresensi', 'jadwalRutin.lokasiPresensi'])
                     ->where('tutor_id', $tutor->id)
                     ->find($selectedSesiId);
         }
@@ -159,7 +160,7 @@ class PresensiFotoController extends Controller
             ?? null;
 
         // Cek apakah ada sesi lampau (sebelum hari ini) yang belum melakukan presensi pulang (unclosed past session)
-        $unclosedPastSessionQuery = Presensi::with('siswa')
+        $unclosedPastSessionQuery = Presensi::with(['murid', 'siswa'])
             ->whereDate('tgl_presensi', '<', $today)
             ->whereNotNull('foto_mulai')
             ->whereNull('foto_selesai');
@@ -173,6 +174,7 @@ class PresensiFotoController extends Controller
             'tutor' => $tutor,
             'today' => $today,
             'siswas' => $siswas,
+            'murids' => $murids,
             'kategoriTutorials' => $kategoriTutorials, // Master tarif SK aktif untuk searchable dropdown
             'lokasiPresensis' => $lokasiPresensis,     // Daftar titik lokasi aktif yang dapat dipilih
             'targetLokasi' => $targetLokasi,           // Titik lokasi spesifik dari jadwal atau sesi aktif
@@ -258,7 +260,7 @@ class PresensiFotoController extends Controller
             }
             if (! $jadwalSesi) {
                 $jadwalSesi = JadwalSesi::where('tutor_id', $tutor->id)
-                    ->whereIn('siswa_id', $validated['siswa_id'])
+                    ->whereIn('murid_id', $validated['siswa_id'])
                     ->whereDate('tanggal_rencana', $today)
                     ->where('status', 'terjadwal')
                     ->first();
@@ -280,7 +282,7 @@ class PresensiFotoController extends Controller
             // Validasi: tidak boleh membuat sesi baru jika sesi lama belum selesai
             foreach ($validated['siswa_id'] as $sId) {
                 $presensiLookup = Presensi::query()
-                    ->where('siswa_id', $sId)
+                    ->where('murid_id', $sId)
                     ->whereDate('tgl_presensi', $today);
                 if ($hasPresensiTutorId) {
                     $presensiLookup->where('tutor_id', $tutor->id);
@@ -288,7 +290,7 @@ class PresensiFotoController extends Controller
                 $presensi = $presensiLookup->orderByDesc('id')->first();
 
                 if ($presensi && ! $presensi->foto_selesai) {
-                    return back()->with('warning', 'Presensi masuk masih berjalan untuk salah satu siswa terpilih. Silahkan absen pulang dulu.');
+                    return back()->with('warning', 'Presensi masuk masih berjalan untuk salah satu murid terpilih. Silahkan absen pulang dulu.');
                 }
             }
 
@@ -310,7 +312,7 @@ class PresensiFotoController extends Controller
                 if ($uniqueJenjangs->count() > 1) {
                     $paketLabels = $selectedSiswaList->map(fn ($s) => $s->jenjang_paket_label)->unique()->implode(' dan ');
 
-                    return back()->with('warning', "Presensi bersamaan hanya dapat dilakukan untuk siswa dalam jenjang paket yang sama (tidak boleh lintas paket). Ditemukan siswa dari jenjang yang berbeda: {$paketLabels}.");
+                    return back()->with('warning', "Presensi bersamaan hanya dapat dilakukan untuk murid dalam jenjang paket yang sama (tidak boleh lintas paket). Ditemukan murid dari jenjang yang berbeda: {$paketLabels}.");
                 }
 
                 // Auto-detect Multi-Rombel (Gabungan Komunitas) untuk moda tatap muka
@@ -391,7 +393,7 @@ class PresensiFotoController extends Controller
 
         foreach ($validated['siswa_id'] as $sId) {
             $presensiLookup = Presensi::query()
-                ->where('siswa_id', $sId)
+                ->where('murid_id', $sId)
                 ->whereDate('tgl_presensi', $today);
             if ($hasPresensiTutorId) {
                 $presensiLookup->where('tutor_id', $tutor->id);

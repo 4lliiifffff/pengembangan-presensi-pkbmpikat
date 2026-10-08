@@ -51,15 +51,23 @@ class RoleMiddleware
         }
 
         // Langkah 2: Cek apakah role pengguna saat ini ada dalam daftar role yang diizinkan
-        // Jika role tidak cocok, arahkan ke dashboard masing-masing sesuai role dengan pesan peringatan
-        if (! in_array(auth()->user()->role, $roles)) {
-            $userRole = auth()->user()->role;
+        // Mendukung sinonim 'murid' dan 'siswa' untuk kompatibilitas penuh
+        $userRole = auth()->user()->role;
+        $effectiveRoles = $roles;
+        if (in_array('murid', $roles) && ! in_array('siswa', $roles)) {
+            $effectiveRoles[] = 'siswa';
+        }
+        if (in_array('siswa', $roles) && ! in_array('murid', $roles)) {
+            $effectiveRoles[] = 'murid';
+        }
+
+        if (! in_array($userRole, $effectiveRoles)) {
             $targetRoute = match ($userRole) {
                 'admin' => route('admin.dashboard'),
                 'kepala_sekolah' => route('kepsek.dashboard'),
                 'tutor' => route('tutor.dashboard'),
                 'magang' => route('magang.dashboard'),
-                'siswa' => route('siswa.dashboard'),
+                'murid', 'siswa' => route('murid.dashboard'),
                 default => route('login'),
             };
 

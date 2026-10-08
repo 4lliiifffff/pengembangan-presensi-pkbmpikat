@@ -93,7 +93,8 @@
             @php
                 $tglUnclosed = \Carbon\Carbon::parse($unclosedPastSession->tgl_presensi, 'Asia/Jakarta');
                 $jamMulaiUnclosed = substr((string) $unclosedPastSession->jam_mulai, 0, 5);
-                $siswaUnclosed = $unclosedPastSession->siswa->nama_siswa ?? 'Peserta Didik';
+                $unclosedMuridObj = $unclosedPastSession->murid ?? $unclosedPastSession->siswa;
+                $siswaUnclosed = $unclosedMuridObj->nama_murid ?? ($unclosedMuridObj->nama_siswa ?? 'Murid');
             @endphp
             <div id="bannerUnclosedPastSession" class="statusBanner mb-4"
                 style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
@@ -110,7 +111,7 @@
                         disetujui Kepala Sekolah.
                     </div>
                     <div class="d-flex items-center gap-2 mt-2.5 flex-wrap">
-                        <a href="{{ route('tutor.lupa-lapor', ['tanggal' => $unclosedPastSession->tgl_presensi, 'siswa_id' => $unclosedPastSession->siswa_id, 'jam_mulai' => $jamMulaiUnclosed]) }}"
+                        <a href="{{ route('tutor.lupa-lapor', ['tanggal' => $unclosedPastSession->tgl_presensi, 'siswa_id' => $unclosedPastSession->murid_id ?? $unclosedPastSession->siswa_id, 'jam_mulai' => $jamMulaiUnclosed]) }}"
                             class="profileBtnPrimary text-xs py-1.5 px-3 d-inline-flex items-center gap-1"
                             style="background: #d97706; border-color: #d97706;">
                             <ion-icon name="paper-plane-outline"></ion-icon> Ajukan Lupa Lapor Sesi Ini
@@ -141,6 +142,7 @@
                     @php
                         $jm = substr((string) $sesi->jam_mulai, 0, 5);
                         $js = substr((string) $sesi->jam_selesai, 0, 5);
+                        $completedMurid = $sesi->murid ?? $sesi->siswa;
                         try {
                             $mMulai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_mulai, 'Asia/Jakarta');
                             $mSelesai = \Carbon\Carbon::parse($today . ' ' . $sesi->jam_selesai, 'Asia/Jakarta');
@@ -152,7 +154,7 @@
                     @endphp
                     <div class="border-b-base py-3">
                         <div class="text-sm font-bold text-dark">
-                            {{ $sesi->siswa->nama_siswa ?? 'Siswa' }}
+                            {{ $completedMurid->nama_murid ?? ($completedMurid->nama_siswa ?? 'Murid') }}
                         </div>
                         <div class="text-xs text-muted mt-1">
                             Pukul {{ $jm }} - {{ $js }} ({{ $durLabel }})
@@ -166,6 +168,10 @@
         @if ($activeSesi)
             @php
                 $jamMasuk = substr((string) $activeSesi->jam_mulai, 0, 5);
+                $activeMuridNames = $activeSessions->map(function ($s) {
+                    $m = $s->murid ?? $s->siswa;
+                    return $m->nama_murid ?? ($m->nama_siswa ?? 'Murid');
+                })->join(', ');
             @endphp
 
             @if ($bisaPulang)
@@ -185,7 +191,7 @@
                     </div>
                     <div class="text-xs text-muted leading-relaxed">
                         Sesi bimbingan KBM (Murid: <strong
-                            class="text-dark">{{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</strong>) telah memenuhi
+                            class="text-dark">{{ $activeMuridNames }}</strong>) telah memenuhi
                         syarat durasi kepulangan. Silakan verifikasi titik lokasi dan ambil foto untuk presensi pulang.
                     </div>
                 </div>
@@ -197,7 +203,7 @@
                     <div class="flex-1">
                         <div class="statusTitle">Sesi Sedang Berjalan</div>
                         <div class="statusSub">Masuk pukul {{ $jamMasuk }} WIB - Murid:
-                            {{ $activeSessions->pluck('siswa.nama_siswa')->join(', ') }}</div>
+                            {{ $activeMuridNames }}</div>
                     </div>
                 </div>
 
@@ -407,7 +413,7 @@
                             </span>
                             <div>
                                 <div class="font-extrabold text-dark text-sm">Sesi Bimbingan Terjadwal Hari Ini</div>
-                                <div class="text-xs text-muted">Pilih sesi untuk menyinkronkan siswa & titik lokasi secara otomatis</div>
+                                <div class="text-xs text-muted">Pilih sesi untuk menyinkronkan murid & titik lokasi secara otomatis</div>
                             </div>
                         </div>
                         <span class="badgeCount font-bold">{{ $scheduledSessionsToday->count() }} Sesi</span>
@@ -417,12 +423,13 @@
                             @php
                                 $sLokasi = $sSesi->lokasiPresensi ?? $sSesi->jadwalRutin?->lokasiPresensi;
                                 $isSelectedThis = (isset($selectedJadwalSesi) && $selectedJadwalSesi?->id === $sSesi->id);
+                                $sMuridObj = $sSesi->murid ?? $sSesi->siswa;
                             @endphp
                             <div class="p-3.5 rounded-xl bg-card border-base d-flex items-center justify-between gap-3 text-xs transition-all card-sesi-item {{ $isSelectedThis ? 'border-primary ring-2 ring-primary/20 shadow-sm' : '' }}"
                                 id="sesiItemCard-{{ $sSesi->id }}">
                                 <div class="min-w-0">
                                     <div class="d-flex items-center gap-2 flex-wrap">
-                                        <span class="font-bold text-dark text-sm">{{ $sSesi->siswa->nama_siswa ?? 'Peserta Didik' }}</span>
+                                        <span class="font-bold text-dark text-sm">{{ $sMuridObj->nama_murid ?? ($sMuridObj->nama_siswa ?? 'Murid') }}</span>
                                         <span
                                             class="app-badge {{ $sSesi->jenis_sesi === 'pengganti' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }} text-xxs py-0 px-2">
                                             {{ $sSesi->jenis_label }}
@@ -598,7 +605,7 @@
                                         }
                                         $isPreselected = old('siswa_id') ? in_array($siswa->id, (array) old('siswa_id', [])) : ($selectedSiswa && (is_array($selectedSiswa) ? in_array($siswa->id, $selectedSiswa) : $siswa->id == $selectedSiswa));
                                         $isChecked = $isPreselected ? 'checked' : '';
-                                        $searchKeyword = strtolower($siswa->nama_siswa . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
+                                        $searchKeyword = strtolower(($siswa->nama_murid ?? $siswa->nama_siswa) . ' ' . $siswa->no_absen . ' ' . ($siswa->is_abk ? 'abk berkebutuhan khusus' : 'reguler'));
                                     @endphp
                                     <label class="siswa-item-row" data-search="{{ $searchKeyword }}"
                                         data-paket="{{ $siswa->jenjang_paket }}"
@@ -613,7 +620,7 @@
                                                 onchange="updateSelectedSiswaCount()" class="checkbox-custom flex-shrink-0">
                                             <div class="min-w-0">
                                                 <div class="text-sm font-bold text-dark line-height-tight">
-                                                    {{ $siswa->nama_siswa }} {!! $badge !!}
+                                                    {{ $siswa->nama_murid ?? $siswa->nama_siswa }} {!! $badge !!}
                                                 </div>
                                                 <div class="text-xs text-muted mt-1">
                                                     Kelas: {{ $siswa->relKelas->nama_kelas ?? '-' }} • No: {{ $siswa->no_absen }}
@@ -1364,7 +1371,7 @@
                 if (checkboxes.length > 0) {
                     var isChecked = Array.from(checkboxes).some(cb => cb.checked);
                     if (!isChecked) {
-                        alert('Pilih siswa terlebih dahulu.');
+                        alert('Pilih murid terlebih dahulu.');
                         return;
                     }
                 }
@@ -1653,7 +1660,7 @@
             if (checked.length > 1 && uniquePakets.length > 1) {
                 var labels = Object.values(paketMap).join(' dan ');
                 if (alertBox && alertMsg) {
-                    alertMsg.innerText = 'Siswa terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Presensi bersamaan hanya diperbolehkan untuk siswa dalam jenjang paket yang sama.';
+                    alertMsg.innerText = 'Murid terpilih berasal dari jenjang paket yang berbeda (' + labels + '). Presensi bersamaan hanya diperbolehkan untuk murid dalam jenjang paket yang sama.';
                     alertBox.style.display = 'block';
                 }
                 if (rombelBadge) rombelBadge.style.display = 'none';
@@ -1791,7 +1798,7 @@
                     });
                     if (Object.keys(paketMap).length > 1) {
                         e.preventDefault();
-                        alert('Presensi bersamaan tidak dapat menggabungkan siswa dari paket yang berbeda (' + Object.values(paketMap).join(' dan ') + '). Silakan pilih siswa dalam jenjang paket yang sama.');
+                        alert('Presensi bersamaan tidak dapat menggabungkan murid dari paket yang berbeda (' + Object.values(paketMap).join(' dan ') + '). Silakan pilih murid dalam jenjang paket yang sama.');
                         return;
                     }
                 }

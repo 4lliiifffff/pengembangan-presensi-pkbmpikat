@@ -6,12 +6,12 @@
     <div class="laporanHeader">
         <div class="laporanHeaderCard">
             <div class="laporanHeaderInfo">
-                <div class="laporanHeaderLabel">MODUL PESERTA DIDIK</div>
-                <h1 class="laporanHeaderTitle">Edit Data Siswa</h1>
-                <div class="laporanHeaderSub">Perbarui rombongan belajar, status siklus, dan data wali murid</div>
+                <div class="laporanHeaderLabel">MODUL MURID</div>
+                <h1 class="laporanHeaderTitle">Tambah Murid Baru</h1>
+                <div class="laporanHeaderSub">Daftarkan murid baru ke dalam rombel dan paket belajar</div>
             </div>
             <div class="laporanHeaderActions">
-                <a href="{{ route('admin.siswa.index') }}" class="btnOutline">
+                <a href="{{ route('admin.murid.index') }}" class="btnOutline">
                     Kembali ke Daftar
                 </a>
             </div>
@@ -21,48 +21,47 @@
     @if ($errors->any())
         <div class="error-list-container">
             <div class="error-title">Periksa input berikut:</div>
-            <ul >
+            <ul>
                 @foreach ($errors->all() as $error)
-                    <li >{{ $error }}</li>
+                    <li>{{ $error }}</li>
                 @endforeach
             </ul>
         </div>
     @endif
 
     <div class="form-card-container">
-        <form method="POST" action="{{ route('admin.siswa.update', $siswa) }}">
+        <form method="POST" action="{{ route('admin.murid.store') }}">
             @csrf
-            @method('PUT')
 
             <div class="form-grid-responsive">
                 <div class="form-field-wrapper">
                     <label class="filterFieldLabel">NOMOR ABSEN / NIS <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="no_absen" value="{{ old('no_absen', $siswa->no_absen) }}" required />
+                    <input class="profileInput" type="text" name="no_absen" value="{{ old('no_absen') }}" placeholder="Contoh: 101" required />
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NAMA LENGKAP SISWA <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="nama_siswa" value="{{ old('nama_siswa', $siswa->nama_siswa) }}" required />
+                    <label class="filterFieldLabel">NAMA LENGKAP MURID <span class="text-danger">*</span></label>
+                    <input class="profileInput" type="text" name="nama_murid" value="{{ old('nama_murid', old('nama_siswa')) }}" placeholder="Contoh: Zeldi" required />
                 </div>
 
                 <div class="form-field-wrapper">
                     <label class="filterFieldLabel">STATUS SIKLUS MURID <span class="text-danger">*</span></label>
-                    <select class="filterSelect" name="status_siswa" required>
-                        <option value="aktif" {{ old('status_siswa', $siswa->status_siswa) === 'aktif' ? 'selected' : '' }}>Aktif Belajar</option>
-                        <option value="alumni" {{ old('status_siswa', $siswa->status_siswa) === 'alumni' ? 'selected' : '' }}>Lulus / Alumni</option>
-                        <option value="cuti" {{ old('status_siswa', $siswa->status_siswa) === 'cuti' ? 'selected' : '' }}>Cuti Belajar</option>
-                        <option value="nonaktif" {{ old('status_siswa', $siswa->status_siswa) === 'nonaktif' ? 'selected' : '' }}>Nonaktif / Keluar</option>
+                    <select class="filterSelect" name="status_murid" required>
+                        <option value="aktif" {{ old('status_murid', old('status_siswa', 'aktif')) === 'aktif' ? 'selected' : '' }}>Aktif Belajar</option>
+                        <option value="alumni" {{ old('status_murid', old('status_siswa')) === 'alumni' ? 'selected' : '' }}>Lulus / Alumni</option>
+                        <option value="cuti" {{ old('status_murid', old('status_siswa')) === 'cuti' ? 'selected' : '' }}>Cuti Belajar</option>
+                        <option value="nonaktif" {{ old('status_murid', old('status_siswa')) === 'nonaktif' ? 'selected' : '' }}>Nonaktif / Keluar</option>
                     </select>
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NO HP / WHATSAPP SISWA <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp', $siswa->no_hp) }}" required />
+                    <label class="filterFieldLabel">NO HP / WHATSAPP MURID <span class="text-danger">*</span></label>
+                    <input class="profileInput" type="text" name="no_hp" value="{{ old('no_hp') }}" placeholder="Contoh: 081234567890" required />
                 </div>
 
                 <div class="form-field-wrapper form-grid-full">
                     <label class="filterFieldLabel">NAMA ORANG TUA / WALI <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="nama_wali" value="{{ old('nama_wali', $siswa->nama_wali) }}" required />
+                    <input class="profileInput" type="text" name="nama_wali" value="{{ old('nama_wali') }}" placeholder="Contoh: Bapak / Ibu Santoso" required />
                 </div>
 
                 <div class="form-field-wrapper">
@@ -82,7 +81,7 @@
                         @foreach ($groupedKelas as $jenjangLabel => $kelasList)
                             <optgroup label="{{ $jenjangLabel }}">
                                 @foreach ($kelasList as $k)
-                                    <option value="{{ $k->id }}" {{ (int) old('kelas_id', $siswa->kelas_id) === (int) $k->id ? 'selected' : '' }}>
+                                    <option value="{{ $k->id }}" {{ old('kelas_id') == $k->id ? 'selected' : '' }}>
                                         {{ $k->nama_kelas }}
                                     </option>
                                 @endforeach
@@ -97,7 +96,7 @@
                         <option value="">-- Tidak Ada / Belum Ditentukan --</option>
                         @if (isset($tutors))
                             @foreach ($tutors as $tutor)
-                                <option value="{{ $tutor->id }}" {{ old('tutor_id', $siswa->tutor_id) == $tutor->id ? 'selected' : '' }}>
+                                <option value="{{ $tutor->id }}" {{ old('tutor_id') == $tutor->id ? 'selected' : '' }}>
                                     {{ $tutor->nama_lengkap }}@if(!empty($tutor->jabatan) && stripos($tutor->jabatan, 'kepala') !== false) (Kepala Sekolah)@endif
                                 </option>
                             @endforeach
@@ -108,15 +107,15 @@
 
             <div class="mt-4">
                 <label class="checkbox-toggle-card">
-                    <input type="checkbox" name="is_abk" value="1" {{ old('is_abk', $siswa->is_abk) ? 'checked' : '' }}>
-                    <span >Siswa Berkebutuhan Khusus (ABK)</span>
+                    <input type="checkbox" name="is_abk" value="1" {{ old('is_abk') ? 'checked' : '' }}>
+                    <span>Murid Berkebutuhan Khusus (ABK)</span>
                 </label>
-                <div class="field-help-text">Centang jika siswa ini merupakan Anak Berkebutuhan Khusus (tarif honor tutor otomatis disesuaikan SK ABK).</div>
+                <div class="field-help-text">Centang jika murid ini merupakan Anak Berkebutuhan Khusus (tarif honor tutor otomatis disesuaikan SK ABK).</div>
             </div>
 
             <div class="info-callout-box">
                 <div class="info-callout-title">
-                    <span >Skema Tarif Honor Tutor</span>
+                    <span>Skema Tarif Honor Tutor</span>
                     <a href="{{ route('admin.kategori-tutorial.index') }}" target="_blank" class="info-callout-link">
                         Kelola Master SK &rarr;
                     </a>
@@ -127,15 +126,14 @@
             </div>
 
             <div class="form-action-footer">
-                <a href="{{ route('admin.siswa.index') }}" class="btnOutline">
+                <a href="{{ route('admin.murid.index') }}" class="btnOutline">
                     Batal
                 </a>
                 <button type="submit" class="profileBtnPrimary">
-                    Perbarui Data Siswa
+                    Simpan Data Murid
                 </button>
             </div>
         </form>
     </div>
 </div>
 @endsection
-

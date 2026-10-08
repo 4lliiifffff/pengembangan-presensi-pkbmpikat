@@ -56,15 +56,15 @@
         </div>
     </div>
 
-    {{-- ── Rincian Per Siswa ── --}}
+    {{-- ── Rincian Per Murid ── --}}
     <div class="content-box">
         <div class="content-box-header">
             <div class="d-flex items-center gap-2">
                 <ion-icon name="school-outline" class="text-primary"></ion-icon>
-                Rincian Honorarium Pembelajaran Siswa
+                Rincian Honorarium Pembelajaran Murid
             </div>
             <div class="text-sm font-bold text-muted">
-                {{ count($payroll['siswa_summary']) }} Siswa Diajar
+                {{ count($payroll['murid_summary'] ?? ($payroll['siswa_summary'] ?? [])) }} Murid Diajar
             </div>
         </div>
 
@@ -73,7 +73,7 @@
             <table class="modern-table">
                 <thead >
                     <tr >
-                        <th >Nama Siswa</th>
+                        <th >Nama Murid</th>
                         <th class="text-center">Total Sesi</th>
                         <th class="text-center">Total Jam</th>
                         <th >Program / Layanan</th>
@@ -81,10 +81,10 @@
                     </tr>
                 </thead>
                 <tbody >
-                    @forelse($payroll['siswa_summary'] as $s)
+                    @forelse($payroll['murid_summary'] ?? ($payroll['siswa_summary'] ?? []) as $s)
                     <tr >
                         <td >
-                            <strong class="text-dark text-md">{{ $s['nama_siswa'] }}</strong>
+                            <strong class="text-dark text-md">{{ $s['nama_murid'] ?? ($s['nama_siswa'] ?? 'Murid') }}</strong>
                         </td>
                         <td class="text-center">{{ $s['total_sesi'] }} kali</td>
                         <td class="text-center font-bold text-primary">{{ $s['total_jam'] }} Jam</td>
@@ -102,8 +102,8 @@
                                 <div class="tableEmptyIconWrap indigo">
                                     <ion-icon name="school-outline" class="tableEmptyIcon"></ion-icon>
                                 </div>
-                                <div class="tableEmptyTitle">Belum Ada Rincian Siswa</div>
-                                <div class="tableEmptyDesc">Belum ada rincian pertemuan bimbingan siswa pada periode ini.</div>
+                                <div class="tableEmptyTitle">Belum Ada Rincian Murid</div>
+                                <div class="tableEmptyDesc">Belum ada rincian pertemuan bimbingan murid pada periode ini.</div>
                             </div>
                         </td>
                     </tr>
@@ -114,10 +114,10 @@
 
         {{-- Mobile Cards --}}
         <div class="mobile-siswa-cards">
-            @forelse($payroll['siswa_summary'] as $s)
+            @forelse($payroll['murid_summary'] ?? ($payroll['siswa_summary'] ?? []) as $s)
                 <div class="siswa-card-item">
                     <div class="sci-header">
-                        <div class="sci-name">{{ $s['nama_siswa'] }}</div>
+                        <div class="sci-name">{{ $s['nama_murid'] ?? ($s['nama_siswa'] ?? 'Murid') }}</div>
                         <div class="sci-subtotal">{{ $s['formatted_subtotal'] }}</div>
                     </div>
                     <div class="sci-meta">
@@ -133,8 +133,8 @@
                     <div class="tableEmptyIconWrap indigo">
                         <ion-icon name="school-outline" class="tableEmptyIcon"></ion-icon>
                     </div>
-                    <div class="tableEmptyTitle">Belum Ada Rincian Siswa</div>
-                    <div class="tableEmptyDesc">Belum ada rincian pertemuan bimbingan siswa pada periode ini.</div>
+                    <div class="tableEmptyTitle">Belum Ada Rincian Murid</div>
+                    <div class="tableEmptyDesc">Belum ada rincian pertemuan bimbingan murid pada periode ini.</div>
                 </div>
             @endforelse
         </div>
@@ -158,7 +158,7 @@
                 <thead >
                     <tr >
                         <th >Tanggal</th>
-                        <th >Siswa</th>
+                        <th >Murid</th>
                         <th >Waktu Mengajar</th>
                         <th class="text-center">Durasi</th>
                         <th >Moda Belajar</th>
@@ -172,7 +172,7 @@
                             {{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}
                         </td>
                         <td>
-                            <strong class="text-dark">{{ $row['nama_siswa'] }}</strong>
+                            <strong class="text-dark">{{ $row['nama_murid'] ?? ($row['nama_siswa'] ?? 'Murid') }}</strong>
                             <div class="text-xs font-semibold {{ ($row['is_sesuai_sk'] ?? true) ? 'text-muted' : 'text-warning' }}">
                                 {{ $row['kategori_nama'] ?? 'Tutorial KBM' }}
                             </div>
@@ -216,7 +216,7 @@
                     <div class="ses-header">
                         <div>
                             <div class="ses-date">{{ \Carbon\Carbon::parse($row['tgl_presensi'])->translatedFormat('d M Y') }}</div>
-                            <div class="font-bold text-dark text-sm mt-1">{{ $row['nama_siswa'] }}</div>
+                            <div class="font-bold text-dark text-sm mt-1">{{ $row['nama_murid'] ?? ($row['nama_siswa'] ?? 'Murid') }}</div>
                             <div class="text-xs font-semibold {{ ($row['is_sesuai_sk'] ?? true) ? 'text-muted' : 'text-warning' }} mt-0.5">
                                 {{ $row['kategori_nama'] ?? 'Tutorial KBM' }}
                             </div>

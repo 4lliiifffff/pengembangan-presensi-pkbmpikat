@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Master Jadwal Rutin KBM Siswa - Admin')
+@section('title', 'Master Jadwal Rutin KBM Murid - Admin')
 
 @section('content')
 
@@ -10,11 +10,11 @@
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
                     <div class="laporanHeaderLabel">PENJADWALAN MINGGUAN KBM</div>
-                    <h1 class="laporanHeaderTitle">Master Jadwal Rutin KBM Siswa</h1>
-                    <div class="laporanHeaderSub">Jadwal belajar mingguan berulang khusus siswa tertentu bersama tutor
+                    <h1 class="laporanHeaderTitle">Master Jadwal Rutin KBM Murid</h1>
+                    <div class="laporanHeaderSub">Jadwal belajar mingguan berulang khusus murid tertentu bersama tutor
                         pengampu</div>
                     <p class="laporanHeaderDesc">Pola hari dan jam belajar akan terus berulang secara otomatis setiap
-                        minggu, terhubung dengan smart time-gating presensi masuk siswa.</p>
+                        minggu, terhubung dengan smart time-gating presensi masuk murid.</p>
                 </div>
                 <div class="laporanHeaderActions">
                     <button type="button" class="profileBtnSecondary"
@@ -22,7 +22,7 @@
                         <ion-icon name="sync-outline"></ion-icon> Generate Sesi
                     </button>
                     <a href="{{ route('admin.jadwal-rutin.create') }}" class="profileBtnPrimary">
-                        <ion-icon name="add-circle-outline"></ion-icon> Tambah Jadwal Siswa
+                        <ion-icon name="add-circle-outline"></ion-icon> Tambah Jadwal Murid
                     </a>
                 </div>
             </div>
@@ -36,7 +36,7 @@
             </a>
             <a href="{{ route('admin.jadwal-rutin.index') }}" class="calendarNavTab active">
                 <ion-icon name="repeat-outline"></ion-icon>
-                <span>Master Jadwal Rutin Siswa</span>
+                <span>Master Jadwal Rutin Murid</span>
                 <span class="calendarNavBadge">{{ $stats['total'] ?? 0 }}</span>
             </a>
         </div>
@@ -71,13 +71,13 @@
 
             <div class="kpi-card purple">
                 <div class="kpi-top">
-                    <div class="kpi-label">Siswa Terjadwal</div>
+                    <div class="kpi-label">Murid Terjadwal</div>
                     <div class="kpi-icon-wrap">
                         <ion-icon name="people-outline"></ion-icon>
                     </div>
                 </div>
                 <div>
-                    <div class="kpi-val">{{ $stats['siswa_count'] }} Siswa</div>
+                    <div class="kpi-val">{{ $stats['murid_count'] ?? ($stats['siswa_count'] ?? 0) }} Murid</div>
                     <div class="kpi-sub">Memiliki jadwal KBM rutin</div>
                 </div>
             </div>
@@ -91,7 +91,7 @@
                 </div>
                 <div>
                     <div class="kpi-val">{{ $stats['tutor_count'] }} Tutor</div>
-                    <div class="kpi-sub">Membimbing sesi rutin siswa</div>
+                    <div class="kpi-sub">Membimbing sesi rutin murid</div>
                 </div>
             </div>
         </div>
@@ -103,16 +103,16 @@
                     <div class="filterField">
                         <label class="filterFieldLabel">Cari Jadwal</label>
                         <input type="text" name="search" value="{{ request('search') }}"
-                            placeholder="Cari siswa, tutor, catatan..." class="profileInput text-md">
+                            placeholder="Cari murid, tutor, catatan..." class="profileInput text-md">
                     </div>
 
                     <div class="filterField">
-                        <label class="filterFieldLabel">Filter Siswa</label>
-                        <select name="siswa_id" class="filterSelect" onchange="this.form.submit()">
-                            <option value="">Semua Siswa</option>
-                            @foreach ($siswas as $s)
-                                <option value="{{ $s->id }}" {{ request('siswa_id') == $s->id ? 'selected' : '' }}>
-                                    {{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})
+                        <label class="filterFieldLabel">Filter Murid</label>
+                        <select name="murid_id" class="filterSelect" onchange="this.form.submit()">
+                            <option value="">Semua Murid</option>
+                            @foreach (($murids ?? $siswas) as $s)
+                                <option value="{{ $s->id }}" {{ (request('murid_id') == $s->id || request('siswa_id') == $s->id) ? 'selected' : '' }}>
+                                    {{ $s->nama_murid ?? $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})
                                 </option>
                             @endforeach
                         </select>
@@ -154,7 +154,7 @@
                         <button type="submit" class="btn-filter-primary">
                             <ion-icon name="filter-outline"></ion-icon> Filter
                         </button>
-                        @if(request()->anyFilled(['search', 'siswa_id', 'tutor_id', 'hari', 'status']))
+                        @if(request()->anyFilled(['search', 'murid_id', 'siswa_id', 'tutor_id', 'hari', 'status']))
                             <a href="{{ route('admin.jadwal-rutin.index') }}" class="btn-filter-reset" title="Reset Filter">
                                 <ion-icon name="refresh-outline"></ion-icon> Reset
                             </a>
@@ -177,7 +177,7 @@
                     <thead>
                         <tr>
                             <th class="table-col-num">NO</th>
-                            <th>SISWA BIMBINGAN</th>
+                            <th>MURID BIMBINGAN</th>
                             <th>TUTOR PENGAMPU</th>
                             <th>HARI &amp; JAM BELAJAR</th>
                             <th>KATEGORI &amp; DURASI</th>
@@ -190,15 +190,16 @@
                         @forelse ($jadwalRutins as $index => $item)
                             @php
                                 $hariSlug = strtolower((string) $item->hari);
+                                $itemMurid = $item->murid ?? $item->siswa;
                             @endphp
                             <tr>
                                 <td class="text-center font-bold text-muted">{{ $jadwalRutins->firstItem() + $index }}</td>
                                 <td>
                                     <div class="font-bold text-base" style="color: var(--text);">
-                                        {{ $item->siswa->nama_siswa ?? '-' }}</div>
+                                        {{ $itemMurid->nama_murid ?? ($itemMurid->nama_siswa ?? '-') }}</div>
                                     <div class="text-xs text-muted mt-1">
-                                        No. Absen: <strong>{{ $item->siswa->no_absen ?? '-' }}</strong> ·
-                                        {{ $item->siswa->nama_kelas_lengkap ?? 'Reguler' }}
+                                        No. Absen: <strong>{{ $itemMurid->no_absen ?? '-' }}</strong> ·
+                                        {{ $itemMurid->nama_kelas_lengkap ?? 'Reguler' }}
                                     </div>
                                 </td>
                                 <td>
@@ -294,7 +295,7 @@
                                             <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
                                         </div>
                                         <div class="tableEmptyTitle">Belum Ada Jadwal Rutin KBM</div>
-                                        <div class="tableEmptyDesc">Belum ada master jadwal rutin siswa yang terdaftar sesuai
+                                        <div class="tableEmptyDesc">Belum ada master jadwal rutin murid yang terdaftar sesuai
                                             filter saat ini.</div>
                                     </div>
                                 </td>
@@ -316,14 +317,15 @@
             @forelse ($jadwalRutins as $index => $item)
                 @php
                     $hariSlug = strtolower((string) $item->hari);
+                    $itemMurid = $item->murid ?? $item->siswa;
                 @endphp
                 <div class="data-mobile-card">
                     <div class="dmc-header">
                         <div>
-                            <h3 class="dmc-title">{{ $item->siswa->nama_siswa ?? '-' }}</h3>
+                            <h3 class="dmc-title">{{ $itemMurid->nama_murid ?? ($itemMurid->nama_siswa ?? '-') }}</h3>
                             <div class="dmc-subtitle">
-                                No. Absen: <strong>{{ $item->siswa->no_absen ?? '-' }}</strong> ·
-                                {{ $item->siswa->nama_kelas_lengkap ?? 'Reguler' }}
+                                No. Absen: <strong>{{ $itemMurid->no_absen ?? '-' }}</strong> ·
+                                {{ $itemMurid->nama_kelas_lengkap ?? 'Reguler' }}
                             </div>
                         </div>
                         <div class="flex-col gap-1 flex-items-end">
@@ -372,7 +374,7 @@
                         @endif
 
                         <div class="dmc-field full">
-                            <div class="dmc-label">Jendela Presensi Masuk Siswa</div>
+                            <div class="dmc-label">Jendela Presensi Masuk Murid</div>
                             <div class="dmc-value text-xs font-semibold" style="color: #059669;">
                                 <ion-icon name="time-outline" style="vertical-align: middle;"></ion-icon>
                                 Absen dibuka 30 menit sebelum
@@ -427,7 +429,7 @@
                         <ion-icon name="calendar-outline" class="tableEmptyIcon"></ion-icon>
                     </div>
                     <div class="tableEmptyTitle">Belum Ada Jadwal Rutin KBM</div>
-                    <div class="tableEmptyDesc">Belum ada master jadwal rutin siswa yang terdaftar sesuai filter saat ini.</div>
+                    <div class="tableEmptyDesc">Belum ada master jadwal rutin murid yang terdaftar sesuai filter saat ini.</div>
                 </div>
             @endforelse
 
@@ -470,11 +472,11 @@
                 </div>
 
                 <div class="form-field-wrapper mb-3">
-                    <label class="form-field-label">Filter Siswa Khusus (Opsional)</label>
-                    <select name="siswa_id" class="filterSelect">
-                        <option value="">Semua Siswa Aktif</option>
-                        @foreach ($siswas as $s)
-                            <option value="{{ $s->id }}">{{ $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})</option>
+                    <label class="form-field-label">Filter Murid Khusus (Opsional)</label>
+                    <select name="murid_id" class="filterSelect">
+                        <option value="">Semua Murid Aktif</option>
+                        @foreach (($murids ?? $siswas) as $s)
+                            <option value="{{ $s->id }}">{{ $s->nama_murid ?? $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }})</option>
                         @endforeach
                     </select>
                 </div>

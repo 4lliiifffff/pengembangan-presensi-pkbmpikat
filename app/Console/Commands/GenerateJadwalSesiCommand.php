@@ -14,7 +14,8 @@ class GenerateJadwalSesiCommand extends Command
      */
     protected $signature = 'jadwal:generate-sesi
                             {--weeks=4 : Jumlah minggu ke depan yang akan digenerate}
-                            {--siswa_id= : Filter khusus siswa tertentu}
+                            {--murid_id= : Filter khusus murid tertentu}
+                            {--siswa_id= : Filter legacy khusus murid tertentu}
                             {--tutor_id= : Filter khusus tutor tertentu}
                             {--skip-holidays : Lewati hari libur tanpa membuat sesi}';
 
@@ -23,7 +24,7 @@ class GenerateJadwalSesiCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Generate instance Jadwal Sesi dari Master Jadwal Rutin mingguan untuk siswa dan tutor';
+    protected $description = 'Generate instance Jadwal Sesi dari Master Jadwal Rutin mingguan untuk murid dan tutor';
 
     /**
      * Execute the console command.
@@ -31,13 +32,13 @@ class GenerateJadwalSesiCommand extends Command
     public function handle(JadwalRutinService $service): int
     {
         $weeks = (int) $this->option('weeks') ?: 4;
-        $siswaId = $this->option('siswa_id') ? (int) $this->option('siswa_id') : null;
+        $muridId = $this->option('murid_id') ? (int) $this->option('murid_id') : ($this->option('siswa_id') ? (int) $this->option('siswa_id') : null);
         $tutorId = $this->option('tutor_id') ? (int) $this->option('tutor_id') : null;
         $skipHolidays = (bool) $this->option('skip-holidays');
 
         $this->info("Menjalankan generator sesi KBM untuk {$weeks} minggu ke depan...");
 
-        $result = $service->generateForNextWeeks($weeks, $siswaId, $tutorId, $skipHolidays);
+        $result = $service->generateForNextWeeks($weeks, $muridId, $tutorId, $skipHolidays);
 
         $this->table(
             ['Metrik', 'Jumlah'],

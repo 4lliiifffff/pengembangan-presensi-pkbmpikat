@@ -31,7 +31,8 @@ class PengajuanLupaLapor extends Model
      */
     protected $fillable = [
         'tutor_id',       // ID tutor yang mengajukan
-        'siswa_id',       // ID siswa yang diajar
+        'murid_id',       // ID murid yang diajar
+        'siswa_id',       // Legacy compatibility
         'tanggal',        // Tanggal mengajar retroaktif
         'jam_mulai',      // Jam mulai mengajar (format HH:MM)
         'jam_selesai',    // Jam selesai mengajar (format HH:MM)
@@ -39,6 +40,35 @@ class PengajuanLupaLapor extends Model
         'status',         // Status persetujuan: 'pending', 'disetujui', 'ditolak'
         'catatan_kepsek', // Catatan/alasan tanggapan dari Kepala Sekolah
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (PengajuanLupaLapor $pengajuan) {
+            if (empty($pengajuan->attributes['murid_id']) && ! empty($pengajuan->attributes['siswa_id'])) {
+                $pengajuan->attributes['murid_id'] = $pengajuan->attributes['siswa_id'];
+            }
+            unset($pengajuan->attributes['siswa_id']);
+        });
+
+        static::updating(function (PengajuanLupaLapor $pengajuan) {
+            if (isset($pengajuan->attributes['siswa_id'])) {
+                if (empty($pengajuan->attributes['murid_id']) && ! empty($pengajuan->attributes['siswa_id'])) {
+                    $pengajuan->attributes['murid_id'] = $pengajuan->attributes['siswa_id'];
+                }
+                unset($pengajuan->attributes['siswa_id']);
+            }
+        });
+    }
+
+    public function getSiswaIdAttribute(): ?int
+    {
+        return $this->attributes['murid_id'] ?? null;
+    }
+
+    public function setSiswaIdAttribute($value): void
+    {
+        $this->attributes['murid_id'] = $value;
+    }
 
     /**
      * Relasi: Pengajuan dimiliki oleh satu Tutor (BelongsTo).
@@ -49,10 +79,18 @@ class PengajuanLupaLapor extends Model
     }
 
     /**
-     * Relasi: Pengajuan terkait dengan satu Siswa (BelongsTo).
+     * Relasi: Pengajuan terkait dengan satu Murid (BelongsTo).
+     */
+    public function murid()
+    {
+        return $this->belongsTo(Murid::class, 'murid_id');
+    }
+
+    /**
+     * Alias relasi murid untuk backward compatibility.
      */
     public function siswa()
     {
-        return $this->belongsTo(Siswa::class);
+        return $this->murid();
     }
 }

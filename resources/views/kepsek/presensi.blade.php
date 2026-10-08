@@ -52,12 +52,12 @@
                     </div>
 
                     <div class="filterField">
-                        <label class="filterFieldLabel">Siswa</label>
+                        <label class="filterFieldLabel">Murid</label>
                         <select name="siswa_id" class="filterSelect">
-                            <option value="">Semua Siswa</option>
+                            <option value="">Semua Murid</option>
                             @foreach ($siswas as $siswa)
                                 <option value="{{ $siswa->id }}" {{ $siswaId == $siswa->id ? 'selected' : '' }}>
-                                    {{ $siswa->nama_siswa }}
+                                    {{ $siswa->nama_murid ?? $siswa->nama_siswa }}
                                 </option>
                             @endforeach
                         </select>
@@ -87,7 +87,7 @@
 
         {{-- ── Section Title ── --}}
         <div class="sectionRow">
-            <h2>Log Presensi Tutor &amp; Siswa</h2>
+            <h2>Log Presensi Tutor &amp; Murid</h2>
             <span class="badgeCount">{{ $presensi->total() }} Sesi Terdata</span>
         </div>
 
@@ -100,7 +100,7 @@
                             <th class="table-col-num">NO</th>
                             <th>TANGGAL</th>
                             <th>TUTOR</th>
-                            <th>SISWA</th>
+                            <th>MURID</th>
                             <th>JAM MASUK</th>
                             <th>JAM SELESAI</th>
                             <th>FOTO BUKTI</th>
@@ -111,7 +111,8 @@
                         @forelse($presensi as $index => $item)
                             @php
                                 $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
-                                $siswaName = $item->siswa->nama_siswa ?? '-';
+                                $itemMurid = $item->murid ?? $item->siswa;
+                                $siswaName = $itemMurid->nama_murid ?? ($itemMurid->nama_siswa ?? '-');
                                 $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->format('d/m/Y');
                                 $jamMasuk = $item->jam_mulai ? \Carbon\Carbon::parse($item->jam_mulai)->format('H:i') : '-';
                                 $jamSelesai = $item->jam_selesai
@@ -191,7 +192,8 @@
             @forelse($presensi as $index => $item)
                 @php
                     $tutorName = $item->tutor->nama_lengkap ?? 'Tutor';
-                    $siswaName = $item->siswa->nama_siswa ?? '-';
+                    $itemMurid = $item->murid ?? $item->siswa;
+                    $siswaName = $itemMurid->nama_murid ?? ($itemMurid->nama_siswa ?? '-');
                     $tgl = \Carbon\Carbon::parse($item->tgl_presensi)->format('d/m/Y');
                     $jamMasuk = $item->jam_mulai ? \Carbon\Carbon::parse($item->jam_mulai)->format('H:i') : '-';
                     $jamSelesai = $item->jam_selesai
@@ -208,7 +210,7 @@
                     <div class="dmc-header">
                         <div>
                             <h3 class="dmc-title">{{ $tutorName }}</h3>
-                            <div class="dmc-subtitle">{{ $tgl }} &bull; Siswa: <b class="text-dark">{{ $siswaName }}</b></div>
+                            <div class="dmc-subtitle">{{ $tgl }} &bull; Murid: <b class="text-dark">{{ $siswaName }}</b></div>
                         </div>
                         <span class="text-xs font-bold text-muted">
                             #{{ $presensi->firstItem() + $index }}

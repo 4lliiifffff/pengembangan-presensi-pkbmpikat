@@ -57,14 +57,16 @@ class SiswaObserver
      */
     protected function syncUserAccount(Siswa $siswa): void
     {
-        $isActive = (! $siswa->status_siswa || $siswa->status_siswa === 'aktif') ? 1 : 0;
+        $namaMurid = $siswa->nama_murid ?? $siswa->nama_siswa;
+        $statusMurid = $siswa->status_murid ?? $siswa->status_siswa;
+        $isActive = (! $statusMurid || $statusMurid === 'aktif') ? 1 : 0;
 
         // 1. Jika sudah punya user_id dan user ditemukan, update data user
         if ($siswa->user_id) {
             $user = User::find($siswa->user_id);
             if ($user) {
                 $user->updateQuietly([
-                    'nama_lengkap' => $siswa->nama_siswa,
+                    'nama_lengkap' => $namaMurid,
                     'no_hp' => $siswa->no_hp,
                     'is_active' => $isActive,
                 ]);
@@ -85,14 +87,14 @@ class SiswaObserver
         if ($existingUserByEmail && $existingUserByEmail->role === 'siswa') {
             $user = $existingUserByEmail;
             $user->updateQuietly([
-                'nama_lengkap' => $siswa->nama_siswa,
+                'nama_lengkap' => $namaMurid,
                 'no_hp' => $siswa->no_hp,
                 'is_active' => $isActive,
             ]);
         } elseif ($existingUserByNik && $existingUserByNik->role === 'siswa') {
             $user = $existingUserByNik;
             $user->updateQuietly([
-                'nama_lengkap' => $siswa->nama_siswa,
+                'nama_lengkap' => $namaMurid,
                 'no_hp' => $siswa->no_hp,
                 'is_active' => $isActive,
             ]);
@@ -106,7 +108,7 @@ class SiswaObserver
 
             $user = User::create([
                 'nik' => $nik,
-                'nama_lengkap' => $siswa->nama_siswa,
+                'nama_lengkap' => $namaMurid,
                 'email' => $email,
                 'password' => Hash::make('password123'),
                 'role' => 'siswa',

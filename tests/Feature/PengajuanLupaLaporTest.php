@@ -45,7 +45,7 @@ class PengajuanLupaLaporTest extends TestCase
         $response->assertRedirect(route('tutor.lupa-lapor'));
         $this->assertDatabaseHas('pengajuan_lupa_lapor', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'status' => 'pending',
         ]);
     }
@@ -95,7 +95,7 @@ class PengajuanLupaLaporTest extends TestCase
         // Check auto-upsert into presensis table
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'tgl_presensi' => $pengajuan->tanggal,
             'jam_mulai' => '09:00',
             'jam_selesai' => '11:00',

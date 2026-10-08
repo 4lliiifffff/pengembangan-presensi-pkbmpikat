@@ -186,7 +186,7 @@
                                 <td class="text-right">
                                     <div class="d-flex gap-1 justify-end">
                                         <a href="{{ route($rolePrefix . '.payroll.show', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
-                                            class="smallBtn edit btn-table-action" title="Lihat rincian per siswa">
+                                            class="smallBtn edit btn-table-action" title="Lihat rincian per murid">
                                             <ion-icon name="eye-outline"></ion-icon> Detail
                                         </a>
                                         <a href="{{ route($rolePrefix . '.payroll.slip-pdf', [$p['tutor']->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"

@@ -94,18 +94,18 @@
             </div>
         </div>
 
-        {{-- ── Rincian Per Siswa ── --}}
+        {{-- ── Rincian Per Murid ── --}}
         <div class="section-card">
             <h4 class="section-card-title">
                 <ion-icon name="school-outline" class="text-primary"></ion-icon>
-                Rincian Honorarium Per Siswa
+                Rincian Honorarium Per Murid
             </h4>
 
-            @forelse($payroll['siswa_summary'] as $s)
+            @forelse($payroll['murid_summary'] ?? ($payroll['siswa_summary'] ?? []) as $s)
                 <div class="student-item-row">
                     <div>
                         <div class="sir-name d-flex items-center gap-1">
-                            <span>{{ $s['nama_siswa'] }}</span>
+                            <span>{{ $s['nama_murid'] ?? ($s['nama_siswa'] ?? 'Murid') }}</span>
                             @if($s['is_abk'] ?? false)
                                 <span class="app-badge badge-abk">ABK</span>
                             @endif
@@ -141,7 +141,7 @@
                     <div class="session-item-row">
                         <div>
                             <div class="d-flex items-center gap-1">
-                                <strong class="text-dark">{{ $row['nama_siswa'] }}</strong>
+                                <strong class="text-dark">{{ $row['nama_murid'] ?? ($row['nama_siswa'] ?? 'Murid') }}</strong>
                                 @if($row['is_abk'] ?? false)
                                     <span class="app-badge badge-abk">ABK</span>
                                 @endif

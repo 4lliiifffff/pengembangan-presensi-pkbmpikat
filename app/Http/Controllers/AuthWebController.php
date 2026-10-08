@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\kelas;
 use App\Models\Kepala_Sekolah;
 use App\Models\Magang;
+use App\Models\Murid;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
@@ -92,42 +93,49 @@ class AuthWebController extends Controller
             ], $remember);
         }
 
-        // 3. Percobaan login variasi NIK / Nomor Absen Siswa (e.g. SW001, sw001, 001, SW0001, dll.)
+        // 3. Percobaan login variasi NIK / Nomor Absen Siswa/Murid (e.g. SW001, sw001, 001, SW0001, MRD001, siswa001@pkbmpikat.com, dll.)
         if (! $attempt) {
-            $cleanNo = preg_replace('/^sw/i', '', $username);
+            $extracted = preg_replace('/(@pkbmpikat\.com)$/i', '', $username);
+            $cleanNo = preg_replace('/^(sw|mrd|siswa|murid)/i', '', $extracted);
             $cleanNo = ltrim($cleanNo, '0') ?: $cleanNo;
             $padded3 = str_pad($cleanNo, 3, '0', STR_PAD_LEFT);
             $padded4 = str_pad($cleanNo, 4, '0', STR_PAD_LEFT);
 
-            // Cari di tabel Siswa
-            $siswa = Siswa::where('no_absen', $username)
+            // Cari di tabel Murid / Siswa
+            $murid = Murid::where('no_absen', $username)
+                ->orWhere('no_absen', $extracted)
                 ->orWhere('no_absen', $cleanNo)
                 ->orWhere('no_absen', $padded3)
                 ->orWhere('no_absen', $padded4)
                 ->first();
 
-            if ($siswa && $siswa->user_id) {
+            if ($murid && $murid->user_id) {
                 $attempt = Auth::attempt([
-                    'id' => $siswa->user_id,
+                    'id' => $murid->user_id,
                     'password' => $password,
                 ], $remember);
             }
 
             // Jika belum ketemu, cari di tabel Users dengan variasi NIK
             if (! $attempt) {
-                $userSiswa = User::where('role', 'siswa')
+                $userMurid = User::whereIn('role', ['murid', 'siswa'])
                     ->where(function ($q) use ($username, $cleanNo, $padded3, $padded4) {
-                        $q->where('nik', 'SW'.$padded3)
+                        $q->where('nik', 'MRD'.$padded3)
+                            ->orWhere('nik', 'MRD'.$padded4)
+                            ->orWhere('nik', 'MRD'.$cleanNo)
+                            ->orWhere('nik', 'SW'.$padded3)
                             ->orWhere('nik', 'SW'.$padded4)
                             ->orWhere('nik', 'SW'.$cleanNo)
                             ->orWhere('nik', $username)
+                            ->orWhere('email', 'murid'.$cleanNo.'@pkbmpikat.com')
+                            ->orWhere('email', 'murid'.$padded3.'@pkbmpikat.com')
                             ->orWhere('email', 'siswa'.$cleanNo.'@pkbmpikat.com')
                             ->orWhere('email', 'siswa'.$padded3.'@pkbmpikat.com');
                     })->first();
 
-                if ($userSiswa) {
+                if ($userMurid) {
                     $attempt = Auth::attempt([
-                        'id' => $userSiswa->id,
+                        'id' => $userMurid->id,
                         'password' => $password,
                     ], $remember);
                 }
@@ -207,8 +215,8 @@ class AuthWebController extends Controller
                 ->with('success', 'Login berhasil. Selamat datang!');
         }
 
-        if ($role === 'siswa') {
-            return redirect()->route('siswa.dashboard')
+        if ($role === 'murid' || $role === 'siswa') {
+            return redirect()->route('murid.dashboard')
                 ->with('success', 'Login berhasil. Selamat datang!');
         }
 
@@ -328,8 +336,10 @@ class AuthWebController extends Controller
                 }
                 Siswa::firstOrCreate(['user_id' => $user->id], [
                     'no_absen' => '001',
+                    'nama_murid' => $user->nama_lengkap,
                     'nama_siswa' => $user->nama_lengkap,
                     'kelas_id' => $kelasId,
+                    'status_murid' => 'aktif',
                     'status_siswa' => 'aktif',
                     'no_hp' => $user->no_hp ?? '081234567001',
                     'nama_wali' => 'Bambang Pratama',
@@ -444,8 +454,10 @@ class AuthWebController extends Controller
                 if (class_exists(Siswa::class) && Schema::hasTable((new Siswa)->getTable())) {
                     Siswa::firstOrCreate(['user_id' => $user->id], [
                         'no_absen' => '001',
+                        'nama_murid' => $user->nama_lengkap,
                         'nama_siswa' => $user->nama_lengkap,
                         'kelas_id' => $kelasId,
+                        'status_murid' => 'aktif',
                         'status_siswa' => 'aktif',
                         'no_hp' => '081234567001',
                         'nama_wali' => 'Bambang Pratama',

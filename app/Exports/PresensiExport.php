@@ -52,7 +52,7 @@ class PresensiExport implements FromCollection, WithCustomStartCell, WithEvents,
             $query->where('tutor_id', $this->tutorId);
         }
         if ($this->siswaId) {
-            $query->where('siswa_id', $this->siswaId);
+            $query->where('murid_id', $this->siswaId);
         }
         if ($this->statusFilter) {
             if ($this->statusFilter === 'hadir') {
@@ -129,8 +129,9 @@ class PresensiExport implements FromCollection, WithCustomStartCell, WithEvents,
 
         $tutorName = $presensi->tutor->nama_lengkap ?? ($presensi->tutor->name ?? 'Tutor');
         $tutorNik = $presensi->tutor->nik ?? '-';
-        $siswaName = $presensi->siswa->nama_siswa ?? '-';
-        $kelasName = $presensi->siswa->relKelas->nama_kelas ?? '-';
+        $murid = $presensi->murid ?? $presensi->siswa;
+        $siswaName = $murid->nama_murid ?? ($murid->nama_siswa ?? '-');
+        $kelasName = $murid->relKelas->nama_kelas ?? ($presensi->siswa->relKelas->nama_kelas ?? '-');
         $modaLabel = $presensi->moda_label ?? ucfirst(str_replace('_', ' ', (string) ($presensi->moda_pembelajaran ?? 'Tatap Muka')));
 
         return [
@@ -158,7 +159,7 @@ class PresensiExport implements FromCollection, WithCustomStartCell, WithEvents,
             'Tanggal',
             'Nama Tutor',
             'NIK Tutor',
-            'Nama Siswa',
+            'Nama Murid',
             'Kelas / Rombel',
             'Moda Pembelajaran',
             'Jam Masuk',

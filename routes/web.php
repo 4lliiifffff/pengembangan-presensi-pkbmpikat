@@ -11,8 +11,8 @@ use App\Http\Controllers\Admin\KelasController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\LokasiPresensiController;
 use App\Http\Controllers\Admin\MagangController;
+use App\Http\Controllers\Admin\MuridController;
 use App\Http\Controllers\Admin\PayrollController;
-use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Auth\SimpikatSsoController;
 use App\Http\Controllers\AuthWebController;
 use App\Http\Controllers\DashboardController;
@@ -20,10 +20,10 @@ use App\Http\Controllers\KaryawanPresensiController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
 use App\Http\Controllers\Magang\MagangDashboardController;
 use App\Http\Controllers\Magang\MagangPresensiController;
+use App\Http\Controllers\Murid\MuridDashboardController;
+use App\Http\Controllers\Murid\MuridPresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushNotificationController;
-use App\Http\Controllers\Siswa\SiswaDashboardController;
-use App\Http\Controllers\Siswa\SiswaPresensiController;
 use App\Http\Controllers\Tutor\JadwalSesiController;
 use App\Http\Controllers\Tutor\LupaLaporController;
 use App\Http\Controllers\Tutor\PengajuanIzinController;
@@ -57,7 +57,7 @@ Route::get('/', function () {
             'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
             'tutor' => redirect()->route('tutor.dashboard'),
             'magang' => redirect()->route('magang.dashboard'),
-            'siswa' => redirect()->route('siswa.dashboard'),
+            'murid', 'siswa' => redirect()->route('murid.dashboard'),
             default => view('auth.login'),
         };
     }
@@ -72,7 +72,7 @@ Route::get('/login', function () {
             'kepala_sekolah' => redirect()->route('kepsek.dashboard'),
             'tutor' => redirect()->route('tutor.dashboard'),
             'magang' => redirect()->route('magang.dashboard'),
-            'siswa' => redirect()->route('siswa.dashboard'),
+            'murid', 'siswa' => redirect()->route('murid.dashboard'),
             default => view('auth.login'),
         };
     }
@@ -106,12 +106,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/laporan/import/excel', [LaporanController::class, 'importExcel'])->name('laporan.importExcel');
     Route::get('/laporan/export/pdf', [LaporanController::class, 'exportPdf'])->name('laporan.exportPdf');
 
-    // Siswa Spreadsheet Routes
-    Route::get('/siswa/export/excel', [SiswaController::class, 'exportExcel'])->name('siswa.exportExcel');
-    Route::get('/siswa/template/excel', [SiswaController::class, 'downloadTemplate'])->name('siswa.downloadTemplate');
-    Route::post('/siswa/import/excel', [SiswaController::class, 'importExcel'])->name('siswa.importExcel');
-    Route::post('/siswa/{siswa}/reset-password', [SiswaController::class, 'resetPassword'])->name('siswa.resetPassword');
-    Route::resource('siswa', SiswaController::class);
+    // Murid Spreadsheet & Resource Routes
+    Route::get('/murid/export/excel', [MuridController::class, 'exportExcel'])->name('murid.exportExcel');
+    Route::get('/murid/template/excel', [MuridController::class, 'downloadTemplate'])->name('murid.downloadTemplate');
+    Route::post('/murid/import/excel', [MuridController::class, 'importExcel'])->name('murid.importExcel');
+    Route::post('/murid/{murid}/reset-password', [MuridController::class, 'resetPassword'])->name('murid.resetPassword');
+    Route::resource('murid', MuridController::class);
+
+    // Siswa Spreadsheet & Resource Routes (Legacy Alias)
+    Route::get('/siswa/export/excel', [MuridController::class, 'exportExcel'])->name('siswa.exportExcel');
+    Route::get('/siswa/template/excel', [MuridController::class, 'downloadTemplate'])->name('siswa.downloadTemplate');
+    Route::post('/siswa/import/excel', [MuridController::class, 'importExcel'])->name('siswa.importExcel');
+    Route::post('/siswa/{siswa}/reset-password', [MuridController::class, 'resetPassword'])->name('siswa.resetPassword');
+    Route::resource('siswa', MuridController::class);
 
     Route::resource('kelas', KelasController::class);
 
@@ -138,7 +145,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/pengajuan-izin', [IzinController::class, 'index'])->name('pengajuan-izin');
     Route::post('/izin', [IzinController::class, 'store'])->name('izin.store');
     Route::delete('/izin/{id}', [IzinController::class, 'destroy'])->name('izin.destroy');
-    Route::get('/izin/siswa/{tutorId}', [IzinController::class, 'getSiswaByTutor'])->name('izin.siswa');
+    Route::get('/izin/murid/{tutorId}', [IzinController::class, 'getMuridByTutor'])->name('izin.murid');
+    Route::get('/izin/siswa/{tutorId}', [IzinController::class, 'getMuridByTutor'])->name('izin.siswa');
 
     // Modul Payroll & Honorarium
     Route::get('/payroll', [PayrollController::class, 'index'])->name('payroll.index');
@@ -167,7 +175,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/jadwal-kerja/{jadwalKerja}/toggle-status', [JadwalKerjaController::class, 'toggleStatus'])->name('jadwal-kerja.toggleStatus');
     Route::resource('jadwal-kerja', JadwalKerjaController::class);
 
-    // Master Jadwal Rutin KBM Siswa (Recurring Weekly Schedule)
+    // Master Jadwal Rutin KBM Murid (Recurring Weekly Schedule)
     Route::post('/jadwal-rutin/generate-manual', [JadwalRutinController::class, 'generateManual'])->name('jadwal-rutin.generate-manual');
     Route::patch('/jadwal-rutin/{jadwalRutin}/toggle-status', [JadwalRutinController::class, 'toggleStatus'])->name('jadwal-rutin.toggleStatus');
     Route::resource('jadwal-rutin', JadwalRutinController::class);
@@ -188,15 +196,28 @@ Route::middleware(['auth', 'role:magang'])->prefix('magang')->name('magang.')->g
     Route::post('/presensi', [MagangPresensiController::class, 'store'])->name('presensi.store');
 });
 
-Route::middleware(['auth', 'role:siswa'])->prefix('siswa')->name('siswa.')->group(function () {
-    Route::get('/dashboard', [SiswaDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/jadwal', [SiswaDashboardController::class, 'jadwal'])->name('jadwal');
-    Route::get('/riwayat', [SiswaDashboardController::class, 'riwayat'])->name('riwayat');
-    Route::get('/profil', [SiswaDashboardController::class, 'profil'])->name('profil');
-    Route::post('/profil/password', [SiswaDashboardController::class, 'updatePassword'])->name('profil.password');
-    Route::get('/presensi', [SiswaPresensiController::class, 'index'])->name('presensi');
-    Route::get('/presensi/foto', [SiswaPresensiController::class, 'foto'])->name('presensi.foto');
-    Route::post('/presensi', [SiswaPresensiController::class, 'store'])->name('presensi.store');
+// Portal Murid Routes
+Route::middleware(['auth', 'role:murid'])->prefix('murid')->name('murid.')->group(function () {
+    Route::get('/dashboard', [MuridDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/jadwal', [MuridDashboardController::class, 'jadwal'])->name('jadwal');
+    Route::get('/riwayat', [MuridDashboardController::class, 'riwayat'])->name('riwayat');
+    Route::get('/profil', [MuridDashboardController::class, 'profil'])->name('profil');
+    Route::post('/profil/password', [MuridDashboardController::class, 'updatePassword'])->name('profil.password');
+    Route::get('/presensi', [MuridPresensiController::class, 'index'])->name('presensi');
+    Route::get('/presensi/foto', [MuridPresensiController::class, 'foto'])->name('presensi.foto');
+    Route::post('/presensi', [MuridPresensiController::class, 'store'])->name('presensi.store');
+});
+
+// Portal Siswa Legacy Routes (Backward Compatibility)
+Route::middleware(['auth', 'role:murid,siswa'])->prefix('siswa')->name('siswa.')->group(function () {
+    Route::get('/dashboard', [MuridDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/jadwal', [MuridDashboardController::class, 'jadwal'])->name('jadwal');
+    Route::get('/riwayat', [MuridDashboardController::class, 'riwayat'])->name('riwayat');
+    Route::get('/profil', [MuridDashboardController::class, 'profil'])->name('profil');
+    Route::post('/profil/password', [MuridDashboardController::class, 'updatePassword'])->name('profil.password');
+    Route::get('/presensi', [MuridPresensiController::class, 'index'])->name('presensi');
+    Route::get('/presensi/foto', [MuridPresensiController::class, 'foto'])->name('presensi.foto');
+    Route::post('/presensi', [MuridPresensiController::class, 'store'])->name('presensi.store');
 });
 
 Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {

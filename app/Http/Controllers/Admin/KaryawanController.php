@@ -22,10 +22,14 @@ class KaryawanController extends Controller
         $status = $request->query('status', 'semua');
         $role = $request->query('role', 'semua');
 
-        $karyawanQuery = User::with(['siswa.relKelas.jenjangPaket']);
+        $karyawanQuery = User::with(['murid.relKelas.jenjangPaket', 'siswa.relKelas.jenjangPaket']);
 
         if ($role && $role !== 'semua') {
-            $karyawanQuery->where('role', $role);
+            if ($role === 'murid' || $role === 'siswa') {
+                $karyawanQuery->whereIn('role', ['murid', 'siswa']);
+            } else {
+                $karyawanQuery->where('role', $role);
+            }
         }
 
         if ($status !== 'semua' && Schema::hasColumn('users', 'is_active')) {
@@ -51,7 +55,8 @@ class KaryawanController extends Controller
         $nonaktif = $allUsers->where('is_active', 0)->count();
 
         $tutorCount = $allUsers->where('role', 'tutor')->count();
-        $siswaCount = $allUsers->where('role', 'siswa')->count();
+        $muridCount = $allUsers->whereIn('role', ['murid', 'siswa'])->count();
+        $siswaCount = $muridCount;
         $magangCount = $allUsers->where('role', 'magang')->count();
         $adminCount = $allUsers->where('role', 'admin')->count();
         $kepsekCount = $allUsers->where('role', 'kepala_sekolah')->count();
@@ -62,6 +67,7 @@ class KaryawanController extends Controller
             'aktif',
             'nonaktif',
             'tutorCount',
+            'muridCount',
             'siswaCount',
             'magangCount',
             'adminCount',

@@ -70,6 +70,7 @@ class PresensiImport implements ToCollection, WithHeadingRow, WithValidation
 
                 Presensi::create([
                     'tutor_id' => $tutor->id,
+                    'murid_id' => $siswa->id,
                     'siswa_id' => $siswa->id,
                     'tgl_presensi' => $tglPresensi,
                     'jam_mulai' => $jamMulai ?: '08:00',
@@ -89,6 +90,7 @@ class PresensiImport implements ToCollection, WithHeadingRow, WithValidation
     {
         return [
             '*.nik_tutor_wajib' => ['nullable'],
+            '*.nomor_absen_murid_nis_wajib' => ['nullable'],
             '*.nomor_absen_siswa_nis_wajib' => ['nullable'],
         ];
     }

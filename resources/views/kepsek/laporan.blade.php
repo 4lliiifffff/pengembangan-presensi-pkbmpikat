@@ -75,12 +75,12 @@
                     </div>
 
                     <div class="filterField">
-                        <label class="filterFieldLabel">Siswa</label>
-                        <select name="siswa_id" class="filterSelect" aria-label="Pilih Siswa">
-                            <option value="">Semua Siswa</option>
+                        <label class="filterFieldLabel">Murid</label>
+                        <select name="siswa_id" class="filterSelect" aria-label="Pilih Murid">
+                            <option value="">Semua Murid</option>
                             @foreach($allSiswas as $s_item)
                                 <option value="{{ $s_item->id }}" {{ $siswaId == $s_item->id ? 'selected' : '' }}>
-                                    {{ $s_item->nama_siswa }}</option>
+                                    {{ $s_item->nama_murid ?? $s_item->nama_siswa }}</option>
                             @endforeach
                         </select>
                     </div>

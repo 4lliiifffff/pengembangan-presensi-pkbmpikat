@@ -4,12 +4,12 @@ namespace App\Console\Commands;
 
 use App\Models\JadwalSesi;
 use App\Models\Magang;
+use App\Models\Murid;
 use App\Models\PengajuanIzinSakit;
 use App\Models\PengajuanLupaLapor;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
-use App\Models\PresensiMandiriSiswa;
-use App\Models\Siswa;
+use App\Models\PresensiMandiriMurid;
 use App\Models\Tutor;
 use App\Services\WebPushService;
 use Carbon\Carbon;
@@ -24,7 +24,7 @@ class SendAbsenReminderCommand extends Command
      */
     protected $signature = 'presensi:send-reminder 
                             {--type=morning : Tipe pengingat: morning, clockout, pending-approvals} 
-                            {--role=all : Target role: all, tutor, siswa, magang, kepsek} 
+                            {--role=all : Target role: all, tutor, murid, siswa, magang, kepsek} 
                             {--user_id= : ID user spesifik} 
                             {--tutor_id= : ID spesifik tutor (kompatibilitas)} 
                             {--message= : Custom pesan pengingat}';
@@ -34,7 +34,7 @@ class SendAbsenReminderCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Kirim notifikasi pengingat presensi dan jadwal Web Push multi-role (Siswa, Tutor, Magang, Kepsek)';
+    protected $description = 'Kirim notifikasi pengingat presensi dan jadwal Web Push multi-role (Murid, Tutor, Magang, Kepsek)';
 
     /**
      * Execute the console command.
@@ -99,7 +99,7 @@ class SendAbsenReminderCommand extends Command
                 }
 
                 // Cek jadwal sesi hari ini
-                $sesiHariIni = JadwalSesi::with(['siswa', 'kategoriTutorial'])
+                $sesiHariIni = JadwalSesi::with(['murid', 'kategoriTutorial'])
                     ->where('tutor_id', $tutor->id)
                     ->whereDate('tanggal_rencana', $today)
                     ->where('status', 'terjadwal')
@@ -134,27 +134,27 @@ class SendAbsenReminderCommand extends Command
             }
         }
 
-        // 2. Pengingat Sesi Belajar untuk Siswa
-        if (in_array($targetRole, ['all', 'siswa'])) {
-            $siswas = Siswa::with('user')
-                ->where('status_siswa', 'aktif')
+        // 2. Pengingat Sesi Belajar untuk Murid
+        if (in_array($targetRole, ['all', 'murid', 'siswa'])) {
+            $murids = Murid::with('user')
+                ->where('status_murid', 'aktif')
                 ->whereHas('user', fn ($q) => $q->where('is_active', 1)->when($userId, fn ($u) => $u->where('id', $userId)))
                 ->get();
 
-            foreach ($siswas as $siswa) {
-                if (! $siswa->user) {
+            foreach ($murids as $murid) {
+                if (! $murid->user) {
                     continue;
                 }
 
-                // Cek apakah siswa punya sesi hari ini
+                // Cek apakah murid punya sesi hari ini
                 $sesiHariIni = JadwalSesi::with(['tutor', 'kategoriTutorial'])
-                    ->where('siswa_id', $siswa->id)
+                    ->where('murid_id', $murid->id)
                     ->whereDate('tanggal_rencana', $today)
                     ->where('status', 'terjadwal')
                     ->orderBy('jam_masuk_rencana')
                     ->first();
 
-                $hasAbsenToday = PresensiMandiriSiswa::where('siswa_id', $siswa->id)
+                $hasAbsenToday = PresensiMandiriMurid::where('murid_id', $murid->id)
                     ->whereDate('tgl_presensi', $today)
                     ->exists();
 
@@ -163,16 +163,16 @@ class SendAbsenReminderCommand extends Command
                     $tutorName = $sesiHariIni->tutor?->nama_lengkap ?? 'Tutor PKBM';
                     $mapel = $sesiHariIni->kategoriTutorial?->nama_kategori ?? 'Tutorial KBM';
 
-                    $body = $customMessage ?: "Halo {$siswa->nama_siswa}, Anda memiliki jadwal belajar {$mapel} bersama Tutor {$tutorName} pukul {$jamMulai} WIB hari ini. Semangat belajar!";
+                    $body = $customMessage ?: "Halo {$murid->nama_murid}, Anda memiliki jadwal belajar {$mapel} bersama Tutor {$tutorName} pukul {$jamMulai} WIB hari ini. Semangat belajar!";
 
-                    $sent = $webPushService->sendToUser($siswa->user, [
+                    $sent = $webPushService->sendToUser($murid->user, [
                         'title' => '📚 Jadwal Belajar Hari Ini',
                         'body' => $body,
-                        'url' => route('siswa.jadwal'),
+                        'url' => route('murid.jadwal'),
                     ]);
 
                     if ($sent > 0) {
-                        $this->line(" → Siswa {$siswa->nama_siswa}: terkirim {$sent} perangkat");
+                        $this->line(" → Murid {$murid->nama_murid}: terkirim {$sent} perangkat");
                         $sentCount += $sent;
                     }
                 }

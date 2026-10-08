@@ -104,7 +104,7 @@
                     <div class="riwayatCardHeader">
                         <div>
                             <div class="riwayatDateTitle">{{ $hari }}</div>
-                            <div class="riwayatDateSub">Sesi Mengajar • {{ $p->siswa?->nama_siswa ?? 'Siswa' }}</div>
+                            <div class="riwayatDateSub">Sesi Mengajar • {{ $p->murid?->nama_murid ?? ($p->siswa?->nama_siswa ?? 'Murid') }}</div>
                         </div>
                         <span class="riwayatStatusBadge {{ $statusClass }}">
                             {{ $statusLabel }}

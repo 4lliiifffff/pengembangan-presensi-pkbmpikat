@@ -171,11 +171,11 @@ class ShiftPresensiTest extends TestCase
 
         $this->assertDatabaseHas('presensi', [
             'tutor_id' => $tutor->id,
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'status' => 'hadir',
         ]);
 
-        $presensi = Presensi::where('tutor_id', $tutor->id)->where('siswa_id', $siswa->id)->first();
+        $presensi = Presensi::where('tutor_id', $tutor->id)->where('murid_id', $siswa->id)->first();
         $this->assertNotNull($presensi->shift_nama);
         $this->assertNotNull($presensi->status_kehadiran);
         $this->assertEquals('Sesi Belajar Mandiri', $presensi->shift_nama);

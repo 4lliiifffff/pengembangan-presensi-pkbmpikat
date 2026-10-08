@@ -1,11 +1,12 @@
 @extends('layouts.presensi')
 
-@section('title', 'Jadwal & Agenda Kegiatan Siswa')
+@section('title', 'Jadwal & Agenda Kegiatan Murid')
 
 @php
     use Carbon\Carbon;
     $user = auth()->user();
-    $displayName = (string) ($siswa->nama_siswa ?? ($siswa->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Siswa PKBM'))));
+    $murid = $murid ?? ($user->murid ?? $user->siswa);
+    $displayName = (string) ($murid->nama_murid ?? ($murid->nama_siswa ?? ($murid->nama_lengkap ?? ($user->nama_lengkap ?? ($user->name ?? 'Murid PKBM')))));
     $initial = strtoupper(substr($displayName, 0, 1));
 
     $tz = 'Asia/Jakarta';
@@ -41,9 +42,9 @@
 @push('topbar')
     @include('layouts.components.navigasi_atas', [
         'titleName' => 'Jadwal & Agenda',
-        'subTitle' => $displayName . ' • Siswa PKBM',
-        'dashRoute' => route('siswa.dashboard'),
-        'backRoute' => route('siswa.dashboard'),
+        'subTitle' => $displayName . ' • Murid PKBM',
+        'dashRoute' => route('murid.dashboard'),
+        'backRoute' => route('murid.dashboard'),
     ])
 @endpush
 
@@ -55,16 +56,16 @@
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
                     <div class="laporanHeaderLabel">JADWAL BELAJAR &amp; AGENDA KEGIATAN</div>
-                    <h1 class="laporanHeaderTitle">Jadwal Siswa PKBM</h1>
+                    <h1 class="laporanHeaderTitle">Jadwal Murid PKBM</h1>
                     <div class="laporanHeaderSub">
-                        {{ $siswa?->kelas?->nama_kelas ?? 'Kelas Siswa' }} • {{ $siswa?->masterJenjang?->nama_jenjang ?? ($siswa?->jenjang_paket_label ?? 'Paket Belajar') }}
+                        {{ $murid?->kelas?->nama_kelas ?? 'Kelas Murid' }} • {{ $murid?->masterJenjang?->nama_jenjang ?? ($murid?->jenjang_paket_label ?? 'Paket Belajar') }}
                     </div>
                     <p class="laporanHeaderDesc">
                         Pantau sesi belajar tutorial bersama tutor, jadwal kelas pengganti, dan kalender kegiatan resmi PKBM PIKAT.
                     </p>
                 </div>
                 <div class="laporanHeaderActions">
-                    <a href="{{ route('siswa.presensi') }}" class="profileBtnPrimary">
+                    <a href="{{ route('murid.presensi') }}" class="profileBtnPrimary">
                         <ion-icon name="camera-outline"></ion-icon> Presensi Mandiri
                     </a>
                 </div>
@@ -77,7 +78,7 @@
             <div class="agendaHeaderCard">
                 <!-- Header Navigasi Bulan -->
                 <div class="agendaMonthNav">
-                    <a href="{{ route('siswa.jadwal', ['tanggal' => $prevMonthDate]) }}" class="agendaNavBtn"
+                    <a href="{{ route('murid.jadwal', ['tanggal' => $prevMonthDate]) }}" class="agendaNavBtn"
                         title="Bulan Sebelumnya">
                         <ion-icon name="chevron-back-outline"></ion-icon>
                     </a>
@@ -85,7 +86,7 @@
                         <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
                         <span class="text-xs font-bold text-muted">Kalender Belajar &amp; Kegiatan</span>
                     </div>
-                    <a href="{{ route('siswa.jadwal', ['tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
+                    <a href="{{ route('murid.jadwal', ['tanggal' => $nextMonthDate]) }}" class="agendaNavBtn"
                         title="Bulan Berikutnya">
                         <ion-icon name="chevron-forward-outline"></ion-icon>
                     </a>
@@ -116,7 +117,7 @@
                             $eventCount = (int) ($monthCounts[$dStr] ?? 0);
                             $hasEvent = $eventCount > 0;
                         @endphp
-                        <a href="{{ route('siswa.jadwal', ['tanggal' => $dStr]) }}"
+                        <a href="{{ route('murid.jadwal', ['tanggal' => $dStr]) }}"
                             class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }} {{ $hasEvent ? 'hasEvent' : '' }}"
                             title="{{ $d->translatedFormat('d F Y') }} ({{ $eventCount }} Kegiatan/Sesi)">
                             <span class="agendaDayNum">{{ $d->day }}</span>
@@ -177,7 +178,7 @@
                                     @php
                                         $tutorNama = $sesi->tutor?->nama_lengkap ?? 'Tutor PKBM';
                                         $katNama = $sesi->kategoriTutorial?->nama_kategori ?? 'Tutorial KBM';
-                                        $isHadirSesi = ($sesi->status_kehadiran_siswa === 'hadir');
+                                        $isHadirSesi = ($sesi->status_kehadiran_murid === 'hadir' || $sesi->status_kehadiran_siswa === 'hadir');
                                     @endphp
                                     <div class="data-mobile-card mb-3">
                                         <div class="dmc-header">
@@ -263,7 +264,7 @@
 
                                         @if($isToday && !$isSudahAbsenHariIni && $sesi->status !== 'dibatalkan')
                                             <div class="dmc-actions mt-3">
-                                                <a href="{{ route('siswa.presensi.foto', ['jadwal_sesi_id' => $sesi->id]) }}" class="profileBtnPrimary text-xs py-1.5 px-3 w-full justify-center">
+                                                <a href="{{ route('murid.presensi.foto', ['jadwal_sesi_id' => $sesi->id]) }}" class="profileBtnPrimary text-xs py-1.5 px-3 w-full justify-center">
                                                     <ion-icon name="camera-outline"></ion-icon> Absen Masuk Sekarang
                                                 </a>
                                             </div>

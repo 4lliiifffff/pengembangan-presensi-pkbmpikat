@@ -88,7 +88,6 @@ class JadwalSesiImportTest extends TestCase
             ]);
 
         $response->assertRedirect();
-        $response->dumpSession();
         $response->assertSessionHas('success');
 
         // Pastikan 4 sesi berhasil disimpan ke database
@@ -96,7 +95,7 @@ class JadwalSesiImportTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => '2026-10-05',
             'jam_masuk_rencana' => '08:00:00',
             'jam_pulang_rencana' => '10:00:00',
@@ -107,7 +106,7 @@ class JadwalSesiImportTest extends TestCase
 
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => '2026-10-26',
             'catatan' => 'Pertemuan 4: Evaluasi Bulanan',
         ]);
@@ -150,7 +149,7 @@ class JadwalSesiImportTest extends TestCase
         // 4. Verifikasi sesi pengganti baru terbentuk
         $this->assertDatabaseHas('jadwal_sesi', [
             'tutor_id' => $this->tutor->id,
-            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
             'tanggal_rencana' => '2026-10-14',
             'jam_masuk_rencana' => '09:00:00',
             'jam_pulang_rencana' => '11:00:00',

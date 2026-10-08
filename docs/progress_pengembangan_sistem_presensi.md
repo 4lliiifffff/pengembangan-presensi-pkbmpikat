@@ -748,6 +748,16 @@ pie title Status Fitur & Pengkondisian Sistem
       - Memperbarui tombol pada banner peringatan kamera/GPS di 4 modul presensi menjadi tombol aksi jelas `<ion-icon name="refresh-outline"></ion-icon> Aktifkan Izin` dengan styling `.permWarnBtn` yang kontras dan ramah sentuhan mobile.
 
 #### 9.9 Penyempurnaan Spacing, Kerapihan Style & Responsivitas Mobile Seluruh Halaman Presensi Foto
+
+#### 9.10 Standardisasi Searchable Select Dropdown & Isolasi Tampilan Desktop vs Mobile
+- 🟢 **Pemisahan Tampilan Dropdown Melayang (Desktop) dan Bottom Sheet Modal (Mobile)**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Latar Belakang:** Sebelumnya komponen *Searchable Select* membuat elemen portal *Mobile Bottom Sheet* (`.ss-mobile-sheet` dan `.ss-mobile-sheet-backdrop`) di akhir `document.body`. Karena aturan CSS-nya hanya didefinisikan di dalam `@media (max-width: 640px)`, pada tampilan layar desktop (> 640px) elemen tersebut tampil sebagai blok statis di bagian bawah halaman.
+    - **Perbaikan CSS (`resources/css/searchable-select.css`):**
+      - Menambahkan aturan dasar `.ss-mobile-sheet-backdrop, .ss-mobile-sheet { display: none !important; }` secara *default* di luar media query sehingga 100% tersembunyi pada mode desktop.
+      - Pada media query mobile (`@media (max-width: 640px)`), mengaktifkan `.ss-mobile-sheet` secara `display: flex !important` dan menyembunyikan panel floating desktop `.ss-dropdown { display: none !important; }`.
+    - **Hasil:** Tampilan desktop kini bersih tanpa ada elemen mengambang di bawah halaman, dan mode mobile tetap mendapatkan pengalaman bottom-sheet modal yang ergonomis.
 - 🟢 **Refinement Layout, Card Padding, Typography, Student Picker & Touch Target Presensi**
   - **Status:** **SELESAI**
   - **Rincian Implementasi:**
@@ -863,6 +873,7 @@ pie title Status Fitur & Pengkondisian Sistem
 | 50 | **Pusat Laporan &amp; Rekapitulasi Terpadu (All-in-One Reporting &amp; Analytics Hub)** | Reporting &amp; Analytics Hub | Integrasi menyeluruh pelaporan 4 entitas pengguna (Tutor, Siswa, Pegawai, Magang), rekapitulasi perizinan/lupa lapor, generator matriks buku induk bulanan (tanggal 1–31) berstandar Dapodik &amp; Akreditasi BAN PDM, visual analytics Chart.js (tren harian, komposisi moda, jenjang), ekspor PDF A4 Landscape resmi ber-KOP &amp; tanda tangan pimpinan, ekspor Excel terpadu, dan automated test suite (`LaporanPresensiTerpaduTest` 7 passed, 47 assertions). | 🟢 Selesai |
 | 51 | **Standardisasi Dropdown Searchable &amp; Suite Antarmuka Mobile Responsif (Searchable Dropdown System)** | UI/UX &amp; Mobile Ergonomics | Engine murni Vanilla JS berkecepatan tinggi (`searchable-select.js`), sinkronisasi dua arah ke native `<select>`, pencarian instan dengan highlight teks cocok, navigasi keyboard lengkap, styling CSS Design System &amp; Dark Mode (`searchable-select.css`), serta transformasi mobile khusus menjadi **Bottom Sheet Drawer** layar sentuh ($\le 640$px) dengan font 16px anti-zoom iOS dan touch target min 48px. | 🟢 Selesai |
 | 52 | **Standardisasi Halaman Error Terpadu &amp; Notifikasi Floating Toast Multi-Status (Unified Error Page &amp; Toast Suite)** | Error Handling &amp; Toast Notification | Suite lengkap halaman error (401, 403, 404, 419, 429, 500, 503, dan minimal fallback) dengan kartu glassmorphism terpadu, ambient glow adaptif tema gelap/terang, tombol aksi pemulihan/dashboard, pemicu otomatis floating toast (`AppNotification.toast`), penanganan anggun `TokenMismatchException` di `bootstrap/app.php` dengan flash warning toast, dan 7 automated tests lulus 100%. | 🟢 Selesai |
+
 
 
 

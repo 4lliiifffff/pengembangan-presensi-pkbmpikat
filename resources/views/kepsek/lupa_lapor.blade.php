@@ -57,9 +57,9 @@
                     </div>
 
                     <div class="filterField">
-                        <label class="filterFieldLabel">Cari Tutor / Siswa</label>
+                        <label class="filterFieldLabel">Cari Tutor / Murid</label>
                         <input type="text" name="cari" class="profileInput" value="{{ request('cari') }}"
-                            placeholder="Nama tutor atau siswa...">
+                            placeholder="Nama tutor atau murid...">
                     </div>
 
                     <div class="filter-actions-full">
@@ -88,7 +88,8 @@
                     $jMulai = substr((string) $item->jam_mulai, 0, 5);
                     $jSelesai = substr((string) $item->jam_selesai, 0, 5);
                     $tutorNama = $item->tutor->nama_lengkap ?? 'Tutor #' . $item->tutor_id;
-                    $siswaNama = $item->siswa->nama_siswa ?? 'Siswa #' . $item->siswa_id;
+                    $itemMurid = $item->murid ?? $item->siswa;
+                    $siswaNama = $itemMurid->nama_murid ?? ($itemMurid->nama_siswa ?? ('Murid #' . ($item->murid_id ?? $item->siswa_id)));
                     $status = $item->status ?? 'pending';
                     $initials = strtoupper(substr($tutorNama, 0, 2));
                 @endphp
@@ -125,7 +126,7 @@
                     <div class="kllCardBody">
                         <div class="kllRow">
                             <div class="kllLeft">
-                                <div class="kllSiswaLabel">Siswa yang Diajar:</div>
+                                <div class="kllSiswaLabel">Murid yang Diajar:</div>
                                 <div class="kllSiswaVal">{{ $siswaNama }}</div>
                                 <div class="kllJamBox">
                                     <span>Jam KBM:</span>

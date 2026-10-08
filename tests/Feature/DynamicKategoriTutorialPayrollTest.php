@@ -102,9 +102,9 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
 
     public function test_admin_can_manage_siswa_abk_status(): void
     {
-        $response = $this->actingAs($this->admin)->post(route('admin.siswa.store'), [
+        $response = $this->actingAs($this->admin)->post(route('admin.murid.store'), [
             'no_absen' => 'SISWA-ABK-01',
-            'nama_siswa' => 'Budi ABK',
+            'nama_murid' => 'Budi ABK',
             'is_abk' => 1,
             'no_hp' => '081122334455',
             'nama_wali' => 'Ayah Budi',
@@ -112,8 +112,8 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
             'tutor_id' => $this->tutor->id,
         ]);
 
-        $response->assertRedirect(route('admin.siswa.index'));
-        $this->assertDatabaseHas('siswa', [
+        $response->assertRedirect(route('admin.murid.index'));
+        $this->assertDatabaseHas('murid', [
             'no_absen' => 'SISWA-ABK-01',
             'is_abk' => true,
         ]);
@@ -146,7 +146,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
 
         $response->assertRedirect(route('tutor.dashboard'));
 
-        $presensi = Presensi::where('siswa_id', $siswaAbk->id)->latest('id')->first();
+        $presensi = Presensi::where('murid_id', $siswaAbk->id)->latest('id')->first();
         $this->assertNotNull($presensi);
         $this->assertEquals(2.0, $presensi->durasi_pilihan);
         // Sesuai SK: Komunitas ABK 2 jam = Rp 100.000
@@ -180,7 +180,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
 
         $response->assertRedirect(route('tutor.dashboard'));
 
-        $presensi = Presensi::where('siswa_id', $siswaReguler->id)->latest('id')->first();
+        $presensi = Presensi::where('murid_id', $siswaReguler->id)->latest('id')->first();
         $this->assertNotNull($presensi);
         // Sesuai SK: Komunitas Reguler 2 jam = Rp 75.000
         $this->assertEquals(75000.00, $presensi->nominal_honor_snapshot);
@@ -355,7 +355,7 @@ class DynamicKategoriTutorialPayrollTest extends TestCase
 
         $response->assertRedirect(route('tutor.dashboard'));
 
-        $presensi = Presensi::where('siswa_id', $siswa->id)->latest('id')->first();
+        $presensi = Presensi::where('murid_id', $siswa->id)->latest('id')->first();
         $this->assertNotNull($presensi);
         $this->assertEquals(1.5, $presensi->durasi_pilihan);
         // Sesuai SK: Distance Learning 1,5 jam ABK = Rp 130.000

@@ -309,14 +309,14 @@
                                 </div>
                             </div>
 
-                            {{-- 5. Siswa --}}
+                            {{-- 5. Murid --}}
                             <div class="quick-role-card role-siswa" data-role="siswa">
                                 <div class="qrc-top">
                                     <div class="qrc-badge-icon">
                                         <ion-icon name="book-outline"></ion-icon>
                                     </div>
                                     <div class="qrc-info">
-                                        <div class="qrc-tag">SISWA HOMESCHOOLING</div>
+                                        <div class="qrc-tag">MURID HOMESCHOOLING</div>
                                         <div class="qrc-name">Zeldi (001)</div>
                                         <div class="qrc-account">siswa001@pkbmpikat.com</div>
                                     </div>
@@ -325,14 +325,14 @@
                                     <form action="{{ route('login.quick') }}" method="POST" class="w-100">
                                         @csrf
                                         <input type="hidden" name="role" value="siswa">
-                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Siswa">
+                                        <button type="submit" class="qrc-btn-instant" title="Masuk langsung sebagai Murid">
                                             <ion-icon name="flash"></ion-icon>
                                             <span>Masuk</span>
                                         </button>
                                     </form>
                                     <button type="button" class="qrc-btn-fill"
-                                        onclick="fillLoginForm('siswa001@pkbmpikat.com', 'password123', 'Siswa')"
-                                        title="Isi form dengan akun Siswa">
+                                        onclick="fillLoginForm('siswa001@pkbmpikat.com', 'password123', 'Murid')"
+                                        title="Isi form dengan akun Murid">
                                         <ion-icon name="create-outline"></ion-icon>
                                         <span>Isi</span>
                                     </button>

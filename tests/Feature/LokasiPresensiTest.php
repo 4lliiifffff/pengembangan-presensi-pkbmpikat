@@ -206,7 +206,7 @@ class LokasiPresensiTest extends TestCase
 
         $responseFail->assertSessionHas('warning');
         $this->assertDatabaseMissing('presensi', [
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'lokasi_presensi_id' => $lokasiCabang->id,
         ]);
 
@@ -223,7 +223,7 @@ class LokasiPresensiTest extends TestCase
 
         $responseSuccess->assertRedirect(route('tutor.dashboard'));
         $this->assertDatabaseHas('presensi', [
-            'siswa_id' => $siswa->id,
+            'murid_id' => $siswa->id,
             'lokasi_presensi_id' => $lokasiCabang->id,
             'status' => 'hadir',
         ]);
