@@ -197,7 +197,7 @@ Route::middleware(['auth', 'role:magang'])->prefix('magang')->name('magang.')->g
 });
 
 // Portal Murid Routes
-Route::middleware(['auth', 'role:murid'])->prefix('murid')->name('murid.')->group(function () {
+Route::middleware(['auth', 'role:murid,siswa'])->prefix('murid')->name('murid.')->group(function () {
     Route::get('/dashboard', [MuridDashboardController::class, 'index'])->name('dashboard');
     Route::get('/jadwal', [MuridDashboardController::class, 'jadwal'])->name('jadwal');
     Route::get('/riwayat', [MuridDashboardController::class, 'riwayat'])->name('riwayat');

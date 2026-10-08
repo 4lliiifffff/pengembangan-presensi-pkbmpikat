@@ -51,7 +51,7 @@
                     </div>
                     <div class="info-callout-desc">
                         Terikat pada {{ $kategoriTutorial->jadwal_sesis_count ?? 0 }} jadwal sesi dan
-                        {{ $kategoriTutorial->jadwal_rutins_count ?? 0 }} master pola rutin siswa.
+                        {{ $kategoriTutorial->jadwal_rutins_count ?? 0 }} master pola rutin murid.
                     </div>
                 </div>
 

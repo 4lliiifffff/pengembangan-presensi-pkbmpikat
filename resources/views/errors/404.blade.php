@@ -27,7 +27,7 @@
             'kepala_sekolah' => route('kepsek.dashboard'),
             'tutor' => route('tutor.dashboard'),
             'magang' => route('magang.dashboard'),
-            'siswa' => route('siswa.dashboard'),
+            'murid', 'siswa' => route('murid.dashboard'),
             default => route('login'),
         };
     }

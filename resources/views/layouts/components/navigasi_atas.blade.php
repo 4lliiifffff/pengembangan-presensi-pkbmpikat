@@ -64,8 +64,8 @@
                                 <span class="qsd-name">Alif</span>
                             </span>
                         </a>
-                        <a href="{{ route('login.quick.get', ['role' => 'murid']) }}" class="qsd-item {{ auth()->check() && (auth()->user()->role === 'murid' || auth()->user()->role === 'siswa') ? 'active' : '' }}">
-                            <span class="qsd-badge siswa"><ion-icon name="book-outline"></ion-icon></span>
+                        <a href="{{ route('login.quick.get', ['role' => 'murid']) }}" class="qsd-item {{ auth()->check() && auth()->user()->role === 'murid' ? 'active' : '' }}">
+                            <span class="qsd-badge murid"><ion-icon name="book-outline"></ion-icon></span>
                             <span class="qsd-meta">
                                 <span class="qsd-role">Murid</span>
                                 <span class="qsd-name">Zeldi (001)</span>

@@ -34,7 +34,7 @@
     {{-- 5. Menu Lainnya (Buka Bottom Drawer) --}}
     @php
         $isAdminDrawerActive = request()->routeIs('admin.karyawan.*') ||
-                               request()->routeIs('admin.siswa.*') ||
+                               request()->routeIs('admin.murid.*') ||
                                request()->routeIs('admin.jadwal.*') ||
                                request()->routeIs('admin.jadwal-rutin.*') ||
                                request()->routeIs('admin.jadwal-kerja.*') ||
@@ -88,7 +88,7 @@
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.murid.index') }}" class="navDrawerCard {{ request()->routeIs('admin.murid.*') || request()->routeIs('admin.siswa.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.murid.index') }}" class="navDrawerCard {{ request()->routeIs('admin.murid.*') ? 'active' : '' }}">
                         <div class="navCardIcon blue">
                             <ion-icon name="school-outline"></ion-icon>
                         </div>

@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
             // 2. Akun Pengguna & Profil Entitas
             UserRoleSeeder::class,
             MagangSeeder::class,
-            SiswaSeeder::class,
-            SiswaUserSeeder::class,
+            MuridSeeder::class,
+            MuridUserSeeder::class,
 
             // 3. Kalender & Jadwal Operasional KBM
             JadwalSeeder::class,

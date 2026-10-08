@@ -9,7 +9,7 @@
                 <div class="laporanHeaderLabel">ROMBONGAN BELAJAR &amp; KELAS</div>
                 <h1 class="laporanHeaderTitle">Data Kelas &amp; Rombel</h1>
                 <div class="laporanHeaderSub">Kelola rombongan belajar, jenjang paket kesetaraan, dan program vokasi</div>
-                <p class="laporanHeaderDesc">Daftar kelas aktif, alokasi jenjang kesetaraan, dan pemetaan tingkatan siswa.</p>
+                <p class="laporanHeaderDesc">Daftar kelas aktif, alokasi jenjang kesetaraan, dan pemetaan tingkatan murid.</p>
             </div>
             <div class="laporanHeaderActions header-actions-group">
                 <a href="{{ route('admin.jenjang-paket.index') }}" class="btnOutline">
