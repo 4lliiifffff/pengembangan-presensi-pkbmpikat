@@ -95,8 +95,8 @@
                             </div>
                             <div class="fileUploadText">Pilih atau seret berkas ke sini</div>
                             <div class="fileUploadSubtext">
-                                <span class="fileUploadInfoPill">Format: .XLSX, .CSV</span>
-                                <span class="fileUploadInfoPill">Maks: 5 MB</span>
+                                <span class="fileUploadInfoPill"><ion-icon name="document-text-outline"></ion-icon> .XLSX, .XLS, .CSV</span>
+                                <span class="fileUploadInfoPill"><ion-icon name="hardware-chip-outline"></ion-icon> Maks. 5 MB</span>
                             </div>
                         </div>
                         <div id="jadwalFileFeedback" class="fileUploadFeedback"></div>
@@ -111,66 +111,6 @@
                 </form>
             </div>
         </div>
-
-        <script>
-            function handleExcelFileSelected(input, feedbackId) {
-                const feedback = document.getElementById(feedbackId);
-                if (!feedback) return;
-                if (input.files && input.files[0]) {
-                    const file = input.files[0];
-                    const sizeKb = Math.round(file.size / 1024);
-                    const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-                    const sizeText = sizeKb > 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
-
-                    if (file.size > 5 * 1024 * 1024) {
-                        feedback.style.display = 'block';
-                        feedback.innerHTML = `
-                        <div class="file-selected-card" style="border-color: #fca5a5; background: rgba(239, 68, 68, 0.1);">
-                            <div class="fsc-info">
-                                <ion-icon name="alert-circle-outline" class="fsc-icon" style="color: #dc2626;"></ion-icon>
-                                <div class="fsc-details">
-                                    <div class="fsc-name">${file.name}</div>
-                                    <div class="text-xs font-bold" style="color: #dc2626;">Ukuran (${sizeText}) melebihi batas maksimal 5 MB!</div>
-                                </div>
-                            </div>
-                            <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Hapus">
-                                <ion-icon name="close-circle-outline"></ion-icon>
-                            </button>
-                        </div>`;
-                        input.value = '';
-                        return;
-                    }
-
-                    feedback.style.display = 'block';
-                    feedback.innerHTML = `
-                    <div class="file-selected-card">
-                        <div class="fsc-info">
-                            <ion-icon name="document-attach-outline" class="fsc-icon"></ion-icon>
-                            <div class="fsc-details">
-                                <div class="fsc-name">${file.name}</div>
-                                <div class="fsc-meta">${sizeText} &bull; Berkas siap diunggah</div>
-                            </div>
-                        </div>
-                        <button type="button" class="fsc-remove-btn" onclick="clearSelectedExcel('${input.id}', '${feedbackId}')" title="Ganti berkas">
-                            <ion-icon name="close-circle-outline"></ion-icon>
-                        </button>
-                    </div>`;
-                } else {
-                    feedback.style.display = 'none';
-                    feedback.innerHTML = '';
-                }
-            }
-
-            function clearSelectedExcel(inputId, feedbackId) {
-                const input = document.getElementById(inputId);
-                const feedback = document.getElementById(feedbackId);
-                if (input) input.value = '';
-                if (feedback) {
-                    feedback.style.display = 'none';
-                    feedback.innerHTML = '';
-                }
-            }
-        </script>
 
         @php
             $prevMonthDate = $selectedDate->copy()->subMonth()->toDateString();

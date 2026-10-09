@@ -96,12 +96,12 @@ class SimpikatIntegrationAuthTest extends TestCase
         $this->assertNotNull($user);
         $this->assertContains($user->role, ['murid', 'siswa']);
 
-        // Verifikasi profil Siswa di-provisioning dan kelasnya sesuai (Paket C - Kelas 10)
+        // Verifikasi profil Siswa di-provisioning dan kelasnya sesuai (Paket C - Kelas 12)
         $siswaProfile = Siswa::where('user_id', $user->id)->first();
         $this->assertNotNull($siswaProfile);
         $this->assertNotNull($siswaProfile->kelas);
-        $this->assertSame('Paket C - Kelas 10', $siswaProfile->kelas->nama_kelas);
-        $this->assertSame('10', (string) $siswaProfile->kelas->tingkat);
+        $this->assertSame('Paket C - Kelas 12', $siswaProfile->kelas->nama_kelas);
+        $this->assertSame('12', (string) $siswaProfile->kelas->tingkat);
         $this->assertContains($siswaProfile->kelas->jenjang_paket, ['paket_c', 'umum']);
 
         // Verifikasi relasi Tutor pembimbing dari rombel SIMPIKAT terhubung

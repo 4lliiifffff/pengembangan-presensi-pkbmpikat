@@ -122,8 +122,8 @@
                             </div>
                             <div class="fileUploadText">Pilih atau seret berkas surat bukti</div>
                             <div class="fileUploadSubtext">
-                                <span class="fileUploadInfoPill">Format: PDF, JPG, PNG</span>
-                                <span class="fileUploadInfoPill">Maks: 2 MB</span>
+                                <span class="fileUploadInfoPill"><ion-icon name="document-text-outline"></ion-icon> PDF, JPG, PNG</span>
+                                <span class="fileUploadInfoPill"><ion-icon name="hardware-chip-outline"></ion-icon> Maks. 2 MB</span>
                             </div>
                         </div>
                         <div id="izinDocFeedback" class="fileUploadFeedback"></div>
@@ -231,19 +231,6 @@
                 document.getElementById('panelForm').classList.add('active');
             } else {
                 document.getElementById('panelRiwayat').classList.add('active');
-            }
-        }
-
-        function handleFileSelected(input, feedbackId) {
-            const feedback = document.getElementById(feedbackId);
-            if (!feedback) return;
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                const sizeKb = Math.round(file.size / 1024);
-                feedback.innerHTML = '<ion-icon name="document-text-outline" class="icon-sm"></ion-icon> <span >' + file.name + ' (' + sizeKb + ' KB)</span>';
-                feedback.style.display = 'flex';
-            } else {
-                feedback.style.display = 'none';
             }
         }
     </script>

@@ -212,16 +212,14 @@ class JadwalSesiController extends Controller
             if ($katSk && abs((float) $katSk->durasi_jam - $durasiHitung) < 0.05) {
                 $validated['durasi_jam'] = (float) $katSk->durasi_jam;
                 $validated['kategori_tutorial_id'] = $katSk->id;
+            } elseif ($rawKategori !== 'custom' && ($katCocok = KategoriTutorial::active()->where('durasi_jam', $durasiHitung)->first())) {
+                $validated['durasi_jam'] = (float) $katCocok->durasi_jam;
+                $validated['kategori_tutorial_id'] = $katCocok->id;
             } else {
-                // Cari apakah ada SK lain yang pas dengan durasi ini
-                $katCocok = KategoriTutorial::active()->where('durasi_jam', $durasiHitung)->first();
-                if ($katCocok) {
-                    $validated['durasi_jam'] = (float) $katCocok->durasi_jam;
-                    $validated['kategori_tutorial_id'] = $katCocok->id;
-                } else {
-                    // Durasi di luar SK
-                    $validated['durasi_jam'] = $durasiHitung;
-                    $validated['kategori_tutorial_id'] = null;
+                // Durasi di luar SK atau custom
+                $validated['durasi_jam'] = $durasiHitung;
+                $validated['kategori_tutorial_id'] = null;
+                if ($rawKategori !== 'custom') {
                     $tagKhusus = "[Jadwal Khusus: Durasi {$durasiHitung} Jam di luar SK]";
                     $validated['keterangan'] = ! empty($validated['keterangan'])
                         ? $tagKhusus.' '.$validated['keterangan']
@@ -294,16 +292,14 @@ class JadwalSesiController extends Controller
         if ($katSk && abs((float) $katSk->durasi_jam - $durasiHitung) < 0.05) {
             $validated['durasi_jam'] = (float) $katSk->durasi_jam;
             $validated['kategori_tutorial_id'] = $katSk->id;
+        } elseif ($rawKategori !== 'custom' && ($katCocok = KategoriTutorial::active()->where('durasi_jam', $durasiHitung)->first())) {
+            $validated['durasi_jam'] = (float) $katCocok->durasi_jam;
+            $validated['kategori_tutorial_id'] = $katCocok->id;
         } else {
-            // Cari apakah ada SK lain yang pas dengan durasi ini
-            $katCocok = KategoriTutorial::active()->where('durasi_jam', $durasiHitung)->first();
-            if ($katCocok) {
-                $validated['durasi_jam'] = (float) $katCocok->durasi_jam;
-                $validated['kategori_tutorial_id'] = $katCocok->id;
-            } else {
-                // Durasi di luar SK
-                $validated['durasi_jam'] = $durasiHitung;
-                $validated['kategori_tutorial_id'] = null;
+            // Durasi di luar SK atau custom
+            $validated['durasi_jam'] = $durasiHitung;
+            $validated['kategori_tutorial_id'] = null;
+            if ($rawKategori !== 'custom') {
                 $tagKhusus = "[Jadwal Khusus: Durasi {$durasiHitung} Jam di luar SK]";
                 $validated['catatan'] = ! empty($validated['catatan'])
                     ? $tagKhusus.' '.$validated['catatan']

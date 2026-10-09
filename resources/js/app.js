@@ -5,5 +5,6 @@ import './offline-presensi';
 import './push-notification';
 import './leaflet-presensi';
 import './searchable-select';
+import './file-uploader';
 
 

@@ -10914,31 +10914,52 @@ textarea {
 }
 
 /* ==========================================
-   UNIFIED FILE UPLOAD COMPONENT
+   UNIFIED & STANDARDIZED FILE UPLOAD COMPONENT
    ========================================== */
 .fileUploadBox {
     position: relative;
-    border: 2px dashed var(--border);
+    border: 2px dashed var(--border, #cbd5e1);
     border-radius: 16px;
-    background: var(--card-alt);
-    padding: 20px 16px;
+    background: var(--card-alt, #f8fafc);
+    padding: 24px 18px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
     overflow: hidden;
     width: 100%;
     box-sizing: border-box;
+    outline: none;
+}
+
+[data-theme="dark"] .fileUploadBox {
+    border-color: rgba(255, 255, 255, 0.14);
+    background: rgba(30, 41, 59, 0.45);
 }
 
 .fileUploadBox:hover,
-.fileUploadBox.dragover {
-    border-color: var(--blue);
+.fileUploadBox:focus-within {
+    border-color: var(--primary, #0b5ed7);
     background: rgba(11, 94, 215, 0.04);
+    box-shadow: 0 0 0 4px rgba(11, 94, 215, 0.08);
+}
+
+[data-theme="dark"] .fileUploadBox:hover,
+[data-theme="dark"] .fileUploadBox:focus-within {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.08);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+}
+
+.fileUploadBox.dragover {
+    border-color: var(--primary, #0b5ed7);
+    background: rgba(11, 94, 215, 0.08);
+    transform: scale(1.01);
+    box-shadow: 0 8px 24px -6px rgba(11, 94, 215, 0.2);
 }
 
 .fileUploadBox input[type="file"] {
@@ -10952,69 +10973,268 @@ textarea {
 }
 
 .fileUploadIcon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
     background: rgba(11, 94, 215, 0.1);
-    color: var(--blue);
+    color: var(--primary, #0b5ed7);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 24px;
     pointer-events: none;
-    transition: transform 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.fileUploadBox:hover .fileUploadIcon {
-    transform: scale(1.08);
+[data-theme="dark"] .fileUploadIcon {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+}
+
+.fileUploadBox:hover .fileUploadIcon,
+.fileUploadBox.dragover .fileUploadIcon {
+    transform: scale(1.12) translateY(-2px);
+    background: var(--primary, #0b5ed7);
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(11, 94, 215, 0.3);
 }
 
 .fileUploadText {
-    font-size: 13px;
-    font-weight: 800;
-    color: var(--text);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text, #1e293b);
     pointer-events: none;
+    margin: 0;
+    letter-spacing: -0.01em;
+}
+
+[data-theme="dark"] .fileUploadText {
+    color: #f1f5f9;
 }
 
 .fileUploadSubtext {
-    font-size: 11.5px;
-    color: var(--muted);
+    font-size: 12px;
+    color: var(--muted, #64748b);
     pointer-events: none;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
+    margin: 0;
 }
 
 .fileUploadInfoPill {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--muted);
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 2px 8px;
-    border-radius: 6px;
+    gap: 5px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted, #64748b);
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    padding: 3px 10px;
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
+[data-theme="dark"] .fileUploadInfoPill {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+/* ── Standardized Feedback / Preview Card ── */
 .fileUploadFeedback {
     display: none;
-    align-items: center;
-    gap: 8px;
-    background: rgba(22, 163, 74, 0.1);
-    border: 1px solid rgba(22, 163, 74, 0.25);
-    border-radius: 10px;
-    padding: 8px 12px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #15803d;
     width: 100%;
     box-sizing: border-box;
-    margin-top: 6px;
-    word-break: break-all;
+    margin-top: 10px;
+    border-radius: 14px;
+    padding: 10px 14px;
+    animation: fileUploadFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fileUploadFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fileUploadFeedback--success {
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+}
+
+[data-theme="dark"] .fileUploadFeedback--success {
+    background: rgba(16, 185, 129, 0.12);
+    border-color: rgba(16, 185, 129, 0.35);
+}
+
+.fileUploadFeedback--error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+[data-theme="dark"] .fileUploadFeedback--error {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
+}
+
+.fileUploadFeedback__inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.fileUploadFeedback__thumbWrapper {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #000000;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.fileUploadFeedback__thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.fileUploadFeedback__iconBadge {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+.fileUploadFeedback__iconBadge--excel {
+    background: rgba(16, 185, 129, 0.16);
+    color: #059669;
+}
+
+[data-theme="dark"] .fileUploadFeedback__iconBadge--excel {
+    background: rgba(16, 185, 129, 0.25);
+    color: #34d399;
+}
+
+.fileUploadFeedback__iconBadge--pdf {
+    background: rgba(239, 68, 68, 0.14);
+    color: #dc2626;
+}
+
+[data-theme="dark"] .fileUploadFeedback__iconBadge--pdf {
+    background: rgba(239, 68, 68, 0.22);
+    color: #f87171;
+}
+
+.fileUploadFeedback__iconBadge--error {
+    background: rgba(239, 68, 68, 0.14);
+    color: #dc2626;
+}
+
+.fileUploadFeedback__iconBadge--general {
+    background: rgba(11, 94, 215, 0.12);
+    color: var(--primary, #0b5ed7);
+}
+
+.fileUploadFeedback__meta {
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+}
+
+.fileUploadFeedback__name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+[data-theme="dark"] .fileUploadFeedback__name {
+    color: #f8fafc;
+}
+
+.fileUploadFeedback__details {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+    flex-wrap: wrap;
+}
+
+.fileUploadFeedback__desc {
+    font-size: 11.5px;
+    color: var(--muted, #64748b);
+    line-height: 1.3;
+    margin-top: 2px;
+}
+
+.fileUploadFeedback__sizePill {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted, #64748b);
+    background: var(--card, #ffffff);
+    padding: 1px 7px;
+    border-radius: 6px;
+    border: 1px solid var(--border, #e2e8f0);
+}
+
+[data-theme="dark"] .fileUploadFeedback__sizePill {
+    background: rgba(15, 23, 42, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+}
+
+.fileUploadFeedback__statusPill {
+    font-size: 11px;
+    font-weight: 700;
+    color: #059669;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+[data-theme="dark"] .fileUploadFeedback__statusPill {
+    color: #34d399;
+}
+
+.fileUploadFeedback__clearBtn {
+    background: transparent;
+    border: none;
+    padding: 6px;
+    border-radius: 8px;
+    color: var(--muted, #64748b);
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.fileUploadFeedback__clearBtn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1);
 }
 
 /* ==========================================

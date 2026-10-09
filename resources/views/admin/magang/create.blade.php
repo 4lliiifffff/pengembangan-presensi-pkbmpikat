@@ -106,10 +106,13 @@
                 <label class="filterFieldLabel">Foto Profil (Opsional)</label>
                 <div class="fileUploadBox">
                     <input type="file" name="foto" id="fotoMagangInput" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelected(this, 'magangFotoFeedback')">
+                    <div class="fileUploadIcon">
+                        <ion-icon name="camera-outline"></ion-icon>
+                    </div>
                     <div class="fileUploadText">Pilih atau seret foto profil</div>
                     <div class="fileUploadSubtext">
-                        <span class="fileUploadInfoPill">Format: JPG, PNG</span>
-                        <span class="fileUploadInfoPill">Maks: 2 MB</span>
+                        <span class="fileUploadInfoPill"><ion-icon name="image-outline"></ion-icon> JPG, PNG, WEBP</span>
+                        <span class="fileUploadInfoPill"><ion-icon name="hardware-chip-outline"></ion-icon> Maks. 2 MB</span>
                     </div>
                 </div>
                 <div id="magangFotoFeedback" class="fileUploadFeedback"></div>
@@ -124,20 +127,5 @@
         </form>
     </div>
 </div>
-
-<script>
-function handleFileSelected(input, feedbackId) {
-    const feedback = document.getElementById(feedbackId);
-    if (!feedback) return;
-    if (input.files && input.files[0]) {
-        const file = input.files[0];
-        const sizeKb = Math.round(file.size / 1024);
-        feedback.innerHTML = '<span>' + file.name + ' (' + sizeKb + ' KB)</span>';
-        feedback.style.display = 'flex';
-    } else {
-        feedback.style.display = 'none';
-    }
-}
-</script>
 @endsection
 
