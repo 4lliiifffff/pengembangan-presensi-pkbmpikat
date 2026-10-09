@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
 
 /**
@@ -190,5 +191,78 @@ class User extends Authenticatable
     public function pushSubscriptions()
     {
         return $this->hasMany(PushSubscription::class, 'user_id');
+    }
+
+    /**
+     * Dapatkan nomor WhatsApp kontak admin resmi (Single Source of Truth).
+     *
+     * Alur Mitigasi Multi-Admin & Hotline:
+     * 1. Menggunakan nomor hotline resmi institusi dari config('app.admin_wa') jika diset.
+     * 2. Jika config kosong, mencari admin dengan akun aktif (is_active = 1) pertama yang memiliki nomor HP.
+     * 3. Jika tidak ada, menggunakan fallback darurat resmi PKBM.
+     *
+     * @return string Nomor WhatsApp terformat internasional (diawali 62)
+     */
+    public static function getAdminWaContact(): string
+    {
+        $configWa = config('app.admin_wa');
+        if (! empty($configWa)) {
+            return self::formatWhatsappNumber((string) $configWa);
+        }
+
+        $activeAdmin = self::where('role', 'admin')
+            ->where('is_active', 1)
+            ->whereNotNull('no_hp')
+            ->where('no_hp', '!=', '')
+            ->orderBy('id', 'asc')
+            ->first();
+
+        if ($activeAdmin && ! empty($activeAdmin->no_hp)) {
+            return self::formatWhatsappNumber($activeAdmin->no_hp);
+        }
+
+        return '6285156452939';
+    }
+
+    /**
+     * Dapatkan seluruh daftar kontak admin yang aktif (berguna untuk opsi multi-admin).
+     *
+     * @return Collection<int, array{id: int, nama: string, no_hp: string, wa_number: string}>
+     */
+    public static function getActiveAdminContacts(): Collection
+    {
+        return self::where('role', 'admin')
+            ->where('is_active', 1)
+            ->whereNotNull('no_hp')
+            ->where('no_hp', '!=', '')
+            ->orderBy('id', 'asc')
+            ->get()
+            ->map(function ($admin) {
+                return [
+                    'id' => $admin->id,
+                    'nama' => $admin->nama_lengkap ?? $admin->name,
+                    'no_hp' => $admin->no_hp,
+                    'wa_number' => self::formatWhatsappNumber($admin->no_hp),
+                ];
+            });
+    }
+
+    /**
+     * Format nomor HP lokal Indonesia (08...) ke format WhatsApp internasional (628...).
+     */
+    public static function formatWhatsappNumber(?string $phone): string
+    {
+        if (empty($phone)) {
+            return '6285156452939';
+        }
+
+        $cleaned = preg_replace('/[^0-9]/', '', (string) $phone);
+        if (str_starts_with($cleaned, '0')) {
+            $cleaned = '62'.substr($cleaned, 1);
+        } elseif (str_starts_with($cleaned, '8')) {
+            $cleaned = '62'.$cleaned;
+        }
+
+        return $cleaned;
     }
 }

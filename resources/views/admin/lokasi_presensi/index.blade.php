@@ -78,7 +78,7 @@
                 </div>
                 <span class="badgeCount">{{ count($allActiveLokasis) }} Titik Terpetakan</span>
             </div>
-            <div id="overviewMap" class="overview-map-frame"></div>
+            <div id="overviewMap" class="overview-map-frame" style="height: 380px; min-height: 350px; width: 100%; position: relative; z-index: 1;"></div>
         </div>
 
         {{-- ── Filter Card ── --}}
@@ -356,10 +356,16 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const locations = {!! json_encode($allActiveLokasis) !!};
+        function initOverviewMap() {
             const mapEl = document.getElementById('overviewMap');
-            if (!mapEl || typeof L === 'undefined') return;
+            if (!mapEl) return;
+
+            if (typeof window.L === 'undefined') {
+                setTimeout(initOverviewMap, 100);
+                return;
+            }
+
+            const locations = {!! json_encode($allActiveLokasis) !!};
 
             const defaultLat = {{ config('lokasi.sekolah_lat', -7.8011945) }};
             const defaultLng = {{ config('lokasi.sekolah_lng', 110.364917) }};
@@ -410,6 +416,12 @@
             setTimeout(function () {
                 map.invalidateSize();
             }, 250);
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initOverviewMap);
+        } else {
+            initOverviewMap();
+        }
     </script>
 @endsection

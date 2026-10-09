@@ -63,7 +63,7 @@
             'kepala_sekolah' => route('kepsek.presensi.store'),
             default => route('tutor.presensi.store'),
         };
-        $adminWa = config('app.admin_wa', '6285156452939');
+        $adminWa = \App\Models\User::getAdminWaContact();
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -1009,10 +1009,21 @@
 
         function initPresensiMapInstance() {
             var mapEl = document.getElementById('leafletMap');
-            if (!mapEl || presensiMap || typeof window.createPresensiMap === 'undefined') return;
+            if (!mapEl || presensiMap) return;
+
+            if (typeof window.createPresensiMap === 'undefined') {
+                setTimeout(initPresensiMapInstance, 100);
+                return;
+            }
 
             mapEl.classList.remove('d-none');
             mapEl.style.display = 'block';
+
+            var ph = document.getElementById('mapPlaceholder');
+            if (ph) {
+                ph.classList.add('hidden');
+                ph.style.display = 'none';
+            }
 
             updateTargetFromDropdown();
 
@@ -1257,8 +1268,9 @@
             );
         }
 
-        // Jalankan tracking saat halaman selesai dimuat
+        // Jalankan inisialisasi peta dan tracking saat halaman selesai dimuat
         document.addEventListener('DOMContentLoaded', function () {
+            initPresensiMapInstance();
             refreshLocation(false);
             startLiveTracking();
         });

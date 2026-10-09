@@ -120,8 +120,11 @@
                     </h2>
                 </div>
 
+                @php
+                    $adminWaNumber = \App\Models\User::getAdminWaContact();
+                @endphp
                 <div class="quickGrid">
-                    <a href="https://wa.me/6285156452939" target="_blank" rel="noopener noreferrer" class="quickCard"
+                    <a href="https://wa.me/{{ $adminWaNumber }}" target="_blank" rel="noopener noreferrer" class="quickCard"
                         aria-label="Pengajuan Izin">
                         <div class="quickIcon warn">
                             <ion-icon name="alert-circle-outline"></ion-icon>

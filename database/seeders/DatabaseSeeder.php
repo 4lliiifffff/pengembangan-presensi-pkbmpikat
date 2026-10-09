@@ -15,8 +15,11 @@ class DatabaseSeeder extends Seeder
             LokasiPresensiSeeder::class,
             JadwalKerjaSeeder::class,
 
-            // 2. Akun Administrator Utama
-            AdminSeeder::class,
+            // 2. Akun Karyawan & Tutor Resmi (Termasuk Admin & Kepsek)
+            KaryawanSeeder::class,
+
+            // 3. Data Murid / Peserta Didik
+            MuridSeeder::class,
         ]);
     }
 }

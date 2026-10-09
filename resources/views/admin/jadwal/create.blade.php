@@ -15,7 +15,7 @@
                 </div>
                 <div class="laporanHeaderActions">
                     <a class="btnOutline" href="{{ route('admin.jadwal.index') }}">
-                        Kembali
+                        <ion-icon name="arrow-back-outline"></ion-icon> Kembali
                     </a>
                 </div>
             </div>
@@ -90,10 +90,14 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="profileBtnPrimary mt-3">
-                    <ion-icon name="save-outline"></ion-icon>
-                    Simpan Agenda
-                </button>
+                <div class="form-action-footer">
+                    <a href="{{ route('admin.jadwal.index') }}" class="btnOutline">
+                        <ion-icon name="arrow-back-outline"></ion-icon> Batal
+                    </a>
+                    <button type="submit" class="profileBtnPrimary">
+                        <ion-icon name="save-outline"></ion-icon> Simpan Agenda
+                    </button>
+                </div>
             </form>
         </div>
     </div>

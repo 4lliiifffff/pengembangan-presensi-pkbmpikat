@@ -516,6 +516,12 @@
         let kepsekMeasureLine = null;
 
         function ensureLeafletLoaded(callback) {
+            if (typeof window.L === 'undefined') {
+                setTimeout(function () {
+                    ensureLeafletLoaded(callback);
+                }, 80);
+                return;
+            }
             callback();
         }
 

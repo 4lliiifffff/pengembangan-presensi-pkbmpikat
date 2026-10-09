@@ -31,7 +31,7 @@
 
         $dashRoute = route('magang.dashboard');
         $storeRoute = route('magang.presensi.store');
-        $adminWa = config('app.admin_wa', '6285156452939');
+        $adminWa = \App\Models\User::getAdminWaContact();
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -60,7 +60,7 @@
             @php
                 $tglUnclosed = \Carbon\Carbon::parse($unclosedPastSession->tgl_presensi, 'Asia/Jakarta');
                 $jamMulaiUnclosed = substr((string) $unclosedPastSession->jam_mulai, 0, 5);
-                $adminWaNumber = config('app.admin_wa', '6285156452939');
+                $adminWaNumber = $adminWa;
                 $pesanWa = urlencode("Halo Admin PKBM Pikat, saya {$displayName} (Mahasiswa Magang) terlewat presensi pulang pada hari {$tglUnclosed->translatedFormat('l, d F Y')} (masuk pukul {$jamMulaiUnclosed} WIB). Mohon bantuan konfirmasi presensi magang di sistem. Terima kasih.");
             @endphp
             <div id="bannerUnclosedPastSession" class="statusBanner mb-4" style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-left: 4px solid #f59e0b;">
@@ -632,7 +632,21 @@
 
         function initPresensiMapInstance() {
             var mapEl = document.getElementById('leafletMap');
-            if (!mapEl || presensiMap || typeof window.createPresensiMap === 'undefined') return;
+            if (!mapEl || presensiMap) return;
+
+            if (typeof window.createPresensiMap === 'undefined') {
+                setTimeout(initPresensiMapInstance, 100);
+                return;
+            }
+
+            mapEl.classList.remove('d-none');
+            mapEl.style.display = 'block';
+
+            var ph = document.getElementById('mapPlaceholder');
+            if (ph) {
+                ph.classList.add('hidden');
+                ph.style.display = 'none';
+            }
 
             updateTargetFromDropdown();
 
@@ -837,6 +851,13 @@
                 },
             );
         }
+
+        // Jalankan inisialisasi peta dan tracking saat halaman selesai dimuat
+        document.addEventListener('DOMContentLoaded', function () {
+            initPresensiMapInstance();
+            refreshLocation(false);
+            startLiveTracking();
+        });
 
         /* ══════════════════ ADVANCED CAMERA CONTROLS ══════════════════ */
         // Dibatasi hanya kamera depan untuk presensi kehadiran

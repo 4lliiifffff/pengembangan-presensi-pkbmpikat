@@ -13,7 +13,7 @@
             </div>
             <div class="laporanHeaderActions">
                 <a href="{{ route('admin.karyawan.index') }}" class="btnOutline">
-                    Kembali
+                    <ion-icon name="arrow-back-outline"></ion-icon> Kembali
                 </a>
             </div>
         </div>
@@ -100,10 +100,10 @@
 
             <div class="form-action-footer">
                 <a href="{{ route('admin.karyawan.index') }}" class="btnOutline">
-                    Batal
+                    <ion-icon name="arrow-back-outline"></ion-icon> Batal
                 </a>
                 <button type="submit" class="profileBtnPrimary">
-                    <ion-icon name="save-outline"></ion-icon> Simpan Perubahan
+                    <ion-icon name="checkmark-circle-outline"></ion-icon> Simpan Perubahan
                 </button>
             </div>
         </form>

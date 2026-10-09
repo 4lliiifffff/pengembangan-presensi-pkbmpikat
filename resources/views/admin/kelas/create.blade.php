@@ -12,7 +12,7 @@
             </div>
             <div class="laporanHeaderActions">
                 <a class="btnOutline" href="{{ route('admin.kelas.index') }}">
-                    Kembali
+                    <ion-icon name="arrow-back-outline"></ion-icon> Kembali
                 </a>
             </div>
         </div>
@@ -87,10 +87,14 @@
                 <textarea name="keterangan" rows="2" placeholder="Catatan tambahan rombongan belajar (opsional)" class="profileInput h-auto p-2">{{ old('keterangan') }}</textarea>
             </div>
 
-            <button type="submit" class="profileBtnPrimary mt-3">
-                <ion-icon name="save-outline"></ion-icon>
-                Simpan Kelas
-            </button>
+            <div class="form-action-footer">
+                <a href="{{ route('admin.kelas.index') }}" class="btnOutline">
+                    <ion-icon name="arrow-back-outline"></ion-icon> Batal
+                </a>
+                <button type="submit" class="profileBtnPrimary">
+                    <ion-icon name="save-outline"></ion-icon> Simpan Kelas
+                </button>
+            </div>
         </form>
     </div>
 

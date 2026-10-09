@@ -168,10 +168,12 @@
                         class="profileInput">{{ old('keterangan', $jadwalKerja->keterangan) }}</textarea>
                 </div>
 
-                <div class="d-flex justify-end gap-2 border-t-base pt-4 mt-4">
-                    <a href="{{ route('admin.jadwal-kerja.index') }}" class="btnOutline">Batal</a>
+                <div class="form-action-footer">
+                    <a href="{{ route('admin.jadwal-kerja.index') }}" class="btnOutline">
+                        <ion-icon name="arrow-back-outline"></ion-icon> Batal
+                    </a>
                     <button type="submit" class="profileBtnPrimary">
-                        <ion-icon name="save-outline"></ion-icon> Simpan Perubahan Shift
+                        <ion-icon name="checkmark-circle-outline"></ion-icon> Simpan Perubahan Shift
                     </button>
                 </div>
             </form>

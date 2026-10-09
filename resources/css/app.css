@@ -6387,6 +6387,24 @@ input[type="date"].filterInput {
     flex-shrink: 0 !important;
 }
 
+.laporanHeaderActions .btnOutline {
+    background: var(--card, #ffffff) !important;
+    color: var(--text, #1e293b) !important;
+    border: 1px solid var(--border, #cbd5e1) !important;
+    border-radius: 12px !important;
+}
+
+[data-theme="dark"] .laporanHeaderActions .btnOutline {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.laporanHeaderActions .btnOutline:hover {
+    background: var(--card-alt, #f1f5f9) !important;
+    border-color: #94a3b8 !important;
+}
+
 .btnPayrollShortcut {
     background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
     color: #ffffff !important;

@@ -95,10 +95,9 @@
                 </div>
             </div>
 
-            {{-- Form Action Footer --}}
             <div class="form-action-footer">
                 <a href="{{ route('admin.jenjang-paket.index') }}" class="btnOutline">
-                    <ion-icon name="close-outline"></ion-icon> Batal
+                    <ion-icon name="arrow-back-outline"></ion-icon> Batal
                 </a>
                 <button type="submit" class="profileBtnPrimary">
                     <ion-icon name="save-outline"></ion-icon>

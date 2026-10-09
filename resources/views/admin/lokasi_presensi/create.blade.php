@@ -16,7 +16,7 @@
                 </div>
                 <div class="laporanHeaderActions">
                     <a href="{{ route('admin.lokasi-presensi.index') }}" class="btnOutline">
-                        Kembali
+                        <ion-icon name="arrow-back-outline"></ion-icon> Kembali
                     </a>
                 </div>
             </div>
@@ -137,7 +137,7 @@
                         </div>
 
                         <div class="pos-relative">
-                            <div id="pickerMap" class="pickerMapWrapper"></div>
+                            <div id="pickerMap" class="pickerMapWrapper" style="height: 420px; min-height: 400px; width: 100%; position: relative; z-index: 1;"></div>
                             <div class="info-callout-box mt-3">
                                 <div class="info-callout-title">Petunjuk Penggunaan Peta:</div>
                                 <div class="info-callout-desc">
@@ -151,10 +151,10 @@
 
                 <div class="form-action-footer">
                     <a href="{{ route('admin.lokasi-presensi.index') }}" class="btnOutline">
-                        Batal
+                        <ion-icon name="arrow-back-outline"></ion-icon> Batal
                     </a>
                     <button type="submit" class="profileBtnPrimary">
-                        Simpan Titik Lokasi
+                        <ion-icon name="save-outline"></ion-icon> Simpan Titik Lokasi
                     </button>
                 </div>
             </form>
@@ -162,7 +162,12 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        function initPickerMap() {
+            if (typeof window.L === 'undefined') {
+                setTimeout(initPickerMap, 100);
+                return;
+            }
+
             const inputLat = document.getElementById('inputLat');
             const inputLng = document.getElementById('inputLng');
             const inputRadius = document.getElementById('inputRadius');
@@ -284,6 +289,12 @@
             setTimeout(function () {
                 map.invalidateSize();
             }, 250);
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initPickerMap);
+        } else {
+            initPickerMap();
+        }
     </script>
 @endsection

@@ -68,7 +68,7 @@
                         Keberbakatan</p>
                 </div>
 
-                <div class="login-brand-features">
+                <!-- <div class="login-brand-features">
                     <div class="login-feature-item">
                         <div class="login-feature-icon">
                             <ion-icon name="location-outline"></ion-icon>
@@ -87,7 +87,7 @@
                         </div>
                         <span>Rekapitulasi Kehadiran &amp; Payroll Akurat</span>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="login-brand-footer">
                     &copy; {{ date('Y') }} PKBM Pintar Berbakat. Hak Cipta Dilindungi.
@@ -125,10 +125,10 @@
                                 placeholder="Contoh: 12345, username, atau email" value="{{ old('username') }}"
                                 autocomplete="username" inputmode="text" enterkeyhint="next" required autofocus />
                         </div>
-                        <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.75rem;">
+                        <!-- <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.75rem;">
                             <ion-icon name="checkmark-circle-outline" class="text-primary"></ion-icon>
                             <span>Mendukung login NIK, No. Absen, &amp; Akun SIMPIKAT</span>
-                        </div>
+                        </div> -->
                     </div>
 
                     {{-- Password --}}
@@ -149,13 +149,16 @@
                     </div>
 
                     {{-- Opsi Remember & Lupa Password --}}
+                    @php
+                        $adminWaNumber = \App\Models\User::getAdminWaContact();
+                    @endphp
                     <div class="login-options-row">
                         <label class="login-remember-label">
                             <input type="checkbox" name="remember" id="remember" value="1"
                                 class="login-remember-checkbox" {{ old('remember') ? 'checked' : '' }} />
                             <span>Ingat Saya</span>
                         </label>
-                        <a href="https://wa.me/6285156452939?text=Halo%20Admin%20PKBM%20Pikat,%20saya%20butuh%20bantuan%20kredensial%20akun%20login."
+                        <a href="https://wa.me/{{ $adminWaNumber }}?text=Halo%20Admin%20PKBM%20Pikat,%20saya%20butuh%20bantuan%20kredensial%20akun%20login."
                             target="_blank" rel="noopener noreferrer" class="login-forgot-link">
                             <ion-icon name="logo-whatsapp"></ion-icon>
                             <span>Lupa Password?</span>

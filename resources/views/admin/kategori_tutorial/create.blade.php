@@ -15,7 +15,7 @@
                 </div>
                 <div class="laporanHeaderActions">
                     <a class="btnOutline" href="{{ route('admin.kategori-tutorial.index') }}">
-                        Kembali
+                        <ion-icon name="arrow-back-outline"></ion-icon> Kembali
                     </a>
                 </div>
             </div>
@@ -144,7 +144,7 @@
 
                 <div class="form-action-footer">
                     <a href="{{ route('admin.kategori-tutorial.index') }}" class="btnOutline">
-                        Batal
+                        <ion-icon name="arrow-back-outline"></ion-icon> Batal
                     </a>
                     <button type="submit" class="profileBtnPrimary">
                         <ion-icon name="save-outline"></ion-icon> Simpan Kategori SK

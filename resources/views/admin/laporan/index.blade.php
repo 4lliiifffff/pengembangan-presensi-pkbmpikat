@@ -1239,7 +1239,14 @@
 
         function initAdminMap(lat, lng, nama, moda, targetLat, targetLng, targetRadius, targetNama) {
             var container = document.getElementById('adminMapContainer');
-            if (!container || typeof L === 'undefined') return;
+            if (!container) return;
+
+            if (typeof window.L === 'undefined') {
+                setTimeout(function () {
+                    initAdminMap(lat, lng, nama, moda, targetLat, targetLng, targetRadius, targetNama);
+                }, 100);
+                return;
+            }
 
             var dist = calcHaversine(lat, lng, targetLat, targetLng);
             var distFormatted = dist.toFixed(1);
