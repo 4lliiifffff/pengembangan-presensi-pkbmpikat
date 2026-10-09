@@ -13,7 +13,7 @@ Dokumen ini adalah panduan teknis dan referensi kode implementasi untuk menghubu
    https://kehadiran.pkbmpikat.com/sso/simpikat?token={TOKEN}
    ```
 4. Sistem Presensi PKBM Pikat memverifikasi keabsahan token dan timestamp-nya, memetakan data pengguna dari database `db_simpikat.pengguna`, melakukan *Just-In-Time (JIT) Provisioning* secara otomatis, lalu langsung mengaktifkan sesi login (`Auth::login()`).
-5. Pengguna langsung mendarat di Dashboard perannya (Admin, Tutor, atau Siswa) tanpa melihat form login.
+5. Pengguna langsung mendarat di Dashboard perannya (Admin, Tutor, atau Murid) tanpa melihat form login.
 6. Sebaliknya, jika pengguna sedang di Presensi dan ingin kembali ke SIMPIKAT, pengguna dapat mengklik tautan:
    ```
    https://kehadiran.pkbmpikat.com/sso/ke-simpikat

@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
-use App\Models\kelas;
 use App\Models\Kepala_Sekolah;
-use App\Models\Magang;
 use App\Models\Murid;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -17,7 +15,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -305,7 +302,7 @@ class AuthWebController extends Controller
     }
 
     /**
-     * Mencari akun pengguna representatif untuk role tertentu, dengan fallback otomatis jika database kosong.
+     * Mencari akun pengguna representatif untuk role tertentu dari database.
      */
     protected function resolveQuickLoginUser(string $role): User
     {
@@ -319,156 +316,12 @@ class AuthWebController extends Controller
         }
 
         if (! $user) {
-            $user = $this->createFallbackQuickLoginUser($role);
-        }
-
-        if (! $user->is_active) {
-            $user->update(['is_active' => 1]);
-        }
-
-        // Khusus role siswa, pastikan data siswa terhubung agar dashboard siswa tidak mengalihkan ke logout
-        if ($role === 'siswa' && class_exists(Siswa::class) && Schema::hasTable((new Siswa)->getTable())) {
-            if (! $user->siswa) {
-                $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
-                if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
-                    $k = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'tingkat' => '10']);
-                    $kelasId = $k->id;
-                }
-                Siswa::firstOrCreate(['user_id' => $user->id], [
-                    'no_absen' => '001',
-                    'nama_murid' => $user->nama_lengkap,
-                    'nama_siswa' => $user->nama_lengkap,
-                    'kelas_id' => $kelasId,
-                    'status_murid' => 'aktif',
-                    'status_siswa' => 'aktif',
-                    'no_hp' => $user->no_hp ?? '081234567001',
-                    'nama_wali' => 'Bambang Pratama',
-                ]);
-            }
+            throw ValidationException::withMessages([
+                'role' => "Tidak ditemukan akun pengguna untuk role '{$role}' di database.",
+            ]);
         }
 
         return $user;
-    }
-
-    /**
-     * Membuat akun pengujian darurat jika seeder belum dijalankan sama sekali.
-     */
-    protected function createFallbackQuickLoginUser(string $role): User
-    {
-        $passwordHash = Hash::make('password123');
-
-        switch ($role) {
-            case 'admin':
-                $user = User::create([
-                    'nik' => '12345',
-                    'nama_lengkap' => 'Kak Tasya',
-                    'email' => 'admin@pkbmpikat.com',
-                    'password' => $passwordHash,
-                    'role' => 'admin',
-                    'is_active' => 1,
-                ]);
-                if (class_exists(Admin::class) && Schema::hasTable((new Admin)->getTable())) {
-                    Admin::firstOrCreate(['user_id' => $user->id], [
-                        'nik' => $user->nik,
-                        'nama_lengkap' => $user->nama_lengkap,
-                        'email' => $user->email,
-                    ]);
-                }
-
-                return $user;
-
-            case 'kepala_sekolah':
-                $user = User::create([
-                    'nik' => '99001',
-                    'nama_lengkap' => 'Bu Dara',
-                    'email' => 'kepsek@pkbmpikat.com',
-                    'password' => $passwordHash,
-                    'role' => 'kepala_sekolah',
-                    'is_active' => 1,
-                ]);
-                if (class_exists(Kepala_Sekolah::class) && (Schema::hasTable((new Kepala_Sekolah)->getTable()) || Schema::hasTable('kepala__sekolahs'))) {
-                    Kepala_Sekolah::firstOrCreate(['user_id' => $user->id], [
-                        'nik' => $user->nik,
-                        'nama_lengkap' => $user->nama_lengkap,
-                        'email' => $user->email,
-                    ]);
-                }
-
-                return $user;
-
-            case 'tutor':
-                $user = User::create([
-                    'nik' => '10001',
-                    'nama_lengkap' => 'Kak Tari',
-                    'email' => 'tutor@pkbmpikat.com',
-                    'password' => $passwordHash,
-                    'role' => 'tutor',
-                    'is_active' => 1,
-                ]);
-                if (class_exists(Tutor::class) && Schema::hasTable((new Tutor)->getTable())) {
-                    Tutor::firstOrCreate(['user_id' => $user->id], [
-                        'nik' => $user->nik,
-                        'nama_lengkap' => $user->nama_lengkap,
-                        'jabatan' => 'Tutor Pembelajaran',
-                        'email' => $user->email,
-                    ]);
-                }
-
-                return $user;
-
-            case 'magang':
-                $user = User::create([
-                    'nik' => 'MG202601',
-                    'nama_lengkap' => 'Alif',
-                    'email' => 'magang@pkbmpikat.com',
-                    'password' => $passwordHash,
-                    'role' => 'magang',
-                    'is_active' => 1,
-                ]);
-                if (class_exists(Magang::class) && Schema::hasTable((new Magang)->getTable())) {
-                    Magang::firstOrCreate(['user_id' => $user->id], [
-                        'nim_nisn' => '22050974001',
-                        'nama_lengkap' => $user->nama_lengkap,
-                        'asal_instansi' => 'UNESA',
-                        'jurusan_prodi' => 'Pendidikan Luar Sekolah',
-                    ]);
-                }
-
-                return $user;
-
-            case 'siswa':
-                $user = User::create([
-                    'nik' => 'SW0001',
-                    'nama_lengkap' => 'Zeldi',
-                    'email' => 'siswa001@pkbmpikat.com',
-                    'password' => $passwordHash,
-                    'role' => 'siswa',
-                    'no_hp' => '081234567001',
-                    'is_active' => 1,
-                ]);
-                $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
-                if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
-                    $k = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'tingkat' => '10']);
-                    $kelasId = $k->id;
-                }
-                if (class_exists(Siswa::class) && Schema::hasTable((new Siswa)->getTable())) {
-                    Siswa::firstOrCreate(['user_id' => $user->id], [
-                        'no_absen' => '001',
-                        'nama_murid' => $user->nama_lengkap,
-                        'nama_siswa' => $user->nama_lengkap,
-                        'kelas_id' => $kelasId,
-                        'status_murid' => 'aktif',
-                        'status_siswa' => 'aktif',
-                        'no_hp' => '081234567001',
-                        'nama_wali' => 'Bambang Pratama',
-                    ]);
-                }
-
-                return $user;
-
-            default:
-                abort(404, "Role pengujian {$role} tidak dikenali.");
-        }
     }
 
     /**

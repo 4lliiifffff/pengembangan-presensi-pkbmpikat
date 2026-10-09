@@ -155,8 +155,8 @@ Kepala Sekolah merupakan pimpinan tertinggi lembaga yang memegang otoritas penga
 3. Kelas Tutor
 Tutor merupakan tenaga pendidik profesional yang bertugas menyelenggarakan kegiatan belajar mengajar bersama peserta didik. Pengguna dalam kelas ini bertanggung jawab melakukan presensi masuk dan pulang pada setiap sesi bimbingan belajar, mengatur kesepakatan jadwal belajar mandiri dengan siswa, melakukan penundaan jadwal jika terjadi kendala, mengajukan permohonan lupa lapor atau izin secara tertib, dan memeriksa rincian slip honorarium mengajar. Tutor memiliki kemampuan teknis dasar hingga menengah dan mengakses sistem mayoritas melalui telepon pintar di lokasi bimbingan.
 
-4. Kelas Siswa
-Siswa merupakan peserta didik program kesetaraan atau pelatihan vokasi. Pengguna dalam kelas ini bertugas melakukan presensi mandiri saat tiba di sekolah untuk mengikuti bimbingan belajar, melihat jadwal bimbingan harian, dan memantau catatan kehadiran pribadi. Siswa merupakan pengguna awam dengan latar belakang usia yang beragam, sehingga membutuhkan antarmuka yang sangat ringkas, intuitif, dan responsif pada layar telepon pintar.
+4. Kelas Murid (Peserta Ajar)
+Murid merupakan peserta didik program kesetaraan (Paket A, B, C) atau pelatihan vokasi. Pengguna dalam kelas ini bertugas melakukan presensi mandiri saat tiba di sekolah untuk mengikuti bimbingan belajar, melihat jadwal bimbingan harian, dan memantau catatan kehadiran pribadi. Murid merupakan pengguna awam dengan latar belakang usia yang beragam, sehingga antarmuka portal murid dirancang sangat ringkas, intuitif, dan responsif pada layar telepon pintar.
 
 5. Kelas Mahasiswa Magang
 Mahasiswa Magang merupakan mahasiswa atau siswa Praktik Kerja Lapangan yang melaksanakan tugas magang di PKBM Pikat. Pengguna dalam kelas ini bertanggung jawab melakukan presensi masuk dan pulang kerja harian di lingkungan sekolah berbasis foto dan geofence lokasi, serta mengunduh dokumen rekapitulasi kehadiran magang untuk keperluan pelaporan institusi pendidikan asalnya. Mahasiswa magang memiliki kemampuan teknis menengah dan mengoperasikan sistem melalui telepon pintar.
@@ -267,22 +267,22 @@ REQ-010: Sistem harus menyediakan kontrol kamera peramban yang meliputi pembalik
 REQ-011: Sistem harus menerapkan aturan kelayakan absen pulang cerdas di mana formulir kepulangan dibuka saat waktu mencapai sepuluh menit sebelum jadwal selesai atau tutor telah mengajar minimal delapan puluh persen dari durasi rencana bimbingan.
 REQ-012: Sistem harus mendeteksi sesi mengajar lampau yang belum diselesaikan tanpa memblokir presensi hari baru dan menyajikan banner pengajuan lupa lapor satu klik.
 
-### 4.3 Presensi Mandiri Peserta Didik dan Evaluasi Keterlambatan
+### 4.3 Presensi Mandiri Murid (Peserta Didik) dan Evaluasi Keterlambatan
 #### 4.3.1 Deskripsi Fitur
-Fitur ini diperuntukkan bagi peserta didik bimbingan belajar untuk mencatat kedatangan harian di sekolah secara mandiri menggunakan swafoto dan validasi geofence sekolah, disertai mekanisme penguncian waktu sebelum KBM dimulai dan pencatatan otomatis status keterlambatan.
+Fitur ini diperuntukkan bagi murid bimbingan belajar untuk mencatat kedatangan harian di sekolah secara mandiri menggunakan swafoto dan validasi geofence sekolah, disertai mekanisme penguncian waktu sebelum KBM dimulai dan pencatatan otomatis status keterlambatan.
 #### 4.3.2 Urutan Stimulus dan Respons
-1. Siswa masuk ke akun sistem dan membuka menu presensi mandiri.
-2. Sistem memeriksa jadwal bimbingan belajar siswa pada hari tersebut.
+1. Murid masuk ke akun sistem dan membuka menu presensi mandiri.
+2. Sistem memeriksa jadwal bimbingan belajar murid pada hari tersebut.
 3. Jika waktu saat ini lebih awal dari tiga puluh menit sebelum jam belajar dimulai, sistem mengunci kamera dan menampilkan hitung mundur pembukaan waktu presensi.
-4. Saat jendela presensi telah terbuka, siswa mengaktifkan kamera, mengambil swafoto di lingkungan sekolah, dan menekan tombol kirim kehadiran.
+4. Saat jendela presensi telah terbuka, murid mengaktifkan kamera, mengambil swafoto di lingkungan sekolah, dan menekan tombol kirim kehadiran.
 5. Sistem memverifikasi posisi koordinat terhadap radius sekolah. Jika waktu presensi melewati tiga puluh menit setelah jam belajar dimulai, sistem secara otomatis menetapkan status terlambat dan mencatat menit keterlambatan.
-6. Sistem menyimpan data kehadiran harian dan memperbarui statistik kehadiran pada dasbor siswa.
+6. Sistem menyimpan data kehadiran harian dan memperbarui statistik kehadiran pada dasbor murid.
 #### 4.3.3 Persyaratan Fungsional
-REQ-013: Sistem harus menerapkan mekanisme satu kali pencatatan presensi kedatangan per hari bagi peserta didik tanpa mewajibkan presensi pulang.
-REQ-014: Sistem harus mengunci formulir presensi siswa sebelum tiga puluh menit dari jadwal kegiatan belajar mengajar dimulai.
-REQ-015: Sistem harus secara otomatis menetapkan status terlambat dan mencatat jumlah menit keterlambatan apabila siswa melakukan presensi lebih dari tiga puluh menit setelah jam mulai belajar.
-REQ-016: Sistem harus menghitung statistik kehadiran siswa berdasarkan tanggal unik kehadiran guna mencegah perhitungan ganda saat tutor dan siswa sama-sama mencatat kehadiran.
-REQ-017: Sistem harus menampilkan jadwal belajar harian, riwayat kehadiran, dan status keterlambatan pada dasbor peserta didik secara ringkas.
+REQ-013: Sistem harus menerapkan mekanisme satu kali pencatatan presensi kedatangan per hari bagi murid tanpa mewajibkan presensi pulang.
+REQ-014: Sistem harus mengunci formulir presensi murid sebelum tiga puluh menit dari jadwal kegiatan belajar mengajar dimulai.
+REQ-015: Sistem harus secara otomatis menetapkan status terlambat dan mencatat jumlah menit keterlambatan apabila murid melakukan presensi lebih dari tiga puluh menit setelah jam mulai belajar.
+REQ-016: Sistem harus menghitung statistik kehadiran murid berdasarkan tanggal unik kehadiran guna mencegah perhitungan ganda saat tutor dan murid sama-sama mencatat kehadiran.
+REQ-017: Sistem harus menampilkan jadwal belajar harian, riwayat kehadiran, dan status keterlambatan pada dasbor murid secara ringkas.
 
 ### 4.4 Presensi Karyawan, Pimpinan Lembaga, dan Mahasiswa Magang
 #### 4.4.1 Deskripsi Fitur

@@ -413,15 +413,15 @@
                 <div>Mengetahui,</div>
                 <div class="font-bold">Pengelola Data Presensi &amp; Akademik</div>
                 <div class="sign-space"></div>
-                <div class="font-bold">Kak Tasya / Administrator</div>
-                <div class="text-muted">NIP/ID: ADM-PKBM-01</div>
+                <div class="font-bold">{{ auth()->user()->nama_lengkap ?? 'Administrator' }}</div>
+                <div class="text-muted">{{ auth()->user()->nik ? 'NIK/NIP: ' . auth()->user()->nik : 'Petugas Administrator' }}</div>
             </td>
             <td class="text-right" style="padding-right: 20px;">
                 <div>Bandung, {{ $tanggalCetak->translatedFormat('d F Y') }}</div>
                 <div class="font-bold">Kepala Sekolah PKBM Pikat</div>
                 <div class="sign-space"></div>
-                <div class="font-bold">Bu Dara, S.Pd.</div>
-                <div class="text-muted">NIP/ID: KEP-PKBM-01</div>
+                <div class="font-bold">{{ \App\Models\Kepala_Sekolah::first()?->nama_lengkap ?? (\App\Models\User::where('role', 'kepala_sekolah')->first()?->nama_lengkap ?? 'Kepala Sekolah PKBM Pikat') }}</div>
+                <div class="text-muted">{{ \App\Models\Kepala_Sekolah::first()?->nik ? 'NIK/NIP: ' . \App\Models\Kepala_Sekolah::first()?->nik : 'Kepala Sekolah' }}</div>
             </td>
         </tr>
     </table>

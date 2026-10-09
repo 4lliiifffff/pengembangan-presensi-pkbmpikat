@@ -13,14 +13,14 @@ class LokasiPresensiSeeder extends Seeder
     public function run(): void
     {
         $nama = config('lokasi.sekolah_nama', 'PKBM Pikat');
-        $lat = (float) config('lokasi.sekolah_lat', -7.8011945);
-        $lng = (float) config('lokasi.sekolah_lng', 110.364917);
+        $lat = (float) config('lokasi.sekolah_lat', -6.9308526492339295);
+        $lng = (float) config('lokasi.sekolah_lng', 107.60746330217363);
         $radius = (int) config('lokasi.radius_meter', 100);
 
         LokasiPresensi::updateOrCreate(
             ['nama_lokasi' => $nama],
             [
-                'alamat' => 'Jl. Bantul No. 123, Yogyakarta',
+                'alamat' => 'Bandung, Jawa Barat',
                 'tipe' => 'pusat',
                 'latitude' => $lat,
                 'longitude' => $lng,

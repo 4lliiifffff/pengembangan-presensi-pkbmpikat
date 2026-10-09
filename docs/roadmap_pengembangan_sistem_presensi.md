@@ -513,10 +513,16 @@
 * 🟢 **Automated Testing Suite:** [SELESAI] 7 skenario pengujian komprehensif di `tests/Feature/ErrorPagesToastTest.php` lulus 100% (17 assertions).
 
 
+### 9.20 Standardisasi Entitas Murid & Refaktorisasi Arsitektur Multi-Peran
+* 🟢 **Standardisasi Entitas & Terminologi Murid:** [SELESAI]
+  - Standarisasi istilah peserta belajar menjadi **Murid** di seluruh domain (Model `Murid`, Controller `MuridController`, `MuridPresensiController`, `AdminMuridController`, Route `/murid/*`, Seeders `MuridSeeder`, `MuridUserSeeder`, Observer `MuridObserver`).
+  - Menyediakan *backward compatibility layer* yang bersih dan aman untuk model `Siswa`, route `/siswa/*`, parameter helper, dan atribut relasional agar tidak memutus integrasi legacy.
+  - Kompilasi seluruh template Blade bersih tanpa error (`php artisan view:cache` lulus 100%).
+
 ## 10. QUALITY ASSURANCE & TESTING (TEST SUITE)
  
 * 🟢 **Standardisasi Penulisan Kode (Laravel Pint):** [SELESAI] `vendor/bin/pint --format agent` lolos 100% di seluruh file controller, model, view, seeder, dan migration.
-* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **149 Feature & Unit Tests** lulus 100% (**697 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, siswa mandiri single check-in, dan modul Quick Login multi-role.
+* 🟢 **Automated Testing Suite (PHPUnit):** [SELESAI] Seluruh **212 Feature & Unit Tests** lulus 100% (**1023 assertions**) mencakup seluruh alur presensi tutor, magang, admin, kepsek, murid mandiri single check-in, SSO SIMPIKAT, dan modul Quick Login multi-role.
 * 🟢 **Vite Production Assets:** [SELESAI] Kompilasi CSS & JS (`npm run build`) berjalan bersih tanpa error.
 
 ---
