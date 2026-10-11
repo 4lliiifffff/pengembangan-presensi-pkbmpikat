@@ -39,7 +39,6 @@ class KaryawanController extends Controller
         if ($search) {
             $karyawanQuery->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
                     ->orWhere('nik', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhere('no_hp', 'like', "%{$search}%");
@@ -95,24 +94,25 @@ class KaryawanController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_lengkap' => 'required',
-            'nik' => 'required|unique:users',
-            'password' => 'required',
-            'role' => 'required',
+            'nama_lengkap' => 'required|string|max:255',
+            'nik' => 'required|string|max:50|unique:users,nik',
+            'email' => 'nullable|email|max:255|unique:users,email',
+            'password' => 'required|min:6',
+            'role' => 'required|in:admin,tutor,kepala_sekolah',
+            'no_hp' => 'nullable|string|max:25',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $generatedEmail = null;
-        if (Schema::hasColumn('users', 'email')) {
-            $nik = (string) $request->nik;
-            $generatedEmail = strtolower(preg_replace('/\s+/', '', $nik)).'@local.test';
+        $email = $request->email;
+        if (empty($email)) {
+            $nikClean = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', (string) $request->nik));
+            $email = $nikClean.'@pkbmpikat.com';
         }
 
         $data = [
             'nama_lengkap' => $request->nama_lengkap,
-            'name' => $request->nama_lengkap,
             'nik' => $request->nik,
-            'email' => $generatedEmail,
+            'email' => $email,
             'password' => bcrypt($request->password),
             'role' => $request->role,
             'is_active' => 1,
@@ -151,17 +151,20 @@ class KaryawanController extends Controller
         $karyawan = User::findOrFail($id);
 
         $request->validate([
+            'nama_lengkap' => 'required|string|max:255',
+            'nik' => 'required|string|max:50|unique:users,nik,'.$karyawan->id,
+            'email' => 'nullable|email|max:255|unique:users,email,'.$karyawan->id,
+            'role' => 'required|in:admin,tutor,kepala_sekolah',
+            'no_hp' => 'nullable|string|max:25',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $payload = $request->only(['nama_lengkap', 'nik', 'role', 'no_hp']);
-        if ($request->filled('nama_lengkap')) {
-            $payload['name'] = $request->nama_lengkap;
+
+        if ($request->filled('email')) {
+            $payload['email'] = $request->email;
         }
-        if (Schema::hasColumn('users', 'email') && $request->filled('nik')) {
-            $nik = (string) $request->nik;
-            $payload['email'] = strtolower(preg_replace('/\s+/', '', $nik)).'@local.test';
-        }
+
         if ($request->filled('password')) {
             $payload['password'] = bcrypt($request->password);
         }

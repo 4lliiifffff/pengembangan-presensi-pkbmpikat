@@ -28,7 +28,6 @@ class MagangController extends Controller
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('nama_lengkap', 'like', "%{$search}%")
-                    ->orWhere('name', 'like', "%{$search}%")
                     ->orWhere('nik', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
                     ->orWhereHas('magang', function ($mq) use ($search) {

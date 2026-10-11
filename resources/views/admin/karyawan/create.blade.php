@@ -61,6 +61,11 @@
                 </div>
 
                 <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">Alamat Email (Opsional)</label>
+                    <input class="profileInput" type="email" name="email" value="{{ old('email') }}" placeholder="Contoh: nama@pkbmpikat.com (opsional)" />
+                </div>
+
+                <div class="form-field-wrapper">
                     <label class="filterFieldLabel">Password Akun <span class="text-danger">*</span></label>
                     <input class="profileInput" type="password" name="password" placeholder="Minimal 6 karakter" required />
                 </div>

@@ -62,6 +62,11 @@
                 </div>
 
                 <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">Alamat Email (Opsional)</label>
+                    <input class="profileInput" type="email" name="email" value="{{ old('email', $karyawan->email) }}" placeholder="Contoh: nama@pkbmpikat.com" />
+                </div>
+
+                <div class="form-field-wrapper">
                     <label class="filterFieldLabel">Password Baru (Opsional)</label>
                     <input class="profileInput" type="password" name="password" placeholder="Kosongkan jika tidak diubah" />
                 </div>

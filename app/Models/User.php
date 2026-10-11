@@ -196,20 +196,15 @@ class User extends Authenticatable
     /**
      * Dapatkan nomor WhatsApp kontak admin resmi (Single Source of Truth).
      *
-     * Alur Mitigasi Multi-Admin & Hotline:
-     * 1. Menggunakan nomor hotline resmi institusi dari config('app.admin_wa') jika diset.
-     * 2. Jika config kosong, mencari admin dengan akun aktif (is_active = 1) pertama yang memiliki nomor HP.
-     * 3. Jika tidak ada, menggunakan fallback darurat resmi PKBM.
+     * Alur Prioritas:
+     * 1. Mengambil nomor HP dari akun admin aktif yang terdaftar di sistem database.
+     * 2. Jika tidak ada admin / nomor HP admin kosong, menggunakan nomor dari config/fallback.
      *
      * @return string Nomor WhatsApp terformat internasional (diawali 62)
      */
     public static function getAdminWaContact(): string
     {
-        $configWa = config('app.admin_wa');
-        if (! empty($configWa)) {
-            return self::formatWhatsappNumber((string) $configWa);
-        }
-
+        // 1. Prioritas Utama: Akun Admin aktif di database sistem
         $activeAdmin = self::where('role', 'admin')
             ->where('is_active', 1)
             ->whereNotNull('no_hp')
@@ -221,7 +216,13 @@ class User extends Authenticatable
             return self::formatWhatsappNumber($activeAdmin->no_hp);
         }
 
-        return '6285156452939';
+        // 2. Fallback: Konfigurasi app.admin_wa atau default
+        $configWa = config('app.admin_wa');
+        if (! empty($configWa)) {
+            return self::formatWhatsappNumber((string) $configWa);
+        }
+
+        return '6281234567802';
     }
 
     /**
