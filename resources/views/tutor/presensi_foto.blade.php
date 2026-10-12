@@ -1593,31 +1593,35 @@
             }
         }
 
-        // ── Searchable Siswa Selection Logic ──
+        // ── Searchable Siswa Selection Logic (Debounced for 60fps Mobile Performance) ──
+        var filterDebounceTimer = null;
         function filterSiswaList(query) {
-            var q = (query || '').toLowerCase().trim();
-            var items = document.querySelectorAll('.siswa-item-row');
-            var clearBtn = document.getElementById('btnClearSiswaSearch');
-            var noMatch = document.getElementById('noMatchSiswa');
-            var visibleCount = 0;
+            clearTimeout(filterDebounceTimer);
+            filterDebounceTimer = setTimeout(function () {
+                var q = (query || '').toLowerCase().trim();
+                var items = document.querySelectorAll('.siswa-item-row');
+                var clearBtn = document.getElementById('btnClearSiswaSearch');
+                var noMatch = document.getElementById('noMatchSiswa');
+                var visibleCount = 0;
 
-            if (clearBtn) {
-                clearBtn.style.display = q ? 'block' : 'none';
-            }
-
-            items.forEach(function (item) {
-                var searchData = item.getAttribute('data-search') || '';
-                if (!q || searchData.indexOf(q) !== -1) {
-                    item.style.display = 'flex';
-                    visibleCount++;
-                } else {
-                    item.style.display = 'none';
+                if (clearBtn) {
+                    clearBtn.style.display = q ? 'block' : 'none';
                 }
-            });
 
-            if (noMatch) {
-                noMatch.style.display = (visibleCount === 0) ? 'block' : 'none';
-            }
+                items.forEach(function (item) {
+                    var searchData = item.getAttribute('data-search') || '';
+                    if (!q || searchData.indexOf(q) !== -1) {
+                        item.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                if (noMatch) {
+                    noMatch.style.display = (visibleCount === 0) ? 'block' : 'none';
+                }
+            }, 80);
         }
 
         function clearSiswaSearch() {

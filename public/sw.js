@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pikat-presensi-v2.1';
+const CACHE_NAME = 'pikat-presensi-v2.2';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -49,7 +49,45 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network First, fallback to Cache Strategy
+  const url = new URL(event.request.url);
+
+  // 1. Immutable versioned Vite build assets (/build/assets/...) -> Cache First
+  if (url.pathname.startsWith('/build/assets/')) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        if (cached) {
+          return cached;
+        }
+        return fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone).catch(() => {}));
+          }
+          return networkResponse;
+        });
+      })
+    );
+    return;
+  }
+
+  // 2. Static CDN assets (Google Fonts, Unpkg Ionicons) -> Stale-While-Revalidate
+  if (url.hostname.includes('fonts.gstatic.com') || url.hostname.includes('fonts.googleapis.com') || url.hostname.includes('unpkg.com')) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const fetchPromise = fetch(event.request).then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const clone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone).catch(() => {}));
+          }
+          return networkResponse;
+        }).catch(() => cached);
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // 3. Dynamic HTML & Routes -> Network First, fallback to Cache
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
