@@ -131,4 +131,17 @@ return [
         'simpikat_base_url' => env('SIMPIKAT_BASE_URL', 'https://pkbmpikat.com'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Quick Login Configuration (Testing & Development)
+    |--------------------------------------------------------------------------
+    |
+    | Mengatur aktivasi fitur login cepat (Quick Login) multi-peran.
+    | Dikendalikan melalui environment APP_QUICK_LOGIN atau artisan command:
+    | php artisan quick-login:enable / php artisan quick-login:disable
+    |
+    */
+
+    'quick_login' => env('APP_QUICK_LOGIN', null),
+
 ];

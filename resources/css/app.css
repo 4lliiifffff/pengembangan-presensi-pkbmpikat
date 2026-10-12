@@ -6472,6 +6472,12 @@ input[type="date"].filterInput {
 
 .filterSelect {
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
     padding: 10px 14px;
     border-radius: 12px;
     border: 1px solid var(--border);
@@ -11982,6 +11988,13 @@ body.app-modal-open {
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+.form-grid-responsive > * {
+    min-width: 0;
+    max-width: 100%;
 }
 
 @media (max-width: 640px) {
@@ -11994,6 +12007,29 @@ body.app-modal-open {
 
 .form-grid-full {
     grid-column: 1 / -1;
+}
+
+.kategori-selected-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.22);
+    color: #0284c7;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.4;
+    word-break: break-word;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+[data-theme="dark"] .kategori-selected-preview {
+    background: rgba(14, 165, 233, 0.16);
+    border-color: rgba(14, 165, 233, 0.35);
+    color: #38bdf8;
 }
 
 .form-action-footer {
@@ -12026,6 +12062,24 @@ body.app-modal-open {
     gap: 6px;
 }
 
+.form-action-footer .profileBtnDanger {
+    width: auto;
+    min-width: 140px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+.form-action-footer .footer-action-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
 @media (max-width: 640px) {
     .form-action-footer {
         flex-direction: column-reverse;
@@ -12034,10 +12088,25 @@ body.app-modal-open {
     }
 
     .form-action-footer>button,
-    .form-action-footer>a {
+    .form-action-footer>a,
+    .form-action-footer>form,
+    .form-action-footer>form>button,
+    .form-action-footer .footer-action-group,
+    .form-action-footer .footer-action-group>button,
+    .form-action-footer .footer-action-group>a,
+    .form-action-footer .footer-action-group>form,
+    .form-action-footer .footer-action-group>form>button {
         width: 100% !important;
         justify-content: center;
         text-align: center;
+        display: flex !important;
+        box-sizing: border-box !important;
+    }
+
+    .form-action-footer .footer-action-group {
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
     }
 }
 

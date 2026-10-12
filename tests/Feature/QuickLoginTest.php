@@ -17,7 +17,7 @@ class QuickLoginTest extends TestCase
             'kepala_sekolah' => route('kepsek.dashboard'),
             'tutor' => route('tutor.dashboard'),
             'magang' => route('magang.dashboard'),
-            'siswa' => route('siswa.dashboard'),
+            'siswa' => route('murid.dashboard'),
         ];
 
         foreach ($roles as $role => $expectedRoute) {
@@ -48,7 +48,7 @@ class QuickLoginTest extends TestCase
             'kepala_sekolah' => route('kepsek.dashboard'),
             'tutor' => route('tutor.dashboard'),
             'magang' => route('magang.dashboard'),
-            'siswa' => route('siswa.dashboard'),
+            'siswa' => route('murid.dashboard'),
         ];
 
         foreach ($roles as $role => $expectedRoute) {
@@ -121,5 +121,33 @@ class QuickLoginTest extends TestCase
         $response->assertSee('Mode Pengujian');
         $response->assertSee('quickLoginSection');
         $response->assertSee('AKSES PENGUJIAN CEPAT (DEMO ROLE)');
+    }
+
+    public function test_quick_login_is_blocked_and_hidden_when_disabled(): void
+    {
+        config(['auth.quick_login' => false]);
+
+        $this->assertFalse(User::isQuickLoginEnabled());
+
+        // Halaman login tidak menampilkan panel pengujian
+        $response = $this->get(route('login'));
+        $response->assertStatus(200);
+        $response->assertDontSee('AKSES PENGUJIAN CEPAT (DEMO ROLE)');
+        $response->assertDontSee('fillLoginForm');
+
+        // Request POST quick login ditolak dengan 403
+        $postResponse = $this->post(route('login.quick'), ['role' => 'admin']);
+        $postResponse->assertStatus(403);
+
+        // Request GET quick login dialihkan dengan pesan peringatan
+        $getResponse = $this->get(route('login.quick.get', ['role' => 'admin']));
+        $getResponse->assertRedirect(route('login'));
+        $getResponse->assertSessionHas('warning');
+    }
+
+    public function test_quick_login_artisan_commands_execute_successfully(): void
+    {
+        $this->artisan('quick-login:status')->assertExitCode(0);
+        $this->artisan('quick-login', ['action' => 'status'])->assertExitCode(0);
     }
 }

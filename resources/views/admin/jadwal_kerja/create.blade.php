@@ -78,11 +78,14 @@
                             <option value="">-- Tanpa Kategori Khusus (Manual) --</option>
                             @foreach($kategoriTutorials as $kat)
                                 <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" {{ old('kategori_tutorial_id') == $kat->id ? 'selected' : '' }}>
-                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull;
-                                    {{ $kat->formatted_nominal_honor }})
+                                    {{ $kat->nama_kategori }} &bull; {{ $kat->durasi_jam }}J ({{ $kat->formatted_nominal_honor }})
                                 </option>
                             @endforeach
                         </select>
+                        <div id="kategoriSelectedPreview" class="kategori-selected-preview mt-2 d-none">
+                            <ion-icon name="ribbon-outline"></ion-icon>
+                            <span id="kategoriSelectedText"></span>
+                        </div>
                         <span class="field-help-text">Memilih kategori akan otomatis mengunci durasi jam acuan SK.</span>
                     </div>
                 </div>
@@ -191,11 +194,23 @@
         function handleKategoriTutorialChange() {
             const sel = document.getElementById('selectKategoriTutorial');
             const durasiInput = document.getElementById('inputDurasiJam');
-            const opt = sel.selectedOptions[0];
-            if (opt && opt.dataset.durasi) {
-                durasiInput.value = parseFloat(opt.dataset.durasi).toFixed(2);
-                document.getElementById('durasiHint').textContent = 'Durasi dikunci sesuai standar SK Kategori Tutorial.';
+            const previewBox = document.getElementById('kategoriSelectedPreview');
+            const previewText = document.getElementById('kategoriSelectedText');
+            const opt = sel ? sel.selectedOptions[0] : null;
+
+            if (opt && opt.value) {
+                if (durasiInput && opt.dataset.durasi) {
+                    durasiInput.value = parseFloat(opt.dataset.durasi).toFixed(2);
+                    document.getElementById('durasiHint').textContent = 'Durasi dikunci sesuai standar SK Kategori Tutorial (' + opt.dataset.durasi + ' Jam).';
+                }
+                if (previewBox && previewText) {
+                    previewText.textContent = opt.text.trim();
+                    previewBox.classList.remove('d-none');
+                }
             } else {
+                if (previewBox) {
+                    previewBox.classList.add('d-none');
+                }
                 calculateDuration();
             }
         }
@@ -218,6 +233,11 @@
                 document.getElementById('durasiHint').textContent = 'Dihitung otomatis: ' + hours + ' jam kerja.';
             }
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            handleJenisShiftChange();
+            handleKategoriTutorialChange();
+        });
     </script>
 
 @endsection

@@ -266,4 +266,27 @@ class User extends Authenticatable
 
         return $cleaned;
     }
+
+    /**
+     * Menentukan apakah fitur Quick Login diizinkan dan aktif pada aplikasi.
+     *
+     * Prioritas evaluasi:
+     * 1. Jika konfigurasi/env APP_QUICK_LOGIN diatur secara eksplisit: ikuti nilai boolean tersebut (true/false).
+     * 2. Jika bernilai null (belum diatur di .env): default aktif hanya di lingkungan local atau testing, atau saat APP_DEBUG aktif.
+     */
+    public static function isQuickLoginEnabled(): bool
+    {
+        $configured = config('auth.quick_login');
+
+        if ($configured !== null) {
+            return filter_var($configured, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        $envVal = env('APP_QUICK_LOGIN');
+        if ($envVal !== null) {
+            return filter_var($envVal, FILTER_VALIDATE_BOOLEAN);
+        }
+
+        return app()->environment('local', 'testing') || (bool) config('app.debug', false);
+    }
 }

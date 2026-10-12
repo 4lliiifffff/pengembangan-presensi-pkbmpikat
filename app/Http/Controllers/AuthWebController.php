@@ -260,8 +260,8 @@ class AuthWebController extends Controller
      */
     public function quickLogin(Request $request): RedirectResponse
     {
-        if (! app()->environment('local', 'testing') && ! config('app.debug') && ! env('APP_QUICK_LOGIN', false)) {
-            abort(403, 'Akses Quick Login hanya diperbolehkan pada lingkungan pengembangan atau pengujian.');
+        if (! User::isQuickLoginEnabled()) {
+            abort(403, 'Akses Quick Login sedang dinonaktifkan pada sistem.');
         }
 
         $validated = $request->validate([
@@ -285,8 +285,8 @@ class AuthWebController extends Controller
      */
     public function quickLoginGet(Request $request, string $role): RedirectResponse
     {
-        if (! app()->environment('local', 'testing') && ! config('app.debug') && ! env('APP_QUICK_LOGIN', false)) {
-            abort(403, 'Akses Quick Login hanya diperbolehkan pada lingkungan pengembangan atau pengujian.');
+        if (! User::isQuickLoginEnabled()) {
+            return redirect()->route('login')->with('warning', 'Fitur Quick Login sedang dinonaktifkan.');
         }
 
         if (! in_array($role, ['admin', 'kepala_sekolah', 'tutor', 'magang', 'siswa', 'murid'], true)) {

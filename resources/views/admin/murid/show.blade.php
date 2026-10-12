@@ -12,10 +12,10 @@
             </div>
             <div class="laporanHeaderActions header-actions-group">
                 <a href="{{ route('admin.murid.index') }}" class="btnOutline">
-                    Kembali ke Daftar
+                    <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Daftar
                 </a>
-                <a href="{{ route('admin.murid.edit', $murid) }}" class="profileBtnPrimary w-auto px-4">
-                    Edit Data Murid
+                <a href="{{ route('admin.murid.edit', $murid) }}" class="profileBtnPrimary">
+                    <ion-icon name="create-outline"></ion-icon> Edit Data Murid
                 </a>
             </div>
         </div>
@@ -86,10 +86,10 @@
                     <p class="text-xs text-muted m-0">Kredensial akun untuk murid login presensi mandiri dan melihat riwayat kehadiran</p>
                 </div>
                 @if($murid->user)
-                    <form method="POST" action="{{ route('admin.murid.resetPassword', $murid) }}" data-confirm="Reset password akun murid ini menjadi 'password123'?" data-confirm-title="Reset Password Murid" data-confirm-type="warning" data-confirm-btn="Ya, Reset Password">
+                    <form method="POST" action="{{ route('admin.murid.resetPassword', $murid) }}" data-confirm="Reset password akun murid ini menjadi 'password123'?" data-confirm-title="Reset Password Murid" data-confirm-type="warning" data-confirm-btn="Ya, Reset Password" class="m-0">
                         @csrf
                         <button type="submit" class="btnOutline btn-sm text-xs font-semibold">
-                            Reset Password Default
+                            <ion-icon name="key-outline"></ion-icon> Reset Password Default
                         </button>
                     </form>
                 @endif
@@ -123,18 +123,25 @@
             @endif
         </div>
 
+        {{-- ── Footer Action Buttons ── --}}
         <div class="form-action-footer">
-            <a class="btnOutline" href="{{ route('admin.murid.edit', $murid) }}">
-                Edit Data
+            <a class="btnOutline" href="{{ route('admin.murid.index') }}">
+                <ion-icon name="arrow-back-outline"></ion-icon> Kembali ke Daftar
             </a>
 
-            <form method="POST" action="{{ route('admin.murid.destroy', $murid) }}" data-confirm="Arsipkan data murid ini (Soft Delete)? Seluruh riwayat presensi tetap aman." data-confirm-title="Arsipkan Murid" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="profileBtnDanger cursor-pointer w-auto px-4 text-md">
-                    Arsipkan Murid
-                </button>
-            </form>
+            <div class="footer-action-group">
+                <form method="POST" action="{{ route('admin.murid.destroy', $murid) }}" data-confirm="Arsipkan data murid ini (Soft Delete)? Seluruh riwayat presensi tetap aman." data-confirm-title="Arsipkan Murid" data-confirm-type="danger" data-confirm-btn="Ya, Arsipkan" class="m-0">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="profileBtnDanger">
+                        <ion-icon name="archive-outline"></ion-icon> Arsipkan Murid
+                    </button>
+                </form>
+
+                <a class="profileBtnPrimary" href="{{ route('admin.murid.edit', $murid) }}">
+                    <ion-icon name="create-outline"></ion-icon> Edit Data Murid
+                </a>
+            </div>
         </div>
     </div>
 </div>

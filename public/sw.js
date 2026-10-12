@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pikat-presensi-v2';
+const CACHE_NAME = 'pikat-presensi-v2.1';
 const ASSETS_TO_CACHE = [
   '/',
   '/manifest.json',
@@ -38,6 +38,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Hanya proses URL dengan skema http:// atau https://
+  // Mencegah error cache.put() pada ekstensi browser (chrome-extension://, moz-extension://, dll.)
+  if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) {
+    return;
+  }
+
+  // Abaikan endpoint internal/dev tool seperti Laravel Boost logger
+  if (event.request.url.includes('/_boost/')) {
+    return;
+  }
+
   // Network First, fallback to Cache Strategy
   event.respondWith(
     fetch(event.request)
@@ -45,8 +56,8 @@ self.addEventListener('fetch', (event) => {
         if (networkResponse && networkResponse.status === 200) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+            cache.put(event.request, responseClone).catch(() => {});
+          }).catch(() => {});
         }
         return networkResponse;
       })

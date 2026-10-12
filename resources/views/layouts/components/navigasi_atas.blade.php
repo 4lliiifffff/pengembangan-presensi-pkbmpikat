@@ -25,7 +25,7 @@
             </div>
         </div>
         <div class="topIcons">
-            @if(app()->environment('local', 'testing') || config('app.debug') || env('APP_QUICK_LOGIN', false))
+            @if(\App\Models\User::isQuickLoginEnabled())
                 <div class="quick-switcher-wrap" style="position: relative;">
                     <button class="iconBtn quick-switch-trigger" type="button" id="quickRoleSwitcherBtn" aria-label="Ganti Role Cepat (Dev)" title="Ganti Role Cepat (Dev / Testing)">
                         <ion-icon name="flash"></ion-icon>

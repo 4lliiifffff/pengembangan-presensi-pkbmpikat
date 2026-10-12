@@ -193,7 +193,7 @@
                 </form>
 
                 {{-- ── Panel Pengujian: Quick Login Multi-Role (Testing & Dev Mode) ── --}}
-                @if(app()->environment('local', 'testing') || config('app.debug') || env('APP_QUICK_LOGIN', false))
+                @if(\App\Models\User::isQuickLoginEnabled())
                     @php
                         $adminUser = \App\Models\User::where('role', 'admin')->first();
                         $kepsekUser = \App\Models\User::where('role', 'kepala_sekolah')->first();
@@ -399,6 +399,7 @@
                 });
             });
 
+            @if(\App\Models\User::isQuickLoginEnabled())
             // ── 6. Helper Isi Form Pengujian Cepat (Quick Fill) ──
             window.fillLoginForm = function (username, password, roleLabel) {
                 if (usernameInput) {
@@ -427,6 +428,7 @@
                     usernameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }
             };
+            @endif
         })();
     </script>
 
