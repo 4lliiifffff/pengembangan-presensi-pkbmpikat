@@ -487,11 +487,11 @@
                         </div>
                         <div class="radarActions">
                             <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
-                                Petunjuk Arah (Peta)
+                                <ion-icon name="navigate-outline"></ion-icon> <span>Petunjuk Arah</span>
                             </a>
                             <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi:
-                                    Aktif</span>
+                                <!-- <span class="liveDot" id="liveGpsDot"></span>  -->
+                                <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
                             </button>
                         </div>
                     </div>
@@ -824,23 +824,38 @@
                         }
                     }
 
-                    if (radarCard) {
+                    if (radarCard && radarDot && radarTitle && radarSub) {
                         radarCard.classList.remove('d-none');
+                        radarCard.style.display = 'flex';
+                        var sisaJarak = Math.max(0, Math.round(state.distance - state.targetRadius));
+
                         if (state.isWithin) {
-                            radarCard.className = 'proximityRadarCard radar-in-zone';
-                            if (radarDot) radarDot.className = 'radarStatusDot dot-green';
-                            if (radarTitle) radarTitle.textContent = 'Posisi Terverifikasi di Area ' + state.targetNama;
-                            if (radarSub) radarSub.textContent = 'Jarak: ' + Math.round(state.distance) + ' meter dari titik pusat (Radius: ' + state.targetRadius + 'm).';
-                            if (btnMaps) btnMaps.classList.add('d-none');
-                        } else {
-                            radarCard.className = 'proximityRadarCard radar-out-zone';
-                            if (radarDot) radarDot.className = 'radarStatusDot dot-red';
-                            var selisih = Math.round(state.distance - state.targetRadius);
-                            if (radarTitle) radarTitle.textContent = 'Di Luar Batas Presensi (' + Math.round(state.distance) + ' m)';
-                            if (radarSub) radarSub.textContent = 'Mendekatlah sekitar ' + selisih + ' meter lagi ke area ' + state.targetNama + '.';
+                            radarDot.className = 'radarStatusDot pulse-green';
+                            radarTitle.textContent = 'Posisi Anda Sesuai di ' + state.targetNama;
+                            radarSub.textContent = 'Lokasi telah cocok. Silakan ambil foto dan kirim presensi.';
                             if (btnMaps) {
-                                btnMaps.href = 'https://www.google.com/maps/dir/?api=1&origin=' + state.userLat + ',' + state.userLng + '&destination=' + state.targetLat + ',' + state.targetLng;
+                                btnMaps.classList.add('d-none');
+                                btnMaps.style.display = 'none';
+                            }
+
+                            if (state.zoneChanged && navigator.vibrate) {
+                                navigator.vibrate([100, 50, 100]);
+                            }
+                        } else {
+                            if (state.distance > 200) {
+                                radarDot.className = 'radarStatusDot pulse-red';
+                                radarTitle.textContent = 'Jarak ke Lokasi: ' + Math.round(state.distance) + ' meter';
+                                radarSub.textContent = 'Silakan bergerak mendekati ' + state.targetNama + ' (perlu mendekat ' + sisaJarak + ' m).';
+                            } else {
+                                radarDot.className = 'radarStatusDot pulse-yellow';
+                                radarTitle.textContent = 'Mendekati Lokasi (tinggal ' + sisaJarak + ' meter lagi)';
+                                radarSub.textContent = 'Sedikit lagi! Bergeraklah mendekat agar dapat melakukan presensi.';
+                            }
+
+                            if (btnMaps) {
                                 btnMaps.classList.remove('d-none');
+                                btnMaps.style.display = 'inline-flex';
+                                btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + state.targetLat + ',' + state.targetLng + '&origin=' + state.userLat + ',' + state.userLng;
                             }
                         }
                     }
@@ -880,7 +895,21 @@
 
 
         function refreshLocation(isManual) {
-            if (!navigator.geolocation) return;
+            var refreshBtn = document.querySelector('.btnRefreshLocation');
+            if (refreshBtn && isManual) {
+                refreshBtn.classList.add('loading');
+                var span = refreshBtn.querySelector('span');
+                if (span) span.textContent = 'Mencari Lokasi...';
+            }
+
+            if (!navigator.geolocation) {
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    var span = refreshBtn.querySelector('span');
+                    if (span) span.textContent = 'Perbarui Lokasi';
+                }
+                return;
+            }
 
             var ph = document.getElementById('mapPlaceholder');
             if (ph && isManual) {
@@ -904,6 +933,12 @@
 
                 setMapFromLatLng(lat, lng, accuracy);
 
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    var span = refreshBtn.querySelector('span');
+                    if (span) span.textContent = 'Perbarui Lokasi';
+                }
+
                 if (isManual && window.showAppToast) {
                     window.showAppToast({
                         type: 'info',
@@ -913,6 +948,12 @@
                     });
                 }
             }, function (err) {
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    var span = refreshBtn.querySelector('span');
+                    if (span) span.textContent = 'Perbarui Lokasi';
+                }
+
                 if (isManual && window.showAppToast) {
                     window.showAppToast({
                         type: 'error',
@@ -928,27 +969,35 @@
             });
         }
 
-        function toggleLiveTracking() {
-            isLiveTracking = !isLiveTracking;
-            var dot = document.getElementById('liveGpsDot');
-            var lbl = document.getElementById('liveGpsLabel');
+        function updateLiveGpsButton() {
             var btn = document.getElementById('btnToggleLiveGps');
+            var label = document.getElementById('liveGpsLabel');
+            var dot = document.getElementById('liveGpsDot');
+            if (!btn || !label) return;
 
             if (isLiveTracking) {
-                startLiveTracking();
-                if (dot) dot.style.background = '#10b981';
-                if (lbl) lbl.textContent = 'Pantau Lokasi: Aktif';
-                if (btn) btn.className = 'btnLiveGpsActive';
+                btn.className = 'btnLiveGpsActive';
+                label.textContent = 'Pantau Lokasi: Aktif';
+                if (dot) dot.className = 'liveDot';
             } else {
+                btn.className = 'btnLiveGpsPaused';
+                label.textContent = 'Pantau Lokasi: Jeda';
+                if (dot) dot.className = 'liveDot paused';
+            }
+        }
+
+        function toggleLiveTracking() {
+            if (isLiveTracking) {
                 stopLiveTracking();
-                if (dot) dot.style.background = '#94a3b8';
-                if (lbl) lbl.textContent = 'Pantau Lokasi: Jeda';
-                if (btn) btn.className = 'btnLiveGpsPaused';
+            } else {
+                startLiveTracking();
             }
         }
 
         function startLiveTracking() {
             if (!navigator.geolocation || watchPositionId !== null) return;
+            isLiveTracking = true;
+            updateLiveGpsButton();
             watchPositionId = navigator.geolocation.watchPosition(function (pos) {
                 if (!isLiveTracking) return;
                 setMapFromLatLng(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
@@ -964,6 +1013,8 @@
                 navigator.geolocation.clearWatch(watchPositionId);
                 watchPositionId = null;
             }
+            isLiveTracking = false;
+            updateLiveGpsButton();
         }
 
         // Jalankan inisialisasi peta dan tracking saat halaman selesai dimuat

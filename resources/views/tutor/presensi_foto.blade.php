@@ -271,17 +271,17 @@
                             <div class="radarHeader">
                                 <div class="radarStatusDot" id="radarStatusDot"></div>
                                 <div class="radarInfo">
-                                    <div class="radarTitle" id="radarTitle">Mengecek jarak Anda...</div>
-                                    <div class="radarSub" id="radarSub">Lokasi diperbarui secara otomatis</div>
+                                    <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
+                                    <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
                                 </div>
                             </div>
                             <div class="radarActions">
                                 <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
-                                    Petunjuk Arah
+                                    <ion-icon name="navigate-outline"></ion-icon> <span>Petunjuk Arah</span>
                                 </a>
                                 <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                    <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi:
-                                        Aktif</span>
+                                    <!-- <span class="liveDot" id="liveGpsDot"></span>  -->
+                                    <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
                                 </button>
                             </div>
                         </div>
@@ -699,17 +699,17 @@
                         <div class="radarHeader">
                             <div class="radarStatusDot" id="radarStatusDot"></div>
                             <div class="radarInfo">
-                                <div class="radarTitle" id="radarTitle">Mengecek jarak Anda...</div>
-                                <div class="radarSub" id="radarSub">Lokasi diperbarui secara otomatis</div>
+                                <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
+                                <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
                             </div>
                         </div>
                         <div class="radarActions">
                             <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
-                                Petunjuk Arah
+                                <ion-icon name="navigate-outline"></ion-icon> <span>Petunjuk Arah</span>
                             </a>
                             <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                <span class="liveDot" id="liveGpsDot"></span> <span id="liveGpsLabel">Pantau Lokasi:
-                                    Aktif</span>
+                                <!-- <span class="liveDot" id="liveGpsDot"></span>  -->
+                                <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
                             </button>
                         </div>
                     </div>
@@ -1068,6 +1068,7 @@
                     }
 
                     if (radarCard && radarDot && radarTitle && radarSub) {
+                        radarCard.classList.remove('d-none');
                         radarCard.style.display = 'flex';
                         var sisaJarak = Math.max(0, Math.round(state.distance - state.targetRadius));
 
@@ -1075,16 +1076,22 @@
                             radarDot.className = 'radarStatusDot pulse-green';
                             radarTitle.textContent = 'Posisi Anda Sesuai di ' + state.targetNama;
                             radarSub.textContent = 'Lokasi telah cocok. Silakan ambil foto dan kirim presensi.';
-                            if (btnMaps) btnMaps.style.display = 'none';
+                            if (btnMaps) {
+                                btnMaps.classList.add('d-none');
+                                btnMaps.style.display = 'none';
+                            }
 
-                            if (lastWithinZone === false && navigator.vibrate) {
+                            if (state.zoneChanged && navigator.vibrate) {
                                 navigator.vibrate([100, 50, 100]);
                             }
                         } else if (!isSekolahModa) {
                             radarDot.className = 'radarStatusDot pulse-blue';
                             radarTitle.textContent = 'Mode Kunjungan / Daring: Bebas Radius';
                             radarSub.textContent = 'Titik lokasi GPS Anda berhasil dideteksi dan dicatat (' + Math.round(state.distance) + 'm dari ' + state.targetNama + ').';
-                            if (btnMaps) btnMaps.style.display = 'none';
+                            if (btnMaps) {
+                                btnMaps.classList.add('d-none');
+                                btnMaps.style.display = 'none';
+                            }
                         } else {
                             if (state.distance > 200) {
                                 radarDot.className = 'radarStatusDot pulse-red';
@@ -1097,13 +1104,14 @@
                             }
 
                             if (btnMaps) {
+                                btnMaps.classList.remove('d-none');
                                 btnMaps.style.display = 'inline-flex';
                                 btnMaps.href = 'https://www.google.com/maps/dir/?api=1&destination=' + state.targetLat + ',' + state.targetLng + '&origin=' + state.userLat + ',' + state.userLng;
                             }
                         }
                     }
 
-                    if (lastWithinZone !== null && lastWithinZone !== state.isWithin && window.showAppToast) {
+                    if (state.zoneChanged && window.showAppToast) {
                         if (state.isWithin) {
                             window.showAppToast({
                                 type: 'success',
@@ -1194,9 +1202,23 @@
 
             if (ph) ph.style.color = 'var(--muted)';
             setMapFromLatLng(pos.coords.latitude, pos.coords.longitude, accuracy);
+
+            var refreshBtn = document.querySelector('.btnRefreshLocation');
+            if (refreshBtn) {
+                refreshBtn.classList.remove('loading');
+                var span = refreshBtn.querySelector('span');
+                if (span) span.textContent = 'Perbarui Lokasi';
+            }
         }
 
         function handleGpsError() {
+            var refreshBtn = document.querySelector('.btnRefreshLocation');
+            if (refreshBtn) {
+                refreshBtn.classList.remove('loading');
+                var span = refreshBtn.querySelector('span');
+                if (span) span.textContent = 'Perbarui Lokasi';
+            }
+
             var ph = document.getElementById('mapPlaceholder');
             if (ph) ph.textContent = 'Gagal mengambil lokasi. Pastikan izin GPS aktif.';
         }
@@ -1234,21 +1256,35 @@
             var btn = document.getElementById('btnToggleLiveGps');
             var label = document.getElementById('liveGpsLabel');
             var dot = document.getElementById('liveGpsDot');
-            if (!btn || !label || !dot) return;
+            if (!btn || !label) return;
 
             if (isLiveTracking) {
-                label.textContent = 'Live Track: ON';
-                dot.className = 'liveDot';
+                btn.className = 'btnLiveGpsActive';
+                label.textContent = 'Pantau Lokasi: Aktif';
+                if (dot) dot.className = 'liveDot';
             } else {
-                label.textContent = 'Live Track: PAUSED';
-                dot.className = 'liveDot paused';
+                btn.className = 'btnLiveGpsPaused';
+                label.textContent = 'Pantau Lokasi: Jeda';
+                if (dot) dot.className = 'liveDot paused';
             }
         }
 
         function refreshLocation(manualClick) {
+            var refreshBtn = document.querySelector('.btnRefreshLocation');
+            if (refreshBtn && manualClick) {
+                refreshBtn.classList.add('loading');
+                var span = refreshBtn.querySelector('span');
+                if (span) span.textContent = 'Mencari Lokasi...';
+            }
+
             var ph = document.getElementById('mapPlaceholder');
             if (!navigator.geolocation) {
                 if (ph) ph.textContent = 'Geolocation tidak didukung.';
+                if (refreshBtn) {
+                    refreshBtn.classList.remove('loading');
+                    var span = refreshBtn.querySelector('span');
+                    if (span) span.textContent = 'Perbarui Lokasi';
+                }
                 return;
             }
             if (ph) {
@@ -1263,7 +1299,9 @@
                         startLiveTracking();
                     }
                 },
-                handleGpsError,
+                function (err) {
+                    handleGpsError();
+                },
                 { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
             );
         }
