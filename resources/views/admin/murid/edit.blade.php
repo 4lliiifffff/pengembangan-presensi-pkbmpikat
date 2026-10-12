@@ -92,8 +92,8 @@
                 </div>
 
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">TUTOR PEMBIMBING (OPSIONAL)</label>
-                    <select class="filterSelect" name="tutor_id">
+                    <label class="filterFieldLabel" for="tutor_id">TUTOR PEMBIMBING (OPSIONAL)</label>
+                    <select class="filterSelect" name="tutor_id" id="tutor_id">
                         <option value="">-- Tidak Ada / Belum Ditentukan --</option>
                         @if (isset($tutors))
                             @foreach ($tutors as $tutor)

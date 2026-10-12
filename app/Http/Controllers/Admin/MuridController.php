@@ -21,11 +21,28 @@ class MuridController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'aktif');
+        $pembimbing = $request->query('pembimbing', 'semua');
+        $tutorId = $request->query('tutor_id');
+        $kelasId = $request->query('kelas_id');
 
         $query = Murid::with(['relKelas.jenjangPaket', 'tutor'])->orderByDesc('id');
 
-        if ($status !== 'semua') {
+        if ($status !== 'semua' && ! empty($status)) {
             $query->where('status_murid', $status);
+        }
+
+        if ($pembimbing === 'ada') {
+            $query->whereNotNull('tutor_id');
+        } elseif ($pembimbing === 'belum') {
+            $query->whereNull('tutor_id');
+        }
+
+        if (! empty($tutorId)) {
+            $query->where('tutor_id', $tutorId);
+        }
+
+        if (! empty($kelasId)) {
+            $query->where('kelas_id', $kelasId);
         }
 
         if ($request->filled('q')) {
@@ -33,7 +50,13 @@ class MuridController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('nama_murid', 'like', "%{$search}%")
                     ->orWhere('no_absen', 'like', "%{$search}%")
-                    ->orWhere('nama_wali', 'like', "%{$search}%");
+                    ->orWhere('nama_wali', 'like', "%{$search}%")
+                    ->orWhereHas('tutor', function ($tq) use ($search) {
+                        $tq->where('nama_lengkap', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('relKelas', function ($kq) use ($search) {
+                        $kq->where('nama_kelas', 'like', "%{$search}%");
+                    });
             });
         }
 
@@ -45,9 +68,24 @@ class MuridController extends Controller
             'cuti' => Murid::where('status_murid', 'cuti')->count(),
             'nonaktif' => Murid::where('status_murid', 'nonaktif')->count(),
             'total' => Murid::count(),
+            'ada_pembimbing' => Murid::whereNotNull('tutor_id')->count(),
+            'tanpa_pembimbing' => Murid::whereNull('tutor_id')->count(),
+            'aktif_tanpa_pembimbing' => Murid::where('status_murid', 'aktif')->whereNull('tutor_id')->count(),
         ];
 
-        return view('admin.murid.index', compact('murids', 'stats', 'status'));
+        $tutors = $this->tutorService->getAssignableTutors();
+        $kelasList = Kelas::with('jenjangPaket')->orderBy('nama_kelas')->get();
+
+        return view('admin.murid.index', compact(
+            'murids',
+            'stats',
+            'status',
+            'pembimbing',
+            'tutorId',
+            'kelasId',
+            'tutors',
+            'kelasList'
+        ));
     }
 
     public function create()
@@ -171,11 +209,11 @@ class MuridController extends Controller
             ->with('success', 'Data murid "'.$namaMurid.'" berhasil diarsipkan (Soft Delete). Seluruh data riwayat presensi tetap aman.');
     }
 
-    public function exportExcel()
+    public function exportExcel(Request $request)
     {
         return Excel::download(
-            new MuridExport,
-            'Data_Murid_PKBM_Pikat_'.date('Ymd').'.xlsx'
+            new MuridExport($request->all()),
+            'Data_Murid_PKBM_Pikat_'.date('Ymd_His').'.xlsx'
         );
     }
 

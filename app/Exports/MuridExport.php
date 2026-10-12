@@ -12,9 +12,48 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class MuridExport implements FromCollection, WithEvents, WithHeadings, WithMapping
 {
+    public function __construct(protected array $filters = []) {}
+
     public function collection()
     {
-        return Murid::with(['relKelas', 'tutor'])->orderBy('nama_murid')->get();
+        $query = Murid::with(['relKelas', 'tutor'])->orderBy('nama_murid');
+
+        $status = $this->filters['status'] ?? 'aktif';
+        if ($status !== 'semua' && ! empty($status)) {
+            $query->where('status_murid', $status);
+        }
+
+        $pembimbing = $this->filters['pembimbing'] ?? null;
+        if ($pembimbing === 'ada') {
+            $query->whereNotNull('tutor_id');
+        } elseif ($pembimbing === 'belum') {
+            $query->whereNull('tutor_id');
+        }
+
+        if (! empty($this->filters['tutor_id'])) {
+            $query->where('tutor_id', $this->filters['tutor_id']);
+        }
+
+        if (! empty($this->filters['kelas_id'])) {
+            $query->where('kelas_id', $this->filters['kelas_id']);
+        }
+
+        if (! empty($this->filters['q'])) {
+            $search = $this->filters['q'];
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_murid', 'like', "%{$search}%")
+                    ->orWhere('no_absen', 'like', "%{$search}%")
+                    ->orWhere('nama_wali', 'like', "%{$search}%")
+                    ->orWhereHas('tutor', function ($tq) use ($search) {
+                        $tq->where('nama_lengkap', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('relKelas', function ($kq) use ($search) {
+                        $kq->where('nama_kelas', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        return $query->get();
     }
 
     public function map($murid): array

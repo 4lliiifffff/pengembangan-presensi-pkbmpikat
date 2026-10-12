@@ -190,8 +190,8 @@
 
                     <div class="checkbox-toggle-card">
                         <input type="checkbox" id="auto_generate" name="auto_generate" value="1" {{ old('auto_generate', true) ? 'checked' : '' }}>
-                        <label for="auto_generate" class="cursor-pointer text-success" style="margin: 0;">
-                            ⚡ Langsung generate sesi KBM untuk 4 minggu ke depan
+                        <label for="auto_generate" class="cursor-pointer" style="margin: 0;">
+                            Langsung generate sesi KBM untuk 4 minggu ke depan
                         </label>
                     </div>
                 </div>

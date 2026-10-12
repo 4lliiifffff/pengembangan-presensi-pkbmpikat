@@ -13,7 +13,7 @@
                 <p class="laporanHeaderDesc">Daftar murid, pemetaan paket kesetaraan, data ABK, dan histori rombel.</p>
             </div>
             <div class="laporanHeaderActions">
-                <a href="{{ route('admin.murid.exportExcel') }}" class="profileBtnPrimary btn-action-success">
+                <a href="{{ route('admin.murid.exportExcel', request()->query()) }}" class="profileBtnPrimary btn-action-success">
                     <ion-icon name="document-outline"></ion-icon> Export Excel
                 </a>
                 <button type="button" onclick="document.getElementById('importMuridModal').style.display='flex'" class="profileBtnPrimary btn-action-info">
@@ -85,23 +85,89 @@
         </div>
     </div>
 
+    {{-- ── Quick Filter Chips Bar ── --}}
+    <div class="filterChipsBar">
+        <a href="{{ route('admin.murid.index', ['status' => 'semua', 'pembimbing' => 'semua']) }}"
+           class="filterChip {{ ($status === 'semua' && $pembimbing === 'semua' && !request()->filled('tutor_id') && !request()->filled('kelas_id') && !request()->filled('q')) ? 'active' : '' }}">
+            <ion-icon name="list-outline"></ion-icon>
+            <span>Semua Murid</span>
+            <span class="filterChipBadge">{{ $stats['total'] ?? 0 }}</span>
+        </a>
+
+        <a href="{{ route('admin.murid.index', ['status' => 'aktif', 'pembimbing' => 'semua']) }}"
+           class="filterChip {{ ($status === 'aktif' && $pembimbing === 'semua' && !request()->filled('tutor_id') && !request()->filled('kelas_id') && !request()->filled('q')) ? 'active' : '' }}">
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            <span>Murid Aktif</span>
+            <span class="filterChipBadge">{{ $stats['aktif'] ?? 0 }}</span>
+        </a>
+
+        <a href="{{ route('admin.murid.index', array_filter(array_merge(request()->query(), ['pembimbing' => 'ada', 'tutor_id' => null, 'page' => null]))) }}"
+           class="filterChip {{ $pembimbing === 'ada' && !request()->filled('tutor_id') ? 'active' : '' }}">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+            <span>Sudah Ada Pembimbing</span>
+            <span class="filterChipBadge">{{ $stats['ada_pembimbing'] ?? 0 }}</span>
+        </a>
+
+        <a href="{{ route('admin.murid.index', array_filter(array_merge(request()->query(), ['pembimbing' => 'belum', 'tutor_id' => null, 'page' => null]))) }}"
+           class="filterChip {{ $pembimbing === 'belum' ? 'active' : '' }}">
+            <ion-icon name="alert-circle-outline"></ion-icon>
+            <span>Belum Ada Pembimbing</span>
+            <span class="filterChipBadge {{ ($stats['tanpa_pembimbing'] ?? 0) > 0 ? 'badge-danger-chip' : '' }}">
+                {{ $stats['tanpa_pembimbing'] ?? 0 }}
+            </span>
+        </a>
+    </div>
+
     {{-- ── Filter Card ── --}}
     <div class="laporanFilterCard">
-        <form method="GET" action="{{ route('admin.murid.index') }}">
-            <div class="laporanFilterGrid">
-                <div class="filterField">
+        <form method="GET" action="{{ route('admin.murid.index') }}" id="filterMuridForm">
+            <div class="laporanFilterGrid muridFilterGrid">
+                <div class="filterField filterFieldSearch">
                     <label class="filterFieldLabel">Pencarian</label>
-                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Nama, Absen/NIS, Wali..." class="profileInput text-md">
+                    <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama murid, NIS, wali, atau tutor..." class="profileInput text-md">
                 </div>
 
                 <div class="filterField">
                     <label class="filterFieldLabel">Status Murid</label>
-                    <select name="status" class="filterSelect">
+                    <select name="status" class="filterSelect" onchange="document.getElementById('filterMuridForm').submit()">
                         <option value="aktif" {{ $status === 'aktif' ? 'selected' : '' }}>Aktif ({{ $stats['aktif'] ?? 0 }})</option>
                         <option value="alumni" {{ $status === 'alumni' ? 'selected' : '' }}>Lulus / Alumni ({{ $stats['alumni'] ?? 0 }})</option>
                         <option value="cuti" {{ $status === 'cuti' ? 'selected' : '' }}>Cuti Belajar ({{ $stats['cuti'] ?? 0 }})</option>
                         <option value="nonaktif" {{ $status === 'nonaktif' ? 'selected' : '' }}>Nonaktif / Keluar ({{ $stats['nonaktif'] ?? 0 }})</option>
                         <option value="semua" {{ $status === 'semua' ? 'selected' : '' }}>Semua Status ({{ $stats['total'] ?? 0 }})</option>
+                    </select>
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Status Pembimbing</label>
+                    <select name="pembimbing" id="selectPembimbing" class="filterSelect" onchange="handlePembimbingChange(this)">
+                        <option value="semua" {{ $pembimbing === 'semua' ? 'selected' : '' }}>Semua Pembimbing</option>
+                        <option value="ada" {{ $pembimbing === 'ada' ? 'selected' : '' }}>Sudah Ada Pembimbing ({{ $stats['ada_pembimbing'] ?? 0 }})</option>
+                        <option value="belum" {{ $pembimbing === 'belum' ? 'selected' : '' }}>Belum Ada Pembimbing ({{ $stats['tanpa_pembimbing'] ?? 0 }})</option>
+                    </select>
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Tutor Pembimbing</label>
+                    <select name="tutor_id" id="selectTutor" class="filterSelect" {{ $pembimbing === 'belum' ? 'disabled' : '' }} onchange="handleTutorSelectChange(this)">
+                        <option value="">Semua Tutor Pembimbing</option>
+                        @foreach($tutors as $tutor)
+                            <option value="{{ $tutor->id }}" {{ (string) request('tutor_id') === (string) $tutor->id ? 'selected' : '' }}>
+                                {{ $tutor->nama_lengkap }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="filterField">
+                    <label class="filterFieldLabel">Kelas / Rombel</label>
+                    <select name="kelas_id" class="filterSelect" onchange="document.getElementById('filterMuridForm').submit()">
+                        <option value="">Semua Kelas / Rombel</option>
+                        @foreach($kelasList as $kelas)
+                            <option value="{{ $kelas->id }}" {{ (string) request('kelas_id') === (string) $kelas->id ? 'selected' : '' }}>
+                                {{ $kelas->nama_kelas }} ({{ $kelas->jenjang_paket_label }})
+                            </option>
+                        @endforeach
                     </select>
                 </div>
 
@@ -112,6 +178,35 @@
                     <a href="{{ route('admin.murid.index') }}" class="btn-filter-reset">
                         Reset
                     </a>
+
+                    @if(request()->filled('q') || request()->filled('tutor_id') || request()->filled('kelas_id') || request('pembimbing', 'semua') !== 'semua' || (request('status') && request('status') !== 'aktif'))
+                        <div class="activeFilterWrap">
+                            <span class="activeFilterLead"><ion-icon name="funnel-outline"></ion-icon> Filter Aktif:</span>
+                            @if(request('pembimbing') === 'ada')
+                                <span class="activeFilterTag">Sudah Ada Pembimbing</span>
+                            @elseif(request('pembimbing') === 'belum')
+                                <span class="activeFilterTag tag-warning">Belum Ada Pembimbing</span>
+                            @endif
+                            @if(request()->filled('tutor_id'))
+                                @php $selectedTutor = $tutors->firstWhere('id', request('tutor_id')); @endphp
+                                @if($selectedTutor)
+                                    <span class="activeFilterTag">Tutor: {{ $selectedTutor->nama_lengkap }}</span>
+                                @endif
+                            @endif
+                            @if(request()->filled('kelas_id'))
+                                @php $selectedKelas = $kelasList->firstWhere('id', request('kelas_id')); @endphp
+                                @if($selectedKelas)
+                                    <span class="activeFilterTag">Kelas: {{ $selectedKelas->nama_kelas }}</span>
+                                @endif
+                            @endif
+                            @if(request('status') && request('status') !== 'aktif' && request('status') !== 'semua')
+                                <span class="activeFilterTag">Status: {{ ucfirst(request('status')) }}</span>
+                            @endif
+                            @if(request()->filled('q'))
+                                <span class="activeFilterTag">Kata Kunci: "{{ request('q') }}"</span>
+                            @endif
+                        </div>
+                    @endif
                 </div>
             </div>
         </form>
@@ -173,8 +268,22 @@
                             <td class="text-muted text-sm">
                                 {{ $murid->nama_wali ?? '-' }}
                             </td>
-                            <td class="text-sm font-semibold">
-                                {{ $murid->tutor->nama_lengkap ?? '-' }}
+                            <td>
+                                @if($murid->tutor)
+                                    <div class="tutor-assigned-pill" title="Dibimbing oleh {{ $murid->tutor->nama_lengkap }}">
+                                        <span class="tutor-avatar-mini">{{ strtoupper(mb_substr($murid->tutor->nama_lengkap, 0, 1)) }}</span>
+                                        <span class="tutor-name-text">{{ $murid->tutor->nama_lengkap }}</span>
+                                    </div>
+                                @else
+                                    <div class="tutor-unassigned-box">
+                                        <span class="app-badge badge-tutor-unassigned" title="Belum memiliki tutor pembimbing">
+                                            <ion-icon name="alert-circle-outline"></ion-icon> Belum Ditugaskan
+                                        </span>
+                                        <a href="{{ route('admin.murid.edit', $murid) }}#tutor_id" class="btn-assign-quick" title="Tugaskan Tutor Pembimbing">
+                                            <ion-icon name="person-add-outline"></ion-icon> Tugaskan
+                                        </a>
+                                    </div>
+                                @endif
                             </td>
                             <td class="text-center">
                                 <div class="d-flex gap-1 flex-center flex-wrap">
@@ -248,7 +357,23 @@
 
                     <div class="dmc-field">
                         <div class="dmc-label">Tutor Pembimbing</div>
-                        <div class="dmc-value text-sm">{{ $murid->tutor->nama_lengkap ?? '-' }}</div>
+                        <div class="dmc-value">
+                            @if($murid->tutor)
+                                <div class="tutor-assigned-pill mt-1" title="Dibimbing oleh {{ $murid->tutor->nama_lengkap }}">
+                                    <span class="tutor-avatar-mini">{{ strtoupper(mb_substr($murid->tutor->nama_lengkap, 0, 1)) }}</span>
+                                    <span class="tutor-name-text">{{ $murid->tutor->nama_lengkap }}</span>
+                                </div>
+                            @else
+                                <div class="tutor-unassigned-box mt-1">
+                                    <span class="app-badge badge-tutor-unassigned">
+                                        <ion-icon name="alert-circle-outline"></ion-icon> Belum Ditugaskan
+                                    </span>
+                                    <a href="{{ route('admin.murid.edit', $murid) }}#tutor_id" class="btn-assign-quick mt-1">
+                                        <ion-icon name="person-add-outline"></ion-icon> Tugaskan Tutor
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="dmc-field">
@@ -298,5 +423,26 @@
         </div>
     @endif
 </div>
+
+<script>
+function handlePembimbingChange(select) {
+    const tutorSelect = document.getElementById('selectTutor');
+    if (select.value === 'belum') {
+        tutorSelect.value = '';
+        tutorSelect.disabled = true;
+    } else {
+        tutorSelect.disabled = false;
+    }
+    document.getElementById('filterMuridForm').submit();
+}
+
+function handleTutorSelectChange(select) {
+    const pembimbingSelect = document.getElementById('selectPembimbing');
+    if (select.value && select.value !== '') {
+        pembimbingSelect.value = 'ada';
+    }
+    document.getElementById('filterMuridForm').submit();
+}
+</script>
 
 @endsection
