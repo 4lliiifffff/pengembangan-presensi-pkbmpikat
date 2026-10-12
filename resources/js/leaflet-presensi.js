@@ -87,10 +87,14 @@ export function setupLeafletTileTheme(map, elementOrId) {
 
     applyTileLayer();
 
+    let rafThemeUpdate = null;
     const themeObserver = new MutationObserver((mutations) => {
         for (const mutation of mutations) {
             if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-                applyTileLayer();
+                if (rafThemeUpdate) cancelAnimationFrame(rafThemeUpdate);
+                rafThemeUpdate = requestAnimationFrame(() => {
+                    applyTileLayer();
+                });
             }
         }
     });

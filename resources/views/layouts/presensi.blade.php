@@ -66,29 +66,5 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const root = document.documentElement;
-            const dn = document.getElementById('dn');
-            const icon = document.getElementById('themeToggleIcon');
-
-            function syncTheme() {
-                const isDark = root.getAttribute('data-theme') === 'dark';
-                if (dn) dn.checked = isDark;
-                if (icon) icon.setAttribute('name', isDark ? 'sunny-outline' : 'moon-outline');
-            }
-            syncTheme();
-
-            if (dn && !dn.dataset.localBound) {
-                dn.dataset.localBound = 'true';
-                dn.addEventListener('change', () => {
-                    const next = dn.checked ? 'dark' : 'light';
-                    root.setAttribute('data-theme', next);
-                    localStorage.setItem('theme', next);
-                    syncTheme();
-                });
-            }
-        });
-    </script>
 </body>
 </html>
