@@ -91,14 +91,17 @@ class QuickLoginTest extends TestCase
         $this->assertEquals($admin->id, auth()->id());
     }
 
-    public function test_quick_login_returns_error_if_database_empty_for_role(): void
+    public function test_quick_login_creates_fallback_user_if_database_empty_for_role(): void
     {
-        $this->assertEquals(0, User::where('role', 'siswa')->count());
+        User::whereIn('role', ['murid', 'siswa'])->delete();
+        $this->assertEquals(0, User::whereIn('role', ['murid', 'siswa'])->count());
 
-        $response = $this->post(route('login.quick'), ['role' => 'siswa']);
+        $response = $this->post(route('login.quick'), ['role' => 'murid']);
 
-        $response->assertSessionHasErrors(['role']);
-        $this->assertGuest();
+        $response->assertRedirect(route('murid.dashboard'));
+        $this->assertAuthenticated();
+        $this->assertEquals('murid', auth()->user()->role);
+        $this->assertEquals(1, User::whereIn('role', ['murid', 'siswa'])->count());
     }
 
     public function test_quick_login_validates_invalid_role(): void
@@ -111,13 +114,12 @@ class QuickLoginTest extends TestCase
         $responseGet->assertSessionHas('warning');
     }
 
-    public function test_login_page_is_clean_without_embedded_dummy_accounts(): void
+    public function test_login_page_displays_quick_login_testing_panel(): void
     {
         $response = $this->get(route('login'));
         $response->assertStatus(200);
-        $response->assertDontSee('quickLoginSection');
-        $response->assertDontSee('AKSES PENGUJIAN CEPAT (DEMO ROLE)');
-        $response->assertDontSee('Kak Tasya');
-        $response->assertDontSee('admin@pkbmpikat.com');
+        $response->assertSee('Mode Pengujian');
+        $response->assertSee('quickLoginSection');
+        $response->assertSee('AKSES PENGUJIAN CEPAT (DEMO ROLE)');
     }
 }

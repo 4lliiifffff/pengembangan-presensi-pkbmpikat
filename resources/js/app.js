@@ -6,5 +6,6 @@ import './push-notification';
 import './leaflet-presensi';
 import './searchable-select';
 import './file-uploader';
+import './theme-toggle';
 
 

@@ -62,28 +62,26 @@
     <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 
-    <script >
+    <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const btn = document.getElementById('themeToggleBtn');
-            const icon = document.getElementById('themeToggleIcon');
             const root = document.documentElement;
+            const dn = document.getElementById('dn');
+            const icon = document.getElementById('themeToggleIcon');
 
-            function updateIcon() {
-                if (root.getAttribute('data-theme') === 'dark') {
-                    if (icon) icon.setAttribute('name', 'sunny-outline');
-                } else {
-                    if (icon) icon.setAttribute('name', 'moon-outline');
-                }
+            function syncTheme() {
+                const isDark = root.getAttribute('data-theme') === 'dark';
+                if (dn) dn.checked = isDark;
+                if (icon) icon.setAttribute('name', isDark ? 'sunny-outline' : 'moon-outline');
             }
-            updateIcon(); // Call immediately for elements that exist
+            syncTheme();
 
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    const current = root.getAttribute('data-theme');
-                    const next = current === 'dark' ? 'light' : 'dark';
+            if (dn && !dn.dataset.localBound) {
+                dn.dataset.localBound = 'true';
+                dn.addEventListener('change', () => {
+                    const next = dn.checked ? 'dark' : 'light';
                     root.setAttribute('data-theme', next);
                     localStorage.setItem('theme', next);
-                    updateIcon();
+                    syncTheme();
                 });
             }
         });

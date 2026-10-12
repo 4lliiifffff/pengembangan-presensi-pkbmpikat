@@ -179,9 +179,30 @@
 
     <div class="error-page-wrapper">
         {{-- Theme Switcher Button --}}
-        <button type="button" class="error-theme-btn" id="themeToggleBtn" aria-label="Ganti Tema">
-            <ion-icon name="moon-outline" id="themeIcon"></ion-icon>
-        </button>
+        <div class="error-theme-toggle-wrap" title="Ganti Mode Gelap / Terang">
+            <div class="toggleWrapper">
+                <input class="input dn-input" id="dnError" type="checkbox" aria-label="Ganti Mode Gelap Terang" />
+                <label class="toggle" for="dnError">
+                    <span class="toggle__handler">
+                        <span class="crater crater--1"></span>
+                        <span class="crater crater--2"></span>
+                        <span class="crater crater--3"></span>
+                    </span>
+                    <span class="star star--1"></span>
+                    <span class="star star--2"></span>
+                    <span class="star star--3"></span>
+                    <span class="star star--4"></span>
+                    <span class="star star--5"></span>
+                    <span class="star star--6"></span>
+                </label>
+            </div>
+        </div>
+        <script>
+            if (localStorage.getItem('theme') === 'dark') {
+                const dnErrEl = document.getElementById('dnError');
+                if (dnErrEl) dnErrEl.checked = true;
+            }
+        </script>
 
         <div class="error-card-container">
             @yield('content')
@@ -192,18 +213,28 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Theme toggle
+            const dnError = document.getElementById('dnError');
             const btn = document.getElementById('themeToggleBtn');
             const icon = document.getElementById('themeIcon');
             const root = document.documentElement;
 
-            function updateThemeIcon() {
-                if (root.getAttribute('data-theme') === 'dark') {
-                    if (icon) icon.setAttribute('name', 'sunny-outline');
-                } else {
-                    if (icon) icon.setAttribute('name', 'moon-outline');
-                }
+            function syncErrorTheme(theme) {
+                const isDark = theme === 'dark';
+                if (dnError) dnError.checked = isDark;
+                if (icon) icon.setAttribute('name', isDark ? 'sunny-outline' : 'moon-outline');
             }
-            updateThemeIcon();
+            const currentTheme = root.getAttribute('data-theme') || localStorage.getItem('theme') || 'light';
+            syncErrorTheme(currentTheme);
+
+            if (dnError && !dnError.dataset.errorBound) {
+                dnError.dataset.errorBound = 'true';
+                dnError.addEventListener('change', () => {
+                    const next = dnError.checked ? 'dark' : 'light';
+                    root.setAttribute('data-theme', next);
+                    localStorage.setItem('theme', next);
+                    syncErrorTheme(next);
+                });
+            }
 
             if (btn) {
                 btn.addEventListener('click', () => {
@@ -211,7 +242,7 @@
                     const next = current === 'dark' ? 'light' : 'dark';
                     root.setAttribute('data-theme', next);
                     localStorage.setItem('theme', next);
-                    updateThemeIcon();
+                    syncErrorTheme(next);
                 });
             }
 

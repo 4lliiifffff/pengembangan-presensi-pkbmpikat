@@ -2,6 +2,7 @@
 
 @import 'tailwindcss';
 @import './searchable-select.css';
+@import './day-night-toggle.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -34,10 +35,10 @@
     --radius-lg: 14px;
     --radius-md: 12px;
 
-    --topbar-bg: linear-gradient(135deg, rgba(11, 94, 215, 0.95) 0%, rgba(26, 115, 232, 0.92) 100%);
+    --topbar-bg: #0B5ED7;
     --topbar-text: #ffffff;
     --topbar-sub: rgba(255, 255, 255, 0.85);
-    --topbar-border: rgba(255, 255, 255, 0.18);
+    --topbar-border: rgba(255, 255, 255, 0.2);
     --topbar-avatar-border: rgba(255, 255, 255, 0.45);
     --avatar-bg: #eff6ff;
     --avatar-text: #0B5ED7;
@@ -64,10 +65,10 @@
     --card: #1e293b;
     --border: #334155;
 
-    --topbar-bg: rgba(30, 41, 59, 0.92);
+    --topbar-bg: #1e293b;
     --topbar-text: #f8fafc;
     --topbar-sub: #94a3b8;
-    --topbar-border: rgba(255, 255, 255, 0.08);
+    --topbar-border: #334155;
     --topbar-avatar-border: rgba(255, 255, 255, 0.18);
     --avatar-bg: #334155;
     --avatar-text: #60a5fa;
@@ -141,11 +142,17 @@ body.login-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px 16px;
+    padding: 32px 16px;
     background: var(--bg);
     position: relative;
     overflow: visible;
     font-family: var(--font-sans);
+}
+
+@media (min-width: 768px) {
+    .login-wrapper {
+        padding: 40px 24px;
+    }
 }
 
 /* Ambient glow effect (terisolasi dalam container fixed agar tidak memicu inner scrollbar) */
@@ -191,31 +198,6 @@ body.login-page {
 [data-theme="dark"] .login-bg-glow::after {
     background: radial-gradient(circle, #1e3a8a 0%, rgba(30, 58, 138, 0) 70%);
     opacity: 0.35;
-}
-
-.login-theme-toggle {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    z-index: 10;
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: var(--card);
-    border: 1px solid var(--border);
-    color: var(--text);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    transition: all 0.2s ease;
-}
-
-.login-theme-toggle:hover {
-    transform: scale(1.06);
-    border-color: var(--blue2);
 }
 
 .login-card {
@@ -722,22 +704,41 @@ body.login-page {
     position: sticky;
     top: 0;
     z-index: 999;
-    background: var(--topbar-bg);
+    background-color: var(--topbar-bg, #0B5ED7);
     color: var(--topbar-text);
     padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
     border-bottom: 1px solid var(--topbar-border);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.07);
-    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.12);
+    transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    opacity: 1;
+}
+
+.topbar::before,
+.topBar::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #0B5ED7 0%, #1A73E8 100%);
+    opacity: 1;
+    z-index: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 [data-theme="dark"] .topbar,
 [data-theme="dark"] .topBar {
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
+    background-color: var(--topbar-bg, #1e293b);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+}
+
+[data-theme="dark"] .topbar::before,
+[data-theme="dark"] .topBar::before {
+    opacity: 0;
 }
 
 .topBarRow {
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
