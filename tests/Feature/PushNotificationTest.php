@@ -24,6 +24,17 @@ class PushNotificationTest extends TestCase
             ]);
     }
 
+    public function test_guest_can_also_get_vapid_public_key(): void
+    {
+        $response = $this->getJson(route('push.key'));
+
+        $response->assertOk()
+            ->assertJsonStructure([
+                'status',
+                'publicKey',
+            ]);
+    }
+
     public function test_user_can_subscribe_push_notification(): void
     {
         $user = User::factory()->create(['role' => 'tutor']);

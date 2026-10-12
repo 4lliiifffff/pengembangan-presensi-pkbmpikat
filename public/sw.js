@@ -1,6 +1,5 @@
-const CACHE_NAME = 'pikat-presensi-v2.2';
+const CACHE_NAME = 'pikat-presensi-v2.3';
 const ASSETS_TO_CACHE = [
-  '/',
   '/manifest.json',
   '/assets/img/Logo.jpeg',
   '/build/manifest.json'

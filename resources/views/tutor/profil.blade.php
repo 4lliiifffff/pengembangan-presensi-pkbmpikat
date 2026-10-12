@@ -172,40 +172,40 @@
     </div>
 </form>
 
-{{-- ── TAB 3: PUSH NOTIFICATION PWA ── --}}
+{{-- ── TAB 3: NOTIFIKASI PERANGKAT ── --}}
 <div id="sectionNotifikasi" class="d-none">
     <div class="profileCard">
         <div class="profileSectionTitle">
-            <ion-icon name="notifications-outline" class="text-lg text-primary"></ion-icon>
-            Notifikasi Perangkat (Web Push)
+            <ion-icon name="notifications-outline"></ion-icon>
+            Notifikasi Perangkat (Push Notification)
         </div>
 
-        <div class="d-flex items-start gap-3 mb-4">
-            <div  class="rounded-lg text-primary icon-xl flex-shrink-0 avatar-icon-46 bg-primary-light">
+        <div class="profileNotifRow">
+            <div class="profileNotifIconBox">
                 <ion-icon name="phone-portrait-outline"></ion-icon>
             </div>
             <div class="flex-1 min-w-0">
-                <div class="text-md font-extrabold text-dark">Push Notification PWA</div>
+                <div class="text-md font-extrabold text-dark">Push Notification Tutor</div>
                 <div class="text-sm text-muted mt-1 line-height-base">
                     Terima pengingat jadwal mengajar, approval izin, dan info presensi langsung di layar HP saat aplikasi tidak dibuka.
                 </div>
             </div>
         </div>
 
-        <div class="d-flex justify-between items-center pt-3 border-t-base">
-            <div >
-                <div  class="text-xs font-extrabold text-muted text-uppercase letter-spacing-sm">Status Perangkat</div>
-                <div id="pushStatusText" class="text-md font-extrabold text-muted mt-1">Memeriksa status...</div>
+        <div class="profileNotifStatusRow">
+            <div class="profileNotifStatusMeta">
+                <div class="profileNotifStatusLabel">Status Perangkat</div>
+                <div id="pushStatusText" class="profileNotifStatusText">Memeriksa status...</div>
             </div>
-            <button type="button" id="pushToggleBtn" onclick="togglePushSubscription()" class="profileBtnPrimary w-auto text-sm rounded-md px-4 py-2">
+            <button type="button" id="pushToggleBtn" onclick="togglePushSubscription()" class="profileBtnPrimary">
                 Aktifkan Notifikasi
             </button>
         </div>
     </div>
 
-    <div class="d-flex flex-col gap-2 px-4 mb-4">
-        <button type="button" id="pushTestBtn" onclick="handleSendPushTest()" class="profileBtnDanger text-dark border-base bg-card-alt shadow-none">
-            <ion-icon name="paper-plane-outline" class="icon-sm text-primary"></ion-icon>
+    <div class="profileActionGroup mt-0" style="margin-top: 0;">
+        <button type="button" id="pushTestBtn" onclick="handleSendPushTest()" class="profileBtnSecondary">
+            <ion-icon name="paper-plane-outline"></ion-icon>
             Kirim Notifikasi Uji Coba ke HP Ini
         </button>
         <div id="pushFeedbackMsg" class="d-none text-sm font-bold text-center p-2 rounded-lg"></div>

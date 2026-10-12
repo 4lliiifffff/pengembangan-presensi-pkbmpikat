@@ -44,4 +44,9 @@ return [
         'verify_ssl' => env('WEBPUSH_VERIFY_SSL', false),
     ],
 
+    'fcm' => [
+        'project_id' => env('FCM_PROJECT_ID', 'kehadiran-pkbmpikat'),
+        'credentials_path' => env('FCM_CREDENTIALS_PATH', storage_path('app/kehadiran-pkbmpikat-firebase-adminsdk-fbsvc-3b9c3f0bfd.json')),
+    ],
+
 ];

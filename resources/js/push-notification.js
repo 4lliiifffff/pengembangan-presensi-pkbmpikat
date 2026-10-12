@@ -9,11 +9,52 @@ class PushNotificationManager {
     }
 
     /**
-     * Inisialisasi Service Worker & Status Push
+     * Memeriksa apakah pengguna sedang berada di sesi terautentikasi (bukan halaman login/guest)
+     */
+    isUserAuthenticated() {
+        if (typeof document === 'undefined') return false;
+        if (
+            document.documentElement.classList.contains('login-html') ||
+            document.body?.classList.contains('login-html') ||
+            window.location.pathname.startsWith('/login')
+        ) {
+            return false;
+        }
+        return Boolean(document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'));
+    }
+
+    /**
+     * Memeriksa apakah aplikasi berjalan di lingkungan native Capacitor (Android APK)
+     */
+    isCapacitorNative() {
+        return Boolean(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+    }
+
+    /**
+     * Mengambil instance plugin PushNotifications native Capacitor
+     */
+    getCapacitorPushPlugin() {
+        return window.Capacitor?.Plugins?.PushNotifications || null;
+    }
+
+    /**
+     * Inisialisasi Service Worker / Native Push & Status
      */
     async init() {
-        if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) {
-            console.warn('[Push] Browser ini tidak mendukung Web Push Notification.');
+        // Jangan inisialisasi / auto-subscribe jika pengguna belum login
+        if (!this.isUserAuthenticated()) {
+            return false;
+        }
+
+        // Jalur 1: Mobile APK Android (Capacitor Native FCM)
+        if (this.isCapacitorNative()) {
+            return await this.initCapacitorPush();
+        }
+
+        // Jalur 2: Web Browser Standar / PWA (Service Worker)
+        if (!('serviceWorker' in navigator) || !('PushManager' in window) || typeof Notification === 'undefined') {
+            console.warn('[Push] Browser/WebView ini tidak mendukung Web Push Notification.');
+            this.updateUiState(false);
             return false;
         }
 
@@ -49,7 +90,10 @@ class PushNotificationManager {
     async syncSubscriptionToServer(subscription) {
         try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-            if (!csrfToken) return false;
+            if (!csrfToken) {
+                console.warn('[Push] CSRF token tidak ditemukan. Pengguna mungkin belum login.');
+                return false;
+            }
 
             const res = await fetch('/push/subscribe', {
                 method: 'POST',
@@ -60,6 +104,13 @@ class PushNotificationManager {
                 },
                 body: JSON.stringify(subscription)
             });
+
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => ({}));
+                const errMsg = errorData.message || (res.status === 401 ? 'Pengguna belum terautentikasi (401)' : `HTTP ${res.status}`);
+                console.warn(`[Push] Server gagal menyimpan subscription (${res.status}):`, errMsg);
+                return false;
+            }
 
             const data = await res.json();
             if (data.status === 'success') {
@@ -81,7 +132,23 @@ class PushNotificationManager {
         if (this.vapidPublicKey) return this.vapidPublicKey;
 
         try {
-            const res = await fetch('/push/key');
+            const res = await fetch('/push/key', {
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (!res.ok) {
+                console.warn(`[Push] Server mengembalikan status ${res.status} saat mengambil VAPID key.`);
+                return null;
+            }
+
+            const contentType = res.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.warn('[Push] Respon server untuk VAPID key bukan JSON.');
+                return null;
+            }
+
             const data = await res.json();
             if (data.status === 'success' && data.publicKey) {
                 this.vapidPublicKey = data.publicKey;
@@ -97,6 +164,20 @@ class PushNotificationManager {
      * Minta izin dan daftarkan subscription perangkat
      */
     async subscribe() {
+        if (!this.isUserAuthenticated()) {
+            throw new Error('Anda belum masuk (login) ke sistem. Silakan login terlebih dahulu untuk mengaktifkan notifikasi.');
+        }
+
+        // Jalur 1: Mobile APK Android (Capacitor Native FCM)
+        if (this.isCapacitorNative()) {
+            return await this.subscribeCapacitorNative();
+        }
+
+        // Jalur 2: Web Browser Standar / PWA
+        if (!('serviceWorker' in navigator) || !('PushManager' in window) || typeof Notification === 'undefined') {
+            throw new Error('Browser/WebView ini tidak mendukung Web Notification API. Silakan buka presensi lewat Google Chrome di HP Anda atau install sebagai PWA untuk mengaktifkan notifikasi.');
+        }
+
         if (!this.swRegistration) {
             await this.init();
         }
@@ -139,9 +220,149 @@ class PushNotificationManager {
     }
 
     /**
+     * Inisialisasi Push Notification Native untuk Capacitor APK
+     */
+    async initCapacitorPush() {
+        const Push = this.getCapacitorPushPlugin();
+        if (!Push) {
+            console.warn('[Push] Plugin PushNotifications belum siap di Capacitor.');
+            this.updateUiState(false);
+            return false;
+        }
+
+        try {
+            const perm = await Push.checkPermissions();
+            if (perm.receive === 'granted') {
+                this.isSubscribed = true;
+                this.updateUiState(true);
+                await this.subscribeCapacitorNative().catch(e => console.warn('[Push] Auto-register FCM failed:', e));
+            } else {
+                this.isSubscribed = false;
+                this.updateUiState(false);
+                if (perm.receive === 'prompt' || perm.receive === 'prompt-with-rationale') {
+                    this.checkAndShowSoftPrompt();
+                }
+            }
+            return true;
+        } catch (e) {
+            console.warn('[Push] Gagal periksa izin push Capacitor:', e);
+            return false;
+        }
+    }
+
+    /**
+     * Minta izin dan daftarkan token FCM pada lingkungan Capacitor APK
+     */
+    async subscribeCapacitorNative() {
+        const Push = this.getCapacitorPushPlugin();
+        if (!Push) {
+            throw new Error('Plugin PushNotifications tidak tersedia pada APK ini.');
+        }
+
+        let perm = await Push.checkPermissions();
+        if (perm.receive !== 'granted') {
+            perm = await Push.requestPermissions();
+        }
+
+        if (perm.receive !== 'granted') {
+            throw new Error('Izin notifikasi ditolak pada pengaturan perangkat HP Anda.');
+        }
+
+        return new Promise((resolve, reject) => {
+            Push.removeAllListeners().catch(() => {});
+
+            Push.addListener('registration', async (token) => {
+                try {
+                    const synced = await this.syncFcmTokenToServer(token.value);
+                    if (synced) {
+                        this.isSubscribed = true;
+                        this.updateUiState(true);
+                        resolve(true);
+                    } else {
+                        reject(new Error('Gagal menyimpan token notifikasi perangkat ke server Laravel.'));
+                    }
+                } catch (e) {
+                    reject(e);
+                }
+            });
+
+            Push.addListener('registrationError', (error) => {
+                reject(new Error('Gagal registrasi Firebase Cloud Messaging: ' + (error.error || JSON.stringify(error))));
+            });
+
+            Push.addListener('pushNotificationReceived', (notification) => {
+                if (window.AppNotification && typeof window.AppNotification.toast === 'function') {
+                    window.AppNotification.toast({
+                        type: 'info',
+                        title: notification.title || '🔔 Notifikasi Presensi',
+                        message: notification.body || ''
+                    });
+                }
+            });
+
+            Push.register();
+        });
+    }
+
+    /**
+     * Kirim token FCM native ke backend Laravel
+     */
+    async syncFcmTokenToServer(fcmToken) {
+        try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            if (!csrfToken) return false;
+
+            const res = await fetch('/push/subscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    endpoint: 'fcm:' + fcmToken,
+                    contentEncoding: 'fcm_native'
+                })
+            });
+
+            if (!res.ok) {
+                console.warn(`[Push] Server gagal menyimpan token FCM (${res.status})`);
+                return false;
+            }
+
+            const data = await res.json();
+            return data.status === 'success';
+        } catch (e) {
+            console.error('[Push] Gagal kirim token FCM ke server:', e);
+            return false;
+        }
+    }
+
+    /**
      * Hapus pendaftaran notifikasi perangkat
      */
     async unsubscribe() {
+        if (this.isCapacitorNative()) {
+            const Push = this.getCapacitorPushPlugin();
+            if (Push) {
+                Push.removeAllListeners().catch(() => {});
+            }
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            await fetch('/push/unsubscribe', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ endpoint: 'fcm:current' })
+            }).catch(() => {});
+
+            this.isSubscribed = false;
+            this.updateUiState(false);
+            return;
+        }
+
         if (!this.swRegistration) return;
 
         const subscription = await this.swRegistration.pushManager.getSubscription();
@@ -217,7 +438,7 @@ class PushNotificationManager {
         if (typeof document === 'undefined') return;
 
         // Jangan munculkan di halaman login atau jika user belum terautentikasi
-        if (document.body.classList.contains('login-html') || window.location.pathname.startsWith('/login')) {
+        if (!this.isUserAuthenticated()) {
             return;
         }
 
@@ -354,12 +575,31 @@ class PushNotificationManager {
         const statusText = document.getElementById('pushStatusText');
         const testBtn = document.getElementById('pushTestBtn');
 
+        const isSupported = this.isCapacitorNative() || (('serviceWorker' in navigator) && ('PushManager' in window) && (typeof Notification !== 'undefined'));
+
+        if (!isSupported) {
+            if (statusText) {
+                statusText.textContent = 'Tidak Didukung di Browser Ini';
+                statusText.style.color = '#eab308';
+            }
+            if (toggleBtn) {
+                toggleBtn.textContent = 'Gunakan Chrome / PWA';
+                toggleBtn.disabled = true;
+                toggleBtn.classList.remove('active');
+            }
+            if (testBtn) {
+                testBtn.style.display = 'none';
+            }
+            return;
+        }
+
         if (statusText) {
             statusText.textContent = subscribed ? 'Aktif (Menerima Notifikasi)' : 'Nonaktif';
             statusText.style.color = subscribed ? '#16a34a' : '#64748b';
         }
 
         if (toggleBtn) {
+            toggleBtn.disabled = false;
             toggleBtn.textContent = subscribed ? 'Matikan Notifikasi' : 'Aktifkan Notifikasi';
             toggleBtn.classList.toggle('active', subscribed);
         }

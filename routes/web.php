@@ -41,8 +41,8 @@ Route::get('/sw.js', function () {
 });
 
 // Push Notification Routes
+Route::get('/push/key', [PushNotificationController::class, 'getPublicKey'])->name('push.key');
 Route::middleware('auth')->prefix('push')->name('push.')->group(function () {
-    Route::get('/key', [PushNotificationController::class, 'getPublicKey'])->name('key');
     Route::post('/subscribe', [PushNotificationController::class, 'subscribe'])->name('subscribe');
     Route::post('/unsubscribe', [PushNotificationController::class, 'unsubscribe'])->name('unsubscribe');
     Route::post('/test', [PushNotificationController::class, 'sendTest'])->name('test');

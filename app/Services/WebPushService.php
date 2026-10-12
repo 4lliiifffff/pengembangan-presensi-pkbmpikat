@@ -8,7 +8,9 @@ use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Minishlink\WebPush\Subscription;
 use Minishlink\WebPush\WebPush;
@@ -228,11 +230,39 @@ class WebPushService
     }
 
     /**
-     * Mengirim notifikasi ke kumpulan PushSubscription model.
+     * Mengirim notifikasi ke kumpulan PushSubscription model (WebPush PWA & FCM Native APK).
      *
      * @param  Collection<PushSubscription>  $subscriptions
      */
     public function sendToSubscriptions($subscriptions, array $payload): int
+    {
+        $fcmSubscriptions = $subscriptions->filter(function ($sub) {
+            return str_starts_with($sub->endpoint, 'fcm:') || $sub->content_encoding === 'fcm_native';
+        });
+
+        $webPushSubscriptions = $subscriptions->reject(function ($sub) {
+            return str_starts_with($sub->endpoint, 'fcm:') || $sub->content_encoding === 'fcm_native';
+        });
+
+        $successCount = 0;
+
+        if ($fcmSubscriptions->isNotEmpty()) {
+            $successCount += $this->sendToFcmSubscriptions($fcmSubscriptions, $payload);
+        }
+
+        if ($webPushSubscriptions->isNotEmpty()) {
+            $successCount += $this->sendToWebPushSubscriptions($webPushSubscriptions, $payload);
+        }
+
+        return $successCount;
+    }
+
+    /**
+     * Mengirim notifikasi via WebPush standar (Service Worker PWA / Browser).
+     *
+     * @param  Collection<PushSubscription>  $subscriptions
+     */
+    protected function sendToWebPushSubscriptions($subscriptions, array $payload): int
     {
         if (! $this->webPush) {
             Log::warning('WebPush is not configured with VAPID keys.');
@@ -240,7 +270,6 @@ class WebPushService
             return 0;
         }
 
-        // Format payload default
         $data = [
             'title' => $payload['title'] ?? 'Presensi PKBM Pikat',
             'body' => $payload['body'] ?? 'Anda memiliki notifikasi baru.',
@@ -280,7 +309,6 @@ class WebPushService
             } else {
                 Log::info("WebPush dispatch failure for endpoint [{$endpoint}]: ".$report->getReason());
 
-                // Hapus subscription yang kadaluarsa / uninstalled
                 if ($report->isSubscriptionExpired() && $subModel) {
                     $subModel->delete();
                     Log::info("Deleted expired push subscription id: {$subModel->id}");
@@ -289,5 +317,173 @@ class WebPushService
         }
 
         return $successCount;
+    }
+
+    /**
+     * Mengirim notifikasi via Firebase Cloud Messaging (FCM HTTP v1 API) ke Android Mobile APK.
+     *
+     * @param  Collection<PushSubscription>  $subscriptions
+     */
+    protected function sendToFcmSubscriptions(Collection $subscriptions, array $payload): int
+    {
+        $accessToken = $this->getFcmAccessToken();
+        if (! $accessToken) {
+            Log::warning('FCM access token could not be acquired. Skipping FCM dispatch.');
+
+            return 0;
+        }
+
+        $projectId = config('services.fcm.project_id', 'kehadiran-pkbmpikat');
+        $url = "https://fcm.googleapis.com/v1/projects/{$projectId}/messages:send";
+
+        $client = new Client([
+            'timeout' => 15,
+            'connect_timeout' => 5,
+        ]);
+
+        $title = $payload['title'] ?? 'Presensi PKBM Pikat';
+        $body = $payload['body'] ?? 'Anda memiliki notifikasi baru.';
+        $targetUrl = $payload['url'] ?? route('tutor.dashboard');
+
+        $successCount = 0;
+
+        foreach ($subscriptions as $sub) {
+            $token = str_starts_with($sub->endpoint, 'fcm:')
+                ? substr($sub->endpoint, 4)
+                : $sub->endpoint;
+
+            if (empty($token)) {
+                continue;
+            }
+
+            $messagePayload = [
+                'message' => [
+                    'token' => $token,
+                    'notification' => [
+                        'title' => $title,
+                        'body' => $body,
+                    ],
+                    'data' => [
+                        'url' => (string) $targetUrl,
+                        'title' => (string) $title,
+                        'body' => (string) $body,
+                    ],
+                    'android' => [
+                        'priority' => 'high',
+                        'notification' => [
+                            'icon' => 'ic_launcher',
+                            'color' => '#0B5ED7',
+                            'default_sound' => true,
+                            'default_vibrate_timings' => true,
+                        ],
+                    ],
+                ],
+            ];
+
+            try {
+                $response = $client->post($url, [
+                    'headers' => [
+                        'Authorization' => 'Bearer '.$accessToken,
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => $messagePayload,
+                ]);
+
+                if ($response->getStatusCode() === 200) {
+                    $successCount++;
+                }
+            } catch (ClientException $e) {
+                $statusCode = $e->getResponse()?->getStatusCode();
+                $responseBody = (string) $e->getResponse()?->getBody();
+                Log::warning("FCM dispatch error ({$statusCode}): {$responseBody}");
+
+                if ($statusCode === 404 || str_contains($responseBody, 'UNREGISTERED')) {
+                    $sub->delete();
+                    Log::info("Deleted expired/uninstalled FCM subscription id: {$sub->id}");
+                }
+            } catch (\Throwable $e) {
+                Log::error('FCM dispatch unexpected error: '.$e->getMessage());
+            }
+        }
+
+        return $successCount;
+    }
+
+    /**
+     * Dapatkan OAuth2 Access Token untuk Google Firebase Cloud Messaging v1 menggunakan Service Account.
+     */
+    public function getFcmAccessToken(): ?string
+    {
+        return Cache::remember('fcm_v1_access_token', 3300, function () {
+            $credentialsPath = config('services.fcm.credentials_path');
+            if (! $credentialsPath || ! file_exists($credentialsPath)) {
+                $files = glob(storage_path('app/*firebase*.json'));
+                if (! empty($files)) {
+                    $credentialsPath = $files[0];
+                } else {
+                    Log::warning('FCM credentials file not found.');
+
+                    return null;
+                }
+            }
+
+            $jsonContent = file_get_contents($credentialsPath);
+            $json = json_decode($jsonContent, true);
+            if (! $json || empty($json['private_key']) || empty($json['client_email'])) {
+                Log::warning('Invalid FCM credentials JSON structure.');
+
+                return null;
+            }
+
+            $now = time();
+            $header = json_encode(['alg' => 'RS256', 'typ' => 'JWT']);
+            $claimSet = json_encode([
+                'iss' => $json['client_email'],
+                'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+                'aud' => 'https://oauth2.googleapis.com/token',
+                'exp' => $now + 3600,
+                'iat' => $now,
+            ]);
+
+            $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
+            $base64UrlClaimSet = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($claimSet));
+            $signatureInput = $base64UrlHeader.'.'.$base64UrlClaimSet;
+
+            $signature = '';
+            $privateKey = openssl_pkey_get_private($json['private_key']);
+            if (! $privateKey) {
+                Log::error('Failed to parse FCM private key.');
+
+                return null;
+            }
+
+            if (! openssl_sign($signatureInput, $signature, $privateKey, OPENSSL_ALGO_SHA256)) {
+                Log::error('Failed to sign FCM JWT with private key.');
+
+                return null;
+            }
+
+            $base64UrlSignature = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($signature));
+            $jwt = $signatureInput.'.'.$base64UrlSignature;
+
+            $client = new Client(['timeout' => 10]);
+
+            try {
+                $response = $client->post('https://oauth2.googleapis.com/token', [
+                    'form_params' => [
+                        'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                        'assertion' => $jwt,
+                    ],
+                ]);
+
+                $data = json_decode((string) $response->getBody(), true);
+
+                return $data['access_token'] ?? null;
+            } catch (\Throwable $e) {
+                Log::error('FCM OAuth2 token request failed: '.$e->getMessage());
+
+                return null;
+            }
+        });
     }
 }
