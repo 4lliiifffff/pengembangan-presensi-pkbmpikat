@@ -527,10 +527,25 @@ pie title Status Fitur & Pengkondisian Sistem
       - Menambahkan script inisialisasi dan auto-reopen modal jika `@if ($errors->any())` dengan tetap mempertahankan nilai input sebelumnya (`old(...)`) dan mode yang dipilih (Rutin vs Sekali).
       - Menambahkan toggle atribut `disabled = true/false` pada elemen input mode yang tidak aktif via `setScheduleMode()` sehingga form tidak mengirimkan payload kosong/tumpang tindih.
     - **Testing & Verifikasi:**
-      - Penambahan dua feature test baru di `tests/Feature/TutorJadwalMandiriTest.php`:
-        1. `test_tutor_can_create_session_when_custom_selected_and_seconds_provided` (Sesi tunggal dengan kategori 'custom' dan jam berekstensi detik).
-        2. `test_tutor_can_create_recurring_schedule_with_custom_category_and_seconds` (Pola rutin dengan kategori 'custom' dan jam berekstensi detik).
-      - Seluruh 9 test cases di `TutorJadwalMandiriTest` (45 assertions) lulus 100%. Linter Laravel Pint lolos rapi.
+#### 4.16 Unifikasi Modul Penjadwalan Admin & Eliminasi Redundansi Antarmuka (Unified Schedule Hub)
+- 🟢 **Standardisasi 1-Pintu Jadwal Admin, Konsistensi Desain Tutor, & Pembersihan File Redundan**
+  - **Status:** **SELESAI**
+  - **Rincian Implementasi:**
+    - **Akar Masalah & Redundansi Sistem:** Sebelumnya, modul jadwal di panel Admin terpecah menjadi 3 halaman dan folder terpisah (`admin/jadwal` untuk agenda sekolah, `admin/jadwal_rutin` untuk pola rutin, dan `admin/jadwal_sesi_kbm` untuk sesi harian), lengkap dengan file `create.blade.php` dan `edit.blade.php` terpisah. Alur ini menciptakan inkonsistensi terhadap portal Tutor (yang sudah menggunakan 1 pintu terpadu), membingungkan alur kerja Admin, dan melipatgandakan beban pemeliharaan kode.
+    - **Pemusatan ke Unified Schedule Hub (`/admin/jadwal-sesi-kbm`):**
+      - Seluruh manajemen jadwal kini dikelola melalui 1 file Blade utama: `resources/views/admin/jadwal_sesi/index.blade.php`.
+      - Menyediakan **3 Tab Terintegrasi**:
+        1. *Jadwal Sesi KBM Harian* (`tab=sesi`): Kalender bulanan KBM seluruh tutor, pemantauan sesi, filter tutor & status, modal tambah sesi, modal reschedule, dan modal edit sesi.
+        2. *Pola Rutin KBM* (`tab=rutin`): Master pola mingguan tutor-murid, filter tutor/murid/hari/status, generate manual 4 pekan, toggle pause/aktif, dan modal edit pola rutin.
+        3. *Agenda Acara PKBM* (`tab=agenda`): Kalender kegiatan resmi, pengumuman, ujian, libur sekolah, modal tambah agenda, modal edit agenda, export Excel agenda, dan modal import agenda spreadsheet massal.
+      - Seluruh interaksi tambah dan edit diselaraskan menggunakan **Modal In-Page** yang seragam, meniadakan perpindahan ke halaman form eksternal.
+    - **Pembersihan 6 File Blade Lama yang Redundan:** Menghapus folder usang `resources/views/admin/jadwal/` (`index`, `create`, `edit`) dan `resources/views/admin/jadwal_rutin/` (`index`, `create`, `edit`) dari repositori project.
+    - **Smart Delegation pada Controller Lama (`JadwalController` & `JadwalRutinController`):**
+      - Method `index()` pada controller lama otomatis mendelegasikan query ke `JadwalSesiKbmController` dengan parameter tab terkait (`tab=agenda` dan `tab=rutin`) dengan status HTTP 200.
+      - Method `create()` dan `edit()` dialihkan langsung via redirect ke tab bersangkutan pada Unified Hub dengan auto-open trigger modal via parameter URL (`tambah=1`, `edit_agenda={id}`, `edit_rutin={id}`).
+      - Fitur spreadsheet (`exportExcel`, `importExcel`, `downloadTemplate`) tetap 100% aktif dan terintegrasi.
+    - **Testing & QA Verification:**
+      - Seluruh feature test terkait jadwal (`AdminJadwalSesiKbmTest`, `JadwalRutinAndPresensiGatingTest`, `SpreadsheetImportExportTest`, `JadwalLokasiTrackingTest`, `JadwalSesiPenggantiTest`, `TutorJadwalMandiriTest`) lulus 100% tanpa regresi.
 
 ---
 

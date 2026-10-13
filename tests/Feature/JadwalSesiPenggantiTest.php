@@ -205,4 +205,236 @@ class JadwalSesiPenggantiTest extends TestCase
 
         Carbon::setTestNow();
     }
+
+    public function test_tutor_can_reschedule_sesi_on_the_same_day_and_it_overwrites_session(): void
+    {
+        $todayStr = now()->toDateString();
+        $sesi = JadwalSesi::create([
+            'tutor_id' => $this->tutor->id,
+            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
+            'tanggal_rencana' => $todayStr,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '10:00:00',
+            'durasi_jam' => 2.00,
+            'jenis_sesi' => 'reguler',
+            'status' => 'terjadwal',
+        ]);
+
+        $payload = [
+            'tanggal_baru' => $todayStr,
+            'jam_masuk_baru' => '13:00',
+            'jam_pulang_baru' => '15:00',
+            'alasan_penggantian' => 'Penyesuaian jam belajar murid',
+        ];
+
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.reschedule', $sesi), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHas('success', 'Jadwal sesi berhasil diperbarui ke jam baru pada hari yang sama.');
+
+        // Harus tetap 1 sesi (jadwal lama tertimpa, tidak menumpuk 2 sesi)
+        $this->assertEquals(1, JadwalSesi::where('murid_id', $this->siswa->id)->count());
+
+        $sesi->refresh();
+        $this->assertEquals('13:00', substr((string) $sesi->jam_masuk_rencana, 0, 5));
+        $this->assertEquals('15:00', substr((string) $sesi->jam_pulang_rencana, 0, 5));
+        $this->assertEquals('terjadwal', $sesi->status);
+        $this->assertEquals('pengganti', $sesi->jenis_sesi);
+        $this->assertEquals('Penyesuaian jam belajar murid', $sesi->alasan_penggantian);
+    }
+
+    public function test_tutor_reschedule_to_different_day_cancels_old_and_creates_new(): void
+    {
+        $todayStr = now()->toDateString();
+        $nextDayStr = now()->addDays(2)->toDateString();
+
+        $sesi = JadwalSesi::create([
+            'tutor_id' => $this->tutor->id,
+            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
+            'tanggal_rencana' => $todayStr,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '10:00:00',
+            'durasi_jam' => 2.00,
+            'jenis_sesi' => 'reguler',
+            'status' => 'terjadwal',
+        ]);
+
+        $payload = [
+            'tanggal_baru' => $nextDayStr,
+            'jam_masuk_baru' => '14:00',
+            'jam_pulang_baru' => '16:00',
+            'alasan_penggantian' => 'Murid ada acara keluarga',
+        ];
+
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.reschedule', $sesi), $payload);
+        $response->assertRedirect();
+
+        $sesi->refresh();
+        $this->assertEquals('dibatalkan', $sesi->status);
+
+        $newSesi = JadwalSesi::where('tanggal_rencana', $nextDayStr)->first();
+        $this->assertNotNull($newSesi);
+        $this->assertEquals('terjadwal', $newSesi->status);
+        $this->assertEquals('pengganti', $newSesi->jenis_sesi);
+        $this->assertEquals('14:00', substr((string) $newSesi->jam_masuk_rencana, 0, 5));
+    }
+
+    public function test_tutor_can_store_jadwal_for_multiple_murid_single_session(): void
+    {
+        $kelas = kelas::first();
+        $siswa2 = Siswa::create([
+            'nama_siswa' => 'Siti Siswa Test',
+            'no_absen' => '02',
+            'no_hp' => '081234567891',
+            'nama_wali' => 'Ibu Siti',
+            'status_siswa' => 'aktif',
+            'kelas_id' => $kelas->id,
+            'tutor_id' => $this->tutor->id,
+        ]);
+
+        $payload = [
+            'is_recurring' => '0',
+            'siswa_ids' => [$this->siswa->id, $siswa2->id],
+            'jenis_sesi' => 'reguler',
+            'tanggal_rencana' => now()->addDays(1)->toDateString(),
+            'jam_masuk_rencana' => '09:00',
+            'jam_pulang_rencana' => '11:00',
+        ];
+
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.store'), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('jadwal_sesi', [
+            'tutor_id' => $this->tutor->id,
+            'murid_id' => $this->siswa->id,
+            'status' => 'terjadwal',
+        ]);
+
+        $this->assertDatabaseHas('jadwal_sesi', [
+            'tutor_id' => $this->tutor->id,
+            'murid_id' => $siswa2->id,
+            'status' => 'terjadwal',
+        ]);
+    }
+
+    public function test_tutor_can_store_jadwal_for_multiple_murid_recurring_weekly(): void
+    {
+        $kelas = kelas::first();
+        $siswa2 = Siswa::create([
+            'nama_siswa' => 'Dewi Siswa Test',
+            'no_absen' => '03',
+            'no_hp' => '081234567892',
+            'nama_wali' => 'Ibu Dewi',
+            'status_siswa' => 'aktif',
+            'kelas_id' => $kelas->id,
+            'tutor_id' => $this->tutor->id,
+        ]);
+
+        $payload = [
+            'is_recurring' => '1',
+            'siswa_ids' => [$this->siswa->id, $siswa2->id],
+            'hari' => 'selasa',
+            'jam_masuk' => '13:00',
+            'jam_pulang' => '15:00',
+            'berlaku_mulai' => now()->toDateString(),
+            'auto_generate' => '1',
+        ];
+
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.store'), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('jadwal_rutin', [
+            'tutor_id' => $this->tutor->id,
+            'murid_id' => $this->siswa->id,
+            'hari' => 'selasa',
+            'jam_masuk' => '13:00',
+        ]);
+
+        $this->assertDatabaseHas('jadwal_rutin', [
+            'tutor_id' => $this->tutor->id,
+            'murid_id' => $siswa2->id,
+            'hari' => 'selasa',
+            'jam_masuk' => '13:00',
+        ]);
+    }
+
+    public function test_tutor_store_backward_compatible_with_single_siswa_id(): void
+    {
+        $payload = [
+            'is_recurring' => '0',
+            'siswa_id' => $this->siswa->id,
+            'jenis_sesi' => 'reguler',
+            'tanggal_rencana' => now()->addDays(3)->toDateString(),
+            'jam_masuk_rencana' => '10:00',
+            'jam_pulang_rencana' => '12:00',
+        ];
+
+        $response = $this->actingAs($this->tutorUser)->post(route('tutor.jadwal-sesi.store'), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseHas('jadwal_sesi', [
+            'tutor_id' => $this->tutor->id,
+            'murid_id' => $this->siswa->id,
+            'tanggal_rencana' => now()->addDays(3)->toDateString(),
+        ]);
+    }
+
+    public function test_admin_can_view_jadwal_sesi_kbm_monitoring_page(): void
+    {
+        $adminUser = User::factory()->create([
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+
+        $response = $this->actingAs($adminUser)->get(route('admin.jadwal-sesi-kbm.index'));
+        $response->assertOk();
+        $response->assertSee('Jadwal Sesi KBM Seluruh Tutor');
+    }
+
+    public function test_admin_can_reschedule_kbm_session_for_tutor_and_siswa(): void
+    {
+        $adminUser = User::factory()->create([
+            'role' => 'admin',
+            'is_active' => true,
+        ]);
+
+        $todayStr = now()->toDateString();
+        $nextDayStr = now()->addDays(2)->toDateString();
+
+        $sesi = JadwalSesi::create([
+            'tutor_id' => $this->tutor->id,
+            'siswa_id' => $this->siswa->id,
+            'murid_id' => $this->siswa->id,
+            'tanggal_rencana' => $todayStr,
+            'jam_masuk_rencana' => '08:00:00',
+            'jam_pulang_rencana' => '10:00:00',
+            'durasi_jam' => 2.00,
+            'jenis_sesi' => 'reguler',
+            'status' => 'terjadwal',
+        ]);
+
+        $payload = [
+            'tanggal_baru' => $nextDayStr,
+            'jam_masuk_baru' => '15:00',
+            'jam_pulang_baru' => '17:00',
+            'alasan_penggantian' => 'Admin membantu penyesuaian jadwal atas permintaan orang tua',
+        ];
+
+        $response = $this->actingAs($adminUser)->post(route('admin.jadwal-sesi-kbm.reschedule', $sesi), $payload);
+        $response->assertRedirect();
+        $response->assertSessionHas('success');
+
+        $sesi->refresh();
+        $this->assertEquals('dibatalkan', $sesi->status);
+
+        $newSesi = JadwalSesi::where('tanggal_rencana', $nextDayStr)->first();
+        $this->assertNotNull($newSesi);
+        $this->assertEquals('terjadwal', $newSesi->status);
+        $this->assertEquals('pengganti', $newSesi->jenis_sesi);
+        $this->assertEquals('15:00', substr((string) $newSesi->jam_masuk_rencana, 0, 5));
+    }
 }

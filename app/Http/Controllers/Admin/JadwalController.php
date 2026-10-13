@@ -7,8 +7,6 @@ use App\Exports\JadwalTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\JadwalImport;
 use App\Models\Jadwal;
-use App\Models\LokasiPresensi;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -16,49 +14,14 @@ class JadwalController extends Controller
 {
     public function index(Request $request)
     {
-        $tanggal = $request->get('tanggal', Carbon::today()->toDateString());
-        $selectedDate = Carbon::parse($tanggal);
+        $request->merge(['tab' => 'agenda']);
 
-        // Ambil 1 bulan
-        $startOfMonth = $selectedDate->copy()->startOfMonth();
-        $endOfMonth = $selectedDate->copy()->endOfMonth();
-
-        $monthDays = collect();
-        for ($date = $startOfMonth->copy(); $date->lte($endOfMonth); $date->addDay()) {
-            $monthDays->push($date->copy());
-        }
-
-        // Agenda untuk tanggal yang dipilih (eager load titik lokasi resmi)
-        $jadwals = Jadwal::with('lokasiPresensi')
-            ->whereDate('tanggal', $selectedDate)
-            ->orderBy('created_at')
-            ->get();
-
-        // Hitung total agenda per hari dalam 1 bulan
-        $monthCounts = Jadwal::whereBetween('tanggal', [
-            $startOfMonth->toDateString(),
-            $endOfMonth->toDateString(),
-        ])
-            ->get()
-            ->groupBy(function ($item) {
-                return is_object($item->tanggal)
-                    ? $item->tanggal->format('Y-m-d')
-                    : substr((string) $item->tanggal, 0, 10);
-            })
-            ->map->count();
-
-        return view('admin.jadwal.index', compact(
-            'jadwals',
-            'selectedDate',
-            'monthDays',
-            'monthCounts'));
+        return app(JadwalSesiKbmController::class)->index($request);
     }
 
     public function create()
     {
-        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-
-        return view('admin.jadwal.create', compact('lokasiPresensis'));
+        return redirect()->route('admin.jadwal.index', ['tab' => 'agenda', 'tambah' => 1]);
     }
 
     public function store(Request $request)
@@ -83,10 +46,7 @@ class JadwalController extends Controller
 
     public function edit(Jadwal $jadwal)
     {
-        $jadwal->load('lokasiPresensi');
-        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-
-        return view('admin.jadwal.edit', compact('jadwal', 'lokasiPresensis'));
+        return redirect()->route('admin.jadwal.index', ['tab' => 'agenda', 'edit_agenda' => $jadwal->id]);
     }
 
     public function update(Request $request, Jadwal $jadwal)

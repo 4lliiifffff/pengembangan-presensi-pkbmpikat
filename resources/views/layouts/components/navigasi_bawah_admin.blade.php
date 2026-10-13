@@ -37,6 +37,7 @@
                                request()->routeIs('admin.murid.*') ||
                                request()->routeIs('admin.jadwal.*') ||
                                request()->routeIs('admin.jadwal-rutin.*') ||
+                               request()->routeIs('admin.jadwal-sesi-kbm.*') ||
                                request()->routeIs('admin.jadwal-kerja.*') ||
                                request()->routeIs('admin.izin.*') ||
                                request()->routeIs('admin.lokasi-presensi.*') ||
@@ -103,8 +104,8 @@
                             <ion-icon name="time-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Jadwal Shift</div>
-                            <div class="navCardDesc">Jam Masuk, Pulang & SK</div>
+                            <div class="navCardTitle">Shift &amp; Jam Presensi</div>
+                            <div class="navCardDesc">Master Jam Kerja Kantor</div>
                         </div>
                     </a>
 
@@ -147,23 +148,33 @@
                     <span>Operasional & Pembelajaran</span>
                 </div>
                 <div class="navDrawerGrid">
-                    <a href="{{ route('admin.jadwal.index') }}" class="navDrawerCard {{ request()->routeIs('admin.jadwal.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.jadwal.index', ['tab' => 'agenda']) }}" class="navDrawerCard {{ (request()->routeIs('admin.jadwal.*') || request()->routeIs('admin.jadwal-sesi-kbm.*')) && request('tab') === 'agenda' ? 'active' : '' }}">
                         <div class="navCardIcon amber">
-                            <ion-icon name="calendar-outline"></ion-icon>
+                            <ion-icon name="megaphone-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Agenda KBM</div>
-                            <div class="navCardDesc">Jadwal Tutorial Murid</div>
+                            <div class="navCardTitle">Agenda Acara PKBM</div>
+                            <div class="navCardDesc">Pengumuman, Ujian & Libur</div>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.jadwal-rutin.index') }}" class="navDrawerCard {{ request()->routeIs('admin.jadwal-rutin.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.jadwal.index', ['tab' => 'rutin']) }}" class="navDrawerCard {{ (request()->routeIs('admin.jadwal.*') || request()->routeIs('admin.jadwal-sesi-kbm.*') || request()->routeIs('admin.jadwal-rutin.*')) && request('tab') === 'rutin' ? 'active' : '' }}">
                         <div class="navCardIcon blue">
                             <ion-icon name="repeat-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Jadwal Rutin Murid</div>
-                            <div class="navCardDesc">Pola Mingguan & Time-Gating</div>
+                            <div class="navCardTitle">Pola Rutin KBM</div>
+                            <div class="navCardDesc">Master Bimbingan Tutor-Murid</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.jadwal.index', ['tab' => 'sesi']) }}" class="navDrawerCard {{ (request()->routeIs('admin.jadwal.*') || request()->routeIs('admin.jadwal-sesi-kbm.*')) && request('tab', 'sesi') === 'sesi' ? 'active' : '' }}">
+                        <div class="navCardIcon emerald">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                        </div>
+                        <div class="navCardMeta">
+                            <div class="navCardTitle">Jadwal Sesi KBM</div>
+                            <div class="navCardDesc">Kalender & Sesi Seluruh Tutor</div>
                         </div>
                     </a>
 

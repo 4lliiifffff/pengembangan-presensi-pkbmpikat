@@ -5,109 +5,49 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\JadwalKerja;
 use App\Models\JadwalRutin;
-use App\Models\KategoriTutorial;
-use App\Models\LokasiPresensi;
-use App\Models\Siswa;
-use App\Models\Tutor;
 use App\Services\JadwalRutinService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 
 class JadwalRutinController extends Controller
 {
-    /**
-     * Tampilkan master jadwal rutin mingguan siswa & tutor.
-     */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $query = JadwalRutin::query()
-            ->with(['siswa.relKelas', 'tutor', 'kategoriTutorial', 'jadwalKerja', 'lokasiPresensi'])
-            ->withCount('jadwalSesis');
+        $request->merge(['tab' => 'rutin']);
 
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->whereHas('siswa', fn ($s) => $s->where('nama_murid', 'like', "%{$search}%"))
-                    ->orWhereHas('tutor', fn ($t) => $t->where('nama_lengkap', 'like', "%{$search}%"))
-                    ->orWhere('keterangan', 'like', "%{$search}%");
-            });
-        }
-
-        $muridFilterId = $request->input('murid_id', $request->input('siswa_id'));
-        if (! empty($muridFilterId)) {
-            $query->where('murid_id', $muridFilterId);
-        }
-
-        if ($request->filled('tutor_id')) {
-            $query->where('tutor_id', $request->input('tutor_id'));
-        }
-
-        if ($request->filled('hari')) {
-            $query->where('hari', strtolower($request->input('hari')));
-        }
-
-        if ($request->filled('status')) {
-            $query->where('is_active', $request->input('status') === 'active');
-        }
-
-        $jadwalRutins = $query->orderByRaw("FIELD(hari, 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu', 'minggu')")
-            ->orderBy('jam_masuk')
-            ->paginate(15)
-            ->withQueryString();
-
-        $stats = [
-            'total' => JadwalRutin::count(),
-            'active' => JadwalRutin::where('is_active', true)->count(),
-            'murid_count' => JadwalRutin::distinct('murid_id')->count('murid_id'),
-            'siswa_count' => JadwalRutin::distinct('murid_id')->count('murid_id'),
-            'tutor_count' => JadwalRutin::distinct('tutor_id')->count('tutor_id'),
-        ];
-
-        $siswas = Siswa::aktif()->orderBy('nama_murid')->get(['id', 'nama_murid', 'no_absen', 'kelas_id']);
-        $murids = $siswas;
-        $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get(['id', 'nama_lengkap']);
-
-        return view('admin.jadwal_rutin.index', compact('jadwalRutins', 'stats', 'siswas', 'murids', 'tutors'));
+        return app(JadwalSesiKbmController::class)->index($request);
     }
 
     /**
      * Form tambah jadwal rutin KBM baru untuk murid tertentu.
      */
-    public function create(): View
+    public function create(): RedirectResponse
     {
-        $siswas = Siswa::aktif()->orderBy('nama_murid')->get();
-        $murids = $siswas;
-        $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get();
-        $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
-        $jadwalKerjas = JadwalKerja::active()->where('jenis_shift', 'kbm')->orderBy('urutan')->get();
-        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-
-        $hariList = [
-            'senin' => 'Senin',
-            'selasa' => 'Selasa',
-            'rabu' => 'Rabu',
-            'kamis' => 'Kamis',
-            'jumat' => 'Jumat',
-            'sabtu' => 'Sabtu',
-            'minggu' => 'Minggu',
-        ];
-
-        return view('admin.jadwal_rutin.create', compact('siswas', 'murids', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
+        return redirect()->route('admin.jadwal.index', ['tab' => 'rutin', 'tambah' => 1]);
     }
 
     /**
-     * Simpan jadwal rutin KBM baru.
+     * Simpan jadwal rutin KBM baru (Mendukung Multi-Murid Rombel & Single Murid).
      */
     public function store(Request $request, JadwalRutinService $service): RedirectResponse
     {
-        if (! $request->filled('siswa_id') && $request->filled('murid_id')) {
-            $request->merge(['siswa_id' => $request->input('murid_id')]);
+        // Normalisasi murid (dukung array siswa_ids[] atau murid_id / siswa_id tunggal)
+        $siswaIds = $request->input('siswa_ids');
+        if (empty($siswaIds) && $request->filled('murid_id')) {
+            $siswaIds = [$request->input('murid_id')];
+        } elseif (empty($siswaIds) && $request->filled('siswa_id')) {
+            $siswaIds = [$request->input('siswa_id')];
         }
+        if (! is_array($siswaIds)) {
+            $siswaIds = $siswaIds ? [$siswaIds] : [];
+        }
+        $siswaIds = array_values(array_filter(array_unique(array_map('intval', $siswaIds))));
+        $request->merge(['siswa_ids' => $siswaIds]);
 
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:murid,id'],
+            'siswa_ids' => ['required', 'array', 'min:1'],
+            'siswa_ids.*' => ['required', 'integer', 'exists:murid,id'],
             'tutor_id' => ['required', 'exists:tutor,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'jadwal_kerja_id' => ['nullable', 'exists:jadwal_kerja,id'],
@@ -122,7 +62,8 @@ class JadwalRutinController extends Controller
             'is_active' => ['nullable', 'boolean'],
             'auto_generate' => ['nullable', 'boolean'],
         ], [
-            'siswa_id.required' => 'Pilih murid terlebih dahulu.',
+            'siswa_ids.required' => 'Pilih minimal satu murid bimbingan / rombel.',
+            'siswa_ids.min' => 'Pilih minimal satu murid bimbingan / rombel.',
             'tutor_id.required' => 'Pilih tutor pengampu terlebih dahulu.',
             'hari.required' => 'Pilih hari belajar rutin dalam seminggu.',
             'jam_masuk.required' => 'Jam mulai belajar wajib diisi.',
@@ -148,42 +89,36 @@ class JadwalRutinController extends Controller
         $validated['is_active'] = $request->boolean('is_active', true);
         $validated['berlaku_mulai'] = $validated['berlaku_mulai'] ?? Carbon::now('Asia/Jakarta')->toDateString();
 
-        $rutin = JadwalRutin::create($validated);
+        $totalSesi = 0;
+        $totalMurid = count($validated['siswa_ids']);
 
-        // Auto-generate sesi kalender 4 minggu ke depan jika opsi aktif
-        $genInfo = '';
-        if ($request->boolean('auto_generate', true)) {
-            $result = $service->generateForNextWeeks(4, $rutin->siswa_id, $rutin->tutor_id);
-            $genInfo = " Berhasil menghasilkan {$result['created']} sesi KBM untuk 4 minggu ke depan.";
+        foreach ($validated['siswa_ids'] as $sid) {
+            $itemData = $validated;
+            unset($itemData['siswa_ids']);
+            $itemData['siswa_id'] = $sid;
+            $itemData['murid_id'] = $sid;
+
+            $rutin = JadwalRutin::create($itemData);
+
+            // Auto-generate sesi kalender 4 minggu ke depan jika opsi aktif
+            if ($request->boolean('auto_generate', true)) {
+                $result = $service->generateForNextWeeks(4, $rutin->siswa_id, $rutin->tutor_id);
+                $totalSesi += $result['created'] ?? 0;
+            }
         }
 
-        return redirect()->route('admin.jadwal-rutin.index')
-            ->with('success', "Master Jadwal Rutin KBM untuk murid berhasil dibuat.{$genInfo}");
+        $genInfo = $totalSesi > 0 ? " dan berhasil menghasilkan {$totalSesi} sesi kalender KBM untuk 4 minggu ke depan." : '.';
+
+        return redirect()->route('admin.jadwal.index', ['tab' => 'rutin'])
+            ->with('success', "Jadwal belajar rutin berhasil disimpan untuk {$totalMurid} murid{$genInfo}");
     }
 
     /**
      * Form edit master jadwal rutin.
      */
-    public function edit(JadwalRutin $jadwalRutin): View
+    public function edit(JadwalRutin $jadwalRutin): RedirectResponse
     {
-        $siswas = Siswa::aktif()->orderBy('nama_murid')->get();
-        $murids = $siswas;
-        $tutors = Tutor::whereHas('user', fn ($u) => $u->where('is_active', true))->orderBy('nama_lengkap')->get();
-        $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
-        $jadwalKerjas = JadwalKerja::active()->where('jenis_shift', 'kbm')->orderBy('urutan')->get();
-        $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
-
-        $hariList = [
-            'senin' => 'Senin',
-            'selasa' => 'Selasa',
-            'rabu' => 'Rabu',
-            'kamis' => 'Kamis',
-            'jumat' => 'Jumat',
-            'sabtu' => 'Sabtu',
-            'minggu' => 'Minggu',
-        ];
-
-        return view('admin.jadwal_rutin.edit', compact('jadwalRutin', 'siswas', 'murids', 'tutors', 'kategoriTutorials', 'jadwalKerjas', 'lokasiPresensis', 'hariList'));
+        return redirect()->route('admin.jadwal.index', ['tab' => 'rutin', 'edit_rutin' => $jadwalRutin->id]);
     }
 
     /**
@@ -259,7 +194,7 @@ class JadwalRutinController extends Controller
     {
         $jadwalRutin->delete();
 
-        return redirect()->route('admin.jadwal-rutin.index')
+        return redirect()->route('admin.jadwal.index', ['tab' => 'rutin'])
             ->with('success', 'Master Jadwal Rutin KBM berhasil dihapus.');
     }
 

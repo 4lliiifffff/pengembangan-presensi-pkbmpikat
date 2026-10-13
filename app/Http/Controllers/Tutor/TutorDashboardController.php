@@ -234,7 +234,7 @@ class TutorDashboardController extends Controller
      */
     public function jadwal(Request $request): RedirectResponse
     {
-        return redirect()->route('tutor.jadwal-sesi.index', array_merge(
+        return redirect()->route('tutor.jadwal', array_merge(
             ['tab' => 'agenda'],
             $request->only('tanggal')
         ));

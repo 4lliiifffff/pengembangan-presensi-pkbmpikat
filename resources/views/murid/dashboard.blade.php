@@ -251,8 +251,9 @@
                             @endphp
                             <div class="recentItem">
                                 <div class="recentLeft">
-                                    <div class="recentCheck {{ $isHadirSesi ? '' : 'pending' }}">
-                                        <ion-icon name="{{ $isHadirSesi ? 'checkmark-circle' : 'time-outline' }}"
+                                    <div class="recentCheck {{ ($isHadirSesi || $sesi->status === 'selesai') ? '' : ($sesi->status === 'dibatalkan' ? 'cancelled' : 'pending') }}"
+                                         @if($sesi->status === 'dibatalkan') style="background: #fee2e2; color: #dc2626;" @endif>
+                                        <ion-icon name="{{ ($isHadirSesi || $sesi->status === 'selesai') ? 'checkmark-circle' : ($sesi->status === 'dibatalkan' ? 'close-circle-outline' : 'time-outline') }}"
                                             class="text-md"></ion-icon>
                                     </div>
                                     <div class="recentMeta">
@@ -264,9 +265,15 @@
                                     </div>
                                 </div>
                                 <div>
-                                    <span class="pillSmall {{ $isHadirSesi ? 'pillOk' : 'pillPending' }}">
-                                        {{ $isHadirSesi ? 'Hadir' : 'Terjadwal' }}
-                                    </span>
+                                    @if($isHadirSesi || $sesi->status === 'selesai')
+                                        <span class="pillSmall pillOk">Hadir</span>
+                                    @elseif($sesi->status === 'berlangsung')
+                                        <span class="pillSmall pillWarning">Sedang KBM</span>
+                                    @elseif($sesi->status === 'dibatalkan')
+                                        <span class="pillSmall" style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">Dibatalkan</span>
+                                    @else
+                                        <span class="pillSmall pillPending">Terjadwal</span>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach

@@ -342,12 +342,14 @@
         -webkit-backdrop-filter: blur(4px);
         z-index: 999990;
         opacity: 0;
+        visibility: hidden;
         pointer-events: none;
-        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s;
     }
 
     .ss-mobile-sheet-backdrop.ss-active {
         opacity: 1;
+        visibility: visible;
         pointer-events: auto;
     }
 
@@ -361,17 +363,22 @@
         background: var(--card, #ffffff);
         border-top-left-radius: 22px;
         border-top-right-radius: 22px;
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
+        box-shadow: none;
         z-index: 999995;
         flex-direction: column;
-        transform: translateY(100%);
-        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        transform: translateY(105%);
+        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, visibility 0.28s;
         overflow: hidden;
         padding-bottom: env(safe-area-inset-bottom, 16px);
+        visibility: hidden;
+        pointer-events: none;
     }
 
     .ss-mobile-sheet.ss-active {
         transform: translateY(0);
+        visibility: visible;
+        pointer-events: auto;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25);
     }
 
     .ss-sheet-handle-bar {

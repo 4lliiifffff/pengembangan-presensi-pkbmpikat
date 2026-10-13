@@ -252,14 +252,7 @@ class JadwalRutinService
         $formattedOldDate = $oldSesi->tanggal_rencana ? $oldSesi->tanggal_rencana->format('d/m/Y') : '-';
         $oldCatatan = $oldSesi->catatan ? $oldSesi->catatan.' | ' : '';
 
-        // 1. Tandai sesi lama sebagai dibatalkan karena reschedule
-        $oldSesi->update([
-            'status' => 'dibatalkan',
-            'alasan_penggantian' => $alasan,
-            'catatan' => $oldCatatan."Direschedule ke {$newDate} pukul {$newJamMasuk} WIB. Alasan: {$alasan}",
-        ]);
-
-        // 2. Hitung durasi jam jika tidak diberikan
+        // 1. Hitung durasi jam jika tidak diberikan
         if ($durasiJam === null) {
             $t1 = Carbon::createFromFormat('H:i', substr($newJamMasuk, 0, 5));
             $t2 = Carbon::createFromFormat('H:i', substr($newJamPulang, 0, 5));
@@ -271,9 +264,43 @@ class JadwalRutinService
             }
         }
 
+        $oldDateStr = $oldSesi->tanggal_rencana ? Carbon::parse($oldSesi->tanggal_rencana)->toDateString() : null;
+        $newDateStr = Carbon::parse($newDate)->toDateString();
+        $isSameDay = ($oldDateStr === $newDateStr);
+
+        // Jika di-reschedule pada HARI YANG SAMA: timpa jadwal sesi lama secara langsung
+        if ($isSameDay) {
+            $oldJamMasuk = substr((string) $oldSesi->jam_masuk_rencana, 0, 5);
+            $oldJamPulang = substr((string) $oldSesi->jam_pulang_rencana, 0, 5);
+
+            $oldSesi->update([
+                'jam_masuk_rencana' => $newJamMasuk,
+                'jam_pulang_rencana' => $newJamPulang,
+                'durasi_jam' => $durasiJam,
+                'lokasi_presensi_id' => $lokasiPresensiId ?? $oldSesi->lokasi_presensi_id,
+                'jenis_sesi' => 'pengganti',
+                'status' => 'terjadwal',
+                'status_kehadiran_murid' => 'belum_presensi',
+                'status_kehadiran_siswa' => 'belum_presensi',
+                'tanggal_asli' => $oldSesi->tanggal_asli ?? $oldSesi->tanggal_rencana,
+                'alasan_penggantian' => $alasan,
+                'catatan' => $oldCatatan."Jadwal di-reschedule pada hari yang sama dari {$oldJamMasuk}-{$oldJamPulang} WIB menjadi {$newJamMasuk}-{$newJamPulang} WIB. Alasan: {$alasan}",
+            ]);
+
+            return $oldSesi;
+        }
+
+        // Jika di-reschedule ke HARI LAIN:
+        // 2. Tandai sesi lama sebagai dibatalkan karena reschedule
+        $oldSesi->update([
+            'status' => 'dibatalkan',
+            'alasan_penggantian' => $alasan,
+            'catatan' => $oldCatatan."Direschedule ke {$newDate} pukul {$newJamMasuk} WIB. Alasan: {$alasan}",
+        ]);
+
         $targetMuridId = $oldSesi->murid_id ?: $oldSesi->siswa_id;
 
-        // 3. Buat sesi pengganti baru
+        // 3. Buat sesi pengganti baru di tanggal baru
         return JadwalSesi::create([
             'jadwal_rutin_id' => $oldSesi->jadwal_rutin_id,
             'tutor_id' => $oldSesi->tutor_id,

@@ -179,9 +179,11 @@ class SearchableSelect {
     createMobileSheet() {
         this.mobileBackdrop = document.createElement('div');
         this.mobileBackdrop.className = 'ss-mobile-sheet-backdrop';
+        this.mobileBackdrop.setAttribute('aria-hidden', 'true');
 
         this.mobileSheet = document.createElement('div');
         this.mobileSheet.className = 'ss-mobile-sheet';
+        this.mobileSheet.setAttribute('aria-hidden', 'true');
 
         const handle = document.createElement('div');
         handle.className = 'ss-sheet-handle-bar';
@@ -460,6 +462,8 @@ class SearchableSelect {
             this.mobileSearchInput.value = '';
             this.mobileSearchClear.style.display = 'none';
             this.renderOptionsList('');
+            this.mobileBackdrop.setAttribute('aria-hidden', 'false');
+            this.mobileSheet.setAttribute('aria-hidden', 'false');
             this.mobileBackdrop.classList.add('ss-active');
             this.mobileSheet.classList.add('ss-active');
             document.body.style.overflow = 'hidden';
@@ -496,6 +500,8 @@ class SearchableSelect {
         if (this.isMobile) {
             this.mobileBackdrop.classList.remove('ss-active');
             this.mobileSheet.classList.remove('ss-active');
+            this.mobileBackdrop.setAttribute('aria-hidden', 'true');
+            this.mobileSheet.setAttribute('aria-hidden', 'true');
             document.body.style.overflow = '';
         }
     }

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\IzinController;
 use App\Http\Controllers\Admin\JadwalController;
 use App\Http\Controllers\Admin\JadwalKerjaController;
 use App\Http\Controllers\Admin\JadwalRutinController;
+use App\Http\Controllers\Admin\JadwalSesiKbmController;
 use App\Http\Controllers\Admin\JenjangPaketController;
 use App\Http\Controllers\Admin\KaryawanController;
 use App\Http\Controllers\Admin\KategoriTutorialController;
@@ -24,6 +25,7 @@ use App\Http\Controllers\Murid\MuridDashboardController;
 use App\Http\Controllers\Murid\MuridPresensiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PushNotificationController;
+use App\Http\Controllers\Tutor\JadwalController as TutorJadwalController;
 use App\Http\Controllers\Tutor\JadwalSesiController;
 use App\Http\Controllers\Tutor\LupaLaporController;
 use App\Http\Controllers\Tutor\PengajuanIzinController;
@@ -122,11 +124,23 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::resource('kelas', KelasController::class);
 
-    // Jadwal Spreadsheet Routes
+    // Unified Schedule Hub Admin: Kalender Sesi KBM, Pola Rutin & Agenda Acara
     Route::get('/jadwal/export/excel', [JadwalController::class, 'exportExcel'])->name('jadwal.exportExcel');
     Route::get('/jadwal/template/excel', [JadwalController::class, 'downloadTemplate'])->name('jadwal.downloadTemplate');
     Route::post('/jadwal/import/excel', [JadwalController::class, 'importExcel'])->name('jadwal.importExcel');
-    Route::resource('jadwal', JadwalController::class);
+
+    Route::get('/jadwal', [JadwalSesiKbmController::class, 'index'])->name('jadwal.index');
+    Route::post('/jadwal', [JadwalSesiKbmController::class, 'store'])->name('jadwal.store');
+    Route::delete('/jadwal/{jadwalSesi}', [JadwalSesiKbmController::class, 'destroy'])->name('jadwal.destroy');
+    Route::post('/jadwal/{jadwalSesi}/reschedule', [JadwalSesiKbmController::class, 'reschedule'])->name('jadwal.reschedule');
+    Route::patch('/jadwal/rutin/{jadwalRutin}/toggle-status', [JadwalSesiKbmController::class, 'toggleStatusRutin'])->name('jadwal.toggleStatusRutin');
+    Route::match(['put', 'patch'], '/jadwal/rutin/{jadwalRutin}', [JadwalSesiKbmController::class, 'updateRutin'])->name('jadwal.updateRutin');
+    Route::delete('/jadwal/rutin/{jadwalRutin}', [JadwalSesiKbmController::class, 'destroyRutin'])->name('jadwal.destroyRutin');
+    Route::post('/jadwal/rutin/generate-manual', [JadwalSesiKbmController::class, 'generateManualRutin'])->name('jadwal.generateManualRutin');
+    Route::match(['put', 'patch'], '/jadwal/{jadwalSesi}', [JadwalSesiKbmController::class, 'update'])->name('jadwal.update');
+    Route::post('/jadwal/agenda', [JadwalSesiKbmController::class, 'storeAgenda'])->name('jadwal.storeAgenda');
+    Route::match(['put', 'patch'], '/jadwal/agenda/{jadwal}', [JadwalSesiKbmController::class, 'updateAgenda'])->name('jadwal.updateAgenda');
+    Route::delete('/jadwal/agenda/{jadwal}', [JadwalSesiKbmController::class, 'destroyAgenda'])->name('jadwal.destroyAgenda');
 
     // Karyawan Spreadsheet Routes
     Route::get('/karyawan/export/excel', [KaryawanController::class, 'exportExcel'])->name('karyawan.exportExcel');
@@ -180,6 +194,20 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::patch('/jadwal-rutin/{jadwalRutin}/toggle-status', [JadwalRutinController::class, 'toggleStatus'])->name('jadwal-rutin.toggleStatus');
     Route::resource('jadwal-rutin', JadwalRutinController::class);
 
+    // Legacy Aliases for /admin/jadwal-sesi-kbm (Zero Breaking Changes)
+    Route::get('/jadwal-sesi-kbm', [JadwalSesiKbmController::class, 'index'])->name('jadwal-sesi-kbm.index');
+    Route::post('/jadwal-sesi-kbm', [JadwalSesiKbmController::class, 'store'])->name('jadwal-sesi-kbm.store');
+    Route::delete('/jadwal-sesi-kbm/{jadwalSesi}', [JadwalSesiKbmController::class, 'destroy'])->name('jadwal-sesi-kbm.destroy');
+    Route::post('/jadwal-sesi-kbm/{jadwalSesi}/reschedule', [JadwalSesiKbmController::class, 'reschedule'])->name('jadwal-sesi-kbm.reschedule');
+    Route::patch('/jadwal-sesi-kbm/rutin/{jadwalRutin}/toggle-status', [JadwalSesiKbmController::class, 'toggleStatusRutin'])->name('jadwal-sesi-kbm.toggleStatusRutin');
+    Route::match(['put', 'patch'], '/jadwal-sesi-kbm/rutin/{jadwalRutin}', [JadwalSesiKbmController::class, 'updateRutin'])->name('jadwal-sesi-kbm.updateRutin');
+    Route::delete('/jadwal-sesi-kbm/rutin/{jadwalRutin}', [JadwalSesiKbmController::class, 'destroyRutin'])->name('jadwal-sesi-kbm.destroyRutin');
+    Route::post('/jadwal-sesi-kbm/rutin/generate-manual', [JadwalSesiKbmController::class, 'generateManualRutin'])->name('jadwal-sesi-kbm.generateManualRutin');
+    Route::match(['put', 'patch'], '/jadwal-sesi-kbm/{jadwalSesi}', [JadwalSesiKbmController::class, 'update'])->name('jadwal-sesi-kbm.update');
+    Route::post('/jadwal-sesi-kbm/agenda', [JadwalSesiKbmController::class, 'storeAgenda'])->name('jadwal-sesi-kbm.storeAgenda');
+    Route::match(['put', 'patch'], '/jadwal-sesi-kbm/agenda/{jadwal}', [JadwalSesiKbmController::class, 'updateAgenda'])->name('jadwal-sesi-kbm.updateAgenda');
+    Route::delete('/jadwal-sesi-kbm/agenda/{jadwal}', [JadwalSesiKbmController::class, 'destroyAgenda'])->name('jadwal-sesi-kbm.destroyAgenda');
+
     // Kelola Mahasiswa / Siswa Magang (PKL)
     Route::get('/magang/presensi', [MagangController::class, 'presensi'])->name('magang.presensi');
     Route::get('/magang/export/pdf', [MagangController::class, 'exportPdf'])->name('magang.exportPdf');
@@ -223,7 +251,20 @@ Route::middleware(['auth', 'role:murid,siswa'])->prefix('siswa')->name('siswa.')
 Route::middleware(['auth', 'role:tutor'])->prefix('tutor')->name('tutor.')->group(function () {
     Route::get('/dashboard', [TutorDashboardController::class, 'index'])->name('dashboard');
     Route::get('/riwayat', [TutorDashboardController::class, 'riwayat'])->name('riwayat');
-    Route::get('/jadwal', [TutorDashboardController::class, 'jadwal'])->name('jadwal');
+    // Unified Schedule Hub Tutor: Kalender Sesi Belajar, Pola Rutin & Agenda Acara
+    Route::get('/jadwal', [TutorJadwalController::class, 'index'])->name('jadwal');
+    Route::get('/jadwal/index', [TutorJadwalController::class, 'index'])->name('jadwal.index');
+    Route::post('/jadwal', [TutorJadwalController::class, 'store'])->name('jadwal.store');
+    Route::match(['put', 'patch'], '/jadwal/{jadwalSesi}', [TutorJadwalController::class, 'update'])->name('jadwal.update');
+    Route::delete('/jadwal/{jadwalSesi}', [TutorJadwalController::class, 'destroy'])->name('jadwal.destroy');
+    Route::post('/jadwal/{jadwalSesi}/reschedule', [TutorJadwalController::class, 'reschedule'])->name('jadwal.reschedule');
+    Route::patch('/jadwal/rutin/{jadwalRutin}/toggle-status', [TutorJadwalController::class, 'toggleStatusRutin'])->name('jadwal.toggleStatusRutin');
+    Route::delete('/jadwal/rutin/{jadwalRutin}', [TutorJadwalController::class, 'destroyRutin'])->name('jadwal.destroyRutin');
+    Route::post('/jadwal/import', [TutorJadwalController::class, 'importExcel'])->name('jadwal.import');
+    Route::get('/jadwal/template', [TutorJadwalController::class, 'downloadTemplate'])->name('jadwal.template');
+    Route::get('/jadwal/export', [TutorJadwalController::class, 'exportExcel'])->name('jadwal.export');
+
+    // Legacy Aliases for /tutor/jadwal-sesi (Backward Compatibility)
     Route::post('/jadwal-sesi/{jadwalSesi}/reschedule', [JadwalSesiController::class, 'reschedule'])->name('jadwal-sesi.reschedule');
     Route::patch('/jadwal-rutin/{jadwalRutin}/toggle-status', [JadwalSesiController::class, 'toggleStatusRutin'])->name('jadwal-rutin.toggleStatus');
     Route::delete('/jadwal-rutin/{jadwalRutin}', [JadwalSesiController::class, 'destroyRutin'])->name('jadwal-rutin.destroy');

@@ -39,10 +39,11 @@ class MuridDashboardController extends Controller
         $todayStatus = $todayPresensi ? 'selesai' : 'belum';
         $activeSesi = null;
 
-        // Jadwal Sesi Belajar / Tutorial bersama Tutor Hari Ini
+        // Jadwal Sesi Belajar / Tutorial bersama Tutor Hari Ini (Hanya sesi aktif, sesi dibatalkan di-exclude)
         $jadwalSesiHariIni = JadwalSesi::with(['tutor', 'kategoriTutorial', 'lokasiPresensi'])
             ->where('murid_id', $murid->id)
             ->whereDate('tanggal_rencana', $today)
+            ->where('status', '!=', 'dibatalkan')
             ->orderBy('jam_masuk_rencana')
             ->get();
 
@@ -182,11 +183,17 @@ class MuridDashboardController extends Controller
         }
 
         // 1. Jadwal Sesi Belajar / Tutorial Murid pada tanggal terpilih
-        $jadwalSesis = JadwalSesi::with(['tutor', 'kategoriTutorial', 'jadwalKerja', 'lokasiPresensi'])
+        $allSesis = JadwalSesi::with(['tutor', 'kategoriTutorial', 'jadwalKerja', 'lokasiPresensi'])
             ->where('murid_id', $murid->id)
             ->whereDate('tanggal_rencana', $selectedDate)
             ->orderBy('jam_masuk_rencana')
             ->get();
+
+        // Jika terdapat sesi aktif pada tanggal ini, singkirkan sesi lama yang berstatus dibatalkan agar jadwal lama tertimpa rapi
+        $hasActiveSesi = $allSesis->contains(fn ($s) => $s->status !== 'dibatalkan');
+        $jadwalSesis = $hasActiveSesi
+            ? $allSesis->reject(fn ($s) => $s->status === 'dibatalkan' && (str_contains((string) $s->catatan, 'Direschedule ke') || $s->jenis_sesi === 'pengganti'))
+            : $allSesis;
 
         // 2. Agenda Kegiatan Umum PKBM pada tanggal terpilih
         $agendas = Jadwal::with('lokasiPresensi')
@@ -195,8 +202,9 @@ class MuridDashboardController extends Controller
             ->orderBy('created_at')
             ->get();
 
-        // 3. Hitung indikator event kalender per tanggal di bulan aktif
+        // 3. Hitung indikator event kalender per tanggal di bulan aktif (hanya sesi aktif)
         $sesiPerHari = JadwalSesi::where('murid_id', $murid->id)
+            ->where('status', '!=', 'dibatalkan')
             ->whereBetween('tanggal_rencana', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
             ->get()
             ->groupBy(fn ($item) => is_object($item->tanggal_rencana) ? $item->tanggal_rencana->format('Y-m-d') : substr((string) $item->tanggal_rencana, 0, 10))

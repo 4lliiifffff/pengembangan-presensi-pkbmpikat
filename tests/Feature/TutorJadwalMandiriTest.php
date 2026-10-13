@@ -77,9 +77,10 @@ class TutorJadwalMandiriTest extends TestCase
         $responseAgenda->assertStatus(200);
         $responseAgenda->assertSee('Agenda KBM &amp; Libur Sekolah', false);
 
-        // Test route tutor.jadwal redirects to tutor.jadwal-sesi with tab=agenda
-        $responseLegacy = $this->actingAs($this->tutorUser)->get(route('tutor.jadwal'));
-        $responseLegacy->assertRedirect(route('tutor.jadwal-sesi.index', ['tab' => 'agenda']));
+        // Test route standar tutor.jadwal mengakses langsung Unified Hub Kalender Sesi
+        $responseJadwal = $this->actingAs($this->tutorUser)->get(route('tutor.jadwal'));
+        $responseJadwal->assertStatus(200);
+        $responseJadwal->assertSee('Kalender Sesi Belajar');
     }
 
     public function test_tutor_can_create_recurring_schedule_with_custom_end_date(): void

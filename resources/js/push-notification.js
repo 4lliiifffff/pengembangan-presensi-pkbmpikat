@@ -469,16 +469,17 @@ class PushNotificationManager {
         banner.setAttribute('role', 'alert');
         banner.style.cssText = `
             position: fixed;
-            bottom: 84px;
+            top: 16px;
+            top: max(16px, env(safe-area-inset-top, 16px));
             left: 50%;
-            transform: translateX(-50%) translateY(30px);
+            transform: translateX(-50%) translateY(-25px);
             width: calc(100% - 32px);
             max-width: 440px;
             background: var(--card, #ffffff);
             color: var(--text, #0f172a);
             border: 1px solid var(--border, #e2e8f0);
             border-left: 4px solid #0B5ED7;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             border-radius: 16px;
             padding: 16px;
             z-index: 9999;
@@ -560,7 +561,7 @@ class PushNotificationManager {
         const banner = document.getElementById('pikatSoftPushPrompt');
         if (banner) {
             banner.style.opacity = '0';
-            banner.style.transform = 'translateX(-50%) translateY(20px)';
+            banner.style.transform = 'translateX(-50%) translateY(-20px)';
             setTimeout(() => {
                 if (banner.parentNode) banner.parentNode.removeChild(banner);
             }, 350);

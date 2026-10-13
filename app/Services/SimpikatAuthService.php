@@ -595,6 +595,23 @@ class SimpikatAuthService
             if ($matchedKelas) {
                 return (int) $matchedKelas->id;
             }
+
+            $namaJenjang = match ($jenjangKode) {
+                'paket_a' => 'Paket A',
+                'paket_b' => 'Paket B',
+                'paket_c' => 'Paket C',
+                default => $jenjang->nama_jenjang,
+            };
+
+            $kelasBaru = Kelas::create([
+                'jenjang_paket_id' => $jenjang->id,
+                'nama_kelas' => "{$namaJenjang} - Kelas {$tingkatNum}",
+                'tingkat' => (string) $tingkatNum,
+                'jenjang_paket' => $jenjangKode,
+                'keterangan' => "Kelas {$namaJenjang} Tingkat {$tingkatNum} sinkronisasi SIMPIKAT",
+            ]);
+
+            return (int) $kelasBaru->id;
         }
 
         // 2. Pencarian berdasarkan Tingkat (1 - 12)
@@ -603,6 +620,22 @@ class SimpikatAuthService
             if ($matchedKelas) {
                 return (int) $matchedKelas->id;
             }
+
+            $namaJenjang = match (true) {
+                (int) $tingkatNum <= 6 => 'Paket A',
+                (int) $tingkatNum <= 9 => 'Paket B',
+                default => 'Paket C',
+            };
+
+            $kelasBaru = Kelas::create([
+                'jenjang_paket_id' => $jenjang?->id,
+                'nama_kelas' => "{$namaJenjang} - Kelas {$tingkatNum}",
+                'tingkat' => (string) $tingkatNum,
+                'jenjang_paket' => $jenjangKode ?? 'paket_c',
+                'keterangan' => "Kelas {$namaJenjang} Tingkat {$tingkatNum} sinkronisasi SIMPIKAT",
+            ]);
+
+            return (int) $kelasBaru->id;
         }
 
         // 3. Pencarian kelas pertama pada Jenjang yang sama

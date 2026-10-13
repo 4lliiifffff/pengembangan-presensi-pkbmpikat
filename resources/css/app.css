@@ -122,7 +122,7 @@ h6 {
     background: var(--card);
     padding-bottom: 92px;
     position: relative;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+    box-shadow: none;
 }
 
 /* ==========================================
@@ -1878,7 +1878,7 @@ body.login-page {
     grid-template-columns: repeat(5, minmax(0, 1fr));
     align-items: end;
     z-index: 1000;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.03);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
 }
@@ -1887,7 +1887,7 @@ body.login-page {
 [data-theme="dark"] .bottomNavAdmin {
     background: rgba(30, 41, 59, 0.92);
     border-top-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 -6px 28px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.15);
 }
 
 /* Regular Nav Item */
@@ -8679,7 +8679,7 @@ textarea {
         bottom: 20px;
         border-radius: 20px;
         border: 1px solid var(--border);
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         padding: 10px 16px;
     }
 
@@ -17450,4 +17450,241 @@ body.app-modal-open {
 .btn-assign-quick:hover {
     color: #1d4ed8;
     text-decoration: underline;
+}
+
+/* ========================================================
+   Multi-Murid & Rombel Picker Component (Tutor Jadwal)
+   ======================================================== */
+.murid-picker-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.murid-picker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.murid-picker-badge-counter {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s ease;
+}
+
+.murid-picker-badge-counter.has-selected {
+    background: #ecfdf5;
+    color: #047857;
+    border-color: #a7f3d0;
+}
+
+.murid-picker-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    background: var(--card-alt, rgba(241, 245, 249, 0.6));
+    border: 1px solid var(--border, #e2e8f0);
+    padding: 8px 10px;
+    border-radius: 12px;
+}
+
+.murid-picker-filter-select {
+    flex: 1 1 180px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #cbd5e1);
+    background: var(--card, #ffffff);
+    color: var(--text, #1e293b);
+}
+
+.murid-picker-search {
+    flex: 1 1 160px;
+    font-size: 12px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border, #cbd5e1);
+    background: var(--card, #ffffff);
+    color: var(--text, #1e293b);
+}
+
+.murid-picker-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.btn-picker-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 7px;
+    border: 1px solid #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-picker-action:hover {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e40af;
+}
+
+.btn-picker-action.btn-picker-clear {
+    border-color: #e2e8f0;
+    background: var(--card, #ffffff);
+    color: var(--text-muted, #64748b);
+}
+
+.btn-picker-action.btn-picker-clear:hover {
+    background: #f1f5f9;
+    color: #ef4444;
+    border-color: #fca5a5;
+}
+
+.murid-picker-container {
+    max-height: 230px;
+    overflow-y: auto;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 12px;
+    background: var(--card, #ffffff);
+    padding: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.murid-picker-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.murid-picker-container::-webkit-scrollbar-thumb {
+    background: var(--border, #cbd5e1);
+    border-radius: 4px;
+}
+
+.murid-picker-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    border-radius: 9px;
+    border: 1px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    user-select: none;
+}
+
+.murid-picker-item:hover {
+    background: var(--card-alt, rgba(241, 245, 249, 0.7));
+}
+
+.murid-picker-item.is-checked {
+    background: rgba(37, 99, 235, 0.08);
+    border-color: rgba(37, 99, 235, 0.25);
+}
+
+.murid-picker-checkbox {
+    width: 17px;
+    height: 17px;
+    accent-color: #2563eb;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.murid-picker-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.murid-picker-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.murid-picker-name {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: var(--text, #1e293b);
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.murid-picker-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+
+.murid-picker-badge-rombel {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}
+
+.murid-picker-badge-bimbingan {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 5px;
+    background: #ecfdf5;
+    color: #047857;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-paket-a {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #fde68a;
+}
+
+.badge-paket-b {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-color: #bae6fd;
+}
+
+.badge-paket-c {
+    background: #ede9fe;
+    color: #5b21b6;
+    border-color: #ddd6fe;
 }

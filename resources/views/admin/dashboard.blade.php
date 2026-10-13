@@ -77,13 +77,13 @@
                     <span class="adminQuickSub">Tutor &amp; Siswa</span>
                 </div>
             </a>
-            <a href="{{ route('admin.jadwal-rutin.index') }}" class="adminQuickItem">
+            <a href="{{ route('admin.jadwal-sesi-kbm.index', ['tab' => 'rutin']) }}" class="adminQuickItem">
                 <div class="adminQuickIcon amber">
-                    <ion-icon name="calendar-outline"></ion-icon>
+                    <ion-icon name="repeat-outline"></ion-icon>
                 </div>
                 <div class="adminQuickText">
-                    <span class="adminQuickTitle">Jadwal &amp; Sesi</span>
-                    <span class="adminQuickSub">Pola Rutin KBM</span>
+                    <span class="adminQuickTitle">Pola Rutin KBM</span>
+                    <span class="adminQuickSub">Master Bimbingan Murid</span>
                 </div>
             </a>
             <a href="{{ route('admin.laporan.index') }}" class="adminQuickItem">

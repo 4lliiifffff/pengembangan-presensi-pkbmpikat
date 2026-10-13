@@ -24,7 +24,7 @@
     </a>
 
     {{-- 4. Jadwal Sesi Belajar & Pengganti --}}
-    <a href="{{ route('tutor.jadwal-sesi.index') }}" class="navItem {{ request()->routeIs('tutor.jadwal*') || request()->routeIs('tutor.jadwal-sesi*') ? 'active' : '' }}" aria-label="Jadwal Sesi">
+    <a href="{{ route('tutor.jadwal') }}" class="navItem {{ request()->routeIs('tutor.jadwal*') || request()->routeIs('tutor.jadwal-sesi*') ? 'active' : '' }}" aria-label="Jadwal Sesi">
         <div class="navIconWrap">
             <ion-icon name="{{ request()->routeIs('tutor.jadwal*') || request()->routeIs('tutor.jadwal-sesi*') ? 'calendar' : 'calendar-outline' }}"></ion-icon>
         </div>

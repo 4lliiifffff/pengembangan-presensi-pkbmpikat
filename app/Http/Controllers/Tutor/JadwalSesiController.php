@@ -12,6 +12,7 @@ use App\Models\JadwalKerja;
 use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
 use App\Models\KategoriTutorial;
+use App\Models\kelas;
 use App\Models\LokasiPresensi;
 use App\Models\Siswa;
 use App\Services\JadwalRutinService;
@@ -118,12 +119,20 @@ class JadwalSesiController extends Controller
             ->whereDate('tanggal_rencana', $today)
             ->count();
 
-        $siswas = Siswa::where('tutor_id', $tutor->id)->orWhereNull('tutor_id')->orderBy('nama_murid')->get();
+        $siswas = Siswa::with(['relKelas.jenjangPaket', 'tutor'])
+            ->where(function ($q) {
+                $q->where('status_murid', 'aktif')
+                    ->orWhereNull('status_murid');
+            })
+            ->orderBy('kelas_id')
+            ->orderBy('nama_murid')
+            ->get();
         $murids = $siswas;
+        $kelasList = kelas::with('jenjangPaket')->orderBy('nama_kelas')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
-        return view('tutor.jadwal_sesi.index', compact(
+        return view('tutor.jadwal.index', compact(
             'tutor',
             'sesiHariIni',
             'todaySesiCount',
@@ -138,6 +147,7 @@ class JadwalSesiController extends Controller
             'monthCounts',
             'siswas',
             'murids',
+            'kelasList',
             'kategoriTutorials',
             'lokasiPresensis'
         ));
@@ -152,6 +162,17 @@ class JadwalSesiController extends Controller
         if (! $tutor) {
             return redirect()->route('tutor.dashboard')->with('warning', 'Data profil tutor belum terhubung.');
         }
+
+        // Normalisasi murid terpilih (bisa multi-select siswa_ids[] atau single siswa_id)
+        $siswaIds = $request->input('siswa_ids');
+        if (empty($siswaIds) && $request->filled('siswa_id')) {
+            $siswaIds = [$request->input('siswa_id')];
+        }
+        if (! is_array($siswaIds)) {
+            $siswaIds = $siswaIds ? [$siswaIds] : [];
+        }
+        $siswaIds = array_values(array_filter(array_unique(array_map('intval', $siswaIds))));
+        $request->merge(['siswa_ids' => $siswaIds]);
 
         // Sanitasi input awal: 'custom' atau kosong dijadikan null
         $rawKategori = $request->input('kategori_tutorial_id');
@@ -177,7 +198,8 @@ class JadwalSesiController extends Controller
         if ($isRecurring) {
             // ── Opsi A: Jadwal Rutin Berulang Mingguan ──
             $validated = $request->validate([
-                'siswa_id' => ['required', 'exists:murid,id'],
+                'siswa_ids' => ['required', 'array', 'min:1'],
+                'siswa_ids.*' => ['required', 'integer', 'exists:murid,id'],
                 'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
                 'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
                 'hari' => ['required', 'string', 'in:senin,selasa,rabu,kamis,jumat,sabtu,minggu'],
@@ -189,7 +211,8 @@ class JadwalSesiController extends Controller
                 'keterangan' => ['nullable', 'string', 'max:1000'],
                 'auto_generate' => ['nullable', 'boolean'],
             ], [
-                'siswa_id.required' => 'Pilih siswa bimbingan terlebih dahulu.',
+                'siswa_ids.required' => 'Pilih minimal satu murid bimbingan / rombel.',
+                'siswa_ids.min' => 'Pilih minimal satu murid bimbingan / rombel.',
                 'hari.required' => 'Hari belajar mingguan wajib dipilih.',
                 'jam_masuk.required' => 'Jam mulai belajar wajib diisi.',
                 'jam_pulang.required' => 'Jam selesai belajar wajib diisi.',
@@ -232,33 +255,42 @@ class JadwalSesiController extends Controller
                 ->when(! empty($validated['kategori_tutorial_id']), fn ($q) => $q->where('kategori_tutorial_id', $validated['kategori_tutorial_id']))
                 ->first();
 
-            $validated['jadwal_kerja_id'] = $jadwalKerja?->id;
+            $totalCreatedSesi = 0;
+            $totalMurid = count($validated['siswa_ids']);
+            $hariLabel = JadwalRutin::HARI_LABELS[$validated['hari']] ?? ucfirst($validated['hari']);
 
-            $result = $this->jadwalRutinService->createRutinFromTutor($validated, $tutor->id);
+            foreach ($validated['siswa_ids'] as $sid) {
+                $itemData = $validated;
+                unset($itemData['siswa_ids']);
+                $itemData['siswa_id'] = $sid;
+                $itemData['murid_id'] = $sid;
+                $itemData['jadwal_kerja_id'] = $jadwalKerja?->id;
 
-            // Web Push Notifikasi ke Siswa
-            try {
-                $siswa = Siswa::with('user')->find($validated['siswa_id']);
-                if ($siswa?->user) {
-                    $hariLabel = JadwalRutin::HARI_LABELS[$validated['hari']] ?? ucfirst($validated['hari']);
-                    $this->webPushService->sendToUser($siswa->user, [
-                        'title' => '📅 Jadwal Belajar Mingguan Ditetapkan',
-                        'body' => "Tutor {$tutor->nama_lengkap} telah menetapkan jadwal KBM rutin setiap hari {$hariLabel} pukul {$validated['jam_masuk']} - {$validated['jam_pulang']} WIB.",
-                        'url' => route('siswa.jadwal'),
-                    ]);
+                $result = $this->jadwalRutinService->createRutinFromTutor($itemData, $tutor->id);
+                $totalCreatedSesi += $result['generated']['created'] ?? 0;
+
+                // Web Push Notifikasi ke Siswa
+                try {
+                    $siswa = Siswa::with('user')->find($sid);
+                    if ($siswa?->user) {
+                        $this->webPushService->sendToUser($siswa->user, [
+                            'title' => '📅 Jadwal Belajar Mingguan Ditetapkan',
+                            'body' => "Tutor {$tutor->nama_lengkap} telah menetapkan jadwal KBM rutin setiap hari {$hariLabel} pukul {$validated['jam_masuk']} - {$validated['jam_pulang']} WIB.",
+                            'url' => route('siswa.jadwal'),
+                        ]);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Gagal kirim webpush jadwal rutin ke siswa {$sid}: ".$e->getMessage());
                 }
-            } catch (\Throwable $e) {
-                Log::warning('Gagal kirim webpush jadwal rutin ke siswa: '.$e->getMessage());
             }
 
-            $sesiCount = $result['generated']['created'];
-
-            return redirect()->back()->with('success', "Jadwal rutin mingguan berhasil disimpan dan {$sesiCount} sesi kalender telah digenerate.");
+            return redirect()->back()->with('success', "Jadwal rutin mingguan berhasil disimpan untuk {$totalMurid} murid dan total {$totalCreatedSesi} sesi kalender telah digenerate.");
         }
 
         // ── Opsi B: Sesi Tunggal / Sesi Pengganti Sekali ──
         $validated = $request->validate([
-            'siswa_id' => ['required', 'exists:murid,id'],
+            'siswa_ids' => ['required', 'array', 'min:1'],
+            'siswa_ids.*' => ['required', 'integer', 'exists:murid,id'],
             'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
             'lokasi_presensi_id' => ['nullable', 'exists:lokasi_presensi,id'],
             'tanggal_rencana' => ['required', 'date'],
@@ -270,7 +302,8 @@ class JadwalSesiController extends Controller
             'alasan_penggantian' => ['nullable', 'string', 'max:1000'],
             'catatan' => ['nullable', 'string', 'max:1000'],
         ], [
-            'siswa_id.required' => 'Pilih murid bimbingan terlebih dahulu.',
+            'siswa_ids.required' => 'Pilih minimal satu murid bimbingan / rombel.',
+            'siswa_ids.min' => 'Pilih minimal satu murid bimbingan / rombel.',
             'tanggal_rencana.required' => 'Tanggal rencana sesi wajib diisi.',
             'jam_masuk_rencana.required' => 'Jam mulai belajar wajib diisi.',
             'jam_pulang_rencana.required' => 'Jam selesai belajar wajib diisi.',
@@ -312,32 +345,38 @@ class JadwalSesiController extends Controller
             ->when(! empty($validated['kategori_tutorial_id']), fn ($q) => $q->where('kategori_tutorial_id', $validated['kategori_tutorial_id']))
             ->first();
 
-        $validated['tutor_id'] = $tutor->id;
-        $validated['jadwal_kerja_id'] = $jadwalKerja?->id;
-        $validated['status'] = 'terjadwal';
-        $validated['status_kehadiran_siswa'] = 'belum_presensi';
+        $totalMurid = count($validated['siswa_ids']);
+        $katNama = ($katSk ?? ($katCocok ?? null))?->nama_kategori ?? 'Tutorial KBM';
+        $tglFormatted = Carbon::parse($validated['tanggal_rencana'])->translatedFormat('d F Y');
+        $jamMulai = substr((string) $validated['jam_masuk_rencana'], 0, 5);
 
-        $sesi = JadwalSesi::create($validated);
+        foreach ($validated['siswa_ids'] as $sid) {
+            $itemData = $validated;
+            unset($itemData['siswa_ids']);
+            $itemData['siswa_id'] = $sid;
+            $itemData['tutor_id'] = $tutor->id;
+            $itemData['jadwal_kerja_id'] = $jadwalKerja?->id;
+            $itemData['status'] = 'terjadwal';
+            $itemData['status_kehadiran_siswa'] = 'belum_presensi';
 
-        // Web Push Notifikasi ke Siswa
-        try {
-            $siswa = Siswa::with('user')->find($validated['siswa_id']);
-            if ($siswa?->user) {
-                $katNama = ($katSk ?? $katCocok)?->nama_kategori ?? 'Tutorial KBM';
-                $tglFormatted = Carbon::parse($validated['tanggal_rencana'])->translatedFormat('d F Y');
-                $jamMulai = substr((string) $validated['jam_masuk_rencana'], 0, 5);
+            $sesi = JadwalSesi::create($itemData);
 
-                $this->webPushService->sendToUser($siswa->user, [
-                    'title' => '📅 Jadwal Belajar Baru Terdaftar',
-                    'body' => "Tutor {$tutor->nama_lengkap} telah menjadwalkan sesi belajar {$katNama} untuk Anda pada {$tglFormatted} pukul {$jamMulai} WIB.",
-                    'url' => route('siswa.jadwal', ['tanggal' => $validated['tanggal_rencana']]),
-                ]);
+            // Web Push Notifikasi ke Siswa
+            try {
+                $siswa = Siswa::with('user')->find($sid);
+                if ($siswa?->user) {
+                    $this->webPushService->sendToUser($siswa->user, [
+                        'title' => '📅 Jadwal Belajar Baru Terdaftar',
+                        'body' => "Tutor {$tutor->nama_lengkap} telah menjadwalkan sesi belajar {$katNama} untuk Anda pada {$tglFormatted} pukul {$jamMulai} WIB.",
+                        'url' => route('siswa.jadwal', ['tanggal' => $validated['tanggal_rencana']]),
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Gagal kirim webpush jadwal baru ke siswa {$sid}: ".$e->getMessage());
             }
-        } catch (\Throwable $e) {
-            Log::warning('Gagal kirim webpush jadwal baru ke siswa: '.$e->getMessage());
         }
 
-        return redirect()->back()->with('success', 'Jadwal sesi mengajar berhasil disimpan.');
+        return redirect()->back()->with('success', "Jadwal sesi mengajar berhasil disimpan untuk {$totalMurid} murid.");
     }
 
     /**
@@ -382,12 +421,17 @@ class JadwalSesiController extends Controller
         try {
             $siswa = Siswa::with('user')->find($jadwalSesi->siswa_id);
             if ($siswa?->user) {
+                $isSameDay = Carbon::parse($jadwalSesi->tanggal_rencana)->toDateString() === Carbon::parse($validated['tanggal_baru'])->toDateString();
                 $tglFormatted = Carbon::parse($validated['tanggal_baru'])->translatedFormat('d F Y');
                 $jamMulai = substr((string) $validated['jam_masuk_baru'], 0, 5);
 
+                $pushBody = $isSameDay
+                    ? "Jam sesi KBM Anda bersama Tutor {$tutor->nama_lengkap} hari ini telah diperbarui menjadi pukul {$jamMulai} WIB. Alasan: {$validated['alasan_penggantian']}."
+                    : "Sesi KBM Anda bersama Tutor {$tutor->nama_lengkap} telah dipindahkan ke tanggal {$tglFormatted} pukul {$jamMulai} WIB. Alasan: {$validated['alasan_penggantian']}.";
+
                 $this->webPushService->sendToUser($siswa->user, [
                     'title' => '🔄 Sesi Belajar Direschedule',
-                    'body' => "Sesi KBM Anda bersama Tutor {$tutor->nama_lengkap} telah dipindahkan ke tanggal {$tglFormatted} pukul {$jamMulai} WIB. Alasan: {$validated['alasan_penggantian']}.",
+                    'body' => $pushBody,
                     'url' => route('siswa.jadwal', ['tanggal' => $validated['tanggal_baru']]),
                 ]);
             }
@@ -395,7 +439,12 @@ class JadwalSesiController extends Controller
             Log::warning('Gagal kirim webpush reschedule ke siswa: '.$e->getMessage());
         }
 
-        return redirect()->back()->with('success', 'Sesi berhasil di-reschedule. Sesi lama telah dibatalkan dengan riwayat alasan, dan sesi pengganti baru telah tercatat.');
+        $isSameDay = Carbon::parse($jadwalSesi->tanggal_rencana)->toDateString() === Carbon::parse($validated['tanggal_baru'])->toDateString();
+        $successMsg = $isSameDay
+            ? 'Jadwal sesi berhasil diperbarui ke jam baru pada hari yang sama.'
+            : 'Sesi berhasil di-reschedule. Sesi lama telah dibatalkan dengan riwayat alasan, dan sesi pengganti baru telah tercatat.';
+
+        return redirect()->back()->with('success', $successMsg);
     }
 
     /**

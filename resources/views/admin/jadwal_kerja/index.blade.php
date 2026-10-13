@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Master Jadwal & Shift Kerja - Admin')
+@section('title', 'Shift & Jam Presensi - Admin')
 
 @section('content')
 
@@ -10,11 +10,9 @@
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
                     <div class="laporanHeaderLabel">KEBIJAKAN JAM KERJA &amp; SK</div>
-                    <h1 class="laporanHeaderTitle">Master Jadwal &amp; Shift Kerja</h1>
-                    <div class="laporanHeaderSub">Pengaturan jam masuk, jam pulang, toleransi keterlambatan, dan integrasi
-                        durasi KBM</div>
-                    <p class="laporanHeaderDesc">Kelola konfigurasi shift kerja resmi untuk karyawan, mahasiswa magang/PKL,
-                        dan tutor mengajar.</p>
+                    <h1 class="laporanHeaderTitle">Shift &amp; Jam Presensi</h1>
+                    <div class="laporanHeaderSub">Master jam masuk, jam pulang, toleransi keterlambatan, dan jam kerja kantor</div>
+                    <p class="laporanHeaderDesc">Kelola konfigurasi shift kerja resmi untuk karyawan, mahasiswa magang/PKL, dan tutor mengajar.</p>
                 </div>
                 <div class="laporanHeaderActions header-actions-group">
                     <a href="{{ route('admin.jadwal-kerja.create') }}" class="profileBtnPrimary">

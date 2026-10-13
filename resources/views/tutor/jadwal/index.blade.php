@@ -76,7 +76,7 @@
                             <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Pola Rutin
                         </button>
                     @else
-                        <a href="{{ route('tutor.jadwal-sesi.export', ['tanggal' => $selectedDate->toDateString()]) }}"
+                        <a href="{{ route('tutor.jadwal.export', ['tanggal' => $selectedDate->toDateString()]) }}"
                             class="profileBtnPrimary btn-action-success" title="Ekspor Jadwal Bulan Ini ke Excel">
                             <ion-icon name="download-outline" class="icon-sm"></ion-icon> Export Excel
                         </a>
@@ -145,7 +145,7 @@
 
         {{-- ── Tab Switcher Navigasi Terpadu ── --}}
         <div class="calendarNavTabsContainer">
-            <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $selectedDate->toDateString()]) }}"
+            <a href="{{ route('tutor.jadwal', ['tab' => 'kalender', 'tanggal' => $selectedDate->toDateString()]) }}"
                 class="calendarNavTab {{ $activeTab === 'kalender' ? 'active' : '' }}">
                 <ion-icon name="calendar-outline"></ion-icon>
                 <span>Kalender Sesi Belajar</span>
@@ -155,13 +155,13 @@
                     <span class="calendarNavBadge">{{ $sesiHariIni->count() }} Sesi</span>
                 @endif
             </a>
-            <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'rutin']) }}"
+            <a href="{{ route('tutor.jadwal', ['tab' => 'rutin']) }}"
                 class="calendarNavTab {{ $activeTab === 'rutin' ? 'active' : '' }}">
                 <ion-icon name="repeat-outline"></ion-icon>
                 <span>Pola Rutin Saya</span>
                 <span class="calendarNavBadge">{{ $jadwalRutins->count() }}</span>
             </a>
-            <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $selectedDate->toDateString()]) }}"
+            <a href="{{ route('tutor.jadwal', ['tab' => 'agenda', 'tanggal' => $selectedDate->toDateString()]) }}"
                 class="calendarNavTab {{ $activeTab === 'agenda' ? 'active' : '' }}">
                 <ion-icon name="megaphone-outline"></ion-icon>
                 <span>Agenda &amp; Pengumuman PKBM</span>
@@ -293,7 +293,7 @@
                                             Dibuat: {{ $rutin->created_at->translatedFormat('d M Y') }}
                                         </div>
                                         <div class="dmc-actions">
-                                            <form action="{{ route('tutor.jadwal-rutin.toggleStatus', $rutin) }}" method="POST"
+                                            <form action="{{ route('tutor.jadwal.toggleStatusRutin', $rutin) }}" method="POST"
                                                 class="d-inline m-0">
                                                 @csrf
                                                 @method('PATCH')
@@ -306,7 +306,7 @@
                                                 </button>
                                             </form>
 
-                                            <form action="{{ route('tutor.jadwal-rutin.destroy', $rutin) }}" method="POST"
+                                            <form action="{{ route('tutor.jadwal.destroyRutin', $rutin) }}" method="POST"
                                                 class="d-inline m-0"
                                                 onsubmit="return confirm('Apakah Anda yakin ingin menghapus pola jadwal rutin ini? Sesi kalender masa depan yang belum presensi akan dihentikan.');">
                                                 @csrf
@@ -348,7 +348,7 @@
                 {{-- ── Kalender Bulanan Agenda ── --}}
                 <div class="agendaHeaderCard mb-4">
                     <div class="agendaMonthNav">
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $prevMonthDate]) }}"
+                        <a href="{{ route('tutor.jadwal', ['tab' => 'agenda', 'tanggal' => $prevMonthDate]) }}"
                             class="agendaNavBtn" title="Bulan Sebelumnya">
                             <ion-icon name="chevron-back-outline"></ion-icon>
                         </a>
@@ -356,7 +356,7 @@
                             <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
                             <span class="text-xs font-bold text-muted">Kalender Agenda &amp; Sesi KBM</span>
                         </div>
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $nextMonthDate]) }}"
+                        <a href="{{ route('tutor.jadwal', ['tab' => 'agenda', 'tanggal' => $nextMonthDate]) }}"
                             class="agendaNavBtn" title="Bulan Berikutnya">
                             <ion-icon name="chevron-forward-outline"></ion-icon>
                         </a>
@@ -386,7 +386,7 @@
                                 $hasSesi = $sesiCount > 0;
                                 $hasEvent = $hasAgenda || $hasSesi;
                             @endphp
-                            <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $dStr]) }}"
+                            <a href="{{ route('tutor.jadwal', ['tab' => 'agenda', 'tanggal' => $dStr]) }}"
                                 class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }} {{ $hasEvent ? 'hasEvent' : '' }}"
                                 title="{{ $d->translatedFormat('d F Y') }} ({{ $agendaCount }} Agenda PKBM, {{ $sesiCount }} Sesi Belajar)">
                                 <span class="agendaDayNum">{{ $d->day }}</span>
@@ -434,7 +434,7 @@
                                 </span>
                                 <span class="text-xs font-bold text-dark">{{ $sesiHariIni->count() }} Sesi Mengajar Anda</span>
                             </div>
-                            <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $selectedDate->toDateString()]) }}"
+                            <a href="{{ route('tutor.jadwal', ['tab' => 'kalender', 'tanggal' => $selectedDate->toDateString()]) }}"
                                 class="text-xs font-bold text-primary d-inline-flex items-center gap-1">
                                 Kelola di Kalender Sesi <ion-icon name="arrow-forward-outline"></ion-icon>
                             </a>
@@ -543,7 +543,7 @@
                 {{-- ── Kalender Sesi Bulanan ── --}}
                 <div class="agendaHeaderCard mb-4">
                     <div class="agendaMonthNav">
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $prevMonthDate]) }}"
+                        <a href="{{ route('tutor.jadwal', ['tab' => 'kalender', 'tanggal' => $prevMonthDate]) }}"
                             class="agendaNavBtn" title="Bulan Sebelumnya">
                             <ion-icon name="chevron-back-outline"></ion-icon>
                         </a>
@@ -551,7 +551,7 @@
                             <h3 class="agendaMonthTitle">{{ $selectedDate->translatedFormat('F Y') }}</h3>
                             <span class="text-xs font-bold text-muted">Jadwal Sesi Mengajar Tutor</span>
                         </div>
-                        <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'kalender', 'tanggal' => $nextMonthDate]) }}"
+                        <a href="{{ route('tutor.jadwal', ['tab' => 'kalender', 'tanggal' => $nextMonthDate]) }}"
                             class="agendaNavBtn" title="Bulan Berikutnya">
                             <ion-icon name="chevron-forward-outline"></ion-icon>
                         </a>
@@ -581,7 +581,7 @@
                                 $hasAgenda = $agendaCount > 0;
                                 $hasEvent = $hasSesi || $hasAgenda;
                             @endphp
-                            <a href="{{ route('tutor.jadwal-sesi.index', ['tanggal' => $dStr, 'tab' => 'kalender']) }}"
+                            <a href="{{ route('tutor.jadwal', ['tanggal' => $dStr, 'tab' => 'kalender']) }}"
                                 class="agendaDayCell {{ $isActive ? 'active' : '' }} {{ $isCellToday ? 'today' : '' }} {{ $hasEvent ? 'hasEvent' : '' }}"
                                 title="{{ $d->translatedFormat('d F Y') }} ({{ $sesiCount }} Sesi Belajar, {{ $agendaCount }} Agenda PKBM)">
                                 <span class="agendaDayNum">{{ $d->day }}</span>
@@ -631,7 +631,7 @@
                                 <span class="text-xs font-bold text-dark">{{ $agendasHariIni->count() }} Kegiatan pada
                                     {{ $selectedDate->translatedFormat('d M Y') }}</span>
                             </div>
-                            <a href="{{ route('tutor.jadwal-sesi.index', ['tab' => 'agenda', 'tanggal' => $selectedDate->toDateString()]) }}"
+                            <a href="{{ route('tutor.jadwal', ['tab' => 'agenda', 'tanggal' => $selectedDate->toDateString()]) }}"
                                 class="text-xs font-bold text-primary d-inline-flex items-center gap-1">
                                 Lihat di Agenda <ion-icon name="arrow-forward-outline"></ion-icon>
                             </a>
@@ -810,7 +810,7 @@
                                                     <ion-icon name="repeat-outline"></ion-icon> Reschedule
                                                 </button>
 
-                                                <form method="POST" action="{{ route('tutor.jadwal-sesi.destroy', $sesi) }}"
+                                                <form method="POST" action="{{ route('tutor.jadwal.destroy', $sesi) }}"
                                                     data-confirm="Hapus sesi mengajar ini?" data-confirm-title="Hapus Sesi"
                                                     data-confirm-type="danger" data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                                     @csrf
@@ -887,7 +887,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('tutor.jadwal-sesi.store') }}">
+                <form method="POST" action="{{ route('tutor.jadwal.store') }}" id="formTambahJadwal" onsubmit="return validateMuridSelection(event)">
                     @csrf
 
                     {{-- Mode Switcher: Rutin vs Single --}}
@@ -906,18 +906,127 @@
                         </label>
                     </div>
 
-                    {{-- Field: Murid --}}
+                    {{-- Field: Multi-Murid & Rombel Picker --}}
                     <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Pilih Murid <span class="text-danger">*</span></label>
-                        <select name="siswa_id" class="filterSelect" required>
-                            <option value="">-- Pilih Murid Bimbingan --</option>
-                            @foreach($siswas as $s)
-                                <option value="{{ $s->id }}" {{ (string) old('siswa_id') === (string) $s->id ? 'selected' : '' }}>
-                                    {{ $s->nama_murid ?? $s->nama_siswa }} (No. {{ $s->no_absen ?? '-' }} -
-                                    {{ $s->nama_kelas_lengkap ?? 'Reguler' }})
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="murid-picker-header mb-1">
+                            <label class="filterFieldLabel m-0">
+                                Pilih Murid Diajar <span class="text-danger">*</span>
+                                <span class="text-xs text-muted font-normal">(Bisa pilih lebih dari 1 murid)</span>
+                            </label>
+                            <span id="selectedMuridCounter" class="murid-picker-badge-counter">
+                                <ion-icon name="people-outline"></ion-icon>
+                                <span id="selectedCountText">0 murid terpilih</span>
+                            </span>
+                        </div>
+
+                        <div class="murid-picker-toolbar mb-2">
+                            {{-- Filter Berdasarkan Rombel / Kelas --}}
+                            <select id="pickerFilterRombel" class="murid-picker-filter-select" onchange="filterMuridList()">
+                                <option value="all">-- Semua Rombel & Jenjang --</option>
+                                <option value="bimbingan_saya">★ Murid Bimbingan Saya Saja</option>
+                                <optgroup label="Kelompok Jenjang">
+                                    <option value="paket_a">Semua Paket A (Setara SD)</option>
+                                    <option value="paket_b">Semua Paket B (Setara SMP)</option>
+                                    <option value="paket_c">Semua Paket C (Setara SMA)</option>
+                                    <option value="vokasi">Semua Vokasi / Kursus</option>
+                                </optgroup>
+                                @if(isset($kelasList) && $kelasList->isNotEmpty())
+                                    <optgroup label="Spesifik Rombel / Kelas">
+                                        @foreach($kelasList as $k)
+                                            <option value="kelas_{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endif
+                            </select>
+
+                            {{-- Input Pencarian Nama --}}
+                            <input type="text" id="pickerSearchMurid" class="murid-picker-search"
+                                placeholder="Cari nama / no. absen..." oninput="filterMuridList()">
+
+                            {{-- Aksi Cepat Pilih --}}
+                            <div class="murid-picker-actions">
+                                <button type="button" class="btn-picker-action" onclick="selectAllVisibleMurid(true)"
+                                    title="Pilih semua murid yang sedang tampil di filter ini">
+                                    <ion-icon name="checkmark-done-outline"></ion-icon>
+                                    <span>Pilih Semua di Rombel</span>
+                                </button>
+                                <button type="button" class="btn-picker-action btn-picker-clear" onclick="selectAllVisibleMurid(false)"
+                                    title="Batalkan pilihan murid terpilih">
+                                    <ion-icon name="close-outline"></ion-icon>
+                                    <span>Batal</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Kotak Checklist Murid --}}
+                        <div class="murid-picker-container" id="muridPickerContainer">
+                            @php
+                                $oldSiswaIds = old('siswa_ids', old('siswa_id') ? [old('siswa_id')] : []);
+                                if (!is_array($oldSiswaIds)) {
+                                    $oldSiswaIds = [$oldSiswaIds];
+                                }
+                            @endphp
+                            @forelse($siswas as $s)
+                                @php
+                                    $isBimbingan = ($s->tutor_id == $tutor->id);
+                                    $jenjangKode = $s->jenjang_paket ?? 'umum';
+                                    $namaMurid = $s->nama_murid ?? $s->nama_siswa ?? 'Murid';
+                                    $initial = strtoupper(substr($namaMurid, 0, 1));
+                                    $isChecked = in_array($s->id, $oldSiswaIds);
+                                    $badgeClass = match($jenjangKode) {
+                                        'paket_a' => 'badge-paket-a',
+                                        'paket_b' => 'badge-paket-b',
+                                        'paket_c' => 'badge-paket-c',
+                                        default => '',
+                                    };
+                                @endphp
+                                <label class="murid-picker-item {{ $isChecked ? 'is-checked' : '' }}"
+                                    id="muridItem_{{ $s->id }}"
+                                    data-kelas-id="{{ $s->kelas_id }}"
+                                    data-jenjang="{{ $jenjangKode }}"
+                                    data-is-bimbingan="{{ $isBimbingan ? '1' : '0' }}"
+                                    data-nama="{{ strtolower($namaMurid) }}"
+                                    data-absen="{{ strtolower((string)$s->no_absen) }}">
+                                    <input type="checkbox" name="siswa_ids[]" value="{{ $s->id }}"
+                                        class="murid-picker-checkbox"
+                                        {{ $isChecked ? 'checked' : '' }}
+                                        onchange="onMuridCheckboxChange(this)">
+                                    
+                                    <div class="murid-picker-avatar">
+                                        {{ $initial }}
+                                    </div>
+
+                                    <div class="murid-picker-info">
+                                        <div class="murid-picker-name">
+                                            {{ $namaMurid }}
+                                        </div>
+                                        <div class="murid-picker-meta">
+                                            @if($s->no_absen)
+                                                <span class="murid-picker-badge-rombel">No. {{ $s->no_absen }}</span>
+                                            @endif
+                                            <span class="murid-picker-badge-rombel {{ $badgeClass }}">
+                                                {{ $s->nama_kelas_lengkap ?? $s->jenjang_paket_label }}
+                                            </span>
+                                            @if($isBimbingan)
+                                                <span class="murid-picker-badge-bimbingan">Bimbingan Saya</span>
+                                            @endif
+                                            @if($s->is_abk)
+                                                <span class="murid-picker-badge-rombel" style="background:#fff1f2; color:#be123c; border-color:#fecdd3;">ABK</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </label>
+                            @empty
+                                <div class="p-4 text-center text-muted text-xs">
+                                    Belum ada data murid aktif.
+                                </div>
+                            @endforelse
+                        </div>
+
+                        {{-- Pesan error validasi frontend jika belum ada yang dicentang saat submit --}}
+                        <div id="muridPickerError" class="text-xs text-danger font-semibold mt-1 d-none">
+                            <ion-icon name="alert-circle-outline"></ion-icon> Silakan pilih minimal 1 murid untuk dijadwalkan.
+                        </div>
                     </div>
 
                     {{-- Form Bagian A: Jika Mode Rutin Mingguan --}}
@@ -1070,7 +1179,7 @@
                             <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
                             @foreach($lokasiPresensis as $lok)
                                 <option value="{{ $lok->id }}" {{ (string) old('lokasi_presensi_id') === (string) $lok->id ? 'selected' : '' }}>
-                                    📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                    {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
                                 </option>
                             @endforeach
                         </select>
@@ -1154,7 +1263,7 @@
                             <option value="">-- Tetap Gunakan Titik Semula / Default --</option>
                             @foreach($lokasiPresensis as $lok)
                                 <option value="{{ $lok->id }}">
-                                    📍 {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                    {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
                                 </option>
                             @endforeach
                         </select>
@@ -1391,7 +1500,7 @@
             const selLokasi = document.getElementById('rescheduleLokasiPresensi');
 
             if (modal && form) {
-                form.action = '/tutor/jadwal-sesi/' + id + '/reschedule';
+                form.action = '/tutor/jadwal/' + id + '/reschedule';
                 info.textContent = namaSiswa + ' • Sesi Tanggal: ' + tanggalRencana + ' (' + jamMasuk + ' - ' + jamPulang + ' WIB)';
                 inTgl.value = tanggalRencana;
                 inMasuk.value = jamMasuk;
@@ -1446,6 +1555,127 @@
                 document.body.style.overflow = '';
             }
         }
+
+        // ── Handler Multi-Murid & Rombel Picker ──
+        function onMuridCheckboxChange(input) {
+            const label = input.closest('.murid-picker-item');
+            if (label) {
+                if (input.checked) {
+                    label.classList.add('is-checked');
+                } else {
+                    label.classList.remove('is-checked');
+                }
+            }
+            updateMuridCounter();
+        }
+
+        function updateMuridCounter() {
+            const checkedBoxes = document.querySelectorAll('.murid-picker-checkbox:checked');
+            const total = checkedBoxes.length;
+            const counterEl = document.getElementById('selectedMuridCounter');
+            const textEl = document.getElementById('selectedCountText');
+            const errEl = document.getElementById('muridPickerError');
+
+            if (textEl) {
+                textEl.textContent = total + ' murid terpilih';
+            }
+            if (counterEl) {
+                if (total > 0) {
+                    counterEl.classList.add('has-selected');
+                } else {
+                    counterEl.classList.remove('has-selected');
+                }
+            }
+            if (errEl && total > 0) {
+                errEl.classList.add('d-none');
+            }
+        }
+
+        function filterMuridList() {
+            const filterEl = document.getElementById('pickerFilterRombel');
+            const filterVal = filterEl ? filterEl.value : 'all';
+            const searchEl = document.getElementById('pickerSearchMurid');
+            const searchVal = searchEl ? (searchEl.value || '').trim().toLowerCase() : '';
+            const items = document.querySelectorAll('.murid-picker-item');
+
+            items.forEach(item => {
+                const jenjang = item.dataset.jenjang || '';
+                const kelasId = item.dataset.kelasId || '';
+                const isBimbingan = item.dataset.isBimbingan === '1';
+                const nama = item.dataset.nama || '';
+                const absen = item.dataset.absen || '';
+
+                // Cek filter rombel
+                let matchRombel = false;
+                if (filterVal === 'all') {
+                    matchRombel = true;
+                } else if (filterVal === 'bimbingan_saya') {
+                    matchRombel = isBimbingan;
+                } else if (filterVal.startsWith('kelas_')) {
+                    const targetKelasId = filterVal.replace('kelas_', '');
+                    matchRombel = (kelasId === targetKelasId);
+                } else {
+                    matchRombel = (jenjang === filterVal);
+                }
+
+                // Cek filter pencarian
+                let matchSearch = true;
+                if (searchVal !== '') {
+                    matchSearch = nama.includes(searchVal) || absen.includes(searchVal);
+                }
+
+                if (matchRombel && matchSearch) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function selectAllVisibleMurid(status) {
+            const items = document.querySelectorAll('.murid-picker-item');
+            items.forEach(item => {
+                if (item.style.display !== 'none') {
+                    const cb = item.querySelector('.murid-picker-checkbox');
+                    if (cb) {
+                        cb.checked = status;
+                        if (status) {
+                            item.classList.add('is-checked');
+                        } else {
+                            item.classList.remove('is-checked');
+                        }
+                    }
+                }
+            });
+            updateMuridCounter();
+        }
+
+        function validateMuridSelection(e) {
+            const checkedCount = document.querySelectorAll('.murid-picker-checkbox:checked').length;
+            const errEl = document.getElementById('muridPickerError');
+            if (checkedCount === 0) {
+                if (e) {
+                    e.preventDefault();
+                }
+                if (errEl) {
+                    errEl.classList.remove('d-none');
+                }
+                const container = document.getElementById('muridPickerContainer');
+                if (container) {
+                    container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+                return false;
+            }
+            if (errEl) {
+                errEl.classList.add('d-none');
+            }
+            return true;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMuridCounter();
+        });
+        updateMuridCounter();
     </script>
 
     {{-- ── MODAL IMPORT JADWAL SESI EXCEL ── --}}
@@ -1482,7 +1712,7 @@
                             terbaca tepat.</div>
                     </div>
                 </div>
-                <a href="{{ route('tutor.jadwal-sesi.template') }}" class="btn-download-template"
+                <a href="{{ route('tutor.jadwal.template') }}" class="btn-download-template"
                     title="Download Template Jadwal Sesi">
                     <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
                 </a>
@@ -1501,7 +1731,7 @@
                 </div>
             @endif
 
-            <form method="POST" action="{{ route('tutor.jadwal-sesi.import') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('tutor.jadwal.import') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="form-field-wrapper mb-3">
                     <label class="form-field-label">Pilih Berkas Excel / CSV Jadwal:</label>
