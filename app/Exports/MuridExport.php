@@ -60,6 +60,8 @@ class MuridExport implements FromCollection, WithEvents, WithHeadings, WithMappi
     {
         return [
             $murid->no_absen,
+            $murid->nis ?? '-',
+            $murid->nisn ?? '-',
             $murid->nama_murid,
             $murid->nama_wali ?? '-',
             $murid->no_hp ?? '-',
@@ -74,7 +76,9 @@ class MuridExport implements FromCollection, WithEvents, WithHeadings, WithMappi
     public function headings(): array
     {
         return [
-            'Nomor Absen (NIS)',
+            'Nomor Absen',
+            'NIS',
+            'NISN',
             'Nama Murid',
             'Nama Wali Murid',
             'No WhatsApp Wali',
@@ -91,12 +95,12 @@ class MuridExport implements FromCollection, WithEvents, WithHeadings, WithMappi
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $sheet->getStyle('A1:I1')->getFont()->setBold(true);
-                $sheet->getStyle('A1:I1')->getFill()
+                $sheet->getStyle('A1:K1')->getFont()->setBold(true);
+                $sheet->getStyle('A1:K1')->getFill()
                     ->setFillType(Fill::FILL_SOLID)
                     ->getStartColor()->setRGB('E0E7FF');
 
-                foreach (range('A', 'I') as $col) {
+                foreach (range('A', 'K') as $col) {
                     $sheet->getColumnDimension($col)->setAutoSize(true);
                 }
             },

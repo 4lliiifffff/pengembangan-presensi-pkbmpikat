@@ -52,41 +52,35 @@
                         <form action="{{ route('admin.jadwal.generateManualRutin') }}" method="POST" class="d-inline">
                             @csrf
                             <button type="submit" class="profileBtnPrimary btn-action-info" title="Generate sesi kalender 4 minggu ke depan dari pola rutin">
-                                <ion-icon name="sync-outline" class="icon-sm"></ion-icon> Generate 4 Pekan
+                                <ion-icon name="sync-outline" class="icon-sm"></ion-icon> <span>Generate 4 Pekan</span>
                             </button>
                         </form>
                         <button type="button" onclick="bukaModalJadwalAdmin(true)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Pola Rutin
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Pola Rutin</span>
                         </button>
                     @elseif ($activeTab === 'agenda')
                         <a href="{{ route('admin.jadwal.exportExcel') }}" class="profileBtnPrimary btn-action-success" title="Export Agenda ke Spreadsheet Excel">
-                            <ion-icon name="document-outline" class="icon-sm"></ion-icon> Export Excel
+                            <ion-icon name="document-outline" class="icon-sm"></ion-icon> <span>Export Excel</span>
                         </a>
                         <button type="button" onclick="bukaModalImportAgendaAdmin()" class="profileBtnPrimary btn-action-info" title="Import Agenda dari Spreadsheet">
-                            <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> Import Agenda
+                            <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> <span>Import Agenda</span>
                         </button>
                         <button type="button" onclick="bukaModalAgendaAdmin()" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Agenda PKBM
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Agenda PKBM</span>
                         </button>
                     @else
                         <button type="button" onclick="bukaModalJadwalAdmin(true)" class="profileBtnPrimary btn-action-info">
-                            <ion-icon name="repeat-outline" class="icon-sm"></ion-icon> + Pola Rutin
+                            <ion-icon name="repeat-outline" class="icon-sm"></ion-icon> <span>+ Pola Rutin</span>
                         </button>
                         <button type="button" onclick="bukaModalJadwalAdmin(false)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Buat Jadwal Belajar
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Buat Jadwal</span>
                         </button>
                     @endif
                 </div>
             </div>
         </div>
 
-        {{-- ── Alert Flash Message ── --}}
-        @if (session('success'))
-            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-success bg-success-subtle text-success text-sm d-flex items-center gap-2">
-                <ion-icon name="checkmark-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
+
 
         @if (session('warning'))
             <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-warning bg-warning-subtle text-warning text-sm d-flex items-center gap-2">
@@ -222,12 +216,12 @@
                                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik nama atau catatan..." class="profileInput">
                             </div>
 
-                            <div class="filterField d-flex items-end gap-2">
-                                <button type="submit" class="profileBtnPrimary w-full">
-                                    <ion-icon name="filter-outline"></ion-icon> Filter
+                            <div class="filterField filterActionButtons">
+                                <button type="submit" class="profileBtnPrimary filterSubmitBtn">
+                                    <ion-icon name="filter-outline"></ion-icon> <span>Terapkan Filter</span>
                                 </button>
-                                <a href="{{ route('admin.jadwal.index', ['tab' => 'sesi']) }}" class="btn-filter-reset" title="Reset Filter">
-                                    <ion-icon name="refresh-outline"></ion-icon>
+                                <a href="{{ route('admin.jadwal.index', ['tab' => 'sesi', 'tanggal' => $selectedDate->toDateString()]) }}" class="btnOutline filterResetBtn" title="Reset Filter">
+                                    <ion-icon name="refresh-outline"></ion-icon> <span>Reset</span>
                                 </a>
                             </div>
                         </div>
@@ -369,7 +363,7 @@
                             </div>
                         </div>
 
-                        <div class="mobile-card-list" style="display: flex !important; gap: 12px;">
+                        <div class="mobile-card-list">
                             @foreach($sesiHariIni as $sesi)
                                 @php
                                     $sesiMurid = $sesi->murid ?? $sesi->siswa;
@@ -591,12 +585,12 @@
                                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Ketik nama murid..." class="profileInput">
                             </div>
 
-                            <div class="filterField d-flex items-end gap-2">
-                                <button type="submit" class="profileBtnPrimary w-full">
-                                    <ion-icon name="filter-outline"></ion-icon> Filter
+                            <div class="filterField filterActionButtons">
+                                <button type="submit" class="profileBtnPrimary filterSubmitBtn">
+                                    <ion-icon name="filter-outline"></ion-icon> <span>Terapkan Filter</span>
                                 </button>
-                                <a href="{{ route('admin.jadwal.index', ['tab' => 'rutin']) }}" class="btn-filter-reset" title="Reset Filter">
-                                    <ion-icon name="refresh-outline"></ion-icon>
+                                <a href="{{ route('admin.jadwal.index', ['tab' => 'rutin']) }}" class="btnOutline filterResetBtn" title="Reset Filter">
+                                    <ion-icon name="refresh-outline"></ion-icon> <span>Reset</span>
                                 </a>
                             </div>
                         </div>
@@ -619,7 +613,7 @@
                             </div>
                         </div>
 
-                        <div class="mobile-card-list" style="display: flex !important; gap: 12px;">
+                        <div class="mobile-card-list">
                             @foreach ($jadwalRutins as $rutin)
                                 @php
                                     $hariSlug = strtolower((string) $rutin->hari);
@@ -1001,7 +995,7 @@
     {{-- ── MODAL 1: BUAT JADWAL BELAJAR ADMIN (UNIFIED MODAL) ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalJadwalBaruAdmin" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalJadwalAdmin()">
-        <div class="navDrawerSheet max-w-lg mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-lg mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -1014,233 +1008,233 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                <form method="POST" action="{{ route('admin.jadwal.store') }}" id="formTambahJadwalAdmin" onsubmit="return validateMuridSelectionAdmin(event)">
-                    @csrf
+            <form method="POST" action="{{ route('admin.jadwal.store') }}" id="formTambahJadwalAdmin" class="navDrawerForm" onsubmit="return validateMuridSelectionAdmin(event)">
+                @csrf
 
+                <div class="navDrawerScrollBody">
                     {{-- Switcher Mode: Rutin vs Single --}}
-                    <div class="p-2 bg-card-alt rounded-xl border-base mb-3 d-flex gap-1">
-                        <label class="cursor-pointer flex-1 text-center py-2 px-3 rounded-lg text-xs font-bold transition-all"
+                    <div class="p-1.5 bg-card-alt rounded-xl border-base mb-3 d-flex gap-1">
+                        <label class="cursor-pointer flex-1 text-center py-2 px-2 rounded-lg text-xs font-bold transition-all d-flex items-center justify-center gap-1"
                             id="labelModeRutinAdmin" onclick="setScheduleModeAdmin(true)">
                             <input type="radio" name="is_recurring" id="radioModeRutinAdmin" value="1" class="d-none" {{ old('is_recurring') === '1' ? 'checked' : '' }}>
-                            <ion-icon name="repeat-outline"></ion-icon> Ulangi Setiap Minggu (Rutin)
+                            <ion-icon name="repeat-outline"></ion-icon> <span>Rutin Mingguan</span>
                         </label>
-                        <label class="cursor-pointer flex-1 text-center py-2 px-3 rounded-lg text-xs font-bold transition-all"
+                        <label class="cursor-pointer flex-1 text-center py-2 px-2 rounded-lg text-xs font-bold transition-all d-flex items-center justify-center gap-1"
                             id="labelModeSingleAdmin" onclick="setScheduleModeAdmin(false)">
                             <input type="radio" name="is_recurring" id="radioModeSingleAdmin" value="0" class="d-none" {{ old('is_recurring', '0') === '0' ? 'checked' : '' }}>
-                            <ion-icon name="calendar-outline"></ion-icon> Hanya Tanggal Ini (Sekali)
+                            <ion-icon name="calendar-outline"></ion-icon> <span>Sekali Belajar</span>
                         </label>
                     </div>
 
-                    {{-- Pilihan Tutor Pengampu (Wajib Admin) --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tutor Pengampu <span class="text-danger">*</span></label>
-                        <select name="tutor_id" id="modalTutorIdAdmin" class="filterSelect" required onchange="filterMuridListAdmin()">
-                            <option value="">-- Pilih Tutor Pengampu --</option>
-                            @foreach($tutors as $tut)
-                                <option value="{{ $tut->id }}" {{ (string)old('tutor_id') === (string)$tut->id ? 'selected' : '' }}>
-                                    {{ $tut->nama_lengkap }} ({{ $tut->user?->email ?? '-' }})
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    {{-- Multi-Murid & Rombel Picker --}}
-                    <div class="form-field-wrapper mb-3">
-                        <div class="murid-picker-header mb-1">
-                            <label class="filterFieldLabel m-0">
-                                Pilih Murid Diajar <span class="text-danger">*</span>
-                                <span class="text-xs text-muted font-normal">(Bisa pilih lebih dari 1 murid)</span>
-                            </label>
-                            <span id="selectedMuridCounterAdmin" class="murid-picker-badge-counter">
-                                <ion-icon name="people-outline"></ion-icon>
-                                <span id="selectedCountTextAdmin">0 murid terpilih</span>
-                            </span>
+                    {{-- ── CARD 1: TUTOR & PESERTA DIDIK ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="people-outline"></ion-icon>
+                            <span>Tutor &amp; Murid Diajar</span>
                         </div>
 
-                        <div class="murid-picker-toolbar mb-2">
-                            {{-- Filter Berdasarkan Rombel / Bimbingan --}}
-                            <select id="pickerFilterRombelAdmin" class="murid-picker-filter-select" onchange="filterMuridListAdmin()">
-                                <option value="all">-- Semua Rombel & Jenjang --</option>
-                                <option value="bimbingan_tutor">★ Murid Bimbingan Tutor Ini Saja</option>
-                                <optgroup label="Kelompok Jenjang">
-                                    <option value="paket_a">Semua Paket A (Setara SD)</option>
-                                    <option value="paket_b">Semua Paket B (Setara SMP)</option>
-                                    <option value="paket_c">Semua Paket C (Setara SMA)</option>
-                                    <option value="vokasi">Semua Vokasi / Kursus</option>
-                                </optgroup>
-                                @if(isset($kelasList) && $kelasList->isNotEmpty())
-                                    <optgroup label="Spesifik Rombel / Kelas">
-                                        @foreach($kelasList as $k)
-                                            <option value="kelas_{{ $k->id }}">{{ $k->nama_kelas }}</option>
-                                        @endforeach
-                                    </optgroup>
-                                @endif
+                        {{-- Pilihan Tutor Pengampu (Wajib Admin) --}}
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Tutor Pengampu <span class="text-danger">*</span></label>
+                            <select name="tutor_id" id="modalTutorIdAdmin" class="filterSelect" required onchange="onTutorChangeAdmin()">
+                                <option value="">-- Pilih Tutor Pengampu --</option>
+                                @foreach($tutors as $tut)
+                                    <option value="{{ $tut->id }}" {{ (string)old('tutor_id') === (string)$tut->id ? 'selected' : '' }}>
+                                        {{ $tut->nama_lengkap }} ({{ $tut->user?->email ?? '-' }})
+                                    </option>
+                                @endforeach
                             </select>
-
-                            {{-- Input Pencarian Nama --}}
-                            <input type="text" id="pickerSearchMuridAdmin" class="murid-picker-search"
-                                placeholder="Cari nama / no. absen..." oninput="filterMuridListAdmin()">
-
-                            {{-- Aksi Cepat Pilih --}}
-                            <div class="murid-picker-actions">
-                                <button type="button" class="btn-picker-action" onclick="selectAllVisibleMuridAdmin(true)"
-                                    title="Pilih semua murid yang sedang tampil di filter ini">
-                                    <ion-icon name="checkmark-done-outline"></ion-icon>
-                                    <span>Pilih Semua di Rombel</span>
-                                </button>
-                                <button type="button" class="btn-picker-action btn-picker-clear" onclick="selectAllVisibleMuridAdmin(false)"
-                                    title="Batalkan pilihan murid terpilih">
-                                    <ion-icon name="close-outline"></ion-icon>
-                                    <span>Batal</span>
-                                </button>
-                            </div>
+                            <span class="field-help-text">Rombel &amp; murid otomatis disesuaikan dengan murid bimbingan tutor ini.</span>
                         </div>
 
-                        {{-- Kotak Checklist Murid --}}
-                        <div class="murid-picker-container" id="muridPickerContainerAdmin">
-                            @php
-                                $oldSiswaIds = old('siswa_ids', old('siswa_id') ? [old('siswa_id')] : []);
-                                if (!is_array($oldSiswaIds)) {
-                                    $oldSiswaIds = [$oldSiswaIds];
-                                }
-                            @endphp
-                            @forelse($siswas as $s)
-                                @php
-                                    $jenjangKode = $s->jenjang_paket ?? 'umum';
-                                    $namaMurid = $s->nama_murid ?? $s->nama_siswa ?? 'Murid';
-                                    $initial = strtoupper(substr($namaMurid, 0, 1));
-                                    $isChecked = in_array($s->id, $oldSiswaIds);
-                                    $badgeClass = match($jenjangKode) {
-                                        'paket_a' => 'badge-paket-a',
-                                        'paket_b' => 'badge-paket-b',
-                                        'paket_c' => 'badge-paket-c',
-                                        default => '',
-                                    };
-                                @endphp
-                                <label class="murid-picker-item {{ $isChecked ? 'is-checked' : '' }}"
-                                    id="muridItemAdmin_{{ $s->id }}"
-                                    data-kelas-id="{{ $s->kelas_id }}"
-                                    data-jenjang="{{ $jenjangKode }}"
-                                    data-tutor-id="{{ $s->tutor_id }}"
-                                    data-nama="{{ strtolower($namaMurid) }}"
-                                    data-absen="{{ strtolower((string)$s->no_absen) }}">
-                                    <input type="checkbox" name="siswa_ids[]" value="{{ $s->id }}"
-                                        class="murid-picker-checkbox murid-checkbox-admin"
-                                        {{ $isChecked ? 'checked' : '' }}
-                                        onchange="onMuridCheckboxChangeAdmin(this)">
-                                    
-                                    <div class="murid-picker-avatar">
-                                        {{ $initial }}
-                                    </div>
-
-                                    <div class="murid-picker-info">
-                                        <div class="murid-picker-name">
-                                            {{ $namaMurid }}
-                                        </div>
-                                        <div class="murid-picker-meta">
-                                            @if($s->no_absen)
-                                                <span class="murid-picker-badge-rombel">No. {{ $s->no_absen }}</span>
-                                            @endif
-                                            <span class="murid-picker-badge-rombel {{ $badgeClass }}">
-                                                {{ $s->nama_kelas_lengkap ?? $s->jenjang_paket_label }}
-                                            </span>
-                                            @if($s->tutor)
-                                                <span class="murid-picker-badge-bimbingan">Bimb. {{ $s->tutor->nama_lengkap }}</span>
-                                            @endif
-                                            @if($s->is_abk)
-                                                <span class="murid-picker-badge-rombel" style="background:#fff1f2; color:#be123c; border-color:#fecdd3;">ABK</span>
-                                            @endif
-                                        </div>
-                                    </div>
+                        {{-- Multi-Murid & Rombel Picker --}}
+                        <div class="form-field-wrapper">
+                            <div class="murid-picker-header mb-1">
+                                <label class="filterFieldLabel m-0">
+                                    Pilih Murid Diajar <span class="text-danger">*</span>
+                                    <span class="text-xs text-muted font-normal">(Bisa &gt;1 murid)</span>
                                 </label>
-                            @empty
-                                <div class="p-4 text-center text-muted text-xs">
-                                    Belum ada data murid aktif.
+                                <span id="selectedMuridCounterAdmin" class="murid-picker-badge-counter">
+                                    <ion-icon name="people-outline"></ion-icon>
+                                    <span id="selectedCountTextAdmin">0 murid terpilih</span>
+                                </span>
+                            </div>
+
+                            <div class="murid-picker-toolbar mb-2">
+                                <select id="pickerFilterRombelAdmin" class="murid-picker-filter-select" onchange="filterMuridListAdmin()" disabled>
+                                    <option value="">-- Pilih Tutor Terlebih Dahulu --</option>
+                                </select>
+
+                                <input type="text" id="pickerSearchMuridAdmin" class="murid-picker-search"
+                                    placeholder="Cari nama / no. absen..." oninput="filterMuridListAdmin()" disabled>
+
+                                <div class="murid-picker-actions">
+                                    <button type="button" id="btnSelectAllAdmin" class="btn-picker-action" onclick="selectAllVisibleMuridAdmin(true)"
+                                        title="Pilih semua murid yang sedang tampil di filter ini" disabled>
+                                        <ion-icon name="checkmark-done-outline"></ion-icon>
+                                        <span>Pilih Semua</span>
+                                    </button>
+                                    <button type="button" id="btnClearSelectAdmin" class="btn-picker-action btn-picker-clear" onclick="selectAllVisibleMuridAdmin(false)"
+                                        title="Batalkan pilihan murid terpilih" disabled>
+                                        <ion-icon name="close-outline"></ion-icon>
+                                        <span>Batal</span>
+                                    </button>
                                 </div>
-                            @endforelse
-                        </div>
+                            </div>
 
-                        <div id="muridPickerErrorAdmin" class="text-xs text-danger font-semibold mt-1 d-none">
-                            <ion-icon name="alert-circle-outline"></ion-icon> Silakan pilih minimal 1 murid untuk dijadwalkan.
+                            {{-- Kotak Checklist Murid --}}
+                            <div class="murid-picker-container" id="muridPickerContainerAdmin">
+                                <div class="p-4 text-center text-muted text-xs" id="adminPickerTutorPlaceholder">
+                                    <ion-icon name="person-outline" style="font-size: 24px; opacity: 0.6; display: block; margin: 0 auto 6px;"></ion-icon>
+                                    <span>Silakan pilih <b>Tutor Pengampu</b> terlebih dahulu untuk memuat daftar rombel dan murid yang diampu.</span>
+                                </div>
+
+                                <div class="p-4 text-center text-muted text-xs d-none" id="adminPickerEmptyTutor">
+                                    <ion-icon name="alert-circle-outline" style="font-size: 24px; opacity: 0.7; color: #d97706; display: block; margin: 0 auto 6px;"></ion-icon>
+                                    <strong class="text-dark d-block mb-1">Tutor belum memiliki murid bimbingan</strong>
+                                    <span>Tutor ini belum memiliki murid bimbingan aktif yang ditugaskan. Hubungi bagian Kesiswaan untuk penugasan murid.</span>
+                                </div>
+
+                                @php
+                                    $oldSiswaIds = old('siswa_ids', old('siswa_id') ? [old('siswa_id')] : []);
+                                    if (!is_array($oldSiswaIds)) {
+                                        $oldSiswaIds = [$oldSiswaIds];
+                                    }
+                                @endphp
+                                @forelse($siswas as $s)
+                                    @php
+                                        $jenjangKode = $s->jenjang_paket ?? 'umum';
+                                        $namaMurid = $s->nama_murid ?? $s->nama_siswa ?? 'Murid';
+                                        $initial = strtoupper(substr($namaMurid, 0, 1));
+                                        $isChecked = in_array($s->id, $oldSiswaIds);
+                                        $badgeClass = match($jenjangKode) {
+                                            'paket_a' => 'badge-paket-a',
+                                            'paket_b' => 'badge-paket-b',
+                                            'paket_c' => 'badge-paket-c',
+                                            default => '',
+                                        };
+                                        $jenjangLabel = match($jenjangKode) {
+                                            'paket_a' => 'Semua Paket A (Setara SD)',
+                                            'paket_b' => 'Semua Paket B (Setara SMP)',
+                                            'paket_c' => 'Semua Paket C (Setara SMA)',
+                                            'vokasi' => 'Semua Vokasi / Kursus',
+                                            default => 'Umum',
+                                        };
+                                    @endphp
+                                    <label class="murid-picker-item {{ $isChecked ? 'is-checked' : '' }}"
+                                        id="muridItemAdmin_{{ $s->id }}"
+                                        data-kelas-id="{{ $s->kelas_id }}"
+                                        data-kelas-nama="{{ $s->relKelas?->nama_kelas ?? ($s->nama_kelas_lengkap ?? 'Rombel') }}"
+                                        data-jenjang="{{ $jenjangKode }}"
+                                        data-jenjang-nama="{{ $jenjangLabel }}"
+                                        data-tutor-id="{{ $s->tutor_id }}"
+                                        data-nama="{{ strtolower($namaMurid) }}"
+                                        data-absen="{{ strtolower((string)$s->no_absen) }}"
+                                        style="display: none;">
+                                        <input type="checkbox" name="siswa_ids[]" value="{{ $s->id }}"
+                                            class="murid-picker-checkbox murid-checkbox-admin"
+                                            {{ $isChecked ? 'checked' : '' }}
+                                            onchange="onMuridCheckboxChangeAdmin(this)">
+                                        
+                                        <div class="murid-picker-avatar">
+                                            {{ $initial }}
+                                        </div>
+
+                                        <div class="murid-picker-info">
+                                            <div class="murid-picker-name">
+                                                {{ $namaMurid }}
+                                            </div>
+                                            <div class="murid-picker-meta">
+                                                @if($s->no_absen)
+                                                    <span class="murid-picker-badge-rombel">No. {{ $s->no_absen }}</span>
+                                                @endif
+                                                <span class="murid-picker-badge-rombel {{ $badgeClass }}">
+                                                    {{ $s->nama_kelas_lengkap ?? $s->jenjang_paket_label }}
+                                                </span>
+                                                @if($s->tutor)
+                                                    <span class="murid-picker-badge-bimbingan">Bimb. {{ $s->tutor->nama_lengkap }}</span>
+                                                @endif
+                                                @if($s->is_abk)
+                                                    <span class="murid-picker-badge-rombel" style="background:#fff1f2; color:#be123c; border-color:#fecdd3;">ABK</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </label>
+                                @empty
+                                    <div class="p-4 text-center text-muted text-xs">
+                                        Belum ada data murid aktif di sistem.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <div id="muridPickerErrorAdmin" class="text-xs text-danger font-semibold mt-1 d-none">
+                                <ion-icon name="alert-circle-outline"></ion-icon> Silakan pilih minimal 1 murid untuk dijadwalkan.
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Form Bagian A: Jika Mode Rutin Mingguan --}}
-                    <div id="sectionRutinAdmin" class="d-none">
-                        <div class="form-field-wrapper mb-3">
-                            <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
-                            <select name="hari" id="modalHariAdmin" class="filterSelect">
-                                <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin</option>
-                                <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa</option>
-                                <option value="rabu" {{ old('hari') === 'rabu' ? 'selected' : '' }}>Setiap Hari Rabu</option>
-                                <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis</option>
-                                <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat</option>
-                                <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
-                                <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu</option>
-                            </select>
+                    {{-- ── CARD 2: WAKTU & JADWAL PELAKSANAAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Waktu &amp; Tanggal Pembelajaran</span>
                         </div>
 
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Berlaku Mulai</label>
-                                <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}" class="profileInput">
-                            </div>
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Berlaku Sampai</label>
-                                <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}" class="profileInput">
-                                <span class="field-help-text">Kosongkan jika terus berlanjut tanpa batas.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Form Bagian B: Jika Mode Single Sesi --}}
-                    <div id="sectionSingleAdmin">
-                        <div class="form-field-wrapper mb-3">
-                            <label class="filterFieldLabel">Jenis Sesi <span class="text-danger">*</span></label>
-                            <select name="jenis_sesi" id="modalJenisSesiAdmin" onchange="toggleTanggalAsliAdmin()" class="filterSelect">
-                                <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler</option>
-                                <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi Pengganti (Reschedule / Make-up Class)</option>
-                                <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi Tambahan / Pengayaan</option>
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Tanggal Rencana <span class="text-danger">*</span></label>
-                                <input type="date" name="tanggal_rencana" id="modalTanggalRencanaAdmin"
-                                    value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}" class="profileInput">
+                        {{-- Mode Rutin Mingguan --}}
+                        <div id="sectionRutinAdmin" class="d-none">
+                            <div class="form-field-wrapper mb-3">
+                                <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
+                                <select name="hari" id="modalHariAdmin" class="filterSelect">
+                                    <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin</option>
+                                    <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa</option>
+                                    <option value="rabu" {{ old('hari') === 'rabu' ? 'selected' : '' }}>Setiap Hari Rabu</option>
+                                    <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis</option>
+                                    <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat</option>
+                                    <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
+                                    <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu</option>
+                                </select>
                             </div>
 
-                            <div class="form-field-wrapper d-none" id="boxTanggalAsliAdmin">
-                                <label class="filterFieldLabel">Menggantikan Sesi Tanggal</label>
-                                <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}" class="profileInput">
-                                <span class="field-help-text">Tanggal sesi semula yang dilewati.</span>
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <div class="form-field-wrapper">
+                                    <label class="filterFieldLabel">Berlaku Mulai</label>
+                                    <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}" class="profileInput">
+                                </div>
+                                <div class="form-field-wrapper">
+                                    <label class="filterFieldLabel">Berlaku Sampai</label>
+                                    <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}" class="profileInput">
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {{-- Kategori SK --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Kategori Tutorial SK <span class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
-                        <select name="kategori_tutorial_id" id="modalKategoriTutorialAdmin" onchange="kategoriUniversalChangeAdmin()" class="filterSelect">
-                            <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
-                            @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" data-nominal="{{ $kat->nominal_honor }}"
-                                    {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
-                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull; {{ $kat->formatted_nominal_honor }})
-                                </option>
-                            @endforeach
-                            <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi Khusus (Belum Diatur SK) --</option>
-                        </select>
-                    </div>
+                        {{-- Mode Single Sesi --}}
+                        <div id="sectionSingleAdmin">
+                            <div class="form-field-wrapper mb-3">
+                                <label class="filterFieldLabel">Jenis Sesi <span class="text-danger">*</span></label>
+                                <select name="jenis_sesi" id="modalJenisSesiAdmin" onchange="toggleTanggalAsliAdmin()" class="filterSelect">
+                                    <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler</option>
+                                    <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi Pengganti (Reschedule / Make-up Class)</option>
+                                    <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi Tambahan / Pengayaan</option>
+                                </select>
+                            </div>
 
-                    {{-- Jam Belajar & Durasi --}}
-                    <div class="p-3 bg-card-alt rounded-xl border-base mb-3">
-                        <div class="text-xs font-bold uppercase tracking-wider text-muted mb-2">
-                            <ion-icon name="time-outline"></ion-icon> Jam Belajar &amp; Durasi KBM
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                                <div class="form-field-wrapper">
+                                    <label class="filterFieldLabel">Tanggal Rencana <span class="text-danger">*</span></label>
+                                    <input type="date" name="tanggal_rencana" id="modalTanggalRencanaAdmin"
+                                        value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}" class="profileInput">
+                                </div>
+
+                                <div class="form-field-wrapper d-none" id="boxTanggalAsliAdmin">
+                                    <label class="filterFieldLabel">Menggantikan Sesi Tanggal</label>
+                                    <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}" class="profileInput">
+                                    <span class="field-help-text">Tanggal sesi semula yang dilewati.</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+                        {{-- Jam Belajar (2 Kolom Berdampingan di Mobile) --}}
+                        <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
                                 <input type="time" name="jam_masuk" id="modalJamMasukRutinAdmin"
@@ -1255,109 +1249,163 @@
                                 <input type="time" name="jam_pulang_rencana" id="modalJamPulangSingleAdmin"
                                     value="{{ old('jam_pulang_rencana', '12:00') }}" onchange="hitungDurasiUniversalAdmin(false)" class="profileInput" required>
                             </div>
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Durasi (Jam)</label>
+                        </div>
+
+                        {{-- Durasi Jam Ringkas --}}
+                        <div class="d-flex items-center justify-between p-2.5 rounded-xl bg-card border-base mb-3 text-xs">
+                            <span class="text-muted d-flex items-center gap-1.5 font-semibold">
+                                <ion-icon name="time-outline" class="text-primary"></ion-icon> Durasi Pembelajaran:
+                            </span>
+                            <div class="d-flex items-center gap-1">
                                 <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam"
-                                    id="modalDurasiUniversalAdmin" value="{{ old('durasi_jam', '2.00') }}" class="profileInput" readonly style="background: var(--card);">
+                                    id="modalDurasiUniversalAdmin" value="{{ old('durasi_jam', '2.00') }}"
+                                    class="text-xs font-bold text-primary text-end border-0 p-0 m-0 bg-transparent" style="width: 48px;" readonly>
+                                <span class="font-bold text-primary">Jam</span>
                             </div>
+                        </div>
+
+                        {{-- Kategori SK --}}
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Kategori Tutorial SK <span class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
+                            <select name="kategori_tutorial_id" id="modalKategoriTutorialAdmin" onchange="kategoriUniversalChangeAdmin()" class="filterSelect">
+                                <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
+                                @foreach($kategoriTutorials as $kat)
+                                    <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" data-nominal="{{ $kat->nominal_honor }}"
+                                        {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
+                                        {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull; {{ $kat->formatted_nominal_honor }})
+                                    </option>
+                                @endforeach
+                                <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi Khusus (Belum Diatur SK) --</option>
+                            </select>
                         </div>
                     </div>
 
-                    {{-- Titik Lokasi Presensi --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Presensi</label>
-                        <select name="lokasi_presensi_id" class="filterSelect">
-                            <option value="">-- Gunakan Lokasi Default / Pusat --</option>
-                            @foreach($lokasiPresensis as $lok)
-                                <option value="{{ $lok->id }}" {{ (string)old('lokasi_presensi_id') === (string)$lok->id ? 'selected' : '' }}>
-                                    {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    {{-- ── CARD 3: LOKASI & KETERANGAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Catatan Tambahan</span>
+                        </div>
 
-                    {{-- Catatan / Keterangan --}}
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Keterangan / Catatan KBM (Opsional)</label>
-                        <textarea name="catatan" id="modalCatatanAdmin" rows="2" class="profileInput" style="height: auto;"
-                            placeholder="Materi pengayaan, target bab, atau instruksi khusus..."></textarea>
-                    </div>
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Presensi</label>
+                            <select name="lokasi_presensi_id" class="filterSelect">
+                                <option value="">-- Gunakan Lokasi Default / Pusat --</option>
+                                @foreach($lokasiPresensis as $lok)
+                                    <option value="{{ $lok->id }}" {{ (string)old('lokasi_presensi_id') === (string)$lok->id ? 'selected' : '' }}>
+                                        {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalJadwalAdmin()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="checkmark-done-outline"></ion-icon> Simpan Jadwal KBM
-                        </button>
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Keterangan / Catatan KBM (Opsional)</label>
+                            <textarea name="catatan" id="modalCatatanAdmin" rows="2" class="profileInput" style="height: auto;"
+                                placeholder="Materi pengayaan, target bab, atau instruksi khusus..."></textarea>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                {{-- ── DOCKED STICKY ACTION FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalJadwalAdmin()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="checkmark-done-outline"></ion-icon> Simpan Jadwal KBM
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
     {{-- ══════════════════════════════════════════════════════════════ --}}
     {{-- ── MODAL 2: BANTU RESCHEDULE SESI OLEH ADMIN ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
-    <div id="modalRescheduleAdmin" class="app-modal-backdrop" style="display: none;"
-        onclick="if(event.target===this) tutupModalRescheduleAdmin()">
-        <div class="app-modal-card">
-            <div class="app-modal-header">
-                <div class="app-modal-header-left">
-                    <div class="app-modal-badge-icon" style="background: rgba(245, 158, 11, 0.12); color: #d97706;">
-                        <ion-icon name="swap-horizontal-outline"></ion-icon>
-                    </div>
-                    <div>
-                        <h3 class="app-modal-title m-0">Bantu Reschedule Sesi KBM</h3>
-                        <div class="text-xs text-muted" id="rescheduleInfoMurid">Penyesuaian tanggal atau jam sesi belajar</div>
-                    </div>
+    <div id="modalRescheduleAdmin" class="navDrawerBackdrop" onclick="if(event.target===this) tutupModalRescheduleAdmin()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
+            <div class="navDrawerHandle"></div>
+
+            <div class="navDrawerHeader">
+                <div class="navDrawerTitleWrap">
+                    <div class="navDrawerSub">Pindah Jadwal • Reschedule Sesi</div>
+                    <h3 class="navDrawerTitle">Bantu Reschedule Sesi KBM</h3>
                 </div>
-                <button type="button" onclick="tutupModalRescheduleAdmin()" class="app-modal-close">&times;</button>
+                <button type="button" class="navDrawerCloseBtn" onclick="tutupModalRescheduleAdmin()" aria-label="Tutup">
+                    <ion-icon name="close"></ion-icon>
+                </button>
             </div>
 
-            <form id="formRescheduleAdmin" method="POST" action="">
+            <form id="formRescheduleAdmin" class="navDrawerForm" method="POST" action="">
                 @csrf
-                <div class="p-3 mb-3 rounded-xl bg-card-alt text-xs text-muted">
-                    <strong class="text-base" id="rescheduleSesiDetail">-</strong>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                    <div class="form-field-wrapper">
-                        <label class="form-field-label">Tanggal Pelaksanaan Baru <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal_baru" id="inTanggalBaru" class="profileInput" required min="{{ date('Y-m-d') }}">
+                <div class="navDrawerScrollBody">
+                    {{-- Detail Sesi Semula --}}
+                    <div class="p-3 mb-3 rounded-xl bg-card-alt border-base text-xs text-muted">
+                        <strong class="text-base d-block mb-1" id="rescheduleSesiDetail">-</strong>
+                        <div id="rescheduleInfoMurid">Penyesuaian tanggal atau jam sesi belajar</div>
                     </div>
 
-                    <div class="form-field-wrapper">
-                        <label class="form-field-label">Titik Lokasi Presensi</label>
-                        <select name="lokasi_presensi_id" id="inLokasiPresensi" class="filterSelect">
-                            <option value="">-- Tetap Sesuai Semula --</option>
-                            @foreach ($lokasiPresensis as $lp)
-                                <option value="{{ $lp->id }}">{{ $lp->nama_lokasi }}</option>
-                            @endforeach
-                        </select>
+                    {{-- ── CARD 1: TANGGAL & LOKASI BARU ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Tanggal &amp; Lokasi Baru</span>
+                        </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Tanggal Pelaksanaan Baru <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal_baru" id="inTanggalBaru" class="profileInput" required min="{{ date('Y-m-d') }}">
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Titik Lokasi Presensi</label>
+                            <select name="lokasi_presensi_id" id="inLokasiPresensi" class="filterSelect">
+                                <option value="">-- Tetap Sesuai Semula --</option>
+                                @foreach ($lokasiPresensis as $lp)
+                                    <option value="{{ $lp->id }}">{{ $lp->nama_lokasi }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    {{-- ── CARD 2: JAM PELAKSANAAN BARU ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="time-outline"></ion-icon>
+                            <span>Jam Belajar Baru</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_masuk_baru" id="inJamMasukBaru" class="profileInput" required>
+                            </div>
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_pulang_baru" id="inJamPulangBaru" class="profileInput" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- ── CARD 3: ALASAN PERUBAHAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                            <span>Alasan Reschedule</span>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Alasan / Penyesuaian <span class="text-danger">*</span></label>
+                            <textarea name="alasan_penggantian" rows="2" class="profileInput" required
+                                placeholder="Contoh: Kesepakatan tutor & murid karena kendala cuaca / permintaan orang tua..." style="height: auto;"></textarea>
+                            <span class="field-help-text">Alasan akan dicatat sebagai riwayat resmi dan otomatis dikirimkan via notifikasi.</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                    <div class="form-field-wrapper">
-                        <label class="form-field-label">Jam Mulai Baru <span class="text-danger">*</span></label>
-                        <input type="time" name="jam_masuk_baru" id="inJamMasukBaru" class="profileInput" required>
-                    </div>
-
-                    <div class="form-field-wrapper">
-                        <label class="form-field-label">Jam Selesai Baru <span class="text-danger">*</span></label>
-                        <input type="time" name="jam_pulang_baru" id="inJamPulangBaru" class="profileInput" required>
-                    </div>
-                </div>
-
-                <div class="form-field-wrapper mb-3">
-                    <label class="form-field-label">Alasan Reschedule / Penyesuaian <span class="text-danger">*</span></label>
-                    <textarea name="alasan_penggantian" rows="2" class="profileInput" required
-                        placeholder="Contoh: Kesepakatan tutor & murid karena kendala cuaca / permintaan orang tua..." style="height: auto;"></textarea>
-                    <div class="field-help-text">Alasan akan dicatat sebagai riwayat resmi dan otomatis dikirimkan via notifikasi ke Tutor dan Murid.</div>
-                </div>
-
-                <div class="app-modal-footer">
-                    <button type="button" onclick="tutupModalRescheduleAdmin()" class="btnOutline w-auto">Batal</button>
-                    <button type="submit" class="profileBtnPrimary w-auto">
+                {{-- ── DOCKED STICKY FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalRescheduleAdmin()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
                         <ion-icon name="checkmark-done-outline"></ion-icon> Simpan Reschedule Sesi
                     </button>
                 </div>
@@ -1369,7 +1417,7 @@
     {{-- ── MODAL 3: TAMBAH AGENDA ACARA & LIBUR PKBM ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalAgendaBaruAdmin" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalAgendaAdmin()">
-        <div class="navDrawerSheet max-w-md mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -1382,52 +1430,76 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                <form method="POST" action="{{ route('admin.jadwal.storeAgenda') }}" id="formTambahAgendaAdmin">
-                    @csrf
+            <form method="POST" action="{{ route('admin.jadwal.storeAgenda') }}" id="formTambahAgendaAdmin" class="navDrawerForm">
+                @csrf
+                <div class="navDrawerScrollBody">
+                    {{-- ── CARD 1: INFORMASI KEGIATAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Informasi Agenda</span>
+                        </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Judul Agenda / Nama Kegiatan <span class="text-danger">*</span></label>
-                        <input type="text" name="judul" class="profileInput" placeholder="Contoh: Ujian Tengah Semester, Rapat Wali Murid, Libur Nasional..." required>
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Judul Agenda / Nama Kegiatan <span class="text-danger">*</span></label>
+                            <input type="text" name="judul" class="profileInput" placeholder="Contoh: Ujian Tengah Semester, Rapat Wali Murid, Libur Nasional..." required>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal" value="{{ $selectedDate->format('Y-m-d') }}" class="profileInput" required>
+                        </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal" value="{{ $selectedDate->format('Y-m-d') }}" class="profileInput" required>
+                    {{-- ── CARD 2: LOKASI KEGIATAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Koordinat</span>
+                        </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Resmi PKBM (Opsional)</label>
+                            <select name="lokasi_presensi_id" class="filterSelect">
+                                <option value="">-- Tanpa Titik Resmi / Kampus Pusat --</option>
+                                @foreach($lokasiPresensis as $lp)
+                                    <option value="{{ $lp->id }}">
+                                        {{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="field-help-text">Pilih jika agenda memiliki titik koordinat radius presensi.</span>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Keterangan Ruangan / Lokasi Khusus (Opsional)</label>
+                            <input type="text" name="lokasi" class="profileInput" placeholder="Contoh: Ruang Aula Lt. 2, Lapangan Utama, atau Daring Zoom">
+                        </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Resmi PKBM (Opsional)</label>
-                        <select name="lokasi_presensi_id" class="filterSelect">
-                            <option value="">-- Tanpa Titik Resmi / Kampus Pusat --</option>
-                            @foreach($lokasiPresensis as $lp)
-                                <option value="{{ $lp->id }}">
-                                    {{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)
-                                </option>
-                            @endforeach
-                        </select>
-                        <span class="field-help-text">Pilih jika agenda memiliki titik koordinat radius presensi.</span>
-                    </div>
+                    {{-- ── CARD 3: CATATAN & DESKRIPSI ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="document-text-outline"></ion-icon>
+                            <span>Catatan &amp; Deskripsi</span>
+                        </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Keterangan Ruangan / Lokasi Khusus (Opsional)</label>
-                        <input type="text" name="lokasi" class="profileInput" placeholder="Contoh: Ruang Aula Lt. 2, Lapangan Utama, atau Daring Zoom">
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Deskripsi / Catatan Tambahan (Opsional)</label>
+                            <textarea name="deskripsi" rows="3" class="profileInput" style="height: auto;"
+                                placeholder="Tuliskan keterangan detail kegiatan atau pengumuman libur..."></textarea>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Deskripsi / Catatan Tambahan (Opsional)</label>
-                        <textarea name="deskripsi" rows="3" class="profileInput" style="height: auto;"
-                            placeholder="Tuliskan keterangan detail kegiatan atau pengumuman libur..."></textarea>
-                    </div>
-
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalAgendaAdmin()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="save-outline"></ion-icon> Simpan Agenda PKBM
-                        </button>
-                    </div>
-                </form>
-            </div>
+                {{-- ── DOCKED STICKY FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalAgendaAdmin()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="save-outline"></ion-icon> Simpan Agenda PKBM
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1435,7 +1507,7 @@
     {{-- ── MODAL 4: EDIT AGENDA ACARA & LIBUR PKBM ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalEditAgendaAdmin" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalEditAgendaAdmin()">
-        <div class="navDrawerSheet max-w-md mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -1448,51 +1520,75 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                <form id="formEditAgendaAdmin" method="POST" action="">
-                    @csrf
-                    @method('PUT')
+            <form id="formEditAgendaAdmin" class="navDrawerForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <div class="navDrawerScrollBody">
+                    {{-- ── CARD 1: INFORMASI KEGIATAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Informasi Agenda</span>
+                        </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Judul Agenda / Nama Kegiatan <span class="text-danger">*</span></label>
-                        <input type="text" name="judul" id="editAgendaJudul" class="profileInput" required>
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Judul Agenda / Nama Kegiatan <span class="text-danger">*</span></label>
+                            <input type="text" name="judul" id="editAgendaJudul" class="profileInput" required>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal" id="editAgendaTanggal" class="profileInput" required>
+                        </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal" id="editAgendaTanggal" class="profileInput" required>
+                    {{-- ── CARD 2: LOKASI KEGIATAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Koordinat</span>
+                        </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Resmi PKBM (Opsional)</label>
+                            <select name="lokasi_presensi_id" id="editAgendaLokasiPresensi" class="filterSelect">
+                                <option value="">-- Tanpa Titik Resmi / Kampus Pusat --</option>
+                                @foreach($lokasiPresensis as $lp)
+                                    <option value="{{ $lp->id }}">
+                                        {{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Keterangan Ruangan / Lokasi Khusus (Opsional)</label>
+                            <input type="text" name="lokasi" id="editAgendaLokasi" class="profileInput">
+                        </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Resmi PKBM (Opsional)</label>
-                        <select name="lokasi_presensi_id" id="editAgendaLokasiPresensi" class="filterSelect">
-                            <option value="">-- Tanpa Titik Resmi / Kampus Pusat --</option>
-                            @foreach($lokasiPresensis as $lp)
-                                <option value="{{ $lp->id }}">
-                                    {{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
+                    {{-- ── CARD 3: CATATAN & DESKRIPSI ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="document-text-outline"></ion-icon>
+                            <span>Catatan &amp; Deskripsi</span>
+                        </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Keterangan Ruangan / Lokasi Khusus (Opsional)</label>
-                        <input type="text" name="lokasi" id="editAgendaLokasi" class="profileInput">
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Deskripsi / Catatan Tambahan (Opsional)</label>
+                            <textarea name="deskripsi" id="editAgendaDeskripsi" rows="3" class="profileInput" style="height: auto;"></textarea>
+                        </div>
                     </div>
+                </div>
 
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Deskripsi / Catatan Tambahan (Opsional)</label>
-                        <textarea name="deskripsi" id="editAgendaDeskripsi" rows="3" class="profileInput" style="height: auto;"></textarea>
-                    </div>
-
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalEditAgendaAdmin()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="save-outline"></ion-icon> Perbarui Agenda PKBM
-                        </button>
-                    </div>
-                </form>
-            </div>
+                {{-- ── DOCKED STICKY FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalEditAgendaAdmin()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="save-outline"></ion-icon> Perbarui Agenda PKBM
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1500,7 +1596,7 @@
     {{-- ── MODAL 5: EDIT SESI KBM HARIAN ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalEditSesiAdmin" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalEditSesiAdmin()">
-        <div class="navDrawerSheet max-w-md mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -1513,71 +1609,96 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                <form id="formEditSesiAdmin" method="POST" action="">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="murid_id" id="editSesiMuridId">
-                    <input type="hidden" name="jenis_sesi" value="reguler">
+            <form id="formEditSesiAdmin" class="navDrawerForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="murid_id" id="editSesiMuridId">
+                <input type="hidden" name="jenis_sesi" value="reguler">
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tutor Pengampu <span class="text-danger">*</span></label>
-                        <select name="tutor_id" id="editSesiTutorId" class="filterSelect" required>
-                            @foreach($tutors as $t)
-                                <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal_rencana" id="editSesiTanggal" class="profileInput" required>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_masuk_rencana" id="editSesiJamMasuk" class="profileInput" required>
+                <div class="navDrawerScrollBody">
+                    {{-- ── CARD 1: TUTOR & TANGGAL ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="person-outline"></ion-icon>
+                            <span>Tutor &amp; Tanggal Sesi</span>
                         </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Tutor Pengampu <span class="text-danger">*</span></label>
+                            <select name="tutor_id" id="editSesiTutorId" class="filterSelect" required>
+                                @foreach($tutors as $t)
+                                    <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_pulang_rencana" id="editSesiJamPulang" class="profileInput" required>
+                            <label class="filterFieldLabel">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal_rencana" id="editSesiTanggal" class="profileInput" required>
                         </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Kategori Tutorial SK</label>
-                        <select name="kategori_tutorial_id" id="editSesiKategoriId" class="filterSelect">
-                            <option value="">-- Pilih Kategori SK --</option>
-                            @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}">{{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam)</option>
-                            @endforeach
-                        </select>
+                    {{-- ── CARD 2: WAKTU & TARIF SK ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="time-outline"></ion-icon>
+                            <span>Jam Belajar &amp; Kategori SK</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_masuk_rencana" id="editSesiJamMasuk" class="profileInput" required>
+                            </div>
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_pulang_rencana" id="editSesiJamPulang" class="profileInput" required>
+                            </div>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Kategori Tutorial SK</label>
+                            <select name="kategori_tutorial_id" id="editSesiKategoriId" class="filterSelect">
+                                <option value="">-- Pilih Kategori SK --</option>
+                                @foreach($kategoriTutorials as $kat)
+                                    <option value="{{ $kat->id }}">{{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam)</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Presensi</label>
-                        <select name="lokasi_presensi_id" id="editSesiLokasiId" class="filterSelect">
-                            <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
-                            @foreach($lokasiPresensis as $lp)
-                                <option value="{{ $lp->id }}">{{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    {{-- ── CARD 3: LOKASI & CATATAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Catatan Tambahan</span>
+                        </div>
 
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Catatan Tambahan (Opsional)</label>
-                        <textarea name="catatan" id="editSesiCatatan" rows="2" class="profileInput" style="height: auto;"></textarea>
-                    </div>
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Presensi</label>
+                            <select name="lokasi_presensi_id" id="editSesiLokasiId" class="filterSelect">
+                                <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
+                                @foreach($lokasiPresensis as $lp)
+                                    <option value="{{ $lp->id }}">{{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalEditSesiAdmin()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="save-outline"></ion-icon> Simpan Perubahan Sesi
-                        </button>
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Catatan Tambahan (Opsional)</label>
+                            <textarea name="catatan" id="editSesiCatatan" rows="2" class="profileInput" style="height: auto;"></textarea>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                {{-- ── DOCKED STICKY FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalEditSesiAdmin()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="save-outline"></ion-icon> Simpan Perubahan Sesi
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1585,7 +1706,7 @@
     {{-- ── MODAL 6: EDIT POLA RUTIN KBM ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalEditRutinAdmin" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalEditRutinAdmin()">
-        <div class="navDrawerSheet max-w-md mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -1598,78 +1719,103 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                <form id="formEditRutinAdmin" method="POST" action="">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="murid_id" id="editRutinMuridId">
+            <form id="formEditRutinAdmin" class="navDrawerForm" method="POST" action="">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="murid_id" id="editRutinMuridId">
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tutor Pengampu <span class="text-danger">*</span></label>
-                        <select name="tutor_id" id="editRutinTutorId" class="filterSelect" required>
-                            @foreach($tutors as $t)
-                                <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
-                        <select name="hari" id="editRutinHari" class="filterSelect" required>
-                            <option value="senin">Setiap Hari Senin</option>
-                            <option value="selasa">Setiap Hari Selasa</option>
-                            <option value="rabu">Setiap Hari Rabu</option>
-                            <option value="kamis">Setiap Hari Kamis</option>
-                            <option value="jumat">Setiap Hari Jumat</option>
-                            <option value="sabtu">Setiap Hari Sabtu</option>
-                            <option value="minggu">Setiap Hari Minggu</option>
-                        </select>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-2 mb-3">
-                        <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_masuk" id="editRutinJamMasuk" class="profileInput" required>
+                <div class="navDrawerScrollBody">
+                    {{-- ── CARD 1: TUTOR & HARI ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="repeat-outline"></ion-icon>
+                            <span>Tutor &amp; Hari Belajar</span>
                         </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Tutor Pengampu <span class="text-danger">*</span></label>
+                            <select name="tutor_id" id="editRutinTutorId" class="filterSelect" required>
+                                @foreach($tutors as $t)
+                                    <option value="{{ $t->id }}">{{ $t->nama_lengkap }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_pulang" id="editRutinJamPulang" class="profileInput" required>
+                            <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
+                            <select name="hari" id="editRutinHari" class="filterSelect" required>
+                                <option value="senin">Setiap Hari Senin</option>
+                                <option value="selasa">Setiap Hari Selasa</option>
+                                <option value="rabu">Setiap Hari Rabu</option>
+                                <option value="kamis">Setiap Hari Kamis</option>
+                                <option value="jumat">Setiap Hari Jumat</option>
+                                <option value="sabtu">Setiap Hari Sabtu</option>
+                                <option value="minggu">Setiap Hari Minggu</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Kategori Tutorial SK</label>
-                        <select name="kategori_tutorial_id" id="editRutinKategoriId" class="filterSelect">
-                            <option value="">-- Pilih Kategori SK --</option>
-                            @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}">{{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam)</option>
-                            @endforeach
-                        </select>
+                    {{-- ── CARD 2: WAKTU & TARIF SK ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="time-outline"></ion-icon>
+                            <span>Jam Belajar &amp; Kategori SK</span>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2 mb-3">
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_masuk" id="editRutinJamMasuk" class="profileInput" required>
+                            </div>
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Selesai <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_pulang" id="editRutinJamPulang" class="profileInput" required>
+                            </div>
+                        </div>
+
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Kategori Tutorial SK</label>
+                            <select name="kategori_tutorial_id" id="editRutinKategoriId" class="filterSelect">
+                                <option value="">-- Pilih Kategori SK --</option>
+                                @foreach($kategoriTutorials as $kat)
+                                    <option value="{{ $kat->id }}">{{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam)</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Presensi</label>
-                        <select name="lokasi_presensi_id" id="editRutinLokasiId" class="filterSelect">
-                            <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
-                            @foreach($lokasiPresensis as $lp)
-                                <option value="{{ $lp->id }}">{{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    {{-- ── CARD 3: LOKASI & KETERANGAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Keterangan</span>
+                        </div>
 
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Catatan / Keterangan (Opsional)</label>
-                        <textarea name="keterangan" id="editRutinKeterangan" rows="2" class="profileInput" style="height: auto;"></textarea>
-                    </div>
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Presensi</label>
+                            <select name="lokasi_presensi_id" id="editRutinLokasiId" class="filterSelect">
+                                <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
+                                @foreach($lokasiPresensis as $lp)
+                                    <option value="{{ $lp->id }}">{{ $lp->nama_lokasi }} (Radius: {{ $lp->radius_meter }}m)</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalEditRutinAdmin()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="save-outline"></ion-icon> Simpan Perubahan Pola
-                        </button>
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Catatan / Keterangan (Opsional)</label>
+                            <textarea name="keterangan" id="editRutinKeterangan" rows="2" class="profileInput" style="height: auto;"></textarea>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                {{-- ── DOCKED STICKY FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalEditRutinAdmin()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="save-outline"></ion-icon> Simpan Perubahan Pola
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1809,6 +1955,7 @@
             if (modal) {
                 modal.classList.add('active');
                 setScheduleModeAdmin(isRecurring);
+                onTutorChangeAdmin(true);
                 updateSelectedMuridCounterAdmin();
             }
         }
@@ -1958,24 +2105,178 @@
             updateSelectedMuridCounterAdmin();
         }
 
+        function onTutorChangeAdmin(isInitial = false) {
+            const tutorSelect = document.getElementById('modalTutorIdAdmin');
+            const tutorVal = tutorSelect ? tutorSelect.value : '';
+            const rombelSelect = document.getElementById('pickerFilterRombelAdmin');
+            const searchInput = document.getElementById('pickerSearchMuridAdmin');
+            const btnSelectAll = document.getElementById('btnSelectAllAdmin');
+            const btnClearSelect = document.getElementById('btnClearSelectAdmin');
+            const placeholderEl = document.getElementById('adminPickerTutorPlaceholder');
+            const emptyTutorEl = document.getElementById('adminPickerEmptyTutor');
+            const allItems = document.querySelectorAll('#muridPickerContainerAdmin .murid-picker-item');
+
+            if (!tutorVal) {
+                // Belum ada tutor yang dipilih
+                if (placeholderEl) placeholderEl.classList.remove('d-none');
+                if (emptyTutorEl) emptyTutorEl.classList.add('d-none');
+
+                // Sembunyikan dan uncheck semua murid
+                allItems.forEach(item => {
+                    item.style.display = 'none';
+                    const cb = item.querySelector('.murid-checkbox-admin');
+                    if (cb && !isInitial) {
+                        cb.checked = false;
+                        item.classList.remove('is-checked');
+                    }
+                });
+
+                // Reset dan nonaktifkan filter rombel & aksi
+                if (rombelSelect) {
+                    rombelSelect.innerHTML = '<option value="">-- Pilih Tutor Terlebih Dahulu --</option>';
+                    rombelSelect.disabled = true;
+                }
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.disabled = true;
+                }
+                if (btnSelectAll) btnSelectAll.disabled = true;
+                if (btnClearSelect) btnClearSelect.disabled = true;
+
+                updateSelectedMuridCounterAdmin();
+                return;
+            }
+
+            // Sembunyikan placeholder tutor
+            if (placeholderEl) placeholderEl.classList.add('d-none');
+
+            // Kumpulkan murid yang dimiliki tutor ini
+            const tutorItems = [];
+            const jenjangMap = new Map();
+            const kelasMap = new Map();
+
+            allItems.forEach(item => {
+                const itemTutorId = item.getAttribute('data-tutor-id');
+                const cb = item.querySelector('.murid-checkbox-admin');
+
+                if (String(itemTutorId) === String(tutorVal)) {
+                    tutorItems.push(item);
+                    const jKode = item.getAttribute('data-jenjang');
+                    const jNama = item.getAttribute('data-jenjang-nama') || jKode;
+                    if (jKode && jKode !== 'umum') {
+                        jenjangMap.set(jKode, jNama);
+                    }
+
+                    const kId = item.getAttribute('data-kelas-id');
+                    const kNama = item.getAttribute('data-kelas-nama') || 'Kelas';
+                    if (kId) {
+                        kelasMap.set(kId, kNama);
+                    }
+                } else {
+                    // Uncheck murid yang bukan milik tutor ini jika tutor diganti
+                    if (cb && !isInitial) {
+                        cb.checked = false;
+                        item.classList.remove('is-checked');
+                    }
+                    item.style.display = 'none';
+                }
+            });
+
+            if (tutorItems.length === 0) {
+                // Tutor tidak memiliki murid bimbingan
+                if (emptyTutorEl) emptyTutorEl.classList.remove('d-none');
+                if (rombelSelect) {
+                    rombelSelect.innerHTML = '<option value="">-- Tidak ada murid bimbingan --</option>';
+                    rombelSelect.disabled = true;
+                }
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.disabled = true;
+                }
+                if (btnSelectAll) btnSelectAll.disabled = true;
+                if (btnClearSelect) btnClearSelect.disabled = true;
+
+                updateSelectedMuridCounterAdmin();
+                return;
+            }
+
+            // Tutor memiliki murid bimbingan
+            if (emptyTutorEl) emptyTutorEl.classList.add('d-none');
+            if (searchInput) searchInput.disabled = false;
+            if (btnSelectAll) btnSelectAll.disabled = false;
+            if (btnClearSelect) btnClearSelect.disabled = false;
+
+            // Susun ulang opsi filter rombel & jenjang secara dinamis sesuai murid tutor ini
+            if (rombelSelect) {
+                rombelSelect.disabled = false;
+                const currentRombelVal = rombelSelect.value;
+                rombelSelect.innerHTML = '';
+
+                // Opsi default: Semua bimbingan tutor ini
+                const optAll = document.createElement('option');
+                optAll.value = 'all';
+                optAll.textContent = `-- Semua Rombel & Jenjang Bimbingan (${tutorItems.length} Murid) --`;
+                rombelSelect.appendChild(optAll);
+
+                // Kelompok Jenjang
+                if (jenjangMap.size > 0) {
+                    const grpJenjang = document.createElement('optgroup');
+                    grpJenjang.label = 'Kelompok Jenjang Murid';
+                    jenjangMap.forEach((label, kode) => {
+                        const opt = document.createElement('option');
+                        opt.value = kode;
+                        opt.textContent = label;
+                        grpJenjang.appendChild(opt);
+                    });
+                    rombelSelect.appendChild(grpJenjang);
+                }
+
+                // Spesifik Rombel / Kelas
+                if (kelasMap.size > 0) {
+                    const grpKelas = document.createElement('optgroup');
+                    grpKelas.label = 'Spesifik Rombel / Kelas Murid';
+                    kelasMap.forEach((nama, id) => {
+                        const opt = document.createElement('option');
+                        opt.value = 'kelas_' + id;
+                        opt.textContent = nama;
+                        grpKelas.appendChild(opt);
+                    });
+                    rombelSelect.appendChild(grpKelas);
+                }
+
+                if (currentRombelVal && rombelSelect.querySelector(`option[value="${currentRombelVal}"]`)) {
+                    rombelSelect.value = currentRombelVal;
+                } else {
+                    rombelSelect.value = 'all';
+                }
+            }
+
+            filterMuridListAdmin();
+            updateSelectedMuridCounterAdmin();
+        }
+
         function filterMuridListAdmin() {
+            const tutorSelectVal = document.getElementById('modalTutorIdAdmin')?.value || '';
+            if (!tutorSelectVal) return;
+
             const filterRombel = document.getElementById('pickerFilterRombelAdmin')?.value || 'all';
             const searchVal = (document.getElementById('pickerSearchMuridAdmin')?.value || '').toLowerCase().trim();
-            const tutorSelectVal = document.getElementById('modalTutorIdAdmin')?.value || '';
-
             const items = document.querySelectorAll('#muridPickerContainerAdmin .murid-picker-item');
 
             items.forEach(item => {
+                const itemTutorId = item.getAttribute('data-tutor-id');
+                if (String(itemTutorId) !== String(tutorSelectVal)) {
+                    item.style.display = 'none';
+                    return;
+                }
+
                 const itemKelasId = item.getAttribute('data-kelas-id');
                 const itemJenjang = item.getAttribute('data-jenjang');
-                const itemTutorId = item.getAttribute('data-tutor-id');
                 const itemNama = item.getAttribute('data-nama') || '';
                 const itemAbsen = item.getAttribute('data-absen') || '';
 
                 let matchRombel = true;
-                if (filterRombel === 'bimbingan_tutor') {
-                    matchRombel = (tutorSelectVal !== '' && String(itemTutorId) === String(tutorSelectVal));
-                } else if (filterRombel.startsWith('kelas_')) {
+                if (filterRombel.startsWith('kelas_')) {
                     const targetKelasId = filterRombel.replace('kelas_', '');
                     matchRombel = (String(itemKelasId) === String(targetKelasId));
                 } else if (filterRombel !== 'all') {
@@ -2053,16 +2354,14 @@
                     inLokasi.value = lokasiId || '';
                 }
 
-                modal.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
+                modal.classList.add('active');
             }
         }
 
         function tutupModalRescheduleAdmin() {
             const modal = document.getElementById('modalRescheduleAdmin');
             if (modal) {
-                modal.style.display = 'none';
-                document.body.style.overflow = '';
+                modal.classList.remove('active');
             }
         }
 
@@ -2161,6 +2460,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
+            onTutorChangeAdmin(true);
             updateSelectedMuridCounterAdmin();
             setScheduleModeAdmin({{ old('is_recurring') === '1' ? 'true' : 'false' }});
 

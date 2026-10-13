@@ -115,9 +115,9 @@
                             </span>
                         </div>
                         <div class="magangInfoItem">
-                            <span class="magangInfoItemLbl">NISN / NIK</span>
+                            <span class="magangInfoItemLbl">NIS / NISN</span>
                             <span class="magangInfoItemVal">
-                                {{ $murid->nisn ?? ($user->nik ?? '-') }}
+                                {{ $murid->nis ? $murid->nis . ($murid->nisn ? ' / ' . $murid->nisn : '') : ($murid->nisn ?? ($user->nik ?? '-')) }}
                             </span>
                         </div>
                         <div class="magangInfoItem">

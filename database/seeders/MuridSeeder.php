@@ -36,6 +36,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Ari Tri Agusta',
                 'tingkat' => '1',
                 'tutor_id' => $tutorSendi,
+                'nis' => null,
+                'nisn' => null,
                 'is_abk' => false,
             ],
             [
@@ -43,6 +45,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Rafardhan Izzatul Ibad Barliant',
                 'tingkat' => '2',
                 'tutor_id' => $tutorTary,
+                'nis' => '25070090',
+                'nisn' => '3174248579',
                 'is_abk' => false,
             ],
             [
@@ -50,6 +54,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Reiya Arfan Faizan',
                 'tingkat' => '2',
                 'tutor_id' => $tutorTary,
+                'nis' => '26040106',
+                'nisn' => '3183215853',
                 'is_abk' => false,
             ],
             [
@@ -57,6 +63,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Gelvan Purwo Yonanta',
                 'tingkat' => '3',
                 'tutor_id' => $tutorTary,
+                'nis' => '26040107',
+                'nisn' => '3180297643',
                 'is_abk' => false,
             ],
             [
@@ -64,13 +72,17 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Zefa Aryan Pranata Indra',
                 'tingkat' => '3',
                 'tutor_id' => $tutorTary,
+                'nis' => '25090097',
+                'nisn' => '3167270518',
                 'is_abk' => false,
             ],
             [
                 'no_absen' => 6,
                 'nama_murid' => 'Muhammad Rianza Fariz',
                 'tingkat' => '4',
-                'tutor_id' => $tutorInka, // Pindahan Kak Dara -> Kak Inka
+                'tutor_id' => $tutorInka, // Tutor pengampu: Kak Inka
+                'nis' => '23070080',
+                'nisn' => '3167684838',
                 'is_abk' => false,
             ],
             [
@@ -78,6 +90,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Ratu Hazel Kevamouza',
                 'tingkat' => '4',
                 'tutor_id' => $tutorSendi,
+                'nis' => '26040108',
+                'nisn' => '3170169549',
                 'is_abk' => false,
             ],
             [
@@ -85,6 +99,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Treivenn Wee',
                 'tingkat' => '4',
                 'tutor_id' => $tutorInka,
+                'nis' => '26010105',
+                'nisn' => '3168612555',
                 'is_abk' => false,
             ],
             [
@@ -92,6 +108,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Violeta Yasmin',
                 'tingkat' => '5',
                 'tutor_id' => $tutorWina,
+                'nis' => '26040109',
+                'nisn' => '3141214948',
                 'is_abk' => false,
             ],
             [
@@ -99,6 +117,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Muhammad Gibran Al Mughni',
                 'tingkat' => '6',
                 'tutor_id' => $tutorWina,
+                'nis' => '24070082',
+                'nisn' => '3134281675',
                 'is_abk' => false,
             ],
 
@@ -108,13 +128,17 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Raeesa Qamra Ramandita',
                 'tingkat' => '8',
                 'tutor_id' => $tutorTary,
+                'nis' => '26010104',
+                'nisn' => null,
                 'is_abk' => false,
             ],
             [
                 'no_absen' => 12,
                 'nama_murid' => 'Audric Sebastian Tiago',
                 'tingkat' => '9',
-                'tutor_id' => $tutorInka, // Pindahan Kak Dara -> Kak Inka
+                'tutor_id' => $tutorSendi, // Tutor pengampu: Kak Sendi
+                'nis' => '25090096',
+                'nisn' => '0113131545',
                 'is_abk' => false,
             ],
 
@@ -124,6 +148,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Andrean Nur Rauf',
                 'tingkat' => '10',
                 'tutor_id' => null, // Program Mandiri
+                'nis' => null,
+                'nisn' => '0095161665',
                 'is_abk' => false,
             ],
             [
@@ -131,6 +157,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Muhammad Labibul Akmal',
                 'tingkat' => '10',
                 'tutor_id' => $tutorNailul,
+                'nis' => '25070092',
+                'nisn' => '0095569642',
                 'is_abk' => false,
             ],
             [
@@ -138,6 +166,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Sandi Agung Pamungkas',
                 'tingkat' => '10',
                 'tutor_id' => null, // Program Mandiri
+                'nis' => null,
+                'nisn' => '9987568925',
                 'is_abk' => false,
             ],
             [
@@ -145,6 +175,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Arini Ulvy Khairunnisa',
                 'tingkat' => '11',
                 'tutor_id' => $tutorWina,
+                'nis' => '25080095',
+                'nisn' => '0093023125',
                 'is_abk' => false,
             ],
             [
@@ -152,6 +184,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Najmi Abyakta Wiguna',
                 'tingkat' => '11',
                 'tutor_id' => $tutorInka,
+                'nis' => '26010103',
+                'nisn' => '0091949940',
                 'is_abk' => false,
             ],
             [
@@ -159,6 +193,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Raihan Bestari Putra',
                 'tingkat' => '11',
                 'tutor_id' => $tutorNailul,
+                'nis' => '23020061',
+                'nisn' => '0079455858',
                 'is_abk' => false,
             ],
             [
@@ -166,6 +202,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Shakira Aurasatriani Muhaimin',
                 'tingkat' => '11',
                 'tutor_id' => $tutorTary,
+                'nis' => '25060089',
+                'nisn' => '0107082312',
                 'is_abk' => false,
             ],
             [
@@ -173,6 +211,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Alika Futhri Azkiatunnisa',
                 'tingkat' => '12',
                 'tutor_id' => $tutorInka,
+                'nis' => '25070091',
+                'nisn' => '0097796769',
                 'is_abk' => false,
             ],
             [
@@ -180,6 +220,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Felicia Nuni Morozin',
                 'tingkat' => '12',
                 'tutor_id' => $tutorTary,
+                'nis' => '24070081',
+                'nisn' => '3087962498',
                 'is_abk' => false,
             ],
             [
@@ -187,6 +229,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Melody Saisha Galenina Satyanagh',
                 'tingkat' => '12',
                 'tutor_id' => $tutorSendi,
+                'nis' => '24070084',
+                'nisn' => '0086828897',
                 'is_abk' => false,
             ],
             [
@@ -194,6 +238,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Muhammad Akasyah Nur Zaidan',
                 'tingkat' => '12',
                 'tutor_id' => $tutorInka,
+                'nis' => '22120059',
+                'nisn' => '0074596517',
                 'is_abk' => false,
             ],
             [
@@ -201,6 +247,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Thalyta Nayla Putri Nugraha',
                 'tingkat' => '12',
                 'tutor_id' => $tutorInka,
+                'nis' => '25060088',
+                'nisn' => '0085845008',
                 'is_abk' => false,
             ],
             [
@@ -208,6 +256,8 @@ class MuridSeeder extends Seeder
                 'nama_murid' => 'Zahira Fatina Putri Erwina',
                 'tingkat' => '12',
                 'tutor_id' => $tutorDani,
+                'nis' => '24070085',
+                'nisn' => '3096843185',
                 'is_abk' => false,
             ],
 
@@ -303,6 +353,8 @@ class MuridSeeder extends Seeder
                 ['no_absen' => $data['no_absen']],
                 [
                     'nama_murid' => $data['nama_murid'],
+                    'nis' => $data['nis'] ?? null,
+                    'nisn' => $data['nisn'] ?? null,
                     'kelas_id' => $kelasId,
                     'tutor_id' => $data['tutor_id'],
                     'is_abk' => $data['is_abk'],

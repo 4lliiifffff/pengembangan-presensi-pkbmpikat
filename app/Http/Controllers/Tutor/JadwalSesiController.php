@@ -120,6 +120,7 @@ class JadwalSesiController extends Controller
             ->count();
 
         $siswas = Siswa::with(['relKelas.jenjangPaket', 'tutor'])
+            ->where('tutor_id', $tutor->id)
             ->where(function ($q) {
                 $q->where('status_murid', 'aktif')
                     ->orWhereNull('status_murid');
@@ -128,7 +129,8 @@ class JadwalSesiController extends Controller
             ->orderBy('nama_murid')
             ->get();
         $murids = $siswas;
-        $kelasList = kelas::with('jenjangPaket')->orderBy('nama_kelas')->get();
+        $tutorKelasIds = $siswas->pluck('kelas_id')->filter()->unique();
+        $kelasList = kelas::whereIn('id', $tutorKelasIds)->with('jenjangPaket')->orderBy('nama_kelas')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 
@@ -173,6 +175,19 @@ class JadwalSesiController extends Controller
         }
         $siswaIds = array_values(array_filter(array_unique(array_map('intval', $siswaIds))));
         $request->merge(['siswa_ids' => $siswaIds]);
+
+        if (! empty($siswaIds)) {
+            $unassignedMuridCount = Siswa::whereIn('id', $siswaIds)
+                ->where(function ($q) use ($tutor) {
+                    $q->whereNull('tutor_id')->orWhere('tutor_id', '!=', $tutor->id);
+                })
+                ->count();
+            if ($unassignedMuridCount > 0) {
+                return back()->withInput()->withErrors([
+                    'siswa_ids' => 'Anda hanya dapat menjadwalkan murid bimbingan yang Anda ampu.',
+                ]);
+            }
+        }
 
         // Sanitasi input awal: 'custom' atau kosong dijadikan null
         $rawKategori = $request->input('kategori_tutorial_id');

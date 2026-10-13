@@ -101,7 +101,7 @@ class JadwalRutinAndPresensiGatingTest extends TestCase
             'keterangan' => 'KBM Rutin Selasa Siswa Rutin Test',
         ]);
 
-        $storeResponse->assertRedirect(route('admin.jadwal-rutin.index'));
+        $storeResponse->assertRedirect(route('admin.jadwal.index', ['tab' => 'rutin']));
         $storeResponse->assertSessionHas('success');
 
         $this->assertDatabaseHas('jadwal_rutin', [

@@ -242,7 +242,15 @@
                                 {{ $murids->firstItem() + $index }}
                             </td>
                             <td class="font-bold text-dark">
-                                {{ $murid->no_absen ?? '-' }}
+                                @if($murid->nis)
+                                    <div>{{ $murid->nis }}</div>
+                                    <span class="text-xs text-muted font-normal d-block">Absen #{{ $murid->no_absen }}</span>
+                                @else
+                                    <div>#{{ $murid->no_absen ?? '-' }}</div>
+                                @endif
+                                @if($murid->nisn)
+                                    <div class="text-xs text-muted font-mono">NISN: {{ $murid->nisn }}</div>
+                                @endif
                             </td>
                             <td class="font-extrabold text-dark">
                                 {{ $murid->nama_murid }}
@@ -330,7 +338,11 @@
                 <div class="dmc-header">
                     <div>
                         <h3 class="dmc-title">{{ $murid->nama_murid }}</h3>
-                        <div class="dmc-subtitle">Absen / NIS: {{ $murid->no_absen ?? '-' }}</div>
+                        <div class="dmc-subtitle">
+                            Absen #{{ $murid->no_absen ?? '-' }}
+                            @if($murid->nis) &bull; NIS: {{ $murid->nis }} @endif
+                            @if($murid->nisn) &bull; NISN: {{ $murid->nisn }} @endif
+                        </div>
                     </div>
                     <div class="flex-col gap-1 flex-items-end">
                         <span class="app-badge badge-status-{{ $murid->status_murid }}">

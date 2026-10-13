@@ -191,6 +191,21 @@ class JadwalSesiKbmController extends Controller
         $siswaIds = array_values(array_filter(array_unique(array_map('intval', $siswaIds))));
         $request->merge(['siswa_ids' => $siswaIds]);
 
+        $tutorIdInput = (int) $request->input('tutor_id');
+        if (! empty($siswaIds) && ! empty($tutorIdInput)) {
+            $unassignedMuridCount = Siswa::whereIn('id', $siswaIds)
+                ->where(function ($q) use ($tutorIdInput) {
+                    $q->whereNull('tutor_id')->orWhere('tutor_id', '!=', $tutorIdInput);
+                })
+                ->count();
+
+            if ($unassignedMuridCount > 0) {
+                return back()->withInput()->withErrors([
+                    'siswa_ids' => 'Terdapat murid yang dipilih bukan merupakan murid bimbingan yang diampu oleh tutor pengampu terpilih.',
+                ]);
+            }
+        }
+
         // Sanitasi input awal: 'custom' atau kosong dijadikan null
         $rawKategori = $request->input('kategori_tutorial_id');
         if ($rawKategori === 'custom' || $rawKategori === '' || $rawKategori === '0') {

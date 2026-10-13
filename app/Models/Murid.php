@@ -34,6 +34,8 @@ class Murid extends Model
     protected $fillable = [
         'user_id',      // Foreign key ke akun login murid (tabel users)
         'no_absen',     // Nomor Absen Murid
+        'nis',          // Nomor Induk Siswa (NIS)
+        'nisn',         // Nomor Induk Siswa Nasional (NISN)
         'nama_murid',   // Nama lengkap murid
         'nama_siswa',   // Alias backward compatibility
         'is_abk',       // Status Anak Berkebutuhan Khusus (ABK)

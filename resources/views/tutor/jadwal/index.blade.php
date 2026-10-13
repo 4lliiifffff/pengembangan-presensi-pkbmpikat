@@ -70,22 +70,22 @@
                             dan evaluasi jam masuk foto Anda.</p>
                     @endif
                 </div>
-                <div class="laporanHeaderActions header-actions-group">
+                <div class="laporanHeaderActions header-actions-group {{ $activeTab === 'rutin' ? '' : 'has-three-actions' }}">
                     @if ($activeTab === 'rutin')
                         <button type="button" onclick="bukaModalJadwalBaru(true)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Pola Rutin
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Pola Rutin</span>
                         </button>
                     @else
                         <a href="{{ route('tutor.jadwal.export', ['tanggal' => $selectedDate->toDateString()]) }}"
                             class="profileBtnPrimary btn-action-success" title="Ekspor Jadwal Bulan Ini ke Excel">
-                            <ion-icon name="download-outline" class="icon-sm"></ion-icon> Export Excel
+                            <ion-icon name="download-outline" class="icon-sm"></ion-icon> <span>Export</span>
                         </a>
                         <button type="button" onclick="bukaModalImportJadwal()" class="profileBtnPrimary btn-action-info"
                             title="Import Jadwal KBM dari Berkas Excel">
-                            <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> Import Excel
+                            <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> <span>Import</span>
                         </button>
                         <button type="button" onclick="bukaModalJadwalBaru(false)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Buat Jadwal Belajar
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Buat Jadwal</span>
                         </button>
                     @endif
                 </div>
@@ -93,13 +93,7 @@
         </div>
 
         {{-- ── Alert Notifikasi Flash & Error Validasi ── --}}
-        @if (session('success'))
-            <div
-                class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-success bg-success-subtle text-success text-sm d-flex items-center gap-2">
-                <ion-icon name="checkmark-circle-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
-                <span>{{ session('success') }}</span>
-            </div>
-        @endif
+
 
         @if (session('warning'))
             <div
@@ -200,7 +194,7 @@
                             </div>
                         </div>
 
-                        <div class="mobile-card-list" style="display: flex !important; gap: 12px;">
+                        <div class="mobile-card-list">
                             @foreach ($jadwalRutins as $rutin)
                                 @php
                                     $hariSlug = strtolower((string) $rutin->hari);
@@ -686,7 +680,7 @@
                             </div>
                         </div>
 
-                        <div class="mobile-card-list" style="display: flex !important; gap: 12px;">
+                        <div class="mobile-card-list">
                             @foreach($sesiHariIni as $sesi)
                                 @php $sesiMurid = $sesi->murid ?? $sesi->siswa; @endphp
                                 <div class="data-mobile-card">
@@ -799,8 +793,8 @@
 
                                         <div class="dmc-actions">
                                             @if($sesi->status === 'terjadwal')
-                                                <a href="{{ route('tutor.presensi', ['jadwal_sesi_id' => $sesi->id]) }}" class="profileBtnPrimary text-xs py-1 px-3">
-                                                    <ion-icon name="camera-outline"></ion-icon> Absen Sesi Ini
+                                                <a href="{{ route('tutor.presensi', ['jadwal_sesi_id' => $sesi->id]) }}" class="smallBtn btn-action-success text-xs">
+                                                    <ion-icon name="camera-outline"></ion-icon> Absen
                                                 </a>
 
                                                 <button type="button"
@@ -841,7 +835,6 @@
                         <div class="emptyAgendaIcon">
                             <ion-icon name="school-outline"></ion-icon>
                         </div>
-                        <div class="emptyAgendaTitle">Belum Ada Sesi KBM Terjadwal</div>
                         <div class="emptyAgendaDesc">Tidak ada agenda sesi belajar mengajar dengan murid pada
                             <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
                         <div class="mt-3">
@@ -858,9 +851,8 @@
 
     {{-- ══════════════════════════════════════════════════════════════ --}}
     {{-- ── MODAL 1: BUAT JADWAL BELAJAR BARU (RUTIN ATAU SINGLE) ── --}}
-    {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalJadwalBaru" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalJadwalBaru()">
-        <div class="navDrawerSheet max-w-lg mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-lg mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -873,255 +865,240 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                @if ($errors->any() && !$errors->has('file_excel'))
-                    <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
-                        <div class="font-bold d-flex items-center gap-1 mb-1">
-                            <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali data jadwal berikut:
-                        </div>
-                        <ul class="mb-0 ps-3">
-                            @foreach ($errors->all() as $err)
-                                <li>{{ $err }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+            <form method="POST" action="{{ route('tutor.jadwal.store') }}" id="formTambahJadwal" class="navDrawerForm" onsubmit="return validateMuridSelection(event)">
+                @csrf
 
-                <form method="POST" action="{{ route('tutor.jadwal.store') }}" id="formTambahJadwal" onsubmit="return validateMuridSelection(event)">
-                    @csrf
+                <div class="navDrawerScrollBody">
+                    @if ($errors->any() && !$errors->has('file_excel'))
+                        <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
+                            <div class="font-bold d-flex items-center gap-1 mb-1">
+                                <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali data jadwal berikut:
+                            </div>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->all() as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
 
                     {{-- Mode Switcher: Rutin vs Single --}}
-                    <div class="p-2 bg-card-alt rounded-xl border-base mb-3 d-flex gap-1">
+                    <div class="p-1.5 bg-card-alt rounded-xl border-base mb-3 d-flex gap-1">
                         <label
-                            class="cursor-pointer flex-1 text-center py-2 px-3 rounded-lg text-xs font-bold transition-all"
+                            class="cursor-pointer flex-1 text-center py-2 px-2 rounded-lg text-xs font-bold transition-all d-flex items-center justify-center gap-1"
                             id="labelModeRutin" onclick="setScheduleMode(true)">
                             <input type="radio" name="is_recurring" id="radioModeRutin" value="1" class="d-none" {{ old('is_recurring') === '1' ? 'checked' : '' }}>
-                            <ion-icon name="repeat-outline"></ion-icon> Ulangi Setiap Minggu (Rutin)
+                            <ion-icon name="repeat-outline"></ion-icon> <span>Rutin Mingguan</span>
                         </label>
                         <label
-                            class="cursor-pointer flex-1 text-center py-2 px-3 rounded-lg text-xs font-bold transition-all"
+                            class="cursor-pointer flex-1 text-center py-2 px-2 rounded-lg text-xs font-bold transition-all d-flex items-center justify-center gap-1"
                             id="labelModeSingle" onclick="setScheduleMode(false)">
                             <input type="radio" name="is_recurring" id="radioModeSingle" value="0" class="d-none" {{ old('is_recurring', '0') === '0' ? 'checked' : '' }}>
-                            <ion-icon name="calendar-outline"></ion-icon> Hanya Tanggal Ini (Sekali)
+                            <ion-icon name="calendar-outline"></ion-icon> <span>Sekali Belajar</span>
                         </label>
                     </div>
 
-                    {{-- Field: Multi-Murid & Rombel Picker --}}
-                    <div class="form-field-wrapper mb-3">
-                        <div class="murid-picker-header mb-1">
-                            <label class="filterFieldLabel m-0">
-                                Pilih Murid Diajar <span class="text-danger">*</span>
-                                <span class="text-xs text-muted font-normal">(Bisa pilih lebih dari 1 murid)</span>
-                            </label>
-                            <span id="selectedMuridCounter" class="murid-picker-badge-counter">
-                                <ion-icon name="people-outline"></ion-icon>
-                                <span id="selectedCountText">0 murid terpilih</span>
-                            </span>
+                    {{-- ── CARD 1: MURID DIAJAR & ROMBEL ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="people-outline"></ion-icon>
+                            <span>Murid Diajar &amp; Rombel Bimbingan</span>
                         </div>
 
-                        <div class="murid-picker-toolbar mb-2">
-                            {{-- Filter Berdasarkan Rombel / Kelas --}}
-                            <select id="pickerFilterRombel" class="murid-picker-filter-select" onchange="filterMuridList()">
-                                <option value="all">-- Semua Rombel & Jenjang --</option>
-                                <option value="bimbingan_saya">★ Murid Bimbingan Saya Saja</option>
-                                <optgroup label="Kelompok Jenjang">
-                                    <option value="paket_a">Semua Paket A (Setara SD)</option>
-                                    <option value="paket_b">Semua Paket B (Setara SMP)</option>
-                                    <option value="paket_c">Semua Paket C (Setara SMA)</option>
-                                    <option value="vokasi">Semua Vokasi / Kursus</option>
-                                </optgroup>
-                                @if(isset($kelasList) && $kelasList->isNotEmpty())
-                                    <optgroup label="Spesifik Rombel / Kelas">
-                                        @foreach($kelasList as $k)
-                                            <option value="kelas_{{ $k->id }}">{{ $k->nama_kelas }}</option>
-                                        @endforeach
-                                    </optgroup>
-                                @endif
-                            </select>
-
-                            {{-- Input Pencarian Nama --}}
-                            <input type="text" id="pickerSearchMurid" class="murid-picker-search"
-                                placeholder="Cari nama / no. absen..." oninput="filterMuridList()">
-
-                            {{-- Aksi Cepat Pilih --}}
-                            <div class="murid-picker-actions">
-                                <button type="button" class="btn-picker-action" onclick="selectAllVisibleMurid(true)"
-                                    title="Pilih semua murid yang sedang tampil di filter ini">
-                                    <ion-icon name="checkmark-done-outline"></ion-icon>
-                                    <span>Pilih Semua di Rombel</span>
-                                </button>
-                                <button type="button" class="btn-picker-action btn-picker-clear" onclick="selectAllVisibleMurid(false)"
-                                    title="Batalkan pilihan murid terpilih">
-                                    <ion-icon name="close-outline"></ion-icon>
-                                    <span>Batal</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Kotak Checklist Murid --}}
-                        <div class="murid-picker-container" id="muridPickerContainer">
-                            @php
-                                $oldSiswaIds = old('siswa_ids', old('siswa_id') ? [old('siswa_id')] : []);
-                                if (!is_array($oldSiswaIds)) {
-                                    $oldSiswaIds = [$oldSiswaIds];
-                                }
-                            @endphp
-                            @forelse($siswas as $s)
-                                @php
-                                    $isBimbingan = ($s->tutor_id == $tutor->id);
-                                    $jenjangKode = $s->jenjang_paket ?? 'umum';
-                                    $namaMurid = $s->nama_murid ?? $s->nama_siswa ?? 'Murid';
-                                    $initial = strtoupper(substr($namaMurid, 0, 1));
-                                    $isChecked = in_array($s->id, $oldSiswaIds);
-                                    $badgeClass = match($jenjangKode) {
-                                        'paket_a' => 'badge-paket-a',
-                                        'paket_b' => 'badge-paket-b',
-                                        'paket_c' => 'badge-paket-c',
-                                        default => '',
-                                    };
-                                @endphp
-                                <label class="murid-picker-item {{ $isChecked ? 'is-checked' : '' }}"
-                                    id="muridItem_{{ $s->id }}"
-                                    data-kelas-id="{{ $s->kelas_id }}"
-                                    data-jenjang="{{ $jenjangKode }}"
-                                    data-is-bimbingan="{{ $isBimbingan ? '1' : '0' }}"
-                                    data-nama="{{ strtolower($namaMurid) }}"
-                                    data-absen="{{ strtolower((string)$s->no_absen) }}">
-                                    <input type="checkbox" name="siswa_ids[]" value="{{ $s->id }}"
-                                        class="murid-picker-checkbox"
-                                        {{ $isChecked ? 'checked' : '' }}
-                                        onchange="onMuridCheckboxChange(this)">
-                                    
-                                    <div class="murid-picker-avatar">
-                                        {{ $initial }}
-                                    </div>
-
-                                    <div class="murid-picker-info">
-                                        <div class="murid-picker-name">
-                                            {{ $namaMurid }}
-                                        </div>
-                                        <div class="murid-picker-meta">
-                                            @if($s->no_absen)
-                                                <span class="murid-picker-badge-rombel">No. {{ $s->no_absen }}</span>
-                                            @endif
-                                            <span class="murid-picker-badge-rombel {{ $badgeClass }}">
-                                                {{ $s->nama_kelas_lengkap ?? $s->jenjang_paket_label }}
-                                            </span>
-                                            @if($isBimbingan)
-                                                <span class="murid-picker-badge-bimbingan">Bimbingan Saya</span>
-                                            @endif
-                                            @if($s->is_abk)
-                                                <span class="murid-picker-badge-rombel" style="background:#fff1f2; color:#be123c; border-color:#fecdd3;">ABK</span>
-                                            @endif
-                                        </div>
-                                    </div>
+                        {{-- Multi-Murid & Rombel Picker --}}
+                        <div class="form-field-wrapper">
+                            <div class="murid-picker-header mb-1">
+                                <label class="filterFieldLabel m-0">
+                                    Pilih Murid Diajar <span class="text-danger">*</span>
+                                    <span class="text-xs text-muted font-normal">(Bisa pilih &gt;1 murid)</span>
                                 </label>
-                            @empty
-                                <div class="p-4 text-center text-muted text-xs">
-                                    Belum ada data murid aktif.
+                                <span id="selectedMuridCounter" class="murid-picker-badge-counter">
+                                    <ion-icon name="people-outline"></ion-icon>
+                                    <span id="selectedCountText">0 murid terpilih</span>
+                                </span>
+                            </div>
+
+                            <div class="murid-picker-toolbar mb-2">
+                                @php
+                                    $availableJenjang = $siswas->map(fn($s) => $s->jenjang_paket ?? $s->relKelas?->jenjangPaket?->kode)->filter()->unique();
+                                @endphp
+                                <select id="pickerFilterRombel" class="murid-picker-filter-select" onchange="filterMuridList()">
+                                    <option value="all">-- Semua Rombel &amp; Jenjang Bimbingan ({{ $siswas->count() }}) --</option>
+                                    @if($availableJenjang->isNotEmpty())
+                                        <optgroup label="Kelompok Jenjang">
+                                            @if($availableJenjang->contains('paket_a'))
+                                                <option value="paket_a">Semua Paket A (Setara SD)</option>
+                                            @endif
+                                            @if($availableJenjang->contains('paket_b'))
+                                                <option value="paket_b">Semua Paket B (Setara SMP)</option>
+                                            @endif
+                                            @if($availableJenjang->contains('paket_c'))
+                                                <option value="paket_c">Semua Paket C (Setara SMA)</option>
+                                            @endif
+                                            @if($availableJenjang->contains('vokasi'))
+                                                <option value="vokasi">Semua Vokasi / Kursus</option>
+                                            @endif
+                                        </optgroup>
+                                    @endif
+                                    @if(isset($kelasList) && $kelasList->isNotEmpty())
+                                        <optgroup label="Spesifik Rombel / Kelas">
+                                            @foreach($kelasList as $k)
+                                                <option value="kelas_{{ $k->id }}">{{ $k->nama_kelas }}</option>
+                                            @endforeach
+                                        </optgroup>
+                                    @endif
+                                </select>
+
+                                <input type="text" id="pickerSearchMurid" class="murid-picker-search"
+                                    placeholder="Cari nama / no. absen..." oninput="filterMuridList()">
+
+                                <div class="murid-picker-actions">
+                                    <button type="button" class="btn-picker-action" onclick="selectAllVisibleMurid(true)"
+                                        title="Pilih semua murid yang sedang tampil di filter ini">
+                                        <ion-icon name="checkmark-done-outline"></ion-icon>
+                                        <span>Pilih Semua</span>
+                                    </button>
+                                    <button type="button" class="btn-picker-action btn-picker-clear" onclick="selectAllVisibleMurid(false)"
+                                        title="Batalkan pilihan murid terpilih">
+                                        <ion-icon name="close-outline"></ion-icon>
+                                        <span>Batal</span>
+                                    </button>
                                 </div>
-                            @endforelse
-                        </div>
-
-                        {{-- Pesan error validasi frontend jika belum ada yang dicentang saat submit --}}
-                        <div id="muridPickerError" class="text-xs text-danger font-semibold mt-1 d-none">
-                            <ion-icon name="alert-circle-outline"></ion-icon> Silakan pilih minimal 1 murid untuk dijadwalkan.
-                        </div>
-                    </div>
-
-                    {{-- Form Bagian A: Jika Mode Rutin Mingguan --}}
-                    <div id="sectionRutin" class="d-none">
-                        <div class="form-field-wrapper mb-3">
-                            <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
-                            <select name="hari" id="modalHari" class="filterSelect">
-                                <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin
-                                </option>
-                                <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa
-                                </option>
-                                <option value="rabu" {{ old('hari') === 'rabu' ? 'selected' : '' }}>Setiap Hari Rabu</option>
-                                <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis
-                                </option>
-                                <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat
-                                </option>
-                                <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu
-                                </option>
-                                <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu
-                                </option>
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Berlaku Mulai</label>
-                                <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}"
-                                    class="profileInput">
-                            </div>
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Berlaku Sampai (Bulan/Tanggal Selesai)</label>
-                                <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}"
-                                    class="profileInput" placeholder="Pilih batas tanggal">
-                                <span class="field-help-text">Kosongkan jika terus berlanjut tanpa batas.</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Form Bagian B: Jika Mode Single Sesi --}}
-                    <div id="sectionSingle">
-                        <div class="form-field-wrapper mb-3">
-                            <label class="filterFieldLabel">Jenis Sesi <span class="text-danger">*</span></label>
-                            <select name="jenis_sesi" id="modalJenisSesi" onchange="toggleTanggalAsli()"
-                                class="filterSelect">
-                                <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler
-                                </option>
-                                <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi
-                                    Pengganti (Make-up Class / Reschedule)</option>
-                                <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi
-                                    Tambahan / Pengayaan</option>
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Tanggal Rencana <span class="text-danger">*</span></label>
-                                <input type="date" name="tanggal_rencana" id="modalTanggalRencana"
-                                    value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}"
-                                    class="profileInput">
                             </div>
 
-                            <div class="form-field-wrapper d-none" id="boxTanggalAsli">
-                                <label class="filterFieldLabel">Menggantikan Sesi Tanggal</label>
-                                <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}"
-                                    class="profileInput">
-                                <span class="field-help-text">Tanggal sesi semula yang dilewati.</span>
+                            <div class="murid-picker-container" id="muridPickerContainer">
+                                @php
+                                    $oldSiswaIds = old('siswa_ids', old('siswa_id') ? [old('siswa_id')] : []);
+                                    if (!is_array($oldSiswaIds)) {
+                                        $oldSiswaIds = [$oldSiswaIds];
+                                    }
+                                @endphp
+                                @forelse($siswas as $s)
+                                    @php
+                                        $isBimbingan = ($s->tutor_id == $tutor->id);
+                                        $jenjangKode = $s->jenjang_paket ?? 'umum';
+                                        $namaMurid = $s->nama_murid ?? $s->nama_siswa ?? 'Murid';
+                                        $initial = strtoupper(substr($namaMurid, 0, 1));
+                                        $isChecked = in_array($s->id, $oldSiswaIds);
+                                        $badgeClass = match($jenjangKode) {
+                                            'paket_a' => 'badge-paket-a',
+                                            'paket_b' => 'badge-paket-b',
+                                            'paket_c' => 'badge-paket-c',
+                                            default => '',
+                                        };
+                                    @endphp
+                                    <label class="murid-picker-item {{ $isChecked ? 'is-checked' : '' }}"
+                                        id="muridItem_{{ $s->id }}"
+                                        data-kelas-id="{{ $s->kelas_id }}"
+                                        data-jenjang="{{ $jenjangKode }}"
+                                        data-is-bimbingan="{{ $isBimbingan ? '1' : '0' }}"
+                                        data-nama="{{ strtolower($namaMurid) }}"
+                                        data-absen="{{ strtolower((string)$s->no_absen) }}">
+                                        <input type="checkbox" name="siswa_ids[]" value="{{ $s->id }}"
+                                            class="murid-picker-checkbox"
+                                            {{ $isChecked ? 'checked' : '' }}
+                                            onchange="onMuridCheckboxChange(this)">
+                                        
+                                        <div class="murid-picker-avatar">
+                                            {{ $initial }}
+                                        </div>
+
+                                        <div class="murid-picker-info">
+                                            <div class="murid-picker-name">
+                                                {{ $namaMurid }}
+                                            </div>
+                                            <div class="murid-picker-meta">
+                                                @if($s->no_absen)
+                                                    <span class="murid-picker-badge-rombel">No. {{ $s->no_absen }}</span>
+                                                @endif
+                                                <span class="murid-picker-badge-rombel {{ $badgeClass }}">
+                                                    {{ $s->nama_kelas_lengkap ?? $s->jenjang_paket_label }}
+                                                </span>
+                                                @if($isBimbingan)
+                                                    <span class="murid-picker-badge-bimbingan">Bimbingan Saya</span>
+                                                @endif
+                                                @if($s->is_abk)
+                                                    <span class="murid-picker-badge-rombel" style="background:#fff1f2; color:#be123c; border-color:#fecdd3;">ABK</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </label>
+                                @empty
+                                    <div class="p-4 text-center text-muted text-xs">
+                                        <ion-icon name="people-outline" style="font-size: 24px; opacity: 0.6; display: block; margin: 0 auto 6px; color: #d97706;"></ion-icon>
+                                        <span>Belum ada murid bimbingan aktif yang ditugaskan kepada Anda. Hubungi Admin/Kepsek untuk pembagian rombel murid.</span>
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            <div id="muridPickerError" class="text-xs text-danger font-semibold mt-1 d-none">
+                                <ion-icon name="alert-circle-outline"></ion-icon> Silakan pilih minimal 1 murid untuk dijadwalkan.
                             </div>
                         </div>
                     </div>
 
-                    {{-- Kategori SK --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Kategori Tutorial SK <span
-                                class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
-                        <select name="kategori_tutorial_id" id="modalKategoriTutorial" onchange="kategoriUniversalChange()"
-                            class="filterSelect">
-                            <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
-                            @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}"
-                                    data-nominal="{{ $kat->nominal_honor }}" {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
-                                    {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull;
-                                    {{ $kat->formatted_nominal_honor }})
-                                </option>
-                            @endforeach
-                            <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi
-                                Khusus (Belum Diatur SK) --</option>
-                        </select>
-                    </div>
-
-                    {{-- Jam Belajar & Durasi (Dipakai kedua mode) --}}
-                    <div class="p-3 bg-card-alt rounded-xl border-base mb-3">
-                        <div class="text-xs font-bold uppercase tracking-wider text-muted mb-2">
-                            <ion-icon name="time-outline"></ion-icon> Jam Belajar &amp; Durasi KBM
+                    {{-- ── CARD 2: WAKTU & TANGGAL PEMBELAJARAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Waktu &amp; Tanggal Pembelajaran</span>
                         </div>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+                        {{-- Mode Rutin Mingguan --}}
+                        <div id="sectionRutin" class="d-none">
+                            <div class="form-field-wrapper mb-3">
+                                <label class="filterFieldLabel">Hari Belajar Mingguan <span class="text-danger">*</span></label>
+                                <select name="hari" id="modalHari" class="filterSelect">
+                                    <option value="senin" {{ old('hari') === 'senin' ? 'selected' : '' }}>Setiap Hari Senin</option>
+                                    <option value="selasa" {{ old('hari') === 'selasa' ? 'selected' : '' }}>Setiap Hari Selasa</option>
+                                    <option value="rabu" {{ old('hari') === 'rabu' ? 'selected' : '' }}>Setiap Hari Rabu</option>
+                                    <option value="kamis" {{ old('hari') === 'kamis' ? 'selected' : '' }}>Setiap Hari Kamis</option>
+                                    <option value="jumat" {{ old('hari') === 'jumat' ? 'selected' : '' }}>Setiap Hari Jumat</option>
+                                    <option value="sabtu" {{ old('hari') === 'sabtu' ? 'selected' : '' }}>Setiap Hari Sabtu</option>
+                                    <option value="minggu" {{ old('hari') === 'minggu' ? 'selected' : '' }}>Setiap Hari Minggu</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 mb-3">
+                                <div class="form-field-wrapper">
+                                    <label class="filterFieldLabel">Berlaku Mulai</label>
+                                    <input type="date" name="berlaku_mulai" value="{{ old('berlaku_mulai', date('Y-m-d')) }}" class="profileInput">
+                                </div>
+                                <div class="form-field-wrapper">
+                                    <label class="filterFieldLabel">Berlaku Sampai</label>
+                                    <input type="date" name="berlaku_sampai" value="{{ old('berlaku_sampai') }}" class="profileInput" placeholder="Pilih batas tanggal">
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Mode Single Sesi --}}
+                        <div id="sectionSingle">
+                            <div class="form-field-wrapper mb-3">
+                                <label class="filterFieldLabel">Jenis Sesi <span class="text-danger">*</span></label>
+                                <select name="jenis_sesi" id="modalJenisSesi" onchange="toggleTanggalAsli()" class="filterSelect">
+                                    <option value="reguler" {{ old('jenis_sesi') === 'reguler' ? 'selected' : '' }}>Sesi Reguler</option>
+                                    <option value="pengganti" {{ old('jenis_sesi') === 'pengganti' ? 'selected' : '' }}>Sesi Pengganti (Make-up Class / Reschedule)</option>
+                                    <option value="tambahan" {{ old('jenis_sesi') === 'tambahan' ? 'selected' : '' }}>Sesi Tambahan / Pengayaan</option>
+                                </select>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                                <div class="form-field-wrapper">
+                                    <label class="filterFieldLabel">Tanggal Rencana <span class="text-danger">*</span></label>
+                                    <input type="date" name="tanggal_rencana" id="modalTanggalRencana"
+                                        value="{{ old('tanggal_rencana', $selectedDate->format('Y-m-d')) }}" class="profileInput">
+                                </div>
+
+                                <div class="form-field-wrapper d-none" id="boxTanggalAsli">
+                                    <label class="filterFieldLabel">Menggantikan Sesi Tanggal</label>
+                                    <input type="date" name="tanggal_asli" value="{{ old('tanggal_asli') }}" class="profileInput">
+                                    <span class="field-help-text">Tanggal sesi semula yang dilewati.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Jam Belajar (2 Kolom Berdampingan di Mobile) --}}
+                        <div class="grid grid-cols-2 gap-2 mb-2">
                             <div class="form-field-wrapper">
                                 <label class="filterFieldLabel">Jam Mulai <span class="text-danger">*</span></label>
                                 <input type="time" name="jam_masuk" id="modalJamMasukRutin"
@@ -1140,67 +1117,90 @@
                                     value="{{ old('jam_pulang_rencana', '12:00') }}" onchange="hitungDurasiUniversal(false)"
                                     class="profileInput" required>
                             </div>
-                            <div class="form-field-wrapper">
-                                <label class="filterFieldLabel">Durasi (Jam)</label>
+                        </div>
+
+                        {{-- Durasi Jam Ringkas --}}
+                        <div class="d-flex items-center justify-between p-2.5 rounded-xl bg-card border-base mb-3 text-xs">
+                            <span class="text-muted d-flex items-center gap-1.5 font-semibold">
+                                <ion-icon name="time-outline" class="text-primary"></ion-icon> Durasi Pembelajaran:
+                            </span>
+                            <div class="d-flex items-center gap-1">
                                 <input type="number" step="0.25" min="0.5" max="12" name="durasi_jam"
-                                    id="modalDurasiUniversal" value="{{ old('durasi_jam', '2.00') }}" class="profileInput"
-                                    readonly style="background: var(--card);">
+                                    id="modalDurasiUniversal" value="{{ old('durasi_jam', '2.00') }}"
+                                    class="text-xs font-bold text-primary text-end border-0 p-0 m-0 bg-transparent" style="width: 48px;" readonly>
+                                <span class="font-bold text-primary">Jam</span>
                             </div>
                         </div>
 
+                        {{-- Kategori SK --}}
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Kategori Tutorial SK <span class="text-xs text-muted font-normal">(Standar Tarif Resmi)</span></label>
+                            <select name="kategori_tutorial_id" id="modalKategoriTutorial" onchange="kategoriUniversalChange()" class="filterSelect">
+                                <option value="">-- Pilih Kategori SK (Otomatis Atur Jam) --</option>
+                                @foreach($kategoriTutorials as $kat)
+                                    <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}"
+                                        data-nominal="{{ $kat->nominal_honor }}" {{ (string) old('kategori_tutorial_id') === (string) $kat->id ? 'selected' : '' }}>
+                                        {{ $kat->nama_kategori }} ({{ $kat->durasi_jam }} Jam &bull; {{ $kat->formatted_nominal_honor }})
+                                    </option>
+                                @endforeach
+                                <option value="custom" {{ old('kategori_tutorial_id') === 'custom' ? 'selected' : '' }}>-- Durasi Khusus (Belum Diatur SK) --</option>
+                            </select>
+                        </div>
+
                         {{-- Alert Callout Interaktif Jika Durasi Non-SK --}}
-                        <div id="boxWarningNonSk" class="mt-3 p-3 rounded-xl d-none"
+                        <div id="boxWarningNonSk" class="mt-2.5 p-3 rounded-xl d-none"
                             style="background: rgba(217, 119, 6, 0.08); border: 1px solid rgba(217, 119, 6, 0.25);">
                             <div class="d-flex items-start gap-2">
-                                <ion-icon name="alert-circle-outline"
-                                    style="font-size: 20px; color: #d97706; flex-shrink: 0; margin-top: 1px;"></ion-icon>
-                                <div class="text-xs" style="color: var(--text); line-height: 1.5;">
-                                    <strong style="color: #d97706;">Durasi Non-SK (<span id="labelDurasiNonSk">0</span>
-                                        Jam):</strong>
-                                    Durasi ini belum terdaftar dalam SK Tarif Resmi PKBM. Sesi ini akan ditandai untuk
-                                    verifikasi Admin/Kepsek, dan kompensasi honorarium akan mengikuti tarif flat default SK
-                                    terdekat (Rp 75.000,-). Hubungi Admin jika memerlukan SK tarif khusus.
+                                <ion-icon name="alert-circle-outline" style="font-size: 18px; color: #d97706; flex-shrink: 0; margin-top: 1px;"></ion-icon>
+                                <div class="text-xs" style="color: var(--text); line-height: 1.4;">
+                                    <strong style="color: #d97706;">Durasi Non-SK (<span id="labelDurasiNonSk">0</span> Jam):</strong>
+                                    Durasi ini belum terdaftar dalam SK Tarif PKBM. Sesi ini akan ditandai verifikasi honorarium flat default.
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3" id="boxAlasanSingle">
-                        <label class="filterFieldLabel">Keterangan / Alasan Reschedule</label>
-                        <input type="text" name="alasan_penggantian"
-                            placeholder="Misal: Permintaan orang tua, persiapan ujian, dsb." class="profileInput">
-                    </div>
+                    {{-- ── CARD 3: LOKASI & CATATAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Catatan Tambahan</span>
+                        </div>
 
-                    {{-- Titik Lokasi Presensi KBM (Geofence GPS) --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Presensi KBM <span
-                                class="text-xs text-muted font-normal">(Titik Geofence Absen)</span></label>
-                        <select name="lokasi_presensi_id" id="modalLokasiPresensi" class="filterSelect">
-                            <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
-                            @foreach($lokasiPresensis as $lok)
-                                <option value="{{ $lok->id }}" {{ (string) old('lokasi_presensi_id') === (string) $lok->id ? 'selected' : '' }}>
-                                    {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
-                                </option>
-                            @endforeach
-                        </select>
-                        <span class="field-help-text">Jika dipilih, presensi tutor dan murid akan diarahkan dan dilacak pada
-                            radius koordinat titik ini.</span>
-                    </div>
+                        <div class="form-field-wrapper mb-3" id="boxAlasanSingle">
+                            <label class="filterFieldLabel">Keterangan / Alasan Reschedule</label>
+                            <input type="text" name="alasan_penggantian"
+                                placeholder="Misal: Permintaan orang tua, persiapan ujian, dsb." class="profileInput">
+                        </div>
 
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Catatan Tambahan (Opsional)</label>
-                        <textarea name="catatan" rows="2" placeholder="Catatan materi atau lokasi KBM..."
-                            class="profileInput" style="height: auto;"></textarea>
-                    </div>
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Presensi KBM <span class="text-xs text-muted font-normal">(Geofence Absen)</span></label>
+                            <select name="lokasi_presensi_id" id="modalLokasiPresensi" class="filterSelect">
+                                <option value="">-- Lokasi Default PKBM / Sesuai Murid --</option>
+                                @foreach($lokasiPresensis as $lok)
+                                    <option value="{{ $lok->id }}" {{ (string) old('lokasi_presensi_id') === (string) $lok->id ? 'selected' : '' }}>
+                                        {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalJadwalBaru()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="save-outline"></ion-icon> Simpan Jadwal Belajar
-                        </button>
+                        <div class="form-field-wrapper">
+                            <label class="filterFieldLabel">Catatan Tambahan (Opsional)</label>
+                            <textarea name="catatan" rows="2" placeholder="Catatan materi atau petunjuk KBM..."
+                                class="profileInput" style="height: auto;"></textarea>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                {{-- ── DOCKED STICKY ACTION FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalJadwalBaru()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="checkmark-done-outline"></ion-icon> Simpan Jadwal Belajar
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1208,7 +1208,7 @@
     {{-- ── MODAL 2: RESCHEDULE SESI BELAJAR (OPSI 2) ── --}}
     {{-- ══════════════════════════════════════════════════════════════ --}}
     <div id="modalRescheduleSesi" class="navDrawerBackdrop" onclick="if(event.target === this) tutupModalReschedule()">
-        <div class="navDrawerSheet max-w-md mx-auto" onclick="event.stopPropagation()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
             <div class="navDrawerHandle"></div>
 
             <div class="navDrawerHeader">
@@ -1221,10 +1221,10 @@
                 </button>
             </div>
 
-            <div class="navDrawerBody">
-                <form id="formReschedule" method="POST" action="">
-                    @csrf
+            <form id="formReschedule" method="POST" action="" class="navDrawerForm">
+                @csrf
 
+                <div class="navDrawerScrollBody">
                     <div class="info-callout-box mb-3">
                         <div class="info-callout-title">
                             <span>Sesi yang Direschedule</span>
@@ -1233,60 +1233,70 @@
                             -
                         </div>
                         <div class="text-xs text-muted mt-1">
-                            Sesi pada tanggal lama akan berstatus <strong>Dibatalkan</strong> (dengan alasan), dan sesi
-                            pengganti baru akan dicatat pada tanggal/jam baru.
+                            Sesi pada tanggal lama akan berstatus <strong>Dibatalkan</strong>, dan sesi pengganti baru akan dicatat pada tanggal/jam baru.
                         </div>
                     </div>
 
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Tanggal Baru Hasil Reschedule <span
-                                class="text-danger">*</span></label>
-                        <input type="date" name="tanggal_baru" id="rescheduleTanggalBaru" class="profileInput" required>
+                    {{-- ── WAKTU BARU ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Jadwal &amp; Jam Belajar Baru</span>
+                        </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Tanggal Baru Hasil Reschedule <span class="text-danger">*</span></label>
+                            <input type="date" name="tanggal_baru" id="rescheduleTanggalBaru" class="profileInput" required>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Mulai Baru <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_masuk_baru" id="rescheduleJamMasuk" class="profileInput" required>
+                            </div>
+                            <div class="form-field-wrapper">
+                                <label class="filterFieldLabel">Jam Selesai Baru <span class="text-danger">*</span></label>
+                                <input type="time" name="jam_pulang_baru" id="rescheduleJamPulang" class="profileInput" required>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-2 mb-3">
+                    {{-- ── LOKASI & ALASAN ── --}}
+                    <div class="modal-section-card">
+                        <div class="modal-section-header">
+                            <ion-icon name="location-outline"></ion-icon>
+                            <span>Lokasi &amp; Alasan Reschedule</span>
+                        </div>
+
+                        <div class="form-field-wrapper mb-3">
+                            <label class="filterFieldLabel">Titik Lokasi Presensi KBM (Opsional)</label>
+                            <select name="lokasi_presensi_id" id="rescheduleLokasiPresensi" class="filterSelect">
+                                <option value="">-- Tetap Gunakan Titik Semula / Default --</option>
+                                @foreach($lokasiPresensis as $lok)
+                                    <option value="{{ $lok->id }}">
+                                        {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Jam Mulai Baru <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_masuk_baru" id="rescheduleJamMasuk" class="profileInput" required>
-                        </div>
-                        <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Jam Selesai Baru <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_pulang_baru" id="rescheduleJamPulang" class="profileInput"
-                                required>
+                            <label class="filterFieldLabel">Alasan Pemindahan / Reschedule <span class="text-danger">*</span></label>
+                            <textarea name="alasan_penggantian" rows="2"
+                                placeholder="Contoh: Murid sedang sakit demam, diganti hari Sabtu..." class="profileInput"
+                                style="height: auto;" required></textarea>
                         </div>
                     </div>
+                </div>
 
-                    {{-- Titik Lokasi Presensi KBM (Reschedule) --}}
-                    <div class="form-field-wrapper mb-3">
-                        <label class="filterFieldLabel">Titik Lokasi Presensi KBM (Opsional)</label>
-                        <select name="lokasi_presensi_id" id="rescheduleLokasiPresensi" class="filterSelect">
-                            <option value="">-- Tetap Gunakan Titik Semula / Default --</option>
-                            @foreach($lokasiPresensis as $lok)
-                                <option value="{{ $lok->id }}">
-                                    {{ $lok->nama_lokasi }} (Radius: {{ $lok->radius_meter }}m)
-                                </option>
-                            @endforeach
-                        </select>
-                        <span class="field-help-text">Ganti titik koordinat presensi jika sesi pengganti diadakan di lokasi
-                            berbeda.</span>
-                    </div>
-
-                    <div class="form-field-wrapper mb-4">
-                        <label class="filterFieldLabel">Alasan Pemindahan / Reschedule <span
-                                class="text-danger">*</span></label>
-                        <textarea name="alasan_penggantian" rows="2"
-                            placeholder="Contoh: Murid sedang sakit demam, diganti hari Sabtu..." class="profileInput"
-                            style="height: auto;" required></textarea>
-                    </div>
-
-                    <div class="d-flex justify-end gap-2 border-t-base pt-3">
-                        <button type="button" onclick="tutupModalReschedule()" class="btnOutline">Batal</button>
-                        <button type="submit" class="profileBtnPrimary">
-                            <ion-icon name="repeat-outline"></ion-icon> Konfirmasi Reschedule
-                        </button>
-                    </div>
-                </form>
-            </div>
+                {{-- ── DOCKED STICKY ACTION FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalReschedule()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
+                        <ion-icon name="repeat-outline"></ion-icon> Konfirmasi Reschedule
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1543,7 +1553,7 @@
         function bukaModalImportJadwal() {
             const modal = document.getElementById('importJadwalModal');
             if (modal) {
-                modal.style.display = 'flex';
+                modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
             }
         }
@@ -1551,7 +1561,7 @@
         function tutupModalImportJadwal() {
             const modal = document.getElementById('importJadwalModal');
             if (modal) {
-                modal.style.display = 'none';
+                modal.classList.remove('active');
                 document.body.style.overflow = '';
             }
         }
@@ -1679,93 +1689,101 @@
     </script>
 
     {{-- ── MODAL IMPORT JADWAL SESI EXCEL ── --}}
-    <div id="importJadwalModal" class="app-modal-backdrop" style="display: none;"
-        onclick="if(event.target===this) tutupModalImportJadwal()">
-        <div class="app-modal-card">
-            <div class="app-modal-header">
-                <div class="app-modal-header-left">
-                    <div class="app-modal-badge-icon">
-                        <ion-icon name="calendar-outline"></ion-icon>
-                    </div>
-                    <div>
-                        <h3 class="app-modal-title m-0">Import Jadwal Sesi Mengajar</h3>
-                        <div class="text-xs text-muted">Format Spreadsheet Excel / CSV</div>
-                    </div>
+    <div id="importJadwalModal" class="navDrawerBackdrop" onclick="if(event.target===this) tutupModalImportJadwal()">
+        <div class="navDrawerSheet navDrawerSheetForm max-w-md mx-auto" onclick="event.stopPropagation()">
+            <div class="navDrawerHandle"></div>
+
+            <div class="navDrawerHeader">
+                <div class="navDrawerTitleWrap">
+                    <div class="navDrawerSub">Format Spreadsheet • Excel / CSV</div>
+                    <h3 class="navDrawerTitle">Import Jadwal Sesi Mengajar</h3>
                 </div>
-                <button type="button" onclick="tutupModalImportJadwal()" class="app-modal-close"
-                    title="Tutup">&times;</button>
+                <button type="button" class="navDrawerCloseBtn" onclick="tutupModalImportJadwal()" aria-label="Tutup">
+                    <ion-icon name="close"></ion-icon>
+                </button>
             </div>
 
-            <p class="app-modal-desc">
-                Unggah berkas jadwal KBM yang diekspor dari sistem lain (untuk satu bulan atau lebih). Sesi yang diimpor
-                otomatis masuk ke kalender, terhubung ke kamera presensi, dan <b>tetap bisa di-reschedule</b> kapan saja.
-            </p>
-
-            <div class="import-template-banner">
-                <div class="import-template-info">
-                    <div class="import-template-icon">
-                        <ion-icon name="cloud-download-outline"></ion-icon>
-                    </div>
-                    <div class="import-template-texts">
-                        <div class="import-template-title">Gunakan Template Format Excel</div>
-                        <div class="import-template-desc">Unduh format resmi untuk memastikan data tanggal, jam, dan murid
-                            terbaca tepat.</div>
-                    </div>
-                </div>
-                <a href="{{ route('tutor.jadwal.template') }}" class="btn-download-template"
-                    title="Download Template Jadwal Sesi">
-                    <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
-                </a>
-            </div>
-
-            @if ($errors->has('file_excel'))
-                <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
-                    <div class="font-bold d-flex items-center gap-1 mb-1">
-                        <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali berkas yang diunggah:
-                    </div>
-                    <ul class="mb-0 ps-3">
-                        @foreach ($errors->get('file_excel') as $err)
-                            <li>{{ $err }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form method="POST" action="{{ route('tutor.jadwal.import') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('tutor.jadwal.import') }}" enctype="multipart/form-data" class="navDrawerForm">
                 @csrf
-                <div class="form-field-wrapper mb-3">
-                    <label class="form-field-label">Pilih Berkas Excel / CSV Jadwal:</label>
-                    <div class="fileUploadBox">
-                        <input type="file" name="file_excel" id="jadwalSesiFileInput" accept=".xlsx,.xls,.csv" required
-                            onchange="handleExcelFileSelected(this, 'jadwalSesiFileFeedback')">
-                        <div class="fileUploadIcon">
-                            <ion-icon name="cloud-upload-outline"></ion-icon>
+
+                <div class="navDrawerScrollBody">
+                    <div class="info-callout-box mb-3">
+                        <div class="info-callout-title">
+                            <ion-icon name="information-circle-outline"></ion-icon>
+                            <span>Informasi Unggah Jadwal Sesi</span>
                         </div>
-                        <div class="fileUploadText">Pilih atau seret berkas Excel ke sini</div>
-                        <div class="fileUploadSubtext">
-                            <span class="fileUploadInfoPill"><ion-icon name="document-text-outline"></ion-icon> .XLSX, .XLS, .CSV</span>
-                            <span class="fileUploadInfoPill"><ion-icon name="hardware-chip-outline"></ion-icon> Maks. 5 MB</span>
+                        <div class="text-xs text-muted mt-1 leading-relaxed">
+                            Unggah berkas jadwal KBM yang diekspor dari sistem lain (untuk satu bulan atau lebih). Sesi yang diimpor otomatis masuk ke kalender, terhubung ke kamera presensi, dan <strong>tetap bisa di-reschedule</strong> kapan saja.
                         </div>
                     </div>
-                    <div id="jadwalSesiFileFeedback" class="fileUploadFeedback"></div>
-                </div>
 
-                <div class="p-3 mb-3 rounded-xl border border-blue bg-blue-subtle text-xs" style="color: var(--blue);">
-                    <div class="d-flex items-center gap-1 font-semibold mb-1">
-                        <ion-icon name="information-circle-outline" style="font-size: 16px;"></ion-icon>
-                        <span>Petunjuk Fleksibilitas Reschedule & Presensi</span>
+                    <div class="import-template-banner mb-3">
+                        <div class="import-template-info">
+                            <div class="import-template-icon">
+                                <ion-icon name="cloud-download-outline"></ion-icon>
+                            </div>
+                            <div class="import-template-texts">
+                                <div class="import-template-title font-semibold text-xs">Gunakan Template Format Excel</div>
+                                <div class="import-template-desc text-xs text-muted">Unduh format resmi untuk memastikan data tanggal, jam, dan murid terbaca tepat.</div>
+                            </div>
+                        </div>
+                        <a href="{{ route('tutor.jadwal.template') }}" class="btn-download-template mt-2 inline-flex items-center gap-1 text-xs"
+                            title="Download Template Jadwal Sesi">
+                            <ion-icon name="download-outline"></ion-icon> Unduh Template (.xlsx)
+                        </a>
                     </div>
-                    <ul class="m-0 ps-3">
-                        <li>Jadwal KBM 1 bulan atau lebih akan tercatat dengan status <b>Terjadwal</b>.</li>
-                        <li>Sesi otomatis muncul di halaman presensi kamera saat tanggal sesi tiba.</li>
-                        <li>Jika jadwal berubah, Anda dapat melakukan <b>Reschedule</b> langsung dari tombol di kalender.
-                        </li>
-                    </ul>
+
+                    @if ($errors->has('file_excel'))
+                        <div class="mb-3 p-3 rounded-xl bg-danger-subtle border border-danger text-danger text-xs">
+                            <div class="font-bold d-flex items-center gap-1 mb-1">
+                                <ion-icon name="alert-circle-outline"></ion-icon> Periksa kembali berkas yang diunggah:
+                            </div>
+                            <ul class="mb-0 ps-3">
+                                @foreach ($errors->get('file_excel') as $err)
+                                    <li>{{ $err }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    <div class="modal-section-card mb-3">
+                        <div class="modal-section-header">
+                            <ion-icon name="document-attach-outline"></ion-icon>
+                            <span>Pilih Berkas Spreadsheet</span>
+                        </div>
+
+                        <div class="fileUploadBox">
+                            <input type="file" name="file_excel" id="jadwalSesiFileInput" accept=".xlsx,.xls,.csv" required
+                                onchange="handleExcelFileSelected(this, 'jadwalSesiFileFeedback')">
+                            <div class="fileUploadIcon">
+                                <ion-icon name="cloud-upload-outline"></ion-icon>
+                            </div>
+                            <div class="fileUploadText">Pilih atau seret berkas Excel ke sini</div>
+                            <div class="fileUploadSubtext">
+                                <span class="fileUploadInfoPill"><ion-icon name="document-text-outline"></ion-icon> .XLSX, .XLS, .CSV</span>
+                                <span class="fileUploadInfoPill"><ion-icon name="hardware-chip-outline"></ion-icon> Maks. 5 MB</span>
+                            </div>
+                        </div>
+                        <div id="jadwalSesiFileFeedback" class="fileUploadFeedback"></div>
+                    </div>
+
+                    <div class="p-3 rounded-xl border border-blue bg-blue-subtle text-xs" style="color: var(--blue);">
+                        <div class="d-flex items-center gap-1 font-semibold mb-1">
+                            <ion-icon name="information-circle-outline" style="font-size: 16px;"></ion-icon>
+                            <span>Petunjuk Fleksibilitas</span>
+                        </div>
+                        <ul class="m-0 ps-3 leading-relaxed">
+                            <li>Jadwal KBM 1 bulan atau lebih akan tercatat dengan status <strong>Terjadwal</strong>.</li>
+                            <li>Sesi otomatis muncul di halaman presensi kamera saat tanggal sesi tiba.</li>
+                            <li>Jika jadwal berubah, Anda dapat melakukan <strong>Reschedule</strong> langsung dari kalender.</li>
+                        </ul>
+                    </div>
                 </div>
 
-                <div class="app-modal-footer">
-                    <button type="button" onclick="tutupModalImportJadwal()" class="btnOutline w-auto">Batal</button>
-                    <button type="submit" class="profileBtnPrimary w-auto">
+                {{-- ── DOCKED STICKY ACTION FOOTER ── --}}
+                <div class="navDrawerStickyFooter">
+                    <button type="button" onclick="tutupModalImportJadwal()" class="btnOutline">Batal</button>
+                    <button type="submit" class="profileBtnPrimary flex-1 justify-center">
                         <ion-icon name="cloud-upload-outline"></ion-icon> Unggah &amp; Impor Jadwal
                     </button>
                 </div>

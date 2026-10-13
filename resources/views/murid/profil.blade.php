@@ -106,9 +106,21 @@
                 Informasi Akademik & Rombel
             </div>
 
+            @if($murid?->nis)
             <div class="profileInfoRow">
-                <span class="profileInfoLabel">NISN / No. Absen / NIK</span>
-                <span class="profileInfoValue">{{ $murid?->nisn ?: ($murid?->no_absen ?: ($user->nik ?: '-')) }}</span>
+                <span class="profileInfoLabel">NIS (Nomor Induk Siswa)</span>
+                <span class="profileInfoValue font-mono font-bold">{{ $murid->nis }}</span>
+            </div>
+            @endif
+            @if($murid?->nisn)
+            <div class="profileInfoRow">
+                <span class="profileInfoLabel">NISN (Dapodik)</span>
+                <span class="profileInfoValue font-mono font-bold">{{ $murid->nisn }}</span>
+            </div>
+            @endif
+            <div class="profileInfoRow">
+                <span class="profileInfoLabel">Nomor Absen / Akun</span>
+                <span class="profileInfoValue font-mono">#{{ $murid?->no_absen ?: ($user->nik ?: '-') }}</span>
             </div>
             <div class="profileInfoRow">
                 <span class="profileInfoLabel">Kelas (Rombel)</span>

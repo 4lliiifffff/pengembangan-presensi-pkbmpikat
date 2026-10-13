@@ -142,13 +142,13 @@
 
                     {{-- Username / NIK / Email --}}
                     <div class="login-field">
-                        <label for="username" class="login-label">Username, NIK, atau Email</label>
+                        <label for="username" class="login-label">Username, NIK, NIS/NISN, atau Email</label>
                         <div class="login-input-group">
                             <span class="login-input-icon">
                                 <ion-icon name="person-outline"></ion-icon>
                             </span>
                             <input type="text" name="username" id="username" class="login-input"
-                                placeholder="Contoh: 12345, username, atau email" value="{{ old('username') }}"
+                                placeholder="Contoh: NIS, NISN, NIK, atau email" value="{{ old('username') }}"
                                 autocomplete="username" inputmode="text" enterkeyhint="next" required autofocus />
                         </div>
                         <!-- <div class="d-flex align-items-center gap-1 mt-1 text-muted" style="font-size: 0.75rem;">

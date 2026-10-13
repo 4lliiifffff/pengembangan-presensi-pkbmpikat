@@ -101,8 +101,10 @@ class AuthWebController extends Controller
             $padded3 = str_pad($cleanNo, 3, '0', STR_PAD_LEFT);
             $padded4 = str_pad($cleanNo, 4, '0', STR_PAD_LEFT);
 
-            // Cari di tabel Murid / Siswa
-            $murid = Murid::where('no_absen', $username)
+            // Cari di tabel Murid / Siswa berdasarkan NIS, NISN, atau variasi No Absen
+            $murid = Murid::where('nis', $username)
+                ->orWhere('nisn', $username)
+                ->orWhere('no_absen', $username)
                 ->orWhere('no_absen', $extracted)
                 ->orWhere('no_absen', $cleanNo)
                 ->orWhere('no_absen', $padded3)

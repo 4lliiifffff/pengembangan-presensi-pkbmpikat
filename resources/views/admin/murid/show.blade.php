@@ -41,8 +41,8 @@
                 </div>
             </div>
             <div class="text-right">
-                <span class="form-field-label mb-1">NOMOR ABSEN / NIS</span>
-                <span class="icon-sm font-extrabold text-dark">{{ $murid->no_absen ?? '-' }}</span>
+                <span class="form-field-label mb-1">NOMOR ABSEN</span>
+                <span class="icon-sm font-extrabold text-dark">#{{ $murid->no_absen ?? '-' }}</span>
             </div>
         </div>
 
@@ -50,6 +50,16 @@
             <div class="card-sub-alt">
                 <div class="form-field-label mb-1">NAMA LENGKAP MURID</div>
                 <div class="text-md font-bold text-dark">{{ $murid->nama_murid }}</div>
+            </div>
+
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">NOMOR INDUK SISWA (NIS)</div>
+                <div class="text-md font-bold text-dark font-mono">{{ $murid->nis ?? '-' }}</div>
+            </div>
+
+            <div class="card-sub-alt">
+                <div class="form-field-label mb-1">NISN (DAPODIK)</div>
+                <div class="text-md font-bold text-dark font-mono">{{ $murid->nisn ?? '-' }}</div>
             </div>
 
             <div class="card-sub-alt">

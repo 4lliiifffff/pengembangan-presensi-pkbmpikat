@@ -35,8 +35,18 @@
 
             <div class="form-grid-responsive">
                 <div class="form-field-wrapper">
-                    <label class="filterFieldLabel">NOMOR ABSEN / NIS <span class="text-danger">*</span></label>
-                    <input class="profileInput" type="text" name="no_absen" value="{{ old('no_absen') }}" placeholder="Contoh: 101" required />
+                    <label class="filterFieldLabel">NOMOR ABSEN <span class="text-danger">*</span></label>
+                    <input class="profileInput" type="text" name="no_absen" value="{{ old('no_absen') }}" placeholder="Contoh: 1, 2, dll." required />
+                </div>
+
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">NOMOR INDUK SISWA (NIS)</label>
+                    <input class="profileInput" type="text" name="nis" value="{{ old('nis') }}" placeholder="Contoh: 25070090" />
+                </div>
+
+                <div class="form-field-wrapper">
+                    <label class="filterFieldLabel">NISN (DAPODIK)</label>
+                    <input class="profileInput" type="text" name="nisn" value="{{ old('nisn') }}" placeholder="Contoh: 3174248579" />
                 </div>
 
                 <div class="form-field-wrapper">

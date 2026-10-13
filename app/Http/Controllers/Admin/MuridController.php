@@ -50,6 +50,8 @@ class MuridController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('nama_murid', 'like', "%{$search}%")
                     ->orWhere('no_absen', 'like', "%{$search}%")
+                    ->orWhere('nis', 'like', "%{$search}%")
+                    ->orWhere('nisn', 'like', "%{$search}%")
                     ->orWhere('nama_wali', 'like', "%{$search}%")
                     ->orWhereHas('tutor', function ($tq) use ($search) {
                         $tq->where('nama_lengkap', 'like', "%{$search}%");
@@ -107,6 +109,8 @@ class MuridController extends Controller
 
         $validated = $request->validate([
             'no_absen' => ['required', 'string', 'max:50', 'unique:murid,no_absen'],
+            'nis' => ['nullable', 'string', 'max:50'],
+            'nisn' => ['nullable', 'string', 'max:50'],
             'nama_murid' => ['required', 'string', 'max:120'],
             'status_murid' => ['nullable', 'string', 'in:aktif,alumni,cuti,nonaktif'],
             'is_abk' => ['nullable', 'boolean'],
@@ -179,6 +183,8 @@ class MuridController extends Controller
                 'max:50',
                 Rule::unique('murid', 'no_absen')->ignore($murid->id),
             ],
+            'nis' => ['nullable', 'string', 'max:50'],
+            'nisn' => ['nullable', 'string', 'max:50'],
             'nama_murid' => ['required', 'string', 'max:120'],
             'status_murid' => ['nullable', 'string', 'in:aktif,alumni,cuti,nonaktif'],
             'is_abk' => ['nullable', 'boolean'],
