@@ -135,8 +135,10 @@
                                 <ion-icon name="calendar-outline"></ion-icon>
                             </div>
                         </div>
-                        <div class="kpi-value">{{ $stats['total'] }}</div>
-                        <div class="kpi-sub">{{ $selectedDate->translatedFormat('d M Y') }}</div>
+                        <div>
+                            <div class="kpi-val">{{ $stats['total'] }}</div>
+                            <div class="kpi-sub">{{ $selectedDate->translatedFormat('d M Y') }}</div>
+                        </div>
                     </div>
 
                     <div class="kpi-card blue">
@@ -146,8 +148,10 @@
                                 <ion-icon name="checkmark-done-circle-outline"></ion-icon>
                             </div>
                         </div>
-                        <div class="kpi-value">{{ $stats['selesai'] }}</div>
-                        <div class="kpi-sub">KBM terlaksana</div>
+                        <div>
+                            <div class="kpi-val">{{ $stats['selesai'] }}</div>
+                            <div class="kpi-sub">KBM terlaksana</div>
+                        </div>
                     </div>
 
                     <div class="kpi-card amber">
@@ -157,8 +161,10 @@
                                 <ion-icon name="time-outline"></ion-icon>
                             </div>
                         </div>
-                        <div class="kpi-value">{{ $stats['terjadwal'] }}</div>
-                        <div class="kpi-sub">Belum / sedang berlangsung</div>
+                        <div>
+                            <div class="kpi-val">{{ $stats['terjadwal'] }}</div>
+                            <div class="kpi-sub">Belum / sedang berlangsung</div>
+                        </div>
                     </div>
 
                     <div class="kpi-card rose">
@@ -168,8 +174,10 @@
                                 <ion-icon name="close-circle-outline"></ion-icon>
                             </div>
                         </div>
-                        <div class="kpi-value">{{ $stats['dibatalkan'] }}</div>
-                        <div class="kpi-sub">Sesi dipindahkan</div>
+                        <div>
+                            <div class="kpi-val">{{ $stats['dibatalkan'] }}</div>
+                            <div class="kpi-sub">Sesi dipindahkan</div>
+                        </div>
                     </div>
                 </div>
 

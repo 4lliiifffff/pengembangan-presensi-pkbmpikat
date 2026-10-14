@@ -42,7 +42,7 @@
             {{-- ── JAM REALTIME ── --}}
             <div class="clockCard">
                 <div class="clockLabel">WAKTU SAAT INI</div>
-                <div class="clockTime" id="clockTime">--:--:--</div>
+                <div class="clockTime" id="clockTime">{{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') }}</div>
                 <div class="clockTz">Waktu Indonesia Barat (WIB)</div>
             </div>
 
@@ -225,18 +225,22 @@
     <script>
         (function () {
             // ── Live clock ──
-            const el = document.getElementById('clockTime');
-            if (el) {
-                const fmt = new Intl.DateTimeFormat('id-ID', {
-                    timeZone: 'Asia/Jakarta',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
+            function updateLiveClock() {
+                const clockEl = document.getElementById('clockTime');
+                if (!clockEl) return;
+                const now = new Date();
+                const pad = (n) => String(n).padStart(2, '0');
+                clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    updateLiveClock();
+                    setInterval(updateLiveClock, 1000);
                 });
-                const tick = () => el.textContent = fmt.format(new Date());
-                tick();
-                setInterval(tick, 1000);
+            } else {
+                updateLiveClock();
+                setInterval(updateLiveClock, 1000);
             }
 
             // ── Countdown sisa waktu absen pulang (hanya jika status proses) ──

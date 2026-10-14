@@ -9160,7 +9160,8 @@ textarea {
     color: #475569;
 }
 
-.kpi-val {
+.kpi-val,
+.kpi-value {
     font-size: 26px;
     font-weight: 800;
     line-height: 1.1;
@@ -9168,43 +9169,53 @@ textarea {
     margin-bottom: 4px;
 }
 
-.kpi-card.emerald .kpi-val {
+.kpi-card.emerald .kpi-val,
+.kpi-card.emerald .kpi-value {
     color: #059669;
 }
 
-.kpi-card.blue .kpi-val {
+.kpi-card.blue .kpi-val,
+.kpi-card.blue .kpi-value {
     color: #0284c7;
 }
 
-.kpi-card.cyan .kpi-val {
+.kpi-card.cyan .kpi-val,
+.kpi-card.cyan .kpi-value {
     color: #0891b2;
 }
 
-.kpi-card.indigo .kpi-val {
+.kpi-card.indigo .kpi-val,
+.kpi-card.indigo .kpi-value {
     color: #4f46e5;
 }
 
-.kpi-card.purple .kpi-val {
+.kpi-card.purple .kpi-val,
+.kpi-card.purple .kpi-value {
     color: #9333ea;
 }
 
-.kpi-card.amber .kpi-val {
+.kpi-card.amber .kpi-val,
+.kpi-card.amber .kpi-value {
     color: #d97706;
 }
 
-.kpi-card.orange .kpi-val {
+.kpi-card.orange .kpi-val,
+.kpi-card.orange .kpi-value {
     color: #ea580c;
 }
 
-.kpi-card.rose .kpi-val {
+.kpi-card.rose .kpi-val,
+.kpi-card.rose .kpi-value {
     color: #e11d48;
 }
 
-.kpi-card.teal .kpi-val {
+.kpi-card.teal .kpi-val,
+.kpi-card.teal .kpi-value {
     color: #0d9488;
 }
 
-.kpi-card.slate .kpi-val {
+.kpi-card.slate .kpi-val,
+.kpi-card.slate .kpi-value {
     color: #475569;
 }
 
@@ -9259,43 +9270,53 @@ textarea {
     color: #cbd5e1;
 }
 
-[data-theme="dark"] .kpi-card.emerald .kpi-val {
+[data-theme="dark"] .kpi-card.emerald .kpi-val,
+[data-theme="dark"] .kpi-card.emerald .kpi-value {
     color: #34d399;
 }
 
-[data-theme="dark"] .kpi-card.blue .kpi-val {
+[data-theme="dark"] .kpi-card.blue .kpi-val,
+[data-theme="dark"] .kpi-card.blue .kpi-value {
     color: #38bdf8;
 }
 
-[data-theme="dark"] .kpi-card.cyan .kpi-val {
+[data-theme="dark"] .kpi-card.cyan .kpi-val,
+[data-theme="dark"] .kpi-card.cyan .kpi-value {
     color: #22d3ee;
 }
 
-[data-theme="dark"] .kpi-card.indigo .kpi-val {
+[data-theme="dark"] .kpi-card.indigo .kpi-val,
+[data-theme="dark"] .kpi-card.indigo .kpi-value {
     color: #818cf8;
 }
 
-[data-theme="dark"] .kpi-card.purple .kpi-val {
+[data-theme="dark"] .kpi-card.purple .kpi-val,
+[data-theme="dark"] .kpi-card.purple .kpi-value {
     color: #c084fc;
 }
 
-[data-theme="dark"] .kpi-card.amber .kpi-val {
+[data-theme="dark"] .kpi-card.amber .kpi-val,
+[data-theme="dark"] .kpi-card.amber .kpi-value {
     color: #fbbf24;
 }
 
-[data-theme="dark"] .kpi-card.orange .kpi-val {
+[data-theme="dark"] .kpi-card.orange .kpi-val,
+[data-theme="dark"] .kpi-card.orange .kpi-value {
     color: #fb923c;
 }
 
-[data-theme="dark"] .kpi-card.rose .kpi-val {
+[data-theme="dark"] .kpi-card.rose .kpi-val,
+[data-theme="dark"] .kpi-card.rose .kpi-value {
     color: #fb7185;
 }
 
-[data-theme="dark"] .kpi-card.teal .kpi-val {
+[data-theme="dark"] .kpi-card.teal .kpi-val,
+[data-theme="dark"] .kpi-card.teal .kpi-value {
     color: #2dd4bf;
 }
 
-[data-theme="dark"] .kpi-card.slate .kpi-val {
+[data-theme="dark"] .kpi-card.slate .kpi-val,
+[data-theme="dark"] .kpi-card.slate .kpi-value {
     color: #cbd5e1;
 }
 
@@ -18164,5 +18185,352 @@ body.app-modal-open {
 @media (max-width: 480px) {
     .laporanHeaderActions {
         grid-template-columns: 1fr !important;
+    }
+}
+
+/* ==========================================================================
+   PRESENSI KARYAWAN, ADMIN & KEPSEK STANDARDIZED COMPONENTS
+   ========================================================================== */
+
+/* ── 1. Dashboard Personal Presensi Widget ── */
+.presensiPersonalRow {
+    display: grid;
+    grid-template-columns: minmax(280px, 1fr) 2fr;
+    gap: 16px;
+    padding: 0 16px 16px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+@media (min-width: 992px) {
+    .presensiPersonalRow {
+        padding: 0 24px 20px;
+        gap: 20px;
+    }
+}
+
+.todayAction {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+.btnPresensiCepat {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 15px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.btnPresensiCepat.masuk {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+}
+
+.btnPresensiCepat.masuk:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    color: #ffffff;
+}
+
+.btnPresensiCepat.pulang {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+}
+
+.btnPresensiCepat.pulang:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    color: #ffffff;
+}
+
+.badgeDone {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    font-size: 12.5px;
+    font-weight: 700;
+    border-radius: 9999px;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+@media (max-width: 900px) {
+    .presensiPersonalRow {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 0 16px 14px;
+    }
+
+    .todayCard {
+        flex-wrap: wrap;
+        padding: 14px 16px;
+    }
+
+    .todayAction {
+        width: 100%;
+        margin-top: 10px;
+    }
+
+    .btnPresensiCepat {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 16px;
+    }
+}
+
+/* ── 2. Halaman Presensi Pulang & Sesi Aktif ── */
+.pagePad.pulang-mode {
+    max-width: 580px;
+    transition: max-width 0.25s ease;
+}
+
+@media (min-width: 992px) {
+    .pagePad.pulang-mode {
+        max-width: 960px;
+        padding: 24px 24px calc(120px + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+.presensi-pulang-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+@media (min-width: 992px) {
+    .presensi-pulang-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        align-items: stretch;
+    }
+    .presensi-pulang-grid > .card {
+        margin-bottom: 0 !important;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.active-session-summary-card {
+    background: var(--card, #ffffff);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 18px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+.active-session-summary-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 100%;
+    background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+    border-radius: 4px 0 0 4px;
+}
+
+.session-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    background: var(--card-alt, #f8fafc);
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 12px 0;
+}
+
+.session-stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.session-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--muted, #64748b);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.session-stat-val {
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--dark, #0f172a);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pulse-dot-green {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: pulseGreen 1.8s infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes pulseGreen {
+    0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+    100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.session-info-lead {
+    font-size: 13px;
+    color: var(--muted, #64748b);
+    line-height: 1.5;
+    margin: 4px 0 10px;
+}
+
+.session-notice-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.18);
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+.session-notice-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.session-notice-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.session-notice-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--dark, #0f172a);
+    line-height: 1.3;
+    margin-bottom: 3px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.session-notice-title .notice-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 9999px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    line-height: 1.4;
+}
+
+.session-notice-text {
+    font-size: 11.5px;
+    color: var(--muted, #64748b);
+    line-height: 1.5;
+    margin: 0;
+    word-break: break-word;
+}
+
+.mapBox.pulang-mapbox {
+    min-height: 280px;
+}
+
+@media (max-width: 768px) {
+    .mapBox.pulang-mapbox {
+        min-height: 220px;
+        max-height: 250px;
+    }
+    .pulang-card-header {
+        padding-bottom: 12px;
+    }
+}
+
+@media (max-width: 640px) {
+    .pagePad.pulang-mode {
+        padding-left: 14px;
+        padding-right: 14px;
+    }
+    .active-session-summary-card {
+        padding: 14px 14px;
+        border-radius: 16px;
+        margin-bottom: 14px;
+    }
+    .session-stat-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 8px 12px;
+        margin: 10px 0;
+        border-radius: 12px;
+    }
+    .session-stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px dashed var(--border, #e2e8f0);
+    }
+    .session-stat-item:last-child {
+        border-bottom: none;
+    }
+    .session-stat-val {
+        font-size: 13px;
+        max-width: 58%;
+        text-align: right;
+    }
+}
+
+@media (max-width: 576px) {
+    .session-info-lead {
+        font-size: 12px;
+    }
+    .session-notice-box {
+        padding: 10px 12px;
+        gap: 10px;
+    }
+    .session-notice-icon {
+        width: 26px;
+        height: 26px;
+        font-size: 15px;
+    }
+    .session-notice-text {
+        font-size: 11px;
     }
 }

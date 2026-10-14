@@ -43,7 +43,7 @@
             {{-- ── JAM REALTIME ── --}}
             <div class="clockCard">
                 <div class="clockLabel">WAKTU SAAT INI</div>
-                <div class="clockTime" id="clockTime">--:--:--</div>
+                <div class="clockTime" id="clockTime">{{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') }}</div>
                 <div class="clockTz">Waktu Indonesia Barat (WIB)</div>
             </div>
 
@@ -247,8 +247,8 @@
         </div>
     </div>
 
-    @push('head')
-        <script>
+    <script>
+        (function () {
             function updateLiveClock() {
                 const clockEl = document.getElementById('clockTime');
                 if (!clockEl) return;
@@ -256,8 +256,16 @@
                 const pad = (n) => String(n).padStart(2, '0');
                 clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
             }
-            setInterval(updateLiveClock, 1000);
-            updateLiveClock();
-        </script>
-    @endpush
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    updateLiveClock();
+                    setInterval(updateLiveClock, 1000);
+                });
+            } else {
+                updateLiveClock();
+                setInterval(updateLiveClock, 1000);
+            }
+        })();
+    </script>
 @endsection

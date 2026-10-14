@@ -7,109 +7,7 @@
     $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Administrator'));
 @endphp
 
-@push('styles')
-    <style>
-        .presensiPersonalRow {
-            display: grid;
-            grid-template-columns: minmax(280px, 1fr) 2fr;
-            gap: 16px;
-            padding: 0 16px 16px;
-            width: 100%;
-            box-sizing: border-box;
-        }
 
-        @media (min-width: 992px) {
-            .presensiPersonalRow {
-                padding: 0 24px 20px;
-                gap: 20px;
-            }
-        }
-
-        .todayCard {
-            position: relative;
-        }
-
-        .todayAction {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-left: auto;
-            flex-shrink: 0;
-        }
-
-        .btnPresensiCepat {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            padding: 9px 15px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 700;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .btnPresensiCepat.masuk {
-            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-            color: #ffffff;
-        }
-
-        .btnPresensiCepat.masuk:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
-            color: #ffffff;
-        }
-
-        .btnPresensiCepat.pulang {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: #ffffff;
-        }
-
-        .btnPresensiCepat.pulang:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
-            color: #ffffff;
-        }
-
-        .badgeDone {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 14px;
-            background: rgba(16, 185, 129, 0.12);
-            color: #059669;
-            font-size: 12.5px;
-            font-weight: 700;
-            border-radius: 9999px;
-            border: 1px solid rgba(16, 185, 129, 0.25);
-        }
-
-        @media (max-width: 900px) {
-            .presensiPersonalRow {
-                grid-template-columns: 1fr;
-                gap: 12px;
-                padding: 0 16px 14px;
-            }
-
-            .todayCard {
-                flex-wrap: wrap;
-                padding: 14px 16px;
-            }
-
-            .todayAction {
-                width: 100%;
-                margin-top: 10px;
-            }
-
-            .btnPresensiCepat {
-                width: 100%;
-                justify-content: center;
-                padding: 10px 16px;
-            }
-        }
-    </style>
-@endpush
 
 @section('content')
     {{-- ── Header Card ── --}}
@@ -156,7 +54,7 @@
         {{-- JAM REALTIME --}}
         <div class="clockCard">
             <div class="clockLabel">WAKTU SAAT INI</div>
-            <div class="clockTime" id="clockTime">--:--:--</div>
+            <div class="clockTime" id="clockTime">{{ \Carbon\Carbon::now('Asia/Jakarta')->format('H:i:s') }}</div>
             <div class="clockTz">Waktu Indonesia Barat (WIB)</div>
         </div>
 
@@ -360,8 +258,8 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
+    <script>
+        (function () {
             function updateLiveClock() {
                 const clockEl = document.getElementById('clockTime');
                 if (!clockEl) return;
@@ -369,8 +267,16 @@
                 const pad = (n) => String(n).padStart(2, '0');
                 clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
             }
-            setInterval(updateLiveClock, 1000);
-            updateLiveClock();
-        </script>
-    @endpush
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    updateLiveClock();
+                    setInterval(updateLiveClock, 1000);
+                });
+            } else {
+                updateLiveClock();
+                setInterval(updateLiveClock, 1000);
+            }
+        })();
+    </script>
 @endsection
