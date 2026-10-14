@@ -73,7 +73,7 @@
                 <div class="laporanHeaderActions header-actions-group {{ $activeTab === 'rutin' ? '' : 'has-three-actions' }}">
                     @if ($activeTab === 'rutin')
                         <button type="button" onclick="bukaModalJadwalBaru(true)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Pola Rutin</span>
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>Pola Rutin</span>
                         </button>
                     @else
                         <a href="{{ route('tutor.jadwal.export', ['tanggal' => $selectedDate->toDateString()]) }}"
@@ -85,7 +85,7 @@
                             <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> <span>Import</span>
                         </button>
                         <button type="button" onclick="bukaModalJadwalBaru(false)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Buat Jadwal</span>
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>Buat Jadwal</span>
                         </button>
                     @endif
                 </div>
@@ -328,7 +328,7 @@
                             <button type="button" onclick="bukaModalJadwalBaru(true)"
                                 class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1"
                                 style="background: #059669;">
-                                <ion-icon name="add-circle-outline"></ion-icon> + Tambah Pola Rutin Sekarang
+                                <ion-icon name="add-circle-outline"></ion-icon> Tambah Pola Rutin Sekarang
                             </button>
                         </div>
                     </div>

@@ -14,12 +14,12 @@
                 <div class="laporanHeaderSub">Kelola data mahasiswa/siswa magang, masa periode, dan akun akses sistem</div>
                 <p class="laporanHeaderDesc">Pendaftaran peserta PKL, verifikasi instansi asal, monitoring log kehadiran, dan status keaktifan penugasan.</p>
             </div>
-            <div class="laporanHeaderActions">
-                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnPrimary btn-action-info">
-                    <ion-icon name="calendar-outline"></ion-icon> Monitoring Presensi
+            <div class="laporanHeaderActions header-actions-group">
+                <a href="{{ route('admin.magang.presensi') }}" class="profileBtnPrimary btn-action-info btn-header-action">
+                    <ion-icon name="calendar-outline"></ion-icon> <span>Monitoring Presensi</span>
                 </a>
-                <a href="{{ route('admin.magang.create') }}" class="profileBtnPrimary">
-                    <ion-icon name="add-circle-outline"></ion-icon> Tambah Peserta Magang
+                <a href="{{ route('admin.magang.create') }}" class="profileBtnPrimary btn-header-action">
+                    <ion-icon name="add-circle-outline"></ion-icon> <span>Tambah Peserta Magang</span>
                 </a>
             </div>
         </div>

@@ -49,14 +49,8 @@
                 </div>
                 <div class="laporanHeaderActions header-actions-group">
                     @if ($activeTab === 'rutin')
-                        <form action="{{ route('admin.jadwal.generateManualRutin') }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="profileBtnPrimary btn-action-info" title="Generate sesi kalender 4 minggu ke depan dari pola rutin">
-                                <ion-icon name="sync-outline" class="icon-sm"></ion-icon> <span>Generate 4 Pekan</span>
-                            </button>
-                        </form>
                         <button type="button" onclick="bukaModalJadwalAdmin(true)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Pola Rutin</span>
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>Pola Rutin</span>
                         </button>
                     @elseif ($activeTab === 'agenda')
                         <a href="{{ route('admin.jadwal.exportExcel') }}" class="profileBtnPrimary btn-action-success" title="Export Agenda ke Spreadsheet Excel">
@@ -66,14 +60,14 @@
                             <ion-icon name="cloud-upload-outline" class="icon-sm"></ion-icon> <span>Import Agenda</span>
                         </button>
                         <button type="button" onclick="bukaModalAgendaAdmin()" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Agenda PKBM</span>
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>Agenda PKBM</span>
                         </button>
                     @else
                         <button type="button" onclick="bukaModalJadwalAdmin(true)" class="profileBtnPrimary btn-action-info">
-                            <ion-icon name="repeat-outline" class="icon-sm"></ion-icon> <span>+ Pola Rutin</span>
+                            <ion-icon name="repeat-outline" class="icon-sm"></ion-icon> <span>Pola Rutin</span>
                         </button>
                         <button type="button" onclick="bukaModalJadwalAdmin(false)" class="profileBtnPrimary">
-                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>+ Buat Jadwal</span>
+                            <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> <span>Buat Jadwal</span>
                         </button>
                     @endif
                 </div>
@@ -759,7 +753,7 @@
                             <button type="button" onclick="bukaModalJadwalAdmin(true)"
                                 class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1"
                                 style="background: #059669;">
-                                <ion-icon name="add-circle-outline"></ion-icon> + Tambah Pola Rutin Sekarang
+                                <ion-icon name="add-circle-outline"></ion-icon> Tambah Pola Rutin Sekarang
                             </button>
                         </div>
                     </div>
@@ -982,7 +976,7 @@
                         <div class="emptyAgendaDesc">Belum ada agenda sekolah atau kegiatan akademik terjadwal pada <strong>{{ $selectedDate->translatedFormat('l, d F Y') }}</strong>.</div>
                         <div class="mt-3">
                             <button type="button" onclick="bukaModalAgendaAdmin()" class="profileBtnPrimary text-xs py-2 px-4 d-inline-flex items-center gap-1">
-                                <ion-icon name="add-circle-outline"></ion-icon> + Tambah Agenda PKBM Sekarang
+                                <ion-icon name="add-circle-outline"></ion-icon> Tambah Agenda PKBM Sekarang
                             </button>
                         </div>
                     </div>

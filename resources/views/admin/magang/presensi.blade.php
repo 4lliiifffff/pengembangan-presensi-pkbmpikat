@@ -15,13 +15,13 @@
                     <p class="laporanHeaderDesc">Pantau riwayat presensi harian, verifikasi radius lokasi GPS &amp; bukti
                         foto selfie, serta unduh rekap PDF resmi.</p>
                 </div>
-                <div class="laporanHeaderActions">
+                <div class="laporanHeaderActions header-actions-group">
                     <a href="{{ route('admin.magang.exportPdf', request()->all()) }}"
-                        class="profileBtnPrimary btn-action-danger">
-                        <ion-icon name="document-text-outline"></ion-icon> Export PDF
+                        class="profileBtnPrimary btn-action-danger btn-header-action">
+                        <ion-icon name="document-text-outline"></ion-icon> <span>Export PDF</span>
                     </a>
-                    <a href="{{ route('admin.magang.index') }}" class="btnOutline">
-                        <ion-icon name="people-outline"></ion-icon> Data Magang
+                    <a href="{{ route('admin.magang.index') }}" class="btnOutline btn-header-action">
+                        <ion-icon name="people-outline"></ion-icon> <span>Data Magang</span>
                     </a>
                 </div>
             </div>
