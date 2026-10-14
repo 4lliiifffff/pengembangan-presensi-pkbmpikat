@@ -1,22 +1,257 @@
 @extends('layouts.presensi')
 
 @php
-    $roleTitle = match ($user?->role) {
-        'admin' => 'Presensi Admin',
-        'kepala_sekolah' => 'Presensi Kepala Sekolah',
-        default => 'Presensi Karyawan',
-    };
+    $roleTitle = 'Presensi Admin';
 @endphp
 
 @section('title', $roleTitle)
 
+@push('head')
+<style>
+    /* ── Responsive Layout & Spacing Presensi Pulang ── */
+    .presensi-pulang-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    @media (min-width: 992px) {
+        .pagePad {
+            max-width: 960px !important;
+            padding: 24px 24px calc(120px + env(safe-area-inset-bottom, 0px)) !important;
+        }
+        .presensi-pulang-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            align-items: stretch;
+        }
+        .presensi-pulang-grid > .card {
+            margin-bottom: 0 !important;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+    }
+
+    /* ── Active Session Executive Summary Card ── */
+    .active-session-summary-card {
+        background: var(--card, #ffffff);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 18px;
+        padding: 18px 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .active-session-summary-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+        border-radius: 4px 0 0 4px;
+    }
+
+    .session-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        background: var(--card-alt, #f8fafc);
+        border: 1px solid var(--border, #e2e8f0);
+        border-radius: 14px;
+        padding: 12px 16px;
+        margin: 12px 0;
+    }
+
+    @media (max-width: 640px) {
+        .pagePad {
+            padding-left: 14px !important;
+            padding-right: 14px !important;
+        }
+        .active-session-summary-card {
+            padding: 14px 14px;
+            border-radius: 16px;
+            margin-bottom: 14px;
+        }
+        .session-stat-grid {
+            grid-template-columns: 1fr;
+            gap: 6px;
+            padding: 8px 12px;
+            margin: 10px 0;
+            border-radius: 12px;
+        }
+        .session-stat-item {
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 5px 0;
+            border-bottom: 1px dashed var(--border, #e2e8f0);
+        }
+        .session-stat-item:last-child {
+            border-bottom: none;
+        }
+        .session-stat-val {
+            font-size: 13px;
+            max-width: 58%;
+            text-align: right;
+        }
+    }
+
+    .session-stat-item {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+    }
+
+    .session-stat-label {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted, #64748b);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .session-stat-val {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--dark, #0f172a);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pulse-dot-green {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+        animation: pulseGreen 1.8s infinite;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    @keyframes pulseGreen {
+        0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+        70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+        100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .session-info-lead {
+        font-size: 13px;
+        color: var(--muted, #64748b);
+        line-height: 1.5;
+        margin: 4px 0 10px;
+    }
+
+    .session-notice-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 14px;
+        background: rgba(99, 102, 241, 0.05);
+        border: 1px solid rgba(99, 102, 241, 0.18);
+        border-radius: 12px;
+        margin-top: 10px;
+    }
+
+    .session-notice-icon {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(99, 102, 241, 0.12);
+        color: #4f46e5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+
+    .session-notice-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .session-notice-title {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--dark, #0f172a);
+        line-height: 1.3;
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .session-notice-title .notice-tag {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 7px;
+        background: #e0e7ff;
+        color: #4338ca;
+        border-radius: 9999px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        line-height: 1.4;
+    }
+
+    .session-notice-text {
+        font-size: 11.5px;
+        color: var(--muted, #64748b);
+        line-height: 1.5;
+        margin: 0;
+        word-break: break-word;
+    }
+
+    /* ── Mobile Map & Camera Optimizations ── */
+    @media (max-width: 768px) {
+        .mapBox.pulang-mapbox {
+            min-height: 220px;
+            max-height: 250px;
+        }
+        .pulang-card-header {
+            padding-bottom: 12px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .session-info-lead {
+            font-size: 12px;
+        }
+        .session-notice-box {
+            padding: 10px 12px;
+            gap: 10px;
+        }
+        .session-notice-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 15px;
+        }
+        .session-notice-text {
+            font-size: 11px;
+        }
+    }
+</style>
+@endpush
 
 @section('content')
     @php
-        $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Karyawan'));
+        $displayName = (string) ($user->nama_lengkap ?? ($user->name ?? 'Admin'));
         $initial = strtoupper(substr($displayName, 0, 1));
-        $isBypassRadius = $isBypassRadius ?? in_array($user?->role, ['admin', 'kepala_sekolah'], true);
-        $isBypassWaktuTunggu = $isBypassWaktuTunggu ?? in_array($user?->role, ['admin', 'kepala_sekolah'], true);
+        $isBypassRadius = $isBypassRadius ?? true;
+        $isBypassWaktuTunggu = $isBypassWaktuTunggu ?? true;
 
         // Hitung sisa waktu jika sesi berjalan
         $sisamenit = 0;
@@ -51,18 +286,9 @@
 
         // Mode otomatis: mulai (belum/sudah selesai) atau selesai (sedang berjalan)
         $autoMode = $activeSesi ? 'selesai' : 'mulai';
-        $dashRoute = match ($user?->role) {
-            'admin' => route('admin.dashboard'),
-            'kepala_sekolah' => route('kepsek.dashboard'),
-            default => route('tutor.dashboard'),
-        };
-        $storeRoute = match ($user?->role) {
-            'admin' => route('admin.presensi.store'),
-            'kepala_sekolah' => route('kepsek.presensi.store'),
-            default => route('tutor.presensi.store'),
-        };
+        $dashRoute = route('admin.dashboard');
+        $storeRoute = route('admin.presensi.store');
         $adminWa = \App\Models\User::getAdminWaContact();
-        $isBypassRadius = $isBypassRadius ?? in_array($user?->role, ['admin', 'kepala_sekolah'], true);
     @endphp
 
     {{-- ── Standard Top Navigation Bar ── --}}
@@ -120,7 +346,7 @@
             </div>
         @endif
 
-        {{-- ── Banner Notifikasi Fleksibilitas Bebas Radius (Admin & Kepala Sekolah) ── --}}
+        {{-- ── Banner Notifikasi Fleksibilitas Bebas Radius (Admin) ── --}}
         @if ($isBypassRadius && !$activeSesi)
             <div class="statusBanner flexible mb-3">
                 <div class="statusIcon blue">
@@ -129,7 +355,7 @@
                 <div class="flex-1 min-w-0">
                     <div class="statusTitle">Akses Fleksibel (Bebas Radius) Aktif</div>
                     <div class="statusSub">
-                        Sebagai {{ $user->role === 'admin' ? 'Administrator' : 'Kepala Sekolah' }}, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas dinas luar atau rapat penting.
+                        Sebagai Administrator, presensi Anda tidak dibatasi oleh radius titik lokasi sekolah untuk mendukung fleksibilitas dinas luar atau rapat penting.
                     </div>
                 </div>
             </div>
@@ -173,15 +399,26 @@
         @if ($activeSesi)
             @php
                 $jamMasuk = substr((string) $activeSesi->jam_mulai, 0, 5);
+                try {
+                    $masukCarbon = \Carbon\Carbon::parse($activeSesi->tgl_presensi . ' ' . $activeSesi->jam_mulai, 'Asia/Jakarta');
+                    $nowCarbon = \Carbon\Carbon::now('Asia/Jakarta');
+                    $durasiMenitTotal = max(1, (int) $masukCarbon->diffInMinutes($nowCarbon, false));
+                    $jamDur = floor($durasiMenitTotal / 60);
+                    $menitDur = $durasiMenitTotal % 60;
+                    $durasiBerjalanLabel = ($jamDur > 0 ? "{$jamDur} jam " : '') . "{$menitDur} menit";
+                } catch (\Throwable) {
+                    $durasiBerjalanLabel = '-';
+                }
+                $lokasiMasukNama = $activeLokasi?->nama_lokasi ?? config('lokasi.sekolah_nama', 'Gedung Pusat PKBM Pikat');
             @endphp
 
             @if ($bisaPulang)
-                {{-- Sesi Siap Presensi Pulang (Desain Lembut, Kontras Ramah Mata, & Responsif Mobile) --}}
-                <div class="card mb-3 p-3.5 border-base bg-card-alt rounded-2xl">
+                {{-- Executive Card: Sesi Siap Presensi Pulang --}}
+                <div class="active-session-summary-card">
                     <div class="d-flex items-center justify-between gap-2 flex-wrap mb-2">
                         <div class="d-flex items-center gap-2 flex-wrap">
-                            <span class="badge bg-success-light text-success font-bold text-xs px-2.5 py-1 rounded-full d-inline-flex items-center gap-1">
-                                <ion-icon name="checkmark-circle-outline"></ion-icon>
+                            <span class="badge bg-success-light text-success font-bold text-xs px-2.5 py-1 rounded-full d-inline-flex items-center gap-1.5">
+                                <span class="pulse-dot-green"></span>
                                 Siap Presensi Pulang
                             </span>
                             @if ($isBypassWaktuTunggu)
@@ -191,11 +428,34 @@
                                 </span>
                             @endif
                         </div>
-                        <div class="text-xs font-semibold text-muted">
-                            Masuk: <span class="text-dark font-bold">{{ $jamMasuk }} WIB</span>
+                        <div class="text-xs font-bold text-muted">
+                            {{ \Carbon\Carbon::parse($activeSesi->tgl_presensi)->translatedFormat('l, d F Y') }}
                         </div>
                     </div>
-                    <div class="text-xs text-muted leading-relaxed">
+
+                    {{-- Metrik Ringkas Sesi Berjalan (Waktu Masuk, Durasi Kerja, Titik Lokasi Masuk) --}}
+                    <div class="session-stat-grid">
+                        <div class="session-stat-item">
+                            <span class="session-stat-label">
+                                <ion-icon name="log-in-outline" class="text-primary"></ion-icon> Jam Masuk
+                            </span>
+                            <span class="session-stat-val text-primary">{{ $jamMasuk }} WIB</span>
+                        </div>
+                        <div class="session-stat-item">
+                            <span class="session-stat-label">
+                                <ion-icon name="time-outline" class="text-success"></ion-icon> Durasi Kerja
+                            </span>
+                            <span class="session-stat-val text-success">{{ $durasiBerjalanLabel }}</span>
+                        </div>
+                        <div class="session-stat-item">
+                            <span class="session-stat-label">
+                                <ion-icon name="location-outline" class="text-danger"></ion-icon> Titik Lokasi
+                            </span>
+                            <span class="session-stat-val text-dark" title="{{ $lokasiMasukNama }}">{{ $lokasiMasukNama }}</span>
+                        </div>
+                    </div>
+
+                    <div class="session-info-lead">
                         @if ($isBypassWaktuTunggu)
                             Formulir presensi pulang terbuka dan siap dikirimkan kapan saja setelah agenda rapat atau dinas selesai.
                         @else
@@ -203,14 +463,24 @@
                         @endif
                     </div>
                     @if ($isBypassRadius)
-                        <div class="d-flex items-center gap-1.5 mt-2.5 pt-2 border-t border-dashed border-base text-2xs text-muted">
-                            <ion-icon name="shield-checkmark-outline" class="text-primary text-sm flex-shrink-0"></ion-icon>
-                            <span>Mode Bebas Radius aktif untuk mendukung penugasan luar / rapat dinas.</span>
+                        <div class="session-notice-box">
+                            <div class="session-notice-icon">
+                                <ion-icon name="shield-checkmark-outline"></ion-icon>
+                            </div>
+                            <div class="session-notice-content">
+                                <div class="session-notice-title">
+                                    <span>Mode Bebas Radius Aktif</span>
+                                    <span class="notice-tag">Dispensasi</span>
+                                </div>
+                                <p class="session-notice-text">
+                                    Mode Bebas Radius aktif untuk mendukung penugasan luar / rapat dinas administrator tanpa kendala batasan jarak radius.
+                                </p>
+                            </div>
                         </div>
                     @endif
                 </div>
 
-                {{-- Warning jika sudah lewat 2 jam untuk staf biasa --}}
+                {{-- Warning jika sudah lewat 2 jam untuk staf biasa (jika ada) --}}
                 @if (!$isBypassWaktuTunggu && $sudahLewat2Jam)
                     <div class="statusBanner mb-3 alert-danger-box">
                         <div class="statusIcon" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
@@ -256,108 +526,130 @@
                 <input type="hidden" name="lokasi_akurasi" id="lokasi_akurasi" value="">
                 <input type="hidden" name="is_mock_location" id="is_mock_location" value="0">
 
-                <div class="card mb-4">
-                    <div class="cardTitle">
-                        <div class="cardTitleStart">
-                            <ion-icon name="location-outline"></ion-icon>
-                            <span>Lokasi Presensi Pulang</span>
+                <div class="presensi-pulang-grid">
+                    {{-- ── KARTU 1: LOKASI PRESENSI PULANG ── --}}
+                    <div class="card mb-0">
+                        <div class="cardTitle pulang-card-header">
+                            <div class="cardTitleStart">
+                                <ion-icon name="location-outline"></ion-icon>
+                                <span>Lokasi Presensi Pulang</span>
+                            </div>
+                            @if ($isBypassRadius)
+                                <span class="badge-flexible">
+                                    <ion-icon name="shield-checkmark-outline"></ion-icon>
+                                    Bebas Radius
+                                </span>
+                            @endif
                         </div>
-                    </div>
-                    <div id="mapBox" class="mapBox pos-relative">
-                        <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
-                        <div id="leafletMap" class="map-camera-box d-none"></div>
-                    </div>
-                    <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
-                    
-                    {{-- Proximity Radar & Live Track Card --}}
-                    <div id="proximityRadarCard" class="proximityRadarCard d-none">
-                        <div class="radarHeader">
-                            <div class="radarStatusDot" id="radarStatusDot"></div>
-                            <div class="radarInfo">
-                                <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
-                                <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
+
+                        <div id="mapBox" class="mapBox pos-relative pulang-mapbox">
+                            <div class="mapPlaceholder" id="mapPlaceholder">Memuat peta lokasi…</div>
+                            <div id="leafletMap" class="map-camera-box d-none"></div>
+                        </div>
+                        <div id="geofenceBadge" class="geofence-feedback-badge d-none"></div>
+                        
+                        {{-- Proximity Radar & Live Track Card --}}
+                        <div id="proximityRadarCard" class="proximityRadarCard d-none">
+                            <div class="radarHeader">
+                                <div class="radarStatusDot" id="radarStatusDot"></div>
+                                <div class="radarInfo">
+                                    <div class="radarTitle" id="radarTitle">Mencari lokasi Anda...</div>
+                                    <div class="radarSub" id="radarSub">Menghubungkan ke penunjuk lokasi...</div>
+                                </div>
+                            </div>
+                            <div class="radarActions">
+                                <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
+                                    <ion-icon name="navigate-outline"></ion-icon> <span>Petunjuk Arah</span>
+                                </a>
+                                <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
+                                    <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
+                                </button>
                             </div>
                         </div>
-                        <div class="radarActions">
-                            <a id="btnPetunjukArah" href="#" target="_blank" class="btnNavMaps d-none">
-                                <ion-icon name="navigate-outline"></ion-icon> <span>Petunjuk Arah</span>
+
+                        <div class="mapToolbar mt-auto pt-3">
+                            <button type="button" class="btnRefreshLocation" onclick="refreshLocation(true)">
+                                <ion-icon name="locate-outline"></ion-icon> <span>Perbarui Lokasi</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- ── KARTU 2: FOTO & KIRIM PRESENSI PULANG ── --}}
+                    <div class="card mb-0">
+                        <div class="cardTitle pulang-card-header">
+                            <div class="cardTitleStart">
+                                <ion-icon name="camera-outline"></ion-icon>
+                                <span>Foto Presensi Pulang</span>
+                            </div>
+                        </div>
+                        <div class="photoFrame pos-relative overflow-hidden">
+                            <video id="videoPreview" playsinline muted></video>
+                            <img id="previewImg" alt="Preview foto" />
+
+                            {{-- Grid Overlay --}}
+                            <div id="cameraGrid" class="cameraGridOverlay d-none">
+                                <div class="gridBox">
+                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                    <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
+                                </div>
+                            </div>
+
+                            {{-- Floating Camera Toolbar Overlay --}}
+                            <div id="camControlBar" class="camControlBar d-none">
+                                <div class="camControlGroup">
+                                    <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
+                                        Cermin
+                                    </button>
+                                </div>
+                                <div class="camControlGroup">
+                                    <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
+                                        Garis Bantu
+                                    </button>
+                                    <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash" class="camToolBtn d-none">
+                                        Lampu
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="photoPlaceholder" id="placeholder">
+                                Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi pulang.
+                            </div>
+                        </div>
+
+                        <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
+                        <div class="camActions mt-3" id="camActions">
+                            <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
+                                <ion-icon name="camera-outline"></ion-icon> Buka Kamera
+                            </button>
+                            <div id="camRowStreaming" class="camRow d-none">
+                                <button type="button" class="captureBtn" onclick="snapPhoto()">
+                                    Ambil Foto
+                                </button>
+                                <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
+                            </div>
+                            <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
+                                <ion-icon name="refresh-outline"></ion-icon> Ulangi Foto
+                            </button>
+                        </div>
+
+                        {{-- Tombol SELESAI --}}
+                        <button type="submit" id="btnSubmit" @if (!$bisaPulang) disabled @endif class="captureBtn primary-red mt-3.5">
+                            <ion-icon name="log-out-outline"></ion-icon> Kirim Presensi Pulang
+                        </button>
+
+                        <div class="presensi-aux-actions mt-3">
+                            <a href="{{ route('admin.izin.index') }}" class="btn-izin-action">
+                                <ion-icon name="calendar-outline"></ion-icon>
+                                <span>Data Rekap Izin &amp; Sakit</span>
                             </a>
-                            <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                <!-- <span class="liveDot" id="liveGpsDot"></span>  -->
-                                <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
-                            </button>
+
+                            <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' mengalami kendala saat presensi pulang hari ini: ') }}" target="_blank" class="wa-support-btn">
+                                <ion-icon name="logo-whatsapp"></ion-icon>
+                                <span>Kendala Presensi (Hubungi Admin)</span>
+                            </a>
                         </div>
                     </div>
-
-                    <div class="mapToolbar">
-                        <button type="button" class="btnRefreshLocation" onclick="refreshLocation(true)">
-                            <ion-icon name="locate-outline"></ion-icon> <span>Perbarui Lokasi</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="cardTitle">
-                        <div class="cardTitleStart">
-                            <ion-icon name="camera-outline"></ion-icon>
-                            <span>Foto Presensi Pulang</span>
-                        </div>
-                    </div>
-                    <div class="photoFrame pos-relative overflow-hidden">
-                        <video id="videoPreview" playsinline muted></video>
-                        <img id="previewImg" alt="Preview foto" />
-
-                        {{-- Grid Overlay --}}
-                        <div id="cameraGrid" class="cameraGridOverlay d-none">
-                            <div class="gridBox">
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                                <div class="gridCell"></div><div class="gridCell"></div><div class="gridCell"></div>
-                            </div>
-                        </div>
-
-                        {{-- Floating Camera Toolbar Overlay --}}
-                        <div id="camControlBar" class="camControlBar d-none">
-                            <div class="camControlGroup">
-                                <button type="button" class="camToolBtn active" id="btnToggleMirror" onclick="toggleCameraMirror()" title="Cermin Kamera">
-                                    Cermin
-                                </button>
-                            </div>
-                            <div class="camControlGroup">
-                                <button type="button" class="camToolBtn" id="btnToggleGrid" onclick="toggleCameraGrid()" title="Garis Bantu">
-                                    Garis Bantu
-                                </button>
-                                <button type="button" id="btnToggleTorch" onclick="toggleCameraTorch()" title="Lampu Flash" class="camToolBtn d-none">
-                                    Lampu
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="photoPlaceholder" id="placeholder">
-                            Ketuk <b>Buka Kamera</b> untuk mengambil foto presensi pulang.
-                        </div>
-                    </div>
-
-                    <input type="file" name="foto" id="fotoInput" accept="image/jpeg" class="d-none" />
-                    <div class="camActions" id="camActions">
-                        <button type="button" class="captureBtn" id="btnBukaKamera" onclick="openLiveCamera()">
-                            Buka Kamera
-                        </button>
-                        <div id="camRowStreaming" class="camRow d-none">
-                            <button type="button" class="captureBtn" onclick="snapPhoto()">
-                                Ambil Foto
-                            </button>
-                            <button type="button" class="captureBtn secondary" onclick="cancelCamera()">Batal</button>
-                        </div>
-                        <button type="button" id="btnUlangi" onclick="retakePhoto()" class="captureBtn secondary d-none">
-                            Ulangi Foto
-                        </button>
-                    </div>
-
-                    {{-- Tombol SELESAI --}}
-                    <button type="submit" id="btnSubmit" @if (!$bisaPulang) disabled @endif class="captureBtn primary-red mt-4">
-                        <ion-icon name="log-out-outline"></ion-icon> Kirim Presensi Pulang
-                    </button>
                 </div>
             </form>
 
@@ -421,7 +713,7 @@
                         </div>
                     </div>
 
-                    {{-- Dropdown Pemilihan Titik Lokasi Absen Karyawan --}}
+                    {{-- Dropdown Pemilihan Titik Lokasi Absen --}}
                     <div class="mb-3" id="boxPilihLokasi">
                         <label class="d-flex items-center justify-between text-sm font-semibold text-muted mb-2">
                             <span>Pilih Titik Lokasi Presensi <span class="text-danger">*</span></span>
@@ -477,7 +769,6 @@
                                 <ion-icon name="navigate-outline"></ion-icon> <span>Petunjuk Arah</span>
                             </a>
                             <button type="button" id="btnToggleLiveGps" class="btnLiveGpsActive" onclick="toggleLiveTracking()">
-                                <!-- <span class="liveDot" id="liveGpsDot"></span>  -->
                                 <span id="liveGpsLabel">Pantau Lokasi: Aktif</span>
                             </button>
                         </div>
@@ -554,17 +845,10 @@
                     </button>
 
                     <div class="presensi-aux-actions">
-                        @if ($user?->role === 'kepala_sekolah')
-                            <a href="{{ route('kepsek.pengajuan-izin') }}" class="btn-izin-action">
-                                <ion-icon name="clipboard-outline"></ion-icon>
-                                <span>Persetujuan Izin Guru &amp; Karyawan</span>
-                            </a>
-                        @elseif ($user?->role === 'admin')
-                            <a href="{{ route('admin.izin.index') }}" class="btn-izin-action">
-                                <ion-icon name="calendar-outline"></ion-icon>
-                                <span>Data Rekap Izin &amp; Sakit</span>
-                            </a>
-                        @endif
+                        <a href="{{ route('admin.izin.index') }}" class="btn-izin-action">
+                            <ion-icon name="calendar-outline"></ion-icon>
+                            <span>Data Rekap Izin &amp; Sakit</span>
+                        </a>
 
                         <a href="https://wa.me/{{ $adminWa }}?text={{ urlencode('Halo Admin, saya ' . $displayName . ' mengalami kendala saat presensi hari ini: ') }}" target="_blank" class="wa-support-btn">
                             <ion-icon name="logo-whatsapp"></ion-icon>
@@ -706,7 +990,6 @@
                         if (totalSec <= 0) {
                             clearInterval(cdInterval);
                             cdEl.textContent = '00:00';
-                            // Refresh halaman agar tombol aktif
                             window.location.reload();
                             return;
                         }
@@ -856,7 +1139,7 @@
                         } else if (IS_BYPASS_RADIUS) {
                             radarDot.className = 'radarStatusDot pulse-blue';
                             radarTitle.textContent = 'Mode Bebas Radius: Jarak ' + Math.round(state.distance) + ' m dari ' + state.targetNama;
-                            radarSub.textContent = 'Presensi di luar radius diizinkan khusus Admin & Kepala Sekolah untuk dinas luar / rapat.';
+                            radarSub.textContent = 'Presensi di luar radius diizinkan khusus Admin untuk dinas luar / rapat.';
                             if (btnMaps) {
                                 btnMaps.classList.remove('d-none');
                                 btnMaps.style.display = 'inline-flex';
@@ -1080,7 +1363,6 @@
             );
         }
 
-        // Jalankan inisialisasi peta dan tracking saat halaman selesai dimuat
         document.addEventListener('DOMContentLoaded', function () {
             initPresensiMapInstance();
             refreshLocation(false);
@@ -1088,9 +1370,8 @@
         });
 
         /* ══════════════════ ADVANCED CAMERA CONTROLS ══════════════════ */
-        // Dibatasi hanya kamera depan untuk presensi kehadiran
         const currentFacingMode = 'user';
-        let isMirrored = true;          // default mirror kamera depan
+        let isMirrored = true;
         let isGridActive = false;
         let isTorchOn = false;
 
@@ -1174,7 +1455,6 @@
         }
 
         function switchCameraFacing() {
-            // Dibatasi hanya kamera depan untuk presensi selfie / kehadiran
             if (typeof Swal !== 'undefined') {
                 Swal.fire({
                     icon: 'info',
@@ -1272,7 +1552,6 @@
                 return;
             }
 
-            // Target aspect ratio standar portrait 3:4 (0.75) sesuai bingkai preview .photoFrame
             var targetAspect = 3 / 4;
             var videoWidth = video.videoWidth;
             var videoHeight = video.videoHeight;
@@ -1280,20 +1559,17 @@
             var sx, sy, sWidth, sHeight;
 
             if (videoAspect > targetAspect) {
-                // Video lebih lebar daripada 3:4 (misal 16:9 atau 4:3), crop horizontal secara simetris
                 sHeight = videoHeight;
                 sWidth = Math.round(videoHeight * targetAspect);
                 sx = Math.round((videoWidth - sWidth) / 2);
                 sy = 0;
             } else {
-                // Video lebih tinggi daripada 3:4 (misal 9:16), crop vertikal secara simetris
                 sWidth = videoWidth;
                 sHeight = Math.round(videoWidth / targetAspect);
                 sx = 0;
                 sy = Math.round((videoHeight - sHeight) / 2);
             }
 
-            // Resolusi kanvas output standar 3:4 (maksimum lebar 960px agar tajam & hemat kuota)
             var outputWidth = Math.min(sWidth, 960);
             var outputHeight = Math.round(outputWidth / targetAspect);
 
@@ -1302,7 +1578,6 @@
             canvas.height = outputHeight;
             var ctx = canvas.getContext('2d');
 
-            // Tangkap gambar dengan memperhatikan status mirror
             if (isMirrored) {
                 ctx.translate(canvas.width, 0);
                 ctx.scale(-1, 1);

@@ -33,7 +33,22 @@ class KepsekDashboardController extends Controller
      ───────────────────────────────────────────── */
     public function index()
     {
-        $today = Carbon::now()->toDateString();
+        $user = Auth::user();
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        // Presensi personal kepala sekolah hari ini
+        $todayPresensi = PresensiKaryawan::where('user_id', $user->id)
+            ->whereDate('tgl_presensi', $today)
+            ->first();
+
+        $todayStatus = 'belum';
+        if ($todayPresensi) {
+            if ($todayPresensi->foto_mulai && $todayPresensi->foto_selesai) {
+                $todayStatus = 'selesai';
+            } elseif ($todayPresensi->foto_mulai) {
+                $todayStatus = 'proses';
+            }
+        }
 
         $counts = [
             'hadir' => $this->countHadir($today),
@@ -67,6 +82,8 @@ class KepsekDashboardController extends Controller
 
         return view('kepsek.dashboard', [
             'today' => $today,
+            'todayPresensi' => $todayPresensi,
+            'todayStatus' => $todayStatus,
             'counts' => $counts,
             'weekly' => ['days' => $days, 'max' => $max ?: 1],
             'latest' => $latest,

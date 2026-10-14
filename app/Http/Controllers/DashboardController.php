@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Admin\Concerns\ResolvesAdmin;
 use App\Models\Presensi;
+use App\Models\PresensiKaryawan;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -13,7 +14,22 @@ class DashboardController extends Controller
     public function index()
     {
         $this->resolveAdmin();
-        $today = Carbon::now()->toDateString();
+        $user = auth()->user();
+        $today = Carbon::now('Asia/Jakarta')->toDateString();
+
+        // Presensi personal admin hari ini
+        $todayPresensi = PresensiKaryawan::where('user_id', $user->id)
+            ->whereDate('tgl_presensi', $today)
+            ->first();
+
+        $todayStatus = 'belum';
+        if ($todayPresensi) {
+            if ($todayPresensi->foto_mulai && $todayPresensi->foto_selesai) {
+                $todayStatus = 'selesai';
+            } elseif ($todayPresensi->foto_mulai) {
+                $todayStatus = 'proses';
+            }
+        }
 
         // Hitung berdasarkan jam_selesai
         $counts = [
@@ -71,6 +87,8 @@ class DashboardController extends Controller
 
         return view('admin.dashboard', [
             'today' => $today,
+            'todayPresensi' => $todayPresensi,
+            'todayStatus' => $todayStatus,
             'counts' => $counts,
             'weekly' => [
                 'days' => $days,

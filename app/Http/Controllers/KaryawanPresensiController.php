@@ -46,7 +46,12 @@ class KaryawanPresensiController extends Controller
             ->orderByDesc('id')
             ->first();
 
-        return view('karyawan.presensi_foto', [
+        $view = match ($user?->role) {
+            'kepala_sekolah' => 'kepsek.presensi_foto',
+            default => 'admin.presensi_foto',
+        };
+
+        return view($view, [
             'user' => $user,
             'today' => $today,
             'activeSesi' => $activeSesi,
