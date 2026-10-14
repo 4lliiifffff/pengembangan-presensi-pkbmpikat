@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Admin\Concerns\ResolvesAdmin;
+use App\Models\JadwalSesi;
+use App\Models\PengajuanIzinSakit;
+use App\Models\PengajuanLupaLapor;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
 use Carbon\Carbon;
@@ -31,12 +34,27 @@ class DashboardController extends Controller
             }
         }
 
+        // Pengajuan Menunggu Tindakan (Pending Approval)
+        $pendingIzin = PengajuanIzinSakit::where('status', 'pending')->count();
+        $pendingLupaLapor = PengajuanLupaLapor::where('status', 'pending')->count();
+        $pendingTotal = $pendingIzin + $pendingLupaLapor;
+
+        // Snapshot KBM Hari Ini
+        $totalSesiHariIni = JadwalSesi::whereDate('tanggal_rencana', $today)->count();
+        $sesiSelesaiHariIni = JadwalSesi::whereDate('tanggal_rencana', $today)
+            ->where('status', 'selesai')
+            ->count();
+
         // Hitung berdasarkan jam_selesai
         $counts = [
+            'total_sesi' => $totalSesiHariIni,
             'hadir' => $this->countHadir($today),
             'izin' => Presensi::where('status', 'izin')
                 ->whereDate('tgl_presensi', $today)
                 ->count(),
+            'pending_total' => $pendingTotal,
+            'pending_izin' => $pendingIzin,
+            'pending_lupa_lapor' => $pendingLupaLapor,
         ];
 
         // Statistik mingguan (ambil total "hadir" per hari).

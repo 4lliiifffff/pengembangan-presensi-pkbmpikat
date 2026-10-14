@@ -50,7 +50,7 @@
                         {{-- Pilih Tutor --}}
                         <div class="fieldGroup">
                             <label class="fieldLabel" for="tutorSelect">Pilih Tutor</label>
-                            <select name="tutor_id" id="tutorSelect" class="selectInput" required>
+                            <select name="tutor_id" id="tutorSelect" class="selectInput searchable-select" data-searchable="true" data-placeholder="Cari & Pilih Tutor..." required>
                                 <option value="">-- Pilih Tutor --</option>
                                 @foreach($tutors as $tutor)
                                     <option value="{{ $tutor->id }}" {{ old('tutor_id') == $tutor->id ? 'selected' : '' }}>

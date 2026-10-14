@@ -21,7 +21,7 @@ class LupaLaporController extends Controller
         $tutor = Auth::user()->tutor;
 
         // Daftar murid untuk pilihan (semua murid)
-        $siswaList = Siswa::orderBy('nama_murid')->get();
+        $siswaList = Siswa::with('relKelas')->orderBy('nama_murid')->get();
         $muridList = $siswaList;
 
         // Riwayat pengajuan milik tutor ini, terbaru dulu

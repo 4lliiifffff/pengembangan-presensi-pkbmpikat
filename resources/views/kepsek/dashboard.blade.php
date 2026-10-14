@@ -105,9 +105,10 @@
                         <div class="summaryIcon hadir">
                             <ion-icon name="checkmark-circle-outline"></ion-icon>
                         </div>
-                        <div class="summaryLabel">HADIR</div>
+                        <div class="summaryLabel">HADIR HARI INI</div>
                     </div>
                     <div class="summaryCount">{{ $counts['hadir'] ?? 0 }}</div>
+                    <div class="summarySub">Sesi bimbingan selesai</div>
                     <ion-icon class="summaryBigIcon" name="checkmark-circle"></ion-icon>
                 </div>
 
@@ -119,6 +120,7 @@
                         <div class="summaryLabel">IZIN / SAKIT</div>
                     </div>
                     <div class="summaryCount">{{ $counts['izin'] ?? 0 }}</div>
+                    <div class="summarySub">Pengajuan hari ini</div>
                     <ion-icon class="summaryBigIcon" name="document-text-outline"></ion-icon>
                 </div>
             </div>
@@ -214,39 +216,53 @@
                                     $badgeColor = $item['badge_color'];
                                     $initial = strtoupper(substr((string) $tutor->nama_lengkap, 0, 1));
                                 @endphp
-                                <div class="kpiCard">
-                                    <div class="kpiLeft">
-                                        <div class="kpiRank {{ $rankClass }}">
-                                            {{ $rankText }}
-                                        </div>
-                                        
-                                        <div class="kpiAvatar">
-                                            @if ($tutor->foto_url ?? null)
-                                                <img src="{{ $tutor->foto_url }}" alt="Avatar" class="w-full h-full object-cover" />
-                                            @else
-                                                {{ $initial }}
-                                            @endif
+                                <div class="kpiCard {{ $rankClass }}">
+                                    {{-- Baris Atas: Peringkat, Avatar, Nama Tutor & Blok Skor --}}
+                                    <div class="kpiCardHeader">
+                                        <div class="kpiCardProfile">
+                                            <div class="kpiRank {{ $rankClass }}">
+                                                {{ $rankText }}
+                                            </div>
+                                            
+                                            <div class="kpiAvatar">
+                                                @if ($tutor->foto_url ?? null)
+                                                    <img src="{{ $tutor->foto_url }}" alt="Avatar" class="w-full h-full object-cover" />
+                                                @else
+                                                    {{ $initial }}
+                                                @endif
+                                            </div>
+
+                                            <div class="kpiInfo">
+                                                <div class="kpiName" title="{{ $tutor->nama_lengkap }}">
+                                                    {{ $tutor->nama_lengkap }}
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div class="kpiInfo">
-                                            <div class="kpiName">
-                                                {{ $tutor->nama_lengkap }}
-                                            </div>
-                                            <div class="kpiMeta">
-                                                <span ><ion-icon name="time-outline" class="align-middle text-sm"></ion-icon> {{ $totalJam }} Jam</span>
-                                                <span >•</span>
-                                                <span ><ion-icon name="checkmark-done-outline" class="align-middle text-sm"></ion-icon> {{ $totalHadir }} Sesi</span>
-                                            </div>
+                                        <div class="kpiScoreBlock">
+                                            <div class="kpiScoreVal">{{ $kpiScore }} <span class="kpiScoreSub">/ 100</span></div>
+                                            <div class="kpiScoreLabel">Skor KPI</div>
                                         </div>
                                     </div>
 
-                                    <div class="kpiRight">
-                                        <div class="kpiScore">
-                                            {{ $kpiScore }} <span class="kpiScoreSub">/ 100</span>
+                                    {{-- Baris Bawah: Metrik Kehadiran & Status Kategori Kinerja --}}
+                                    <div class="kpiCardFooter">
+                                        <div class="kpiMetaChips">
+                                            <span class="kpiChip">
+                                                <ion-icon name="time-outline"></ion-icon>
+                                                <span>{{ $totalJam }} Jam</span>
+                                            </span>
+                                            <span class="kpiChip">
+                                                <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+                                                <span>{{ $totalHadir }} Sesi</span>
+                                            </span>
                                         </div>
-                                        <span class="pill {{ $badgeColor == 'success' ? 'hadir' : ($badgeColor == 'warning' ? 'izin' : 'alpha') }} text-xs px-2 py-1">
-                                            {{ $kategori }} ({{ $pctDisiplin }}%)
-                                        </span>
+                                        <div class="kpiBadgeWrap">
+                                            <span class="pill {{ $badgeColor == 'success' ? 'hadir' : ($badgeColor == 'warning' ? 'izin' : 'alpha') }}">
+                                                <ion-icon name="{{ $badgeColor == 'success' ? 'ribbon-outline' : ($badgeColor == 'warning' ? 'alert-circle-outline' : 'warning-outline') }}"></ion-icon>
+                                                <span>{{ $kategori }} ({{ $pctDisiplin }}%)</span>
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             @empty

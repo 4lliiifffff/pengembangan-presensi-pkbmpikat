@@ -28,6 +28,31 @@
         </div>
     </div>
 
+    {{-- ── Banner Notifikasi Aksi Tertunda (Pending Action) ── --}}
+    @if (($counts['pending_total'] ?? 0) > 0)
+        <div class="pendingActionBanner">
+            <div class="pendingActionLeft">
+                <div class="pendingActionIcon">
+                    <ion-icon name="notifications-outline"></ion-icon>
+                </div>
+                <div>
+                    <div class="pendingActionTitle">Terdapat {{ $counts['pending_total'] }} Pengajuan Menunggu Tindakan</div>
+                    <div class="pendingActionSub">
+                        {{ $counts['pending_izin'] }} Pengajuan Izin/Sakit
+                        @if($counts['pending_lupa_lapor'] > 0)
+                            • {{ $counts['pending_lupa_lapor'] }} Lupa Lapor
+                        @endif
+                        menunggu verifikasi untuk sinkronisasi presensi.
+                    </div>
+                </div>
+            </div>
+            <a href="{{ route('admin.pengajuan-izin') }}" class="pendingActionBtn">
+                <span>Tinjau Pengajuan</span>
+                <ion-icon name="arrow-forward-outline"></ion-icon>
+            </a>
+        </div>
+    @endif
+
     {{-- ── WAKTU SAAT INI & STATUS PRESENSI HARI INI ── --}}
     @php
         $todayStatus = $todayStatus ?? 'belum';
@@ -97,21 +122,36 @@
         </div>
     </div>
 
-    {{-- ── Summary KPI Cards ── --}}
-    <div class="summaryGrid">
-        <div class="summaryCard">
+    {{-- ── Summary KPI Cards (4 Kolom Terpadu) ── --}}
+    <div class="summaryGrid summaryGrid-4">
+        {{-- 1. Total Sesi KBM Hari Ini --}}
+        <a href="{{ route('admin.jadwal-sesi-kbm.index', ['tab' => 'sesi', 'tanggal' => $today]) }}" class="summaryCard text-decoration-none">
+            <div class="summaryTop">
+                <div class="summaryIcon sesi">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                </div>
+                <div class="summaryLabel">SESI KBM HARI INI</div>
+            </div>
+            <div class="summaryCount">{{ $counts['total_sesi'] ?? 0 }}</div>
+            <div class="summarySub">Sesi bimbingan terjadwal</div>
+            <ion-icon class="summaryBigIcon" name="calendar"></ion-icon>
+        </a>
+
+        {{-- 2. Sesi Selesai (Hadir) --}}
+        <a href="{{ route('admin.laporan.index', ['start_date' => $today, 'end_date' => $today]) }}" class="summaryCard text-decoration-none">
             <div class="summaryTop">
                 <div class="summaryIcon hadir">
                     <ion-icon name="checkmark-circle-outline"></ion-icon>
                 </div>
-                <div class="summaryLabel">HADIR HARI INI</div>
+                <div class="summaryLabel">SESI SELESAI</div>
             </div>
             <div class="summaryCount">{{ $counts['hadir'] ?? 0 }}</div>
-            <div class="summarySub">Sesi bimbingan selesai</div>
+            <div class="summarySub">Presensi KBM terlaksana</div>
             <ion-icon class="summaryBigIcon" name="checkmark-circle"></ion-icon>
-        </div>
+        </a>
 
-        <div class="summaryCard">
+        {{-- 3. Izin / Sakit --}}
+        <a href="{{ route('admin.laporan.index', ['start_date' => $today, 'end_date' => $today, 'status' => 'izin']) }}" class="summaryCard text-decoration-none">
             <div class="summaryTop">
                 <div class="summaryIcon izin">
                     <ion-icon name="time-outline"></ion-icon>
@@ -121,7 +161,20 @@
             <div class="summaryCount">{{ $counts['izin'] ?? 0 }}</div>
             <div class="summarySub">Pengajuan hari ini</div>
             <ion-icon class="summaryBigIcon" name="document-text-outline"></ion-icon>
-        </div>
+        </a>
+
+        {{-- 4. Pengajuan Pending Verifikasi --}}
+        <a href="{{ route('admin.pengajuan-izin') }}" class="summaryCard text-decoration-none {{ ($counts['pending_total'] ?? 0) > 0 ? 'border-danger' : '' }}">
+            <div class="summaryTop">
+                <div class="summaryIcon pending">
+                    <ion-icon name="alert-circle-outline"></ion-icon>
+                </div>
+                <div class="summaryLabel">PERLU VERIFIKASI</div>
+            </div>
+            <div class="summaryCount" style="{{ ($counts['pending_total'] ?? 0) > 0 ? 'color: #e11d48;' : '' }}">{{ $counts['pending_total'] ?? 0 }}</div>
+            <div class="summarySub">Pengajuan izin & lupa lapor</div>
+            <ion-icon class="summaryBigIcon" name="alert-circle"></ion-icon>
+        </a>
     </div>
 
     {{-- ── Pintasan Menu Cepat Admin ── --}}

@@ -79,8 +79,14 @@ class SearchableSelect {
         // Create main wrapper
         this.wrapper = document.createElement('div');
         this.wrapper.className = 'ss-wrapper';
+        this.wrapper._searchableSelectInstance = this;
         if (this.select.className) {
-            this.wrapper.classList.add(...this.select.className.split(' ').filter(c => c && !['filterSelect', 'profileInput', 'formControl', 'select'].includes(c)));
+            const ignoredClasses = [
+                'filterSelect', 'profileInput', 'formControl', 'select',
+                'input', 'selectInput', 'searchable-select', 'filter-select',
+                'w-full', 'border-danger'
+            ];
+            this.wrapper.classList.add(...this.select.className.split(' ').filter(c => c && !ignoredClasses.includes(c)));
         }
         if (this.select.disabled) {
             this.wrapper.classList.add('ss-disabled');
@@ -193,9 +199,18 @@ class SearchableSelect {
 
         const title = document.createElement('h4');
         title.className = 'ss-sheet-title';
-        // Get label from previous label or name
-        const labelEl = this.wrapper.closest('.form-field-wrapper, .filterField, .mb-3, .mb-4')?.querySelector('label, .filterFieldLabel, .form-field-label');
-        title.textContent = labelEl ? labelEl.textContent.replace('*', '').trim() : 'Pilih Opsi';
+        // Get label from previous label or container
+        let sheetTitle = 'Pilih Opsi';
+        const container = this.wrapper.closest('.form-field-wrapper, .filterField, .fieldGroup, .mb-3, .mb-4, div');
+        const labelEl = container?.querySelector('label, .filterFieldLabel, .form-field-label, .fieldLabel, .formLabel') 
+            || (this.wrapper.previousElementSibling?.matches('label, .fieldLabel, .filterFieldLabel') ? this.wrapper.previousElementSibling : null);
+        
+        if (labelEl) {
+            sheetTitle = labelEl.textContent.replace('*', '').trim();
+        } else if (this.select.getAttribute('data-placeholder')) {
+            sheetTitle = this.select.getAttribute('data-placeholder').replace(/^-\s*|\s*-$/g, '').trim();
+        }
+        title.textContent = sheetTitle;
 
         const closeBtn = document.createElement('button');
         closeBtn.type = 'button';
@@ -553,7 +568,8 @@ function initSearchableSelect(root = document) {
         'select.profileInput',
         'select.filter-select',
         'select.select',
-        'select.formControl'
+        'select.formControl',
+        'select.selectInput'
     ].join(', ');
 
     const selects = root.querySelectorAll(selector);

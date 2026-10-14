@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Tutor;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Tutor\Concerns\ResolvesTutor;
 use App\Models\Jadwal;
+use App\Models\JadwalSesi;
 use App\Models\Presensi;
 use App\Models\Tutor;
+use App\Services\PayrollService;
 use App\Services\ShiftPresensiService;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -64,13 +66,15 @@ class TutorDashboardController extends Controller
      *
      * @return View
      */
-    public function index(ShiftPresensiService $shiftService)
+    public function index(ShiftPresensiService $shiftService, PayrollService $payrollService)
     {
         $tutor = $this->resolveTutor();
 
         // Inisialisasi variabel default jika tutor belum terhubung
         $recentPresensi = collect(); // Koleksi kosong
         $upcomingJadwal = collect(); // Koleksi kosong
+        $todaySessions = collect();  // Koleksi sesi KBM hari ini
+        $payrollPreview = null;
         $todayPresensi = null;
         $todayStatus = 'belum_mulai'; // Status default: belum ada presensi hari ini
         $sisaDetikPulang = 0;            // 0 = tidak ada hitungan mundur
@@ -80,6 +84,20 @@ class TutorDashboardController extends Controller
             $tz = 'Asia/Jakarta'; // Timezone WIB untuk konsistensi
             $today = Carbon::now($tz)->toDateString();
             $now = Carbon::now($tz);
+
+            // Ambil semua sesi KBM hari ini milik tutor ini
+            $todaySessions = JadwalSesi::with(['siswa', 'presensi', 'lokasiPresensi', 'kategoriTutorial'])
+                ->where('tutor_id', $tutor->id)
+                ->whereDate('tanggal_rencana', $today)
+                ->orderBy('jam_masuk_rencana')
+                ->get();
+
+            // Ambil estimasi payroll bulan berjalan
+            try {
+                $payrollPreview = $payrollService->calculateTutorPayroll($tutor, (int) $now->month, (int) $now->year);
+            } catch (\Throwable) {
+                $payrollPreview = null;
+            }
 
             // Ambil semua presensi hari ini milik tutor (beserta relasi siswa untuk ditampilkan)
             $recentPresensi = $this->presensiQueryForTutor($tutor)
@@ -133,6 +151,8 @@ class TutorDashboardController extends Controller
             'tutor' => $tutor,
             'recentPresensi' => $recentPresensi,
             'upcomingJadwal' => $upcomingJadwal,
+            'todaySessions' => $todaySessions,
+            'payrollPreview' => $payrollPreview,
             'todayPresensi' => $todayPresensi,
             'todayStatus' => $todayStatus,
             'sisaDetikPulang' => $sisaDetikPulang, // Digunakan oleh JavaScript countdown di view

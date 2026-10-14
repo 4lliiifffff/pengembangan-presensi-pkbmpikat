@@ -107,10 +107,99 @@
                     </a>
                 @endif
             </div>
+
+            {{-- ── ESTIMASI HONORARIUM BULAN BERJALAN ── --}}
+            @if ($payrollPreview)
+                <div class="tutorPayrollCard">
+                    <div class="tutorPayrollHead">
+                        <span class="tutorPayrollLabel">ESTIMASI HONORARIUM (BULAN INI)</span>
+                        <ion-icon name="wallet-outline" class="text-success text-lg"></ion-icon>
+                    </div>
+                    <div class="tutorPayrollAmount">{{ $payrollPreview['formatted_total_honor'] ?? 'Rp 0' }}</div>
+                    <div class="tutorPayrollMeta">
+                        <span><ion-icon name="time-outline" class="align-middle"></ion-icon> {{ $payrollPreview['total_jam'] ?? 0 }} Jam Terakumulasi</span>
+                        <span>•</span>
+                        <span><ion-icon name="checkmark-done-circle-outline" class="align-middle"></ion-icon> {{ $payrollPreview['total_sesi_hadir'] ?? 0 }} Sesi Terlaksana</span>
+                    </div>
+                    <a href="{{ route('tutor.payroll.index') }}" class="tutorPayrollLink">
+                        <span>Buka Rincian Slip Gaji Digital</span>
+                        <ion-icon name="arrow-forward-outline"></ion-icon>
+                    </a>
+                </div>
+            @endif
         </div>
 
-        {{-- ── KOLOM KANAN: AKSI CEPAT & RIWAYAT TERBARU ── --}}
+        {{-- ── KOLOM KANAN: JADWAL SESI HARI INI, AKSI CEPAT & RIWAYAT ── --}}
         <div class="dashboardCol">
+            {{-- ── JADWAL SESI KBM HARI INI ── --}}
+            <div class="cardBox">
+                <div class="cardHeadRow">
+                    <h2>
+                        <ion-icon name="calendar-outline" class="text-primary"></ion-icon>
+                        <span>Jadwal KBM Saya Hari Ini</span>
+                    </h2>
+                    <a href="{{ route('tutor.jadwal.index') }}" class="mutedLink">Kalender ›</a>
+                </div>
+
+                <div class="tutorSessionList">
+                    @forelse($todaySessions as $sesi)
+                        @php
+                            $siswaObj = $sesi->murid ?? ($sesi->siswa ?? null);
+                            $siswaName = $siswaObj->nama_lengkap ?? ($siswaObj->nama_murid ?? ($siswaObj->nama_siswa ?? 'Murid PKBM'));
+                            $rawJamMulai = $sesi->jam_masuk_rencana ?? ($sesi->jam_mulai_rencana ?? ($sesi->jam_mulai ?? null));
+                            $rawJamSelesai = $sesi->jam_pulang_rencana ?? ($sesi->jam_selesai_rencana ?? ($sesi->jam_selesai ?? null));
+                            $jamMulaiRencana = $rawJamMulai ? substr((string) $rawJamMulai, 0, 5) : '-';
+                            $jamSelesaiRencana = $rawJamSelesai ? substr((string) $rawJamSelesai, 0, 5) : '-';
+                            $isDone = ($sesi->status === 'selesai' || ($sesi->presensi && $sesi->presensi->foto_selesai));
+                            $isInProgress = (!$isDone && $sesi->presensi && $sesi->presensi->foto_mulai);
+                            $jenjangLabel = $siswaObj?->relKelas?->nama_kelas ?? ($siswaObj?->masterJenjang?->nama_jenjang ?? ($siswaObj?->jenjang_paket_label ?? 'Bimbingan KBM'));
+                            $lokasiLabel = $sesi->lokasiPresensi?->nama_lokasi ?? 'Lokasi Terdaftar';
+                        @endphp
+                        <div class="tutorSessionItem {{ $isDone ? 'done' : '' }}">
+                            <div class="tutorSessionLeft">
+                                <div class="tutorSessionTimeBox">
+                                    <div class="tutorSessionTimeStart">{{ $jamMulaiRencana }}</div>
+                                    <div class="tutorSessionTimeEnd">{{ $jamSelesaiRencana }}</div>
+                                </div>
+                                <div class="tutorSessionInfo">
+                                    <div class="tutorSessionStudent">{{ $siswaName }}</div>
+                                    <div class="tutorSessionMeta">
+                                        <span>{{ $jenjangLabel }}</span>
+                                        <span>•</span>
+                                        <span><ion-icon name="location-outline" class="align-middle"></ion-icon> {{ $lokasiLabel }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tutorSessionAction">
+                                @if($isDone)
+                                    <span class="pill hadir text-xs">
+                                        <ion-icon name="checkmark-circle-outline"></ion-icon> Selesai
+                                    </span>
+                                @elseif($isInProgress)
+                                    <span class="pill proses text-xs">
+                                        <ion-icon name="pulse-outline"></ion-icon> Berlangsung
+                                    </span>
+                                @else
+                                    <a href="{{ route('tutor.presensi') }}" class="btnPresensiCepat masuk" style="padding: 4px 10px; font-size: 11px;">
+                                        <ion-icon name="camera-outline"></ion-icon> Absen
+                                    </a>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="tableEmptyState p-3">
+                            <div class="tableEmptyIconWrap" style="width: 36px; height: 36px; font-size: 18px; margin-bottom: 6px;">
+                                <ion-icon name="calendar-clear-outline" class="tableEmptyIcon"></ion-icon>
+                            </div>
+                            <div class="tableEmptyTitle" style="font-size: 12.5px;">Tidak Ada Jadwal KBM Terjadwal Hari Ini</div>
+                            <div class="tableEmptyDesc" style="font-size: 11px;">
+                                Anda tetap dapat melakukan <strong>Presensi Fleksibel</strong> jika menyelenggarakan bimbingan mandiri.
+                            </div>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
             {{-- ── AKSI CEPAT ── --}}
             <div class="cardBox">
                 <div class="cardHeadRow">

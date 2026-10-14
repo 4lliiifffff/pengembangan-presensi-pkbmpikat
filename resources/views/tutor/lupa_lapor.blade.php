@@ -88,11 +88,17 @@
                         {{-- Murid --}}
                         <div>
                             <div class="fieldLabel">Murid <span class="req">*</span></div>
-                            <select name="siswa_id" class="input" required>
-                                <option value="">- Pilih Murid -</option>
+                            <select name="siswa_id" class="input searchable-select" data-searchable="true" data-placeholder="Cari & Pilih Murid..." required>
+                                <option value="">- Cari / Pilih Murid -</option>
                                 @foreach($siswaList as $siswa)
+                                    @php
+                                        $labelNama = $siswa->nama_murid ?? ($siswa->nama_siswa ?? 'Murid #' . $siswa->id);
+                                        $labelKelas = $siswa->relKelas?->nama_kelas;
+                                        $labelAbk = $siswa->is_abk ? ' [ABK]' : '';
+                                        $labelLengkap = $labelNama . ($labelKelas ? ' • ' . $labelKelas : '') . $labelAbk;
+                                    @endphp
                                     <option value="{{ $siswa->id }}" {{ (string) old('siswa_id', request('siswa_id')) === (string) $siswa->id ? 'selected' : '' }}>
-                                        {{ $siswa->nama_murid ?? $siswa->nama_siswa }}
+                                        {{ $labelLengkap }}
                                     </option>
                                 @endforeach
                             </select>
