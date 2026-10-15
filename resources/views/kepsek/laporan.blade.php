@@ -43,7 +43,20 @@
 
         {{-- ── Filter Card ── --}}
         <div class="laporanFilterCard">
-            <form method="GET" action="{{ route('kepsek.laporan') }}">
+            <div class="laporanFilterHeaderMobile" onclick="toggleKepsekFilter()">
+                <div class="filterMobileSummary">
+                    <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
+                    <div class="filterMobileTexts">
+                        <span class="filterMobileTitle">Parameter &amp; Filter Laporan</span>
+                        <span class="filterMobileSub">{{ $namaBulan[$bulan] ?? 'Semua' }} {{ $tahun }}</span>
+                    </div>
+                </div>
+                <button type="button" class="btnToggleFilterMobile" id="btnToggleKepsekFilter" aria-expanded="false">
+                    <span id="kepsekFilterToggleText">Buka Filter</span>
+                    <ion-icon name="chevron-down-outline" id="kepsekFilterToggleIcon"></ion-icon>
+                </button>
+            </div>
+            <form method="GET" action="{{ route('kepsek.laporan') }}" class="laporanFilterFormBody" id="kepsekFilterForm">
                 <div class="laporanFilterGrid">
                     <div class="filterField">
                         <label class="filterFieldLabel">Bulan</label>
@@ -181,4 +194,18 @@
         @endif
     </div>
 
+    <script>
+        function toggleKepsekFilter() {
+            var formBody = document.getElementById('kepsekFilterForm');
+            var btn = document.getElementById('btnToggleKepsekFilter');
+            var text = document.getElementById('kepsekFilterToggleText');
+            var icon = document.getElementById('kepsekFilterToggleIcon');
+            if (!formBody) return;
+
+            var isOpened = formBody.classList.toggle('filter-open');
+            if (btn) btn.setAttribute('aria-expanded', isOpened ? 'true' : 'false');
+            if (text) text.textContent = isOpened ? 'Tutup Filter' : 'Buka Filter';
+            if (icon) icon.setAttribute('name', isOpened ? 'chevron-up-outline' : 'chevron-down-outline');
+        }
+    </script>
 @endsection

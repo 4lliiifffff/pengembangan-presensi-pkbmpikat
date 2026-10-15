@@ -18049,15 +18049,172 @@ body.app-modal-open {
     color: #ffffff;
 }
 
-/* Matriks Ledger Bulanan Table */
+/* Laporan Charts Grid */
+.laporanChartsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+@media (max-width: 640px) {
+    .laporanChartsGrid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
+/* Collapsible Filter Bar di Mobile */
+.laporanFilterHeaderMobile {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.filterMobileSummary {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.filterMobileIcon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(11, 94, 215, 0.1);
+    color: var(--blue, #0b5ed7);
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.filterMobileTexts {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.filterMobileTitle {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text, #0f172a);
+    line-height: 1.2;
+}
+
+.filterMobileSub {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted, #64748b);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.btnToggleFilterMobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    border: 1px solid var(--border, #e2e8f0);
+    background: var(--card, #ffffff);
+    color: var(--blue, #0b5ed7);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.btnToggleFilterMobile:hover {
+    background: rgba(11, 94, 215, 0.08);
+}
+
+.btnToggleFilterMobile ion-icon {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+}
+
+@media (max-width: 768px) {
+    .laporanFilterHeaderMobile {
+        display: flex;
+    }
+
+    .laporanFilterFormBody {
+        display: none;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--border, #e2e8f0);
+        animation: filterSlideDown 0.22s ease forwards;
+    }
+
+    .laporanFilterFormBody.filter-open {
+        display: block !important;
+    }
+}
+
+@keyframes filterSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Matriks Swipe Hint */
+.matriksSwipeHint {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(11, 94, 215, 0.08);
+    border: 1px solid rgba(11, 94, 215, 0.18);
+    border-radius: 10px;
+    color: var(--blue2, #1a73e8);
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.matriksSwipeHint ion-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    animation: swipePulse 1.8s infinite;
+}
+
+@keyframes swipePulse {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+}
+
+@media (max-width: 992px) {
+    .matriksSwipeHint {
+        display: flex;
+    }
+}
+
+/* Enhanced Matriks Ledger Bulanan Table */
 .table-matriks-ledger {
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     width: 100%;
 }
 
 .table-matriks-ledger th,
 .table-matriks-ledger td {
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border, #e2e8f0);
     text-align: center;
     vertical-align: middle;
 }
@@ -18066,22 +18223,56 @@ body.app-modal-open {
 .table-matriks-ledger td.sticky-col-1 {
     position: sticky;
     left: 0;
-    background: var(--bg-card);
-    z-index: 2;
+    background: var(--card, #ffffff);
+    z-index: 3;
 }
 
 .table-matriks-ledger th.sticky-col-2,
 .table-matriks-ledger td.sticky-col-2 {
     position: sticky;
     left: 32px;
-    background: var(--bg-card);
-    z-index: 2;
+    background: var(--card, #ffffff);
+    z-index: 3;
     text-align: left;
+    box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.1);
 }
 
 .table-matriks-ledger thead th {
-    background: var(--bg-card-alt);
+    background: var(--card-alt, #f8fbff);
     font-weight: 800;
+}
+
+[data-theme="dark"] .table-matriks-ledger th.sticky-col-1,
+[data-theme="dark"] .table-matriks-ledger td.sticky-col-1,
+[data-theme="dark"] .table-matriks-ledger th.sticky-col-2,
+[data-theme="dark"] .table-matriks-ledger td.sticky-col-2 {
+    background: var(--card, #1e293b);
+    box-shadow: 3px 0 6px -2px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .table-matriks-ledger thead th {
+    background: var(--card-alt, #0f172a);
+}
+
+[data-theme="dark"] .filterMobileIcon {
+    background: rgba(96, 165, 250, 0.15);
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .btnToggleFilterMobile {
+    background: var(--card, #1e293b);
+    border-color: var(--border, #334155);
+    color: #60a5fa;
+}
+
+[data-theme="dark"] .btnToggleFilterMobile:hover {
+    background: rgba(96, 165, 250, 0.1);
+}
+
+[data-theme="dark"] .matriksSwipeHint {
+    background: rgba(96, 165, 250, 0.12);
+    border-color: rgba(96, 165, 250, 0.25);
+    color: #93c5fd;
 }
 
 /* ==========================================================================

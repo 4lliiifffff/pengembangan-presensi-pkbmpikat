@@ -56,7 +56,7 @@
         <div class="sectionRow">
             <h2>Analisis &amp; Visualisasi Kehadiran</h2>
         </div>
-        <div class="chartContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1rem;">
+        <div class="chartContainer laporanChartsGrid">
             {{-- Chart 1: Tren Harian --}}
             <div class="chartCard">
                 <div class="chartTitle">Tren Kehadiran Harian Lembaga</div>
@@ -111,7 +111,26 @@
 
         {{-- ── Filter Card Dinamis ── --}}
         <div class="laporanFilterCard">
-            <form method="GET" action="{{ route('admin.laporan.index') }}" id="laporanFilterForm">
+            <div class="laporanFilterHeaderMobile" onclick="toggleMobileFilter()">
+                <div class="filterMobileSummary">
+                    <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
+                    <div class="filterMobileTexts">
+                        <span class="filterMobileTitle">Parameter &amp; Filter Laporan</span>
+                        <span class="filterMobileSub">
+                            @if($activeTab === 'matriks')
+                                {{ \Carbon\Carbon::create(null, $inputBulan, 1)->translatedFormat('F') }} {{ $inputTahun }}
+                            @else
+                                {{ \Carbon\Carbon::parse($inputStartDate)->format('d/m/y') }} s/d {{ \Carbon\Carbon::parse($inputEndDate)->format('d/m/y') }}
+                            @endif
+                        </span>
+                    </div>
+                </div>
+                <button type="button" class="btnToggleFilterMobile" id="btnToggleFilterMobile" aria-expanded="false">
+                    <span id="filterToggleText">Buka Filter</span>
+                    <ion-icon name="chevron-down-outline" id="filterToggleIcon"></ion-icon>
+                </button>
+            </div>
+            <form method="GET" action="{{ route('admin.laporan.index') }}" id="laporanFilterForm" class="laporanFilterFormBody">
                 <input type="hidden" name="tab" value="{{ $activeTab }}">
                 
                 @if($activeTab === 'matriks')
@@ -743,6 +762,76 @@
                     </table>
                 </div>
             </div>
+
+            {{-- Mobile Cards Pegawai --}}
+            <div class="mobile-card-list">
+                @forelse($pegawaiData['records'] as $index => $kp)
+                    @php
+                        $kpTgl = \Carbon\Carbon::parse($kp->tgl_presensi)->format('d/m/Y');
+                        $kpJamMasuk = $kp->jam_mulai ? \Carbon\Carbon::parse($kp->jam_mulai)->format('H:i') : '-';
+                        $kpJamSelesai = $kp->jam_selesai ? \Carbon\Carbon::parse($kp->jam_selesai)->format('H:i') : '-';
+                        $kpName = $kp->user->nama_lengkap ?? '-';
+                        $kpRole = ucfirst($kp->user->role ?? '-');
+                        $lokasi = $kp->lokasi_mulai;
+                    @endphp
+                    <div class="data-mobile-card">
+                        <div class="dmc-header">
+                            <div>
+                                <h3 class="dmc-title">{{ $kpName }}</h3>
+                                <div class="dmc-subtitle">{{ $kpTgl }} &bull; Jabatan: <b class="text-dark">{{ $kpRole }}</b></div>
+                            </div>
+                            <span class="badge text-xs font-bold {{ $kp->user->role === 'admin' ? 'bg-primary-light text-primary' : ($kp->user->role === 'kepala_sekolah' ? 'bg-success-light text-success' : 'bg-muted-light text-muted') }}">
+                                {{ $kpRole }}
+                            </span>
+                        </div>
+                        <div class="dmc-grid">
+                            <div class="dmc-field">
+                                <div class="dmc-label">Jam Masuk</div>
+                                <div class="dmc-value text-success font-bold">{{ $kpJamMasuk }}</div>
+                            </div>
+                            <div class="dmc-field">
+                                <div class="dmc-label">Jam Pulang</div>
+                                <div class="dmc-value text-primary font-bold">{{ $kpJamSelesai }}</div>
+                            </div>
+                        </div>
+                        <div class="dmc-footer">
+                            <div class="d-flex items-center gap-2">
+                                <span class="dmc-label mb-0">Foto:</span>
+                                <div class="fotoStack">
+                                    @if ($kp->foto_mulai)
+                                        <img src="{{ $kp->foto_mulai_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $kp->foto_mulai_url }}', 'Foto Masuk - {{ $kpName }}')">
+                                    @else
+                                        <div class="fotoPlaceholder">M -</div>
+                                    @endif
+                                    @if ($kp->foto_selesai)
+                                        <img src="{{ $kp->foto_selesai_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $kp->foto_selesai_url }}', 'Foto Pulang - {{ $kpName }}')">
+                                    @else
+                                        <div class="fotoPlaceholder">P -</div>
+                                    @endif
+                                </div>
+                            </div>
+                            @if ($lokasi && $lokasi !== '-')
+                                @php
+                                    $titikLok = $kp->lokasiPresensi;
+                                    $tNama = $titikLok?->nama_lokasi ?? '';
+                                    $tLat = $titikLok?->latitude ?? '';
+                                    $tLng = $titikLok?->longitude ?? '';
+                                    $tRad = $titikLok?->radius_meter ?? '';
+                                @endphp
+                                <button type="button" class="mapBtn" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($kpName) }}', 'Staf / {{ $kpRole }}', '{{ addslashes($tNama) }}', '{{ $tLat }}', '{{ $tLng }}', '{{ $tRad }}')">
+                                    <ion-icon name="map-outline"></ion-icon>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="tableEmptyCard">
+                        <div class="tableEmptyIconWrap"><ion-icon name="briefcase-outline"></ion-icon></div>
+                        <div class="tableEmptyTitle">Belum Ada Presensi Pegawai</div>
+                        <div class="tableEmptyDesc">Tidak ada rekaman presensi pegawai pada filter yang dipilih.</div>
+                    </div>
+                @endforelse
+            </div>
         @endif
 
         {{-- ══════════════════════════════════════════════════════════════ --}}
@@ -837,6 +926,79 @@
                     </table>
                 </div>
             </div>
+
+            {{-- Mobile Cards Magang --}}
+            <div class="mobile-card-list">
+                @forelse($magangData['records'] as $index => $mp)
+                    @php
+                        $mpTgl = \Carbon\Carbon::parse($mp->tgl_presensi)->format('d/m/Y');
+                        $mpJamMasuk = $mp->jam_mulai ? \Carbon\Carbon::parse($mp->jam_mulai)->format('H:i') : '-';
+                        $mpJamSelesai = $mp->jam_selesai ? \Carbon\Carbon::parse($mp->jam_selesai)->format('H:i') : '-';
+                        $mpName = $mp->user->nama_lengkap ?? '-';
+                        $mpInstansi = $mp->user->magang?->asal_instansi ?? 'Magang PKBM';
+                        $lokasi = $mp->lokasi_mulai;
+                        $durasiMenit = ($mp->jam_mulai && $mp->jam_selesai) 
+                            ? \Carbon\Carbon::parse($mp->jam_mulai)->diffInMinutes(\Carbon\Carbon::parse($mp->jam_selesai)) 
+                            : 0;
+                    @endphp
+                    <div class="data-mobile-card">
+                        <div class="dmc-header">
+                            <div>
+                                <h3 class="dmc-title">{{ $mpName }}</h3>
+                                <div class="dmc-subtitle">{{ $mpTgl }} &bull; Instansi: <b class="text-dark">{{ $mpInstansi }}</b></div>
+                            </div>
+                            <span class="badge text-xs bg-success-light text-success font-bold px-2 py-1 rounded-pill">
+                                {{ $durasiMenit > 0 ? round($durasiMenit/60, 1) . ' Jam' : '-' }}
+                            </span>
+                        </div>
+                        <div class="dmc-grid">
+                            <div class="dmc-field">
+                                <div class="dmc-label">Jam Masuk</div>
+                                <div class="dmc-value text-success font-bold">{{ $mpJamMasuk }}</div>
+                            </div>
+                            <div class="dmc-field">
+                                <div class="dmc-label">Jam Pulang</div>
+                                <div class="dmc-value text-primary font-bold">{{ $mpJamSelesai }}</div>
+                            </div>
+                        </div>
+                        <div class="dmc-footer">
+                            <div class="d-flex items-center gap-2">
+                                <span class="dmc-label mb-0">Foto:</span>
+                                <div class="fotoStack">
+                                    @if ($mp->foto_mulai)
+                                        <img src="{{ $mp->foto_mulai_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $mp->foto_mulai_url }}', 'Foto Masuk - {{ $mpName }}')">
+                                    @else
+                                        <div class="fotoPlaceholder">M -</div>
+                                    @endif
+                                    @if ($mp->foto_selesai)
+                                        <img src="{{ $mp->foto_selesai_url }}" class="fotoThumbnail cursor-pointer" onclick="openPhotoModal('{{ $mp->foto_selesai_url }}', 'Foto Pulang - {{ $mpName }}')">
+                                    @else
+                                        <div class="fotoPlaceholder">P -</div>
+                                    @endif
+                                </div>
+                            </div>
+                            @if ($lokasi && $lokasi !== '-')
+                                @php
+                                    $titikLok = $mp->lokasiPresensi;
+                                    $tNama = $titikLok?->nama_lokasi ?? '';
+                                    $tLat = $titikLok?->latitude ?? '';
+                                    $tLng = $titikLok?->longitude ?? '';
+                                    $tRad = $titikLok?->radius_meter ?? '';
+                                @endphp
+                                <button type="button" class="mapBtn" onclick="openMapModal('{{ $lokasi }}', '{{ addslashes($mpName) }}', 'Mahasiswa Magang', '{{ addslashes($tNama) }}', '{{ $tLat }}', '{{ $tLng }}', '{{ $tRad }}')">
+                                    <ion-icon name="map-outline"></ion-icon>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="tableEmptyCard">
+                        <div class="tableEmptyIconWrap"><ion-icon name="id-card-outline"></ion-icon></div>
+                        <div class="tableEmptyTitle">Belum Ada Presensi Mahasiswa Magang</div>
+                        <div class="tableEmptyDesc">Tidak ada rekaman presensi magang pada filter yang dipilih.</div>
+                    </div>
+                @endforelse
+            </div>
         @endif
 
         {{-- ══════════════════════════════════════════════════════════════ --}}
@@ -847,7 +1009,7 @@
                 <h2>Pengajuan Izin, Sakit &amp; Rekonsiliasi Lupa Lapor</h2>
             </div>
 
-            {{-- 1. Tabel Pengajuan Izin & Sakit --}}
+            {{-- 1. Pengajuan Izin & Sakit --}}
             <div class="card mb-4 mt-2">
                 <div class="cardTitle flex-between flex-wrap gap-2 mb-3">
                     <div class="d-flex items-center gap-2">
@@ -857,59 +1019,107 @@
                         {{ $perizinanData['totalIzinSakit'] }} Permohonan
                     </span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="table-compact w-full text-left">
-                        <thead>
-                            <tr>
-                                <th class="p-3 w-10">No</th>
-                                <th>Tutor</th>
-                                <th>Jenis</th>
-                                <th>Periode Izin</th>
-                                <th>Alasan</th>
-                                <th>Surat Dokter / Bukti</th>
-                                <th>Status Verifikasi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($perizinanData['izinRecords'] as $idx => $iz)
+                
+                {{-- Desktop Table --}}
+                <div class="table-responsive-desktop">
+                    <div class="overflow-x-auto">
+                        <table class="table-compact w-full text-left">
+                            <thead>
                                 <tr>
-                                    <td class="p-3 font-bold text-muted">{{ $idx + 1 }}</td>
-                                    <td class="font-semibold text-dark">{{ $iz->tutor->nama_lengkap ?? '-' }}</td>
-                                    <td>
-                                        <span class="badge text-xs {{ $iz->jenis === 'sakit' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning' }}">
-                                            {{ $iz->jenis_label }}
-                                        </span>
-                                    </td>
-                                    <td class="font-bold white-space-nowrap">
-                                        {{ \Carbon\Carbon::parse($iz->tgl_mulai)->format('d/m/y') }} s/d {{ \Carbon\Carbon::parse($iz->tgl_selesai)->format('d/m/y') }}
-                                    </td>
-                                    <td class="text-xs text-dark">{{ $iz->alasan }}</td>
-                                    <td>
-                                        @if($iz->dokumen_url)
-                                            <a href="{{ $iz->dokumen_url }}" target="_blank" class="btnNavMaps text-xs py-1 px-2">
-                                                <ion-icon name="document-attach-outline"></ion-icon> Buka Surat
-                                            </a>
-                                        @else
-                                            <span class="text-muted text-xs">-</span>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <span class="badge text-xs font-bold {{ $iz->status === 'disetujui' ? 'bg-success-light text-success' : ($iz->status === 'ditolak' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning') }}">
-                                            {{ ucfirst($iz->status) }}
-                                        </span>
-                                    </td>
+                                    <th class="p-3 w-10">No</th>
+                                    <th>Tutor</th>
+                                    <th>Jenis</th>
+                                    <th>Periode Izin</th>
+                                    <th>Alasan</th>
+                                    <th>Surat Dokter / Bukti</th>
+                                    <th>Status Verifikasi</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center p-4 text-muted">Tidak ada pengajuan izin/sakit pada periode ini.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse($perizinanData['izinRecords'] as $idx => $iz)
+                                    <tr>
+                                        <td class="p-3 font-bold text-muted">{{ $idx + 1 }}</td>
+                                        <td class="font-semibold text-dark">{{ $iz->tutor->nama_lengkap ?? '-' }}</td>
+                                        <td>
+                                            <span class="badge text-xs {{ $iz->jenis === 'sakit' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning' }}">
+                                                {{ $iz->jenis_label }}
+                                            </span>
+                                        </td>
+                                        <td class="font-bold white-space-nowrap">
+                                            {{ \Carbon\Carbon::parse($iz->tgl_mulai)->format('d/m/y') }} s/d {{ \Carbon\Carbon::parse($iz->tgl_selesai)->format('d/m/y') }}
+                                        </td>
+                                        <td class="text-xs text-dark">{{ $iz->alasan }}</td>
+                                        <td>
+                                            @if($iz->dokumen_url)
+                                                <a href="{{ $iz->dokumen_url }}" target="_blank" class="btnNavMaps text-xs py-1 px-2">
+                                                    <ion-icon name="document-attach-outline"></ion-icon> Buka Surat
+                                                </a>
+                                            @else
+                                                <span class="text-muted text-xs">-</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="badge text-xs font-bold {{ $iz->status === 'disetujui' ? 'bg-success-light text-success' : ($iz->status === 'ditolak' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning') }}">
+                                                {{ ucfirst($iz->status) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center p-4 text-muted">Tidak ada pengajuan izin/sakit pada periode ini.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Mobile Cards Izin & Sakit --}}
+                <div class="mobile-card-list">
+                    @forelse($perizinanData['izinRecords'] as $idx => $iz)
+                        <div class="data-mobile-card">
+                            <div class="dmc-header">
+                                <div>
+                                    <h3 class="dmc-title">{{ $iz->tutor->nama_lengkap ?? '-' }}</h3>
+                                    <div class="dmc-subtitle">{{ \Carbon\Carbon::parse($iz->tgl_mulai)->format('d/m/y') }} s/d {{ \Carbon\Carbon::parse($iz->tgl_selesai)->format('d/m/y') }}</div>
+                                </div>
+                                <span class="badge text-xs font-bold {{ $iz->status === 'disetujui' ? 'bg-success-light text-success' : ($iz->status === 'ditolak' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning') }}">
+                                    {{ ucfirst($iz->status) }}
+                                </span>
+                            </div>
+                            <div class="dmc-grid mb-2">
+                                <div class="dmc-field">
+                                    <div class="dmc-label">Jenis</div>
+                                    <span class="badge text-xs {{ $iz->jenis === 'sakit' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning' }}">
+                                        {{ $iz->jenis_label }}
+                                    </span>
+                                </div>
+                                <div class="dmc-field">
+                                    <div class="dmc-label">Lampiran Bukti</div>
+                                    @if($iz->dokumen_url)
+                                        <a href="{{ $iz->dokumen_url }}" target="_blank" class="btnNavMaps text-xs py-1 px-2">
+                                            <ion-icon name="document-attach-outline"></ion-icon> Buka Surat
+                                        </a>
+                                    @else
+                                        <span class="text-muted text-xs">-</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="dmc-field">
+                                <div class="dmc-label">Alasan</div>
+                                <div class="text-xs text-dark" style="background: var(--bg, #f8fafc); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);">{{ $iz->alasan }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="tableEmptyCard">
+                            <div class="tableEmptyIconWrap"><ion-icon name="medkit-outline"></ion-icon></div>
+                            <div class="tableEmptyTitle">Tidak Ada Pengajuan Izin/Sakit</div>
+                        </div>
+                    @endforelse
                 </div>
             </div>
 
-            {{-- 2. Tabel Pengajuan Lupa Lapor --}}
+            {{-- 2. Pengajuan Lupa Lapor --}}
             <div class="card mb-4">
                 <div class="cardTitle flex-between flex-wrap gap-2 mb-3">
                     <div class="d-flex items-center gap-2">
@@ -919,44 +1129,87 @@
                         {{ $perizinanData['totalLupaLapor'] }} Pengajuan
                     </span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="table-compact w-full text-left">
-                        <thead>
-                            <tr>
-                                <th class="p-3 w-10">No</th>
-                                <th>Tutor</th>
-                                <th>Murid</th>
-                                <th>Tanggal Mengajar</th>
-                                <th>Jam Sesi</th>
-                                <th>Alasan</th>
-                                <th>Status Kepsek</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($perizinanData['lupaRecords'] as $idx => $lp)
-                                @php
-                                    $lpMurid = $lp->murid ?? $lp->siswa;
-                                @endphp
+                
+                {{-- Desktop Table --}}
+                <div class="table-responsive-desktop">
+                    <div class="overflow-x-auto">
+                        <table class="table-compact w-full text-left">
+                            <thead>
                                 <tr>
-                                    <td class="p-3 font-bold text-muted">{{ $idx + 1 }}</td>
-                                    <td class="font-semibold text-dark">{{ $lp->tutor->nama_lengkap ?? '-' }}</td>
-                                    <td class="font-semibold">{{ $lpMurid->nama_murid ?? ($lpMurid->nama_siswa ?? '-') }}</td>
-                                    <td class="font-bold white-space-nowrap">{{ \Carbon\Carbon::parse($lp->tanggal)->format('d/m/Y') }}</td>
-                                    <td class="font-bold text-success">{{ $lp->jam_mulai }} - {{ $lp->jam_selesai }}</td>
-                                    <td class="text-xs text-dark">{{ $lp->alasan }}</td>
-                                    <td>
-                                        <span class="badge text-xs font-bold {{ $lp->status === 'disetujui' ? 'bg-success-light text-success' : ($lp->status === 'ditolak' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning') }}">
-                                            {{ ucfirst($lp->status) }}
-                                        </span>
-                                    </td>
+                                    <th class="p-3 w-10">No</th>
+                                    <th>Tutor</th>
+                                    <th>Murid</th>
+                                    <th>Tanggal Mengajar</th>
+                                    <th>Jam Sesi</th>
+                                    <th>Alasan</th>
+                                    <th>Status Kepsek</th>
                                 </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="text-center p-4 text-muted">Tidak ada data pengajuan lupa lapor pada periode ini.</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @forelse($perizinanData['lupaRecords'] as $idx => $lp)
+                                    @php
+                                        $lpMurid = $lp->murid ?? $lp->siswa;
+                                    @endphp
+                                    <tr>
+                                        <td class="p-3 font-bold text-muted">{{ $idx + 1 }}</td>
+                                        <td class="font-semibold text-dark">{{ $lp->tutor->nama_lengkap ?? '-' }}</td>
+                                        <td class="font-semibold">{{ $lpMurid->nama_murid ?? ($lpMurid->nama_siswa ?? '-') }}</td>
+                                        <td class="font-bold white-space-nowrap">{{ \Carbon\Carbon::parse($lp->tanggal)->format('d/m/Y') }}</td>
+                                        <td class="font-bold text-success">{{ $lp->jam_mulai }} - {{ $lp->jam_selesai }}</td>
+                                        <td class="text-xs text-dark">{{ $lp->alasan }}</td>
+                                        <td>
+                                            <span class="badge text-xs font-bold {{ $lp->status === 'disetujui' ? 'bg-success-light text-success' : ($lp->status === 'ditolak' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning') }}">
+                                                {{ ucfirst($lp->status) }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="7" class="text-center p-4 text-muted">Tidak ada data pengajuan lupa lapor pada periode ini.</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {{-- Mobile Cards Lupa Lapor --}}
+                <div class="mobile-card-list">
+                    @forelse($perizinanData['lupaRecords'] as $idx => $lp)
+                        @php
+                            $lpMurid = $lp->murid ?? $lp->siswa;
+                        @endphp
+                        <div class="data-mobile-card">
+                            <div class="dmc-header">
+                                <div>
+                                    <h3 class="dmc-title">{{ $lp->tutor->nama_lengkap ?? '-' }}</h3>
+                                    <div class="dmc-subtitle">Murid: <b class="text-dark">{{ $lpMurid->nama_murid ?? ($lpMurid->nama_siswa ?? '-') }}</b></div>
+                                </div>
+                                <span class="badge text-xs font-bold {{ $lp->status === 'disetujui' ? 'bg-success-light text-success' : ($lp->status === 'ditolak' ? 'bg-danger-light text-danger' : 'bg-warning-light text-warning') }}">
+                                    {{ ucfirst($lp->status) }}
+                                </span>
+                            </div>
+                            <div class="dmc-grid mb-2">
+                                <div class="dmc-field">
+                                    <div class="dmc-label">Tanggal Mengajar</div>
+                                    <div class="dmc-value font-bold">{{ \Carbon\Carbon::parse($lp->tanggal)->format('d/m/Y') }}</div>
+                                </div>
+                                <div class="dmc-field">
+                                    <div class="dmc-label">Jam Sesi</div>
+                                    <div class="dmc-value text-success font-bold">{{ $lp->jam_mulai }} - {{ $lp->jam_selesai }}</div>
+                                </div>
+                            </div>
+                            <div class="dmc-field">
+                                <div class="dmc-label">Alasan Koreksi</div>
+                                <div class="text-xs text-dark" style="background: var(--bg, #f8fafc); padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border);">{{ $lp->alasan }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="tableEmptyCard">
+                            <div class="tableEmptyIconWrap"><ion-icon name="time-outline"></ion-icon></div>
+                            <div class="tableEmptyTitle">Tidak Ada Pengajuan Lupa Lapor</div>
+                        </div>
+                    @endforelse
                 </div>
             </div>
         @endif
@@ -977,7 +1230,12 @@
                     <span class="badge text-xs bg-warning-light text-warning font-bold px-2 py-1">I: Izin</span>
                     <span class="badge text-xs bg-info-light text-info font-bold px-2 py-1">S: Sakit</span>
                     <span class="badge text-xs bg-danger-light text-danger font-bold px-2 py-1">A: Alpa</span>
-                </div>
+            </div>
+
+            {{-- Swipe Guide Hint untuk Mobile --}}
+            <div class="matriksSwipeHint">
+                <ion-icon name="swap-horizontal-outline"></ion-icon>
+                <span>Geser tabel ke samping untuk melihat seluruh tanggal 1 s/d {{ $matriksData['daysInMonth'] }}</span>
             </div>
 
             <div class="tableContainer m-0 mb-4 rounded-xl border-base overflow-x-auto" style="max-width: 100%;">
@@ -1318,6 +1576,19 @@
             var bounds = L.latLngBounds([[targetLat, targetLng], [lat, lng]]);
             adminLeafletMap.fitBounds(bounds, { padding: [40, 40] });
             setTimeout(() => { if (adminLeafletMap) adminLeafletMap.invalidateSize(); }, 100);
+        }
+
+        function toggleMobileFilter() {
+            var formBody = document.querySelector('.laporanFilterFormBody');
+            var btn = document.getElementById('btnToggleFilterMobile');
+            var text = document.getElementById('filterToggleText');
+            var icon = document.getElementById('filterToggleIcon');
+            if (!formBody) return;
+
+            var isOpened = formBody.classList.toggle('filter-open');
+            if (btn) btn.setAttribute('aria-expanded', isOpened ? 'true' : 'false');
+            if (text) text.textContent = isOpened ? 'Tutup Filter' : 'Buka Filter';
+            if (icon) icon.setAttribute('name', isOpened ? 'chevron-up-outline' : 'chevron-down-outline');
         }
 
         function closeModal(id) {
