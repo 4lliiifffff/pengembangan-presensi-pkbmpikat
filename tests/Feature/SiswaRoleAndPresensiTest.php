@@ -61,7 +61,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         $siswaUser = User::factory()->create([
             'role' => 'siswa',
             'nik' => 'SWTEST01',
-            'password' => bcrypt('password123'),
+            'password' => 'password123',
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);

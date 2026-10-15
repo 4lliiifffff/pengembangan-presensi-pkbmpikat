@@ -74,9 +74,12 @@ class MuridObserver
                     'is_active' => $isActive,
                 ];
 
-                $collision = User::where('nik', $preferredNik)->where('id', '!=', $user->id)->exists();
-                if (! $collision) {
-                    $userUpdates['nik'] = $preferredNik;
+                $targetNik = $murid->nis ?: ($murid->nisn ?: (empty($user->nik) ? $mrdNik : null));
+                if ($targetNik && $targetNik !== $user->nik) {
+                    $collision = User::where('nik', $targetNik)->where('id', '!=', $user->id)->exists();
+                    if (! $collision) {
+                        $userUpdates['nik'] = $targetNik;
+                    }
                 }
 
                 $user->updateQuietly($userUpdates);

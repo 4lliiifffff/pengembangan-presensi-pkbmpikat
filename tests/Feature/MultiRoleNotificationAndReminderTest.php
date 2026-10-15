@@ -179,6 +179,7 @@ class MultiRoleNotificationAndReminderTest extends TestCase
             'nama_wali' => 'Wali Notif',
             'no_hp' => '081234567899',
             'kelas_id' => $kls->id,
+            'tutor_id' => $tutor->id,
             'status_siswa' => 'aktif',
             'is_abk' => false,
         ]);
