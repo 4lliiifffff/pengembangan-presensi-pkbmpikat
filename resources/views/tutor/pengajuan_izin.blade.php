@@ -201,9 +201,9 @@
 
                             @if($r->dokumen_url)
                                 <div class="mt-2">
-                                    <a href="{{ $r->dokumen_url }}" target="_blank" class="izinDocBtn">
+                                    <a href="{{ $r->dokumen_url }}" target="_blank" class="btn-dokumen-lampiran">
                                         <ion-icon name="document-attach-outline"></ion-icon>
-                                        <span>Lihat Dokumen Surat Bukti</span>
+                                        <span>Lihat Dokumen Lampiran</span>
                                     </a>
                                 </div>
                             @endif

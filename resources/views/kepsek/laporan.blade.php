@@ -41,9 +41,34 @@
             </div>
         </div>
 
+        {{-- Quick Filter Chips Bar --}}
+        @php
+            $currentMonth = \Carbon\Carbon::now('Asia/Jakarta')->month;
+            $currentYear = \Carbon\Carbon::now('Asia/Jakarta')->year;
+            $prev1 = \Carbon\Carbon::now('Asia/Jakarta')->subMonth();
+            $prev2 = \Carbon\Carbon::now('Asia/Jakarta')->subMonths(2);
+        @endphp
+        <div class="filterChipsBar">
+            <a href="{{ route('kepsek.laporan', array_merge(request()->except(['bulan', 'tahun']), ['bulan' => $currentMonth, 'tahun' => $currentYear])) }}"
+               class="filterChip {{ ($bulan == $currentMonth && $tahun == $currentYear) ? 'active' : '' }}">
+                <ion-icon name="calendar-outline"></ion-icon>
+                <span>Bulan Ini ({{ $namaBulan[$currentMonth] ?? '' }})</span>
+            </a>
+            <a href="{{ route('kepsek.laporan', array_merge(request()->except(['bulan', 'tahun']), ['bulan' => $prev1->month, 'tahun' => $prev1->year])) }}"
+               class="filterChip {{ ($bulan == $prev1->month && $tahun == $prev1->year) ? 'active' : '' }}">
+                <ion-icon name="time-outline"></ion-icon>
+                <span>Bulan Lalu ({{ $namaBulan[$prev1->month] ?? '' }})</span>
+            </a>
+            <a href="{{ route('kepsek.laporan', array_merge(request()->except(['bulan', 'tahun']), ['bulan' => $prev2->month, 'tahun' => $prev2->year])) }}"
+               class="filterChip {{ ($bulan == $prev2->month && $tahun == $prev2->year) ? 'active' : '' }}">
+                <ion-icon name="calendar-number-outline"></ion-icon>
+                <span>{{ $namaBulan[$prev2->month] ?? '' }} {{ $prev2->year }}</span>
+            </a>
+        </div>
+
         {{-- ── Filter Card ── --}}
         <div class="laporanFilterCard">
-            <div class="laporanFilterHeaderMobile" onclick="toggleKepsekFilter()">
+            <div class="laporanFilterHeaderMobile">
                 <div class="filterMobileSummary">
                     <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
                     <div class="filterMobileTexts">
@@ -52,8 +77,8 @@
                     </div>
                 </div>
                 <button type="button" class="btnToggleFilterMobile" id="btnToggleKepsekFilter" aria-expanded="false">
-                    <span id="kepsekFilterToggleText">Buka Filter</span>
-                    <ion-icon name="chevron-down-outline" id="kepsekFilterToggleIcon"></ion-icon>
+                    <span class="filterToggleText" id="kepsekFilterToggleText">Buka Filter</span>
+                    <ion-icon name="chevron-down-outline" class="filterToggleIcon" id="kepsekFilterToggleIcon"></ion-icon>
                 </button>
             </div>
             <form method="GET" action="{{ route('kepsek.laporan') }}" class="laporanFilterFormBody" id="kepsekFilterForm">
@@ -111,6 +136,28 @@
                         <a href="{{ route('kepsek.laporan') }}" class="btn-filter-reset">
                             Reset
                         </a>
+
+                        @php
+                            $hasActiveKepsekFilters = request()->filled('tutor_id') || request()->filled('siswa_id') || ($bulan != $currentMonth || $tahun != $currentYear);
+                        @endphp
+                        @if($hasActiveKepsekFilters)
+                            <div class="activeFilterWrap">
+                                <span class="activeFilterLead"><ion-icon name="funnel-outline"></ion-icon> Filter Aktif:</span>
+                                <span class="activeFilterTag">Periode: {{ $namaBulan[$bulan] ?? '' }} {{ $tahun }}</span>
+                                @if(request()->filled('tutor_id'))
+                                    @php $selTut = $allTutors->firstWhere('id', request('tutor_id')); @endphp
+                                    @if($selTut)
+                                        <span class="activeFilterTag">Tutor: {{ $selTut->nama_lengkap }}</span>
+                                    @endif
+                                @endif
+                                @if(request()->filled('siswa_id'))
+                                    @php $selSis = $allSiswas->firstWhere('id', request('siswa_id')); @endphp
+                                    @if($selSis)
+                                        <span class="activeFilterTag">Murid: {{ $selSis->nama_murid ?? $selSis->nama_siswa }}</span>
+                                    @endif
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
             </form>
@@ -194,18 +241,5 @@
         @endif
     </div>
 
-    <script>
-        function toggleKepsekFilter() {
-            var formBody = document.getElementById('kepsekFilterForm');
-            var btn = document.getElementById('btnToggleKepsekFilter');
-            var text = document.getElementById('kepsekFilterToggleText');
-            var icon = document.getElementById('kepsekFilterToggleIcon');
-            if (!formBody) return;
 
-            var isOpened = formBody.classList.toggle('filter-open');
-            if (btn) btn.setAttribute('aria-expanded', isOpened ? 'true' : 'false');
-            if (text) text.textContent = isOpened ? 'Tutup Filter' : 'Buka Filter';
-            if (icon) icon.setAttribute('name', isOpened ? 'chevron-up-outline' : 'chevron-down-outline');
-        }
-    </script>
 @endsection

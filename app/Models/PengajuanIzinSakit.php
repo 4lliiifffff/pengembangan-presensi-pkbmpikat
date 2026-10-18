@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Storage;
 
 class PengajuanIzinSakit extends Model
 {
@@ -54,7 +53,13 @@ class PengajuanIzinSakit extends Model
             return $this->dokumen_surat;
         }
 
-        return Storage::url($this->dokumen_surat);
+        if ($this->id) {
+            return route('pengajuan-izin.dokumen', $this->id);
+        }
+
+        $cleanPath = ltrim(str_replace('storage/', '', $this->dokumen_surat), '/');
+
+        return asset('storage/'.$cleanPath);
     }
 
     /**

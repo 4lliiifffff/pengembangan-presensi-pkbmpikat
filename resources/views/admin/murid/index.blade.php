@@ -120,7 +120,20 @@
 
     {{-- ── Filter Card ── --}}
     <div class="laporanFilterCard">
-        <form method="GET" action="{{ route('admin.murid.index') }}" id="filterMuridForm">
+        <div class="laporanFilterHeaderMobile">
+            <div class="filterMobileSummary">
+                <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
+                <div class="filterMobileTexts">
+                    <span class="filterMobileTitle">Parameter &amp; Filter Murid</span>
+                    <span class="filterMobileSub">{{ request('q') ? 'Cari: ' . request('q') : 'Status: ' . ucfirst($status) }}</span>
+                </div>
+            </div>
+            <button type="button" class="btnToggleFilterMobile" aria-expanded="false">
+                <span class="filterToggleText">Buka Filter</span>
+                <ion-icon name="chevron-down-outline" class="filterToggleIcon"></ion-icon>
+            </button>
+        </div>
+        <form method="GET" action="{{ route('admin.murid.index') }}" class="laporanFilterFormBody" id="filterMuridForm">
             <div class="laporanFilterGrid muridFilterGrid">
                 <div class="filterField filterFieldSearch">
                     <label class="filterFieldLabel">Pencarian</label>

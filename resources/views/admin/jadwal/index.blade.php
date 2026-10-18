@@ -76,12 +76,6 @@
 
 
 
-        @if (session('warning'))
-            <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-warning bg-warning-subtle text-warning text-sm d-flex items-center gap-2">
-                <ion-icon name="warning-outline" style="font-size: 20px; flex-shrink: 0;"></ion-icon>
-                <span>{{ session('warning') }}</span>
-            </div>
-        @endif
 
         @if ($errors->any())
             <div class="max-w-4xl mx-auto mb-3 p-3 rounded-xl border border-danger bg-danger-subtle text-danger text-sm">

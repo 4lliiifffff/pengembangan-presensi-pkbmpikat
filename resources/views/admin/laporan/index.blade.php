@@ -109,9 +109,76 @@
             </div>
         </div>
 
+        @php
+            $todayStr = \Carbon\Carbon::now('Asia/Jakarta')->toDateString();
+            $startOfMonthStr = \Carbon\Carbon::now('Asia/Jakarta')->startOfMonth()->toDateString();
+            $last7DaysStr = \Carbon\Carbon::now('Asia/Jakarta')->subDays(6)->toDateString();
+            $startOfLastMonthStr = \Carbon\Carbon::now('Asia/Jakarta')->subMonth()->startOfMonth()->toDateString();
+            $endOfLastMonthStr = \Carbon\Carbon::now('Asia/Jakarta')->subMonth()->endOfMonth()->toDateString();
+
+            $isBulanIni = ($inputStartDate === $startOfMonthStr && $inputEndDate === $todayStr);
+            $isHariIni = ($inputStartDate === $todayStr && $inputEndDate === $todayStr);
+            $is7Hari = ($inputStartDate === $last7DaysStr && $inputEndDate === $todayStr);
+            $isBulanLalu = ($inputStartDate === $startOfLastMonthStr && $inputEndDate === $endOfLastMonthStr);
+        @endphp
+
+        {{-- ── Quick Filter Chips Bar (Standardized) ── --}}
+        @if($activeTab === 'matriks')
+            <div class="filterChipsBar">
+                @php
+                    $nowC = \Carbon\Carbon::now('Asia/Jakarta');
+                    $lastMonthC = \Carbon\Carbon::now('Asia/Jakarta')->subMonth();
+                    $twoMonthC = \Carbon\Carbon::now('Asia/Jakarta')->subMonths(2);
+                @endphp
+                <a href="{{ route('admin.laporan.index', ['tab' => 'matriks', 'bulan' => $nowC->month, 'tahun' => $nowC->year, 'jenjang_paket_id' => request('jenjang_paket_id'), 'kelas_id' => request('kelas_id')]) }}"
+                   class="filterChip {{ ($inputBulan == $nowC->month && $inputTahun == $nowC->year) ? 'active' : '' }}">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Bulan Ini ({{ $nowC->translatedFormat('F') }})</span>
+                    <span class="filterChipBadge">{{ $matriksData['totalSiswa'] }}</span>
+                </a>
+                <a href="{{ route('admin.laporan.index', ['tab' => 'matriks', 'bulan' => $lastMonthC->month, 'tahun' => $lastMonthC->year, 'jenjang_paket_id' => request('jenjang_paket_id'), 'kelas_id' => request('kelas_id')]) }}"
+                   class="filterChip {{ ($inputBulan == $lastMonthC->month && $inputTahun == $lastMonthC->year) ? 'active' : '' }}">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>{{ $lastMonthC->translatedFormat('F Y') }}</span>
+                </a>
+                <a href="{{ route('admin.laporan.index', ['tab' => 'matriks', 'bulan' => $twoMonthC->month, 'tahun' => $twoMonthC->year, 'jenjang_paket_id' => request('jenjang_paket_id'), 'kelas_id' => request('kelas_id')]) }}"
+                   class="filterChip {{ ($inputBulan == $twoMonthC->month && $inputTahun == $twoMonthC->year) ? 'active' : '' }}">
+                    <ion-icon name="archive-outline"></ion-icon>
+                    <span>{{ $twoMonthC->translatedFormat('F Y') }}</span>
+                </a>
+            </div>
+        @else
+            <div class="filterChipsBar">
+                <a href="{{ route('admin.laporan.index', array_merge(request()->query(), ['start_date' => $startOfMonthStr, 'end_date' => $todayStr])) }}"
+                   class="filterChip {{ $isBulanIni ? 'active' : '' }}">
+                    <ion-icon name="calendar-outline"></ion-icon>
+                    <span>Bulan Ini</span>
+                    <span class="filterChipBadge">{{ \Carbon\Carbon::now('Asia/Jakarta')->translatedFormat('M') }}</span>
+                </a>
+
+                <a href="{{ route('admin.laporan.index', array_merge(request()->query(), ['start_date' => $last7DaysStr, 'end_date' => $todayStr])) }}"
+                   class="filterChip {{ $is7Hari ? 'active' : '' }}">
+                    <ion-icon name="time-outline"></ion-icon>
+                    <span>7 Hari Terakhir</span>
+                </a>
+
+                <a href="{{ route('admin.laporan.index', array_merge(request()->query(), ['start_date' => $todayStr, 'end_date' => $todayStr])) }}"
+                   class="filterChip {{ $isHariIni ? 'active' : '' }}">
+                    <ion-icon name="today-outline"></ion-icon>
+                    <span>Hari Ini</span>
+                </a>
+
+                <a href="{{ route('admin.laporan.index', array_merge(request()->query(), ['start_date' => $startOfLastMonthStr, 'end_date' => $endOfLastMonthStr])) }}"
+                   class="filterChip {{ $isBulanLalu ? 'active' : '' }}">
+                    <ion-icon name="archive-outline"></ion-icon>
+                    <span>Bulan Lalu</span>
+                </a>
+            </div>
+        @endif
+
         {{-- ── Filter Card Dinamis ── --}}
         <div class="laporanFilterCard">
-            <div class="laporanFilterHeaderMobile" onclick="toggleMobileFilter()">
+            <div class="laporanFilterHeaderMobile">
                 <div class="filterMobileSummary">
                     <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
                     <div class="filterMobileTexts">
@@ -126,8 +193,8 @@
                     </div>
                 </div>
                 <button type="button" class="btnToggleFilterMobile" id="btnToggleFilterMobile" aria-expanded="false">
-                    <span id="filterToggleText">Buka Filter</span>
-                    <ion-icon name="chevron-down-outline" id="filterToggleIcon"></ion-icon>
+                    <span class="filterToggleText" id="filterToggleText">Buka Filter</span>
+                    <ion-icon name="chevron-down-outline" class="filterToggleIcon" id="filterToggleIcon"></ion-icon>
                 </button>
             </div>
             <form method="GET" action="{{ route('admin.laporan.index') }}" id="laporanFilterForm" class="laporanFilterFormBody">
@@ -183,6 +250,25 @@
                                 <ion-icon name="document-text-outline"></ion-icon> Cetak Ledger PDF
                             </button>
                             <a href="{{ route('admin.laporan.index', ['tab' => 'matriks']) }}" class="btn-filter-reset">Reset</a>
+
+                            @if(request()->filled('jenjang_paket_id') || request()->filled('kelas_id') || $inputBulan != \Carbon\Carbon::now('Asia/Jakarta')->month || $inputTahun != \Carbon\Carbon::now('Asia/Jakarta')->year)
+                                <div class="activeFilterWrap">
+                                    <span class="activeFilterLead"><ion-icon name="funnel-outline"></ion-icon> Filter Aktif:</span>
+                                    <span class="activeFilterTag">Periode: {{ \Carbon\Carbon::create(null, $inputBulan, 1)->translatedFormat('F') }} {{ $inputTahun }}</span>
+                                    @if(request()->filled('jenjang_paket_id'))
+                                        @php $selJp = $jenjangPakets->firstWhere('id', request('jenjang_paket_id')); @endphp
+                                        @if($selJp)
+                                            <span class="activeFilterTag">Jenjang: {{ $selJp->nama_jenjang }}</span>
+                                        @endif
+                                    @endif
+                                    @if(request()->filled('kelas_id'))
+                                        @php $selK = $kelasList->firstWhere('id', request('kelas_id')); @endphp
+                                        @if($selK)
+                                            <span class="activeFilterTag">Kelas: {{ $selK->nama_kelas }}</span>
+                                        @endif
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @else
@@ -301,6 +387,64 @@
                                 <ion-icon name="cloud-upload-outline"></ion-icon> Import Log
                             </button>
                             <a href="{{ route('admin.laporan.index', ['tab' => $activeTab]) }}" class="btn-filter-reset">Reset</a>
+
+                            @php
+                                $hasActiveGeneralFilters = request()->filled('tutor_id')
+                                    || request()->filled('murid_id')
+                                    || request()->filled('siswa_id')
+                                    || request()->filled('moda_pembelajaran')
+                                    || request()->filled('role')
+                                    || request()->filled('user_id')
+                                    || request()->filled('lokasi_presensi_id')
+                                    || request()->filled('status')
+                                    || request()->filled('start_date')
+                                    || request()->filled('end_date');
+                            @endphp
+                            @if($hasActiveGeneralFilters)
+                                <div class="activeFilterWrap">
+                                    <span class="activeFilterLead"><ion-icon name="funnel-outline"></ion-icon> Filter Aktif:</span>
+                                    <span class="activeFilterTag">Periode: {{ \Carbon\Carbon::parse($inputStartDate)->translatedFormat('d M Y') }} &mdash; {{ \Carbon\Carbon::parse($inputEndDate)->translatedFormat('d M Y') }}</span>
+                                    @if(request()->filled('tutor_id'))
+                                        @php $selTut = $tutors->firstWhere('id', request('tutor_id')); @endphp
+                                        @if($selTut)
+                                            <span class="activeFilterTag">Tutor: {{ $selTut->nama_lengkap }}</span>
+                                        @endif
+                                    @endif
+                                    @if(request()->filled('murid_id') || request()->filled('siswa_id'))
+                                        @php
+                                            $mId = request('murid_id', request('siswa_id'));
+                                            $allM = ($murids ?? ($siswas ?? collect()));
+                                            $selMur = $allM->firstWhere('id', $mId);
+                                        @endphp
+                                        @if($selMur)
+                                            <span class="activeFilterTag">Murid: {{ $selMur->nama_murid ?? $selMur->nama_siswa }}</span>
+                                        @endif
+                                    @endif
+                                    @if(request()->filled('moda_pembelajaran'))
+                                        <span class="activeFilterTag">Moda: {{ ucfirst(str_replace('_', ' ', request('moda_pembelajaran'))) }}</span>
+                                    @endif
+                                    @if(request()->filled('role'))
+                                        <span class="activeFilterTag">Peran: {{ ucfirst(str_replace('_', ' ', request('role'))) }}</span>
+                                    @endif
+                                    @if(request()->filled('user_id'))
+                                        @php
+                                            $selUser = ($magangUsers ?? collect())->firstWhere('id', request('user_id'));
+                                        @endphp
+                                        @if($selUser)
+                                            <span class="activeFilterTag">Peserta: {{ $selUser->nama_lengkap }}</span>
+                                        @endif
+                                    @endif
+                                    @if(request()->filled('lokasi_presensi_id'))
+                                        @php $selLok = $lokasiPresensis->firstWhere('id', request('lokasi_presensi_id')); @endphp
+                                        @if($selLok)
+                                            <span class="activeFilterTag">Lokasi: {{ $selLok->nama_lokasi }}</span>
+                                        @endif
+                                    @endif
+                                    @if(request()->filled('status'))
+                                        <span class="activeFilterTag tag-warning">Status: {{ ucfirst(request('status')) }}</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endif
@@ -1578,18 +1722,6 @@
             setTimeout(() => { if (adminLeafletMap) adminLeafletMap.invalidateSize(); }, 100);
         }
 
-        function toggleMobileFilter() {
-            var formBody = document.querySelector('.laporanFilterFormBody');
-            var btn = document.getElementById('btnToggleFilterMobile');
-            var text = document.getElementById('filterToggleText');
-            var icon = document.getElementById('filterToggleIcon');
-            if (!formBody) return;
-
-            var isOpened = formBody.classList.toggle('filter-open');
-            if (btn) btn.setAttribute('aria-expanded', isOpened ? 'true' : 'false');
-            if (text) text.textContent = isOpened ? 'Tutup Filter' : 'Buka Filter';
-            if (icon) icon.setAttribute('name', isOpened ? 'chevron-up-outline' : 'chevron-down-outline');
-        }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');

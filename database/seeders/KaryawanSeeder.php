@@ -108,16 +108,6 @@ class KaryawanSeeder extends Seeder
                 'jabatan' => 'Tutor / Pegawai Kontrak',
                 'alamat' => 'Bandung, Jawa Barat',
             ],
-            // 10. Kak Dani (Tutor Pendamping Peserta Didik)
-            [
-                'nik' => 'TTR008',
-                'nama_lengkap' => 'Dani Pratama, S.Pd.',
-                'email' => 'dani.pratama@pkbmpikat.com',
-                'role' => 'tutor',
-                'no_hp' => '081234567810',
-                'jabatan' => 'Tutor / Pendamping',
-                'alamat' => 'Bandung, Jawa Barat',
-            ],
         ];
 
         foreach ($karyawanList as $item) {

@@ -28,6 +28,9 @@
     @if(session('error'))
         <meta name="flash-error" content="{{ session('error') }}">
     @endif
+    @if($errors->any())
+        <meta name="flash-error" content="{{ $errors->first() }}">
+    @endif
     @if(session('info'))
         <meta name="flash-info" content="{{ session('info') }}">
     @endif

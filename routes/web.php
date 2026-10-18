@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\PayrollController;
 use App\Http\Controllers\Auth\SimpikatSsoController;
 use App\Http\Controllers\AuthWebController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DokumenIzinController;
 use App\Http\Controllers\KaryawanPresensiController;
 use App\Http\Controllers\Kepsek\KepsekDashboardController;
 use App\Http\Controllers\Magang\MagangDashboardController;
@@ -100,6 +101,8 @@ Route::middleware('auth')->prefix('profil')->name('profil.')->group(function () 
     Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('password');
 });
 
+Route::middleware('auth')->get('/pengajuan-izin/{id}/dokumen', [DokumenIzinController::class, 'show'])->name('pengajuan-izin.dokumen');
+
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
@@ -157,6 +160,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     // Kelola Izin Tutor
     Route::get('/izin', [IzinController::class, 'index'])->name('izin.index');
     Route::get('/pengajuan-izin', [IzinController::class, 'index'])->name('pengajuan-izin');
+    Route::patch('/pengajuan-izin/{id}/setujui', [IzinController::class, 'setujuiPengajuanIzin'])->name('pengajuan-izin.setujui');
+    Route::patch('/pengajuan-izin/{id}/tolak', [IzinController::class, 'tolakPengajuanIzin'])->name('pengajuan-izin.tolak');
+    Route::delete('/pengajuan-izin/{id}', [IzinController::class, 'destroyPengajuanIzin'])->name('pengajuan-izin.destroy');
     Route::post('/izin', [IzinController::class, 'store'])->name('izin.store');
     Route::delete('/izin/{id}', [IzinController::class, 'destroy'])->name('izin.destroy');
     Route::get('/izin/murid/{tutorId}', [IzinController::class, 'getMuridByTutor'])->name('izin.murid');

@@ -4895,6 +4895,15 @@ body.login-page {
     border-color: rgba(11, 94, 215, 0.3);
 }
 
+@media (max-width: 576px) {
+    .izinDocBtn {
+        width: 100%;
+        min-height: 40px;
+        box-sizing: border-box;
+        justify-content: center;
+    }
+}
+
 .izinCatatan {
     margin-top: 10px;
     padding: 10px 12px;
@@ -6768,6 +6777,13 @@ input[type="date"].filterInput {
     margin-bottom: 20px;
 }
 
+@media (max-width: 640px) {
+    .kllList {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
 .kllCard {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg, 18px);
@@ -7040,6 +7056,75 @@ input[type="date"].filterInput {
 
     .btn-kll-delete {
         width: 100% !important;
+    }
+}
+
+/* ── Tombol Dokumen / Lampiran Surat Izin Terpadu ── */
+.btn-dokumen-lampiran {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
+    min-height: 38px;
+    padding: 0 16px;
+    border-radius: 11px;
+    background: rgba(11, 94, 215, 0.08);
+    color: var(--blue2, #0b5ed7) !important;
+    border: 1px solid rgba(11, 94, 215, 0.22);
+    font-size: 12.5px;
+    font-weight: 700;
+    font-family: inherit;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+    max-width: 100%;
+}
+
+.btn-dokumen-lampiran:hover {
+    background: rgba(11, 94, 215, 0.16);
+    border-color: rgba(11, 94, 215, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(11, 94, 215, 0.15);
+    color: var(--blue2, #0b5ed7) !important;
+}
+
+.btn-dokumen-lampiran ion-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+    color: var(--blue2, #0b5ed7);
+}
+
+.btn-dokumen-lampiran span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+[data-theme="dark"] .btn-dokumen-lampiran {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.25);
+    color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .btn-dokumen-lampiran:hover {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: rgba(56, 189, 248, 0.45);
+    color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .btn-dokumen-lampiran ion-icon {
+    color: #38bdf8;
+}
+
+@media (max-width: 576px) {
+    .btn-dokumen-lampiran {
+        width: 100%;
+        height: 40px;
+        min-height: 40px;
+        font-size: 12px;
+        padding: 0 12px;
+        justify-content: center;
     }
 }
 
@@ -7770,6 +7855,13 @@ input[type="date"].filterInput {
     margin-bottom: 18px;
 }
 
+@media (max-width: 480px) {
+    .statRow {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+}
+
 .statCard {
     background: var(--card);
     border: 1px solid var(--border);
@@ -7835,14 +7927,102 @@ input[type="date"].filterInput {
 }
 
 .badgeCount {
-    font-size: 11px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: rgba(11, 94, 215, 0.10);
-    color: var(--blue2);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 700;
+    line-height: 1.25;
+    padding: 3.5px 10px;
+    border-radius: 9999px;
+    background: rgba(11, 94, 215, 0.08);
+    color: var(--blue2, #0b5ed7);
     border: 1px solid rgba(11, 94, 215, 0.18);
     white-space: nowrap;
+    vertical-align: middle;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.badgeCount ion-icon {
+    font-size: 13.5px;
+    flex-shrink: 0;
+}
+
+/* Varian Danger / Alert (Soft subtle tint, anti-harsh contrast di light mode) */
+.badgeCount.danger,
+.badgeCount.is-danger,
+.badgeCount.bg-danger {
+    background: rgba(239, 68, 68, 0.10) !important;
+    color: #dc2626 !important;
+    border: 1px solid rgba(239, 68, 68, 0.22) !important;
+}
+
+/* Varian Success */
+.badgeCount.success,
+.badgeCount.is-success,
+.badgeCount.bg-success {
+    background: rgba(22, 163, 74, 0.10) !important;
+    color: #15803d !important;
+    border: 1px solid rgba(22, 163, 74, 0.22) !important;
+}
+
+/* Varian Warning */
+.badgeCount.warning,
+.badgeCount.is-warning,
+.badgeCount.bg-warning {
+    background: rgba(245, 158, 11, 0.12) !important;
+    color: #b45309 !important;
+    border: 1px solid rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Varian Info */
+.badgeCount.info,
+.badgeCount.is-info,
+.badgeCount.bg-info {
+    background: rgba(6, 182, 212, 0.10) !important;
+    color: #0891b2 !important;
+    border: 1px solid rgba(6, 182, 212, 0.22) !important;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .badgeCount,
+body.dark-mode .badgeCount {
+    background: rgba(59, 130, 246, 0.16);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.32);
+}
+
+[data-theme="dark"] .badgeCount.danger,
+[data-theme="dark"] .badgeCount.is-danger,
+[data-theme="dark"] .badgeCount.bg-danger,
+body.dark-mode .badgeCount.danger,
+body.dark-mode .badgeCount.is-danger,
+body.dark-mode .badgeCount.bg-danger {
+    background: rgba(239, 68, 68, 0.22) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.38) !important;
+}
+
+[data-theme="dark"] .badgeCount.success,
+[data-theme="dark"] .badgeCount.is-success,
+[data-theme="dark"] .badgeCount.bg-success,
+body.dark-mode .badgeCount.success,
+body.dark-mode .badgeCount.is-success,
+body.dark-mode .badgeCount.bg-success {
+    background: rgba(34, 197, 94, 0.20) !important;
+    color: #86efac !important;
+    border-color: rgba(34, 197, 94, 0.38) !important;
+}
+
+[data-theme="dark"] .badgeCount.warning,
+[data-theme="dark"] .badgeCount.is-warning,
+[data-theme="dark"] .badgeCount.bg-warning,
+body.dark-mode .badgeCount.warning,
+body.dark-mode .badgeCount.is-warning,
+body.dark-mode .badgeCount.bg-warning {
+    background: rgba(245, 158, 11, 0.20) !important;
+    color: #fde047 !important;
+    border-color: rgba(245, 158, 11, 0.38) !important;
 }
 
 .tutorList {
@@ -8588,6 +8768,14 @@ textarea.formControl {
     gap: 14px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
     transition: transform 0.15s, box-shadow 0.15s;
+}
+
+@media (max-width: 480px) {
+    .riwayatRow {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
 }
 
 .riwayatRow:hover {
@@ -11151,92 +11339,6 @@ textarea {
     margin-top: 2px;
 }
 
-.kllList {
-    padding: 0 16px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.kllCard {
-    background: var(--card);
-    border-radius: var(--radius-md);
-    border: 1px solid var(--border);
-    overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.kllCardStrip {
-    padding: 12px 16px;
-    background: var(--card-alt);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.kllTutorName {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text);
-}
-
-.kllTutorId {
-    font-size: 11px;
-    color: var(--muted);
-}
-
-.kllCardBody {
-    padding: 16px;
-}
-
-.kllSiswaLabel {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.kllSiswaVal {
-    font-weight: 700;
-    font-size: 14px;
-    color: var(--text);
-    margin-top: 2px;
-}
-
-.kllJamBox {
-    margin-top: 6px;
-    font-size: 12px;
-    color: var(--muted);
-}
-
-.kllAlasanWrap {
-    background: var(--card-alt);
-    padding: 12px;
-    border-radius: 10px;
-    margin: 12px 0;
-    border: 1px solid var(--border);
-}
-
-.kllAlasanLbl {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--muted);
-    margin-bottom: 4px;
-}
-
-.kllAlasanTxt {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.5;
-}
-
-
-
 @media (min-width: 768px) {
 
     .kllHeader,
@@ -11250,11 +11352,6 @@ textarea {
 
     .summaryBadgeGrid {
         padding: 0 24px 20px;
-        gap: 16px;
-    }
-
-    .kllList {
-        padding: 0 24px 28px;
         gap: 16px;
     }
 }
@@ -18036,17 +18133,65 @@ body.app-modal-open {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 2px 8px;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 7px;
     border-radius: 9999px;
     background: rgba(0, 0, 0, 0.06);
     color: inherit;
     font-size: 11px;
     font-weight: 800;
+    line-height: 1;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.laporanTabBtn .tabBadge.danger,
+.laporanTabBtn .tabBadge.is-danger,
+.laporanTabBtn .tabBadge.bg-danger {
+    background: rgba(239, 68, 68, 0.12) !important;
+    color: #dc2626 !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
 }
 
 .laporanTabBtn.active .tabBadge {
     background: rgba(255, 255, 255, 0.25);
     color: #ffffff;
+}
+
+.laporanTabBtn.active .tabBadge.danger,
+.laporanTabBtn.active .tabBadge.is-danger,
+.laporanTabBtn.active .tabBadge.bg-danger {
+    background: #ffffff !important;
+    color: #dc2626 !important;
+    border: 1px solid transparent !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="dark"] .laporanTabBtn .tabBadge,
+body.dark-mode .laporanTabBtn .tabBadge {
+    background: rgba(255, 255, 255, 0.10);
+    color: inherit;
+}
+
+[data-theme="dark"] .laporanTabBtn .tabBadge.danger,
+[data-theme="dark"] .laporanTabBtn .tabBadge.is-danger,
+[data-theme="dark"] .laporanTabBtn .tabBadge.bg-danger,
+body.dark-mode .laporanTabBtn .tabBadge.danger,
+body.dark-mode .laporanTabBtn .tabBadge.is-danger,
+body.dark-mode .laporanTabBtn .tabBadge.bg-danger {
+    background: rgba(239, 68, 68, 0.25) !important;
+    color: #fca5a5 !important;
+    border: 1px solid rgba(239, 68, 68, 0.40) !important;
+}
+
+[data-theme="dark"] .laporanTabBtn.active .tabBadge.danger,
+[data-theme="dark"] .laporanTabBtn.active .tabBadge.is-danger,
+[data-theme="dark"] .laporanTabBtn.active .tabBadge.bg-danger,
+body.dark-mode .laporanTabBtn.active .tabBadge.danger,
+body.dark-mode .laporanTabBtn.active .tabBadge.is-danger,
+body.dark-mode .laporanTabBtn.active .tabBadge.bg-danger {
+    background: #ffffff !important;
+    color: #b91c1c !important;
 }
 
 /* Laporan Charts Grid */
@@ -18066,7 +18211,8 @@ body.app-modal-open {
 }
 
 /* Collapsible Filter Bar di Mobile */
-.laporanFilterHeaderMobile {
+.laporanFilterHeaderMobile,
+.filterHeaderMobile {
     display: none;
     align-items: center;
     justify-content: space-between;
@@ -18145,11 +18291,13 @@ body.app-modal-open {
 }
 
 @media (max-width: 768px) {
-    .laporanFilterHeaderMobile {
+    .laporanFilterHeaderMobile,
+    .filterHeaderMobile {
         display: flex;
     }
 
-    .laporanFilterFormBody {
+    .laporanFilterFormBody,
+    .filterFormBody {
         display: none;
         margin-top: 14px;
         padding-top: 14px;
@@ -18157,7 +18305,8 @@ body.app-modal-open {
         animation: filterSlideDown 0.22s ease forwards;
     }
 
-    .laporanFilterFormBody.filter-open {
+    .laporanFilterFormBody.filter-open,
+    .filterFormBody.filter-open {
         display: block !important;
     }
 }
@@ -18310,7 +18459,7 @@ body.app-modal-open {
 .filterChip:hover {
     border-color: #cbd5e1;
     color: var(--text, #0f172a);
-    background: var(--bg-hover, #f8fafc);
+    background: #f1f5f9;
 }
 
 .filterChip.active {
@@ -18318,6 +18467,12 @@ body.app-modal-open {
     color: #ffffff;
     border-color: #2563eb;
     box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+}
+
+.filterChip.active:hover {
+    background: #1d4ed8;
+    border-color: #1d4ed8;
+    color: #ffffff;
 }
 
 .filterChip.active ion-icon {
@@ -18352,6 +18507,55 @@ body.app-modal-open {
 .filterChip.active .filterChipBadge.badge-danger-chip {
     background: #ef4444;
     color: #ffffff;
+}
+
+/* Dark Mode Tokens for Filter Chips Bar */
+[data-theme="dark"] .filterChip {
+    background: #1e293b;
+    border-color: #334155;
+    color: #94a3b8;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme="dark"] .filterChip:hover {
+    background: #334155;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .filterChip.active {
+    background: #2563eb;
+    border-color: #3b82f6;
+    color: #ffffff;
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+}
+
+[data-theme="dark"] .filterChip.active:hover {
+    background: #1d4ed8;
+    border-color: #60a5fa;
+    color: #ffffff;
+}
+
+[data-theme="dark"] .filterChipBadge {
+    background: #334155;
+    color: #cbd5e1;
+}
+
+[data-theme="dark"] .filterChip.active .filterChipBadge {
+    background: rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+}
+
+[data-theme="dark"] .filterChipBadge.badge-danger-chip {
+    background: rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+[data-theme="dark"] .filterChip.active .filterChipBadge.badge-danger-chip {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: transparent;
 }
 
 .muridFilterGrid .filterFieldSearch {
@@ -18398,6 +18602,22 @@ body.app-modal-open {
     background: #fff7ed;
     color: #c2410c;
     border-color: #fed7aa;
+}
+
+[data-theme="dark"] .activeFilterTag {
+    background: rgba(30, 58, 138, 0.35);
+    color: #93c5fd;
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+[data-theme="dark"] .activeFilterTag.tag-warning {
+    background: rgba(124, 45, 18, 0.35);
+    color: #fdba74;
+    border-color: rgba(249, 115, 22, 0.4);
+}
+
+[data-theme="dark"] .activeFilterLead {
+    color: var(--muted, #94a3b8);
 }
 
 .tutor-assigned-pill {

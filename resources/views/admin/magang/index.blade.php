@@ -63,7 +63,20 @@
 
     {{-- ── Filter Card ── --}}
     <div class="laporanFilterCard">
-        <form method="GET" action="{{ route('admin.magang.index') }}">
+        <div class="laporanFilterHeaderMobile">
+            <div class="filterMobileSummary">
+                <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
+                <div class="filterMobileTexts">
+                    <span class="filterMobileTitle">Parameter &amp; Filter Magang</span>
+                    <span class="filterMobileSub">{{ !empty($search) ? 'Cari: ' . $search : ($status !== null && $status !== '' ? 'Status: ' . ($status === '1' ? 'Aktif' : 'Nonaktif') : 'Semua Status') }}</span>
+                </div>
+            </div>
+            <button type="button" class="btnToggleFilterMobile" aria-expanded="false">
+                <span class="filterToggleText">Buka Filter</span>
+                <ion-icon name="chevron-down-outline" class="filterToggleIcon"></ion-icon>
+            </button>
+        </div>
+        <form method="GET" action="{{ route('admin.magang.index') }}" class="laporanFilterFormBody">
             <div class="laporanFilterGrid">
                 <div class="filterField">
                     <label class="filterFieldLabel">Pencarian Peserta Magang</label>

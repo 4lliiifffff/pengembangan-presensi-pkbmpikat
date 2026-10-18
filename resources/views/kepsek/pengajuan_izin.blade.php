@@ -38,7 +38,20 @@
 
         {{-- ── Filter Card ── --}}
         <div class="laporanFilterCard">
-            <form method="GET" action="{{ route('kepsek.pengajuan-izin') }}">
+            <div class="laporanFilterHeaderMobile">
+                <div class="filterMobileSummary">
+                    <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
+                    <div class="filterMobileTexts">
+                        <span class="filterMobileTitle">Parameter &amp; Filter Pengajuan Izin</span>
+                        <span class="filterMobileSub">{{ request('status') ? 'Status: ' . ucfirst(request('status')) : 'Semua Status' }}</span>
+                    </div>
+                </div>
+                <button type="button" class="btnToggleFilterMobile" aria-expanded="false">
+                    <span class="filterToggleText">Buka Filter</span>
+                    <ion-icon name="chevron-down-outline" class="filterToggleIcon"></ion-icon>
+                </button>
+            </div>
+            <form method="GET" action="{{ route('kepsek.pengajuan-izin') }}" class="laporanFilterFormBody">
                 <div class="laporanFilterGrid">
                     <div class="filterField">
                         <label class="filterFieldLabel">Status</label>
@@ -138,10 +151,10 @@
                         </div>
 
                         @if($item->dokumen_url)
-                            <div class="mt-1">
-                                <a href="{{ $item->dokumen_url }}" target="_blank" class="btnOutline btn-action-pill px-3 text-sm">
-                                    <ion-icon name="document-attach-outline" class="icon-sm text-primary"></ion-icon>
-                                    <span>Lihat Surat Lampiran</span>
+                            <div class="mt-2">
+                                <a href="{{ $item->dokumen_url }}" target="_blank" class="btn-dokumen-lampiran">
+                                    <ion-icon name="document-attach-outline"></ion-icon>
+                                    <span>Lihat Dokumen Lampiran</span>
                                 </a>
                             </div>
                         @endif
