@@ -23,14 +23,14 @@ return [
     'shifts' => [
         'pagi' => [
             'id' => 'pagi',
-            'nama' => 'Shift Pagi',
-            'jam_masuk' => '08:00',
-            'jam_pulang' => '16:00',
+            'nama' => 'Shift Reguler Magang',
+            'jam_masuk' => '09:00',
+            'jam_pulang' => '15:00',
         ],
         'siang' => [
             'id' => 'siang',
-            'nama' => 'Shift Siang',
-            'jam_masuk' => '13:00',
+            'nama' => 'Shift Siang Magang',
+            'jam_masuk' => '12:00',
             'jam_pulang' => '17:00',
         ],
     ],

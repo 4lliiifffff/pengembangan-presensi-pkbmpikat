@@ -205,6 +205,22 @@ class MagangController extends Controller
     {
         try {
             DB::beginTransaction();
+
+            // Hapus file foto profil jika ada
+            if ($magang->magang && $magang->magang->foto && Storage::disk('public')->exists($magang->magang->foto)) {
+                Storage::disk('public')->delete($magang->magang->foto);
+            }
+
+            // Hapus foto bukti presensi jika ada
+            foreach ($magang->presensiKaryawans as $presensi) {
+                if ($presensi->foto_mulai && Storage::disk('public')->exists($presensi->foto_mulai)) {
+                    Storage::disk('public')->delete($presensi->foto_mulai);
+                }
+                if ($presensi->foto_selesai && Storage::disk('public')->exists($presensi->foto_selesai)) {
+                    Storage::disk('public')->delete($presensi->foto_selesai);
+                }
+            }
+
             $magang->magang()->delete();
             $magang->presensiKaryawans()->delete();
             $magang->delete();

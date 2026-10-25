@@ -34,6 +34,13 @@ class ShiftPresensiTest extends TestCase
 
     public function test_shift_service_evaluates_exact_and_tolerance_times(): void
     {
+        Config::set('presensi_sk.shifts.pagi', [
+            'id' => 'pagi',
+            'nama' => 'Shift Pagi',
+            'jam_masuk' => '08:00',
+            'jam_pulang' => '16:00',
+        ]);
+
         $service = new ShiftPresensiService;
 
         // 1. Lebih awal: 07:15 WIB (Batas awal 07:30 untuk shift 08:00)

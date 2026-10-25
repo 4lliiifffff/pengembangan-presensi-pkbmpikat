@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Model Magang - Data Profil Mahasiswa Magang / Siswa PKL
@@ -50,6 +51,14 @@ class Magang extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * Relasi: Magang memiliki riwayat presensi karyawan (One-to-Many / HasMany via user_id).
+     */
+    public function presensiKaryawans(): HasMany
+    {
+        return $this->hasMany(PresensiKaryawan::class, 'user_id', 'user_id');
     }
 
     /**

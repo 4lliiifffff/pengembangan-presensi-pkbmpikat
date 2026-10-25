@@ -6,9 +6,9 @@
 
 Sistem Presensi Digital PKBM Pikat pada mulanya dikembangkan untuk memenuhi kebutuhan pencatatan kehadiran tutor bimbingan belajar secara digital melalui foto kamera dan pencatatan koordinat GPS. Namun, seiring dengan dinamika operasional bimbingan belajar non-formal yang semakin kompleks, sistem terdahulu menghadapi berbagai kendala teknis, inkonsistensi arsitektur data, celah keamanan, dan keterbatasan fungsional. 
 
-Pada sistem terdahulu, logika penggajian tutor masih didasarkan pada perkalian tarif per jam yang tersimpan statis pada tabel siswa. Pola ini tidak mencerminkan realitas hukum dan manajemen sekolah yang berpedoman pada Surat Keputusan (SK) Kepala PKBM mengenai tarif honor per pertemuan berdasarkan kategori tutorial (Komunitas, Distance Learning, ABK, dan Gabungan Rombel). Selain itu, sistem lama belum memiliki mekanisme penjadwalan sesi belajar mandiri oleh tutor, belum mengakomodasi peran siswa untuk melakukan presensi mandiri, belum mampu mendeteksi manipulasi sinyal GPS, rentan terhadap kegagalan infrastruktur akibat dependensi CDN pihak ketiga, dan kerap mengalami pesan peringatan usang pada lingkungan runtime PHP 8.5+.
+Pada sistem terdahulu, sistem murni hanya mencatat presensi tanpa memiliki modul penggajian atau perhitungan honorarium tutor sama sekali. Perhitungan honor mengajar dilakukan secara manual di luar sistem oleh pihak bendahara lembaga, yang memakan waktu dan rentan terjadi ketidaksesuaian dengan Surat Keputusan (SK) Kepala PKBM mengenai tarif honor per pertemuan berdasarkan kategori tutorial (Komunitas, Distance Learning, ABK, dan Gabungan Rombel). Selain itu, sistem lama belum memiliki mekanisme penjadwalan sesi belajar mandiri oleh tutor, belum mengakomodasi peran siswa untuk melakukan presensi mandiri, belum mampu mendeteksi manipulasi sinyal GPS, rentan terhadap kegagalan infrastruktur akibat dependensi CDN pihak ketiga, dan kerap mengalami pesan peringatan usang pada lingkungan runtime PHP 8.5+.
 
-Menanggapi berbagai tantangan tersebut, dilakukan restrukturisasi menyeluruh dan pengembangan bertahap yang mencakup perbaikan keamanan, penguatan integritas basis data relasional, otomasi payroll berskema SK, desentralisasi penjadwalan KBM, implementasi portal presensi siswa, penyediaan Web Push Notification real-time, hingga modernisasi antarmuka pengguna berbasis *Mobile-First Design System*.
+Menanggapi berbagai tantangan tersebut, dilakukan restrukturisasi menyeluruh dan pengembangan bertahap yang mencakup perbaikan keamanan, penguatan integritas basis data relasional, perancangan modul baru otomasi payroll berskema SK dari nol, desentralisasi penjadwalan KBM, implementasi portal presensi siswa, penyediaan Web Push Notification real-time, hingga modernisasi antarmuka pengguna berbasis *Mobile-First Design System*.
 
 ---
 
@@ -79,11 +79,11 @@ Dokumen ini disusun sebagai instrumen pelaporan komprehensif yang menguraikan se
 
 ### 3.4 Sistem Penggajian dan Honorarium Berbasis SK Kepala PKBM
 
-* **Master Kategori Tutorial dan Skema Tarif Resmi SK**  
-  Struktur penggajian dirombak total agar tunduk pada Surat Keputusan (SK) resmi Kepala PKBM Pikat. Sistem menyediakan master tarif berdasar 6 kategori utama (Komunitas 2 Jam, Komunitas ABK 2 Jam, Komunitas 3 Jam, Gabungan Rombel, Distance Learning 1,5 Jam, dan DL ABK), menggantikan logika perkalian tarif per jam yang tidak relevan dengan ketentuan lembaga.
+* **Perancangan Modul Penggajian Baru Berbasis Master Tarif SK Resmi**  
+  Pada sistem sebelumnya, tidak tersedia fitur penggajian sama sekali sehingga bendahara harus menghitung honor secara manual di buku kas terpisah. Pada sistem v2 ini, dibangun modul penggajian baru dari nol yang terintegrasi langsung dengan data presensi dan tunduk pada Surat Keputusan (SK) resmi Kepala PKBM Pikat. Sistem menyediakan master tarif berdasar 6 kategori utama (Komunitas 2 Jam, Komunitas ABK 2 Jam, Komunitas 3 Jam, Gabungan Rombel, Distance Learning 1,5 Jam, dan DL ABK).
 
 * **Engine Honor Otomatis dan Penguncian Nilai Historis (Snapshot Immutability)**  
-  Sistem membangun kalkulator otomatis yang mencocokkan kategori sesi belajar, durasi pilihan tutor, dan karakteristik siswa. Nominal honor langsung dikunci (*snapshot*) ke dalam riwayat presensi saat absensi dibuat, menjamin bahwa laporan honorarium masa lalu tidak akan pernah berubah atau rusak meskipun master tarif diperbarui di masa mendatang. Kolom lama tarif per jam pada tabel siswa pun dihapus bersih.
+  Sistem membangun kalkulator otomatis yang mencocokkan kategori sesi belajar, durasi pilihan tutor, dan karakteristik siswa. Nominal honor langsung dikunci (*snapshot*) ke dalam riwayat presensi saat absensi dibuat, menjamin bahwa laporan honorarium masa lalu tidak akan pernah berubah atau rusak meskipun master tarif diperbarui di masa mendatang.
 
 * **Dinamisasi Penambahan Layanan dan Perlindungan Relasi Berlapis**  
   Admin sekolah diberikan keleluasaan mendaftarkan kategori program bimbingan belajar baru secara fleksibel tanpa batasan sistem. Untuk menjaga keutuhan laporan keuangan, kategori yang sudah pernah digunakan pada data jadwal atau presensi tidak dapat dihapus permanen oleh admin, melainkan dialihkan statusnya menjadi non-aktif secara otomatis sehingga arsip riwayat gaji masa lalu tetap terlindungi 100%.

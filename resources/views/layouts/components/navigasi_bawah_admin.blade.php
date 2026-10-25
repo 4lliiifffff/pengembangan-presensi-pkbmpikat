@@ -104,8 +104,8 @@
                             <ion-icon name="time-outline"></ion-icon>
                         </div>
                         <div class="navCardMeta">
-                            <div class="navCardTitle">Shift &amp; Jam Presensi</div>
-                            <div class="navCardDesc">Master Jam Kerja Kantor</div>
+                            <div class="navCardTitle">Shift Kerja Magang</div>
+                            <div class="navCardDesc">Master Jam Piket Magang</div>
                         </div>
                     </a>
 

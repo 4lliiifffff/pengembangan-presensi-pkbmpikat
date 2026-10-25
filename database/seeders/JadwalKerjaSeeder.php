@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\JadwalKerja;
-use App\Models\KategoriTutorial;
 use Illuminate\Database\Seeder;
 
 class JadwalKerjaSeeder extends Seeder
@@ -13,65 +12,34 @@ class JadwalKerjaSeeder extends Seeder
      */
     public function run(): void
     {
-        $katKomunitas2 = KategoriTutorial::where('jenis_layanan', 'komunitas')->where('durasi_jam', 2.00)->first();
-        $katDl15 = KategoriTutorial::where('jenis_layanan', 'dl')->where('durasi_jam', 1.50)->first();
-
         $shifts = [
             [
-                'nama_shift' => 'Shift Pagi (Staf & Magang)',
+                'nama_shift' => 'Shift Reguler Magang (09:00 - 15:00)',
                 'kode_shift' => 'pagi',
                 'jenis_shift' => 'umum',
                 'kategori_tutorial_id' => null,
-                'jam_masuk' => '08:00:00',
-                'jam_pulang' => '16:00:00',
-                'durasi_jam' => 8.00,
+                'jam_masuk' => '09:00:00',
+                'jam_pulang' => '15:00:00',
+                'durasi_jam' => 6.00,
                 'earliest_minutes' => 30,
                 'tolerance_minutes' => 30,
                 'is_aktif' => true,
                 'urutan' => 1,
-                'keterangan' => 'Jadwal kerja operasional reguler untuk staf tata usaha, pengelola, dan mahasiswa magang/PKL.',
+                'keterangan' => 'Jadwal operasional mahasiswa magang/PKL (09:00 - 15:00 WIB, fleksibel disesuaikan oleh Admin).',
             ],
             [
-                'nama_shift' => 'Shift Siang (Staf & Magang)',
+                'nama_shift' => 'Shift Siang Magang (12:00 - 17:00)',
                 'kode_shift' => 'siang',
                 'jenis_shift' => 'umum',
                 'kategori_tutorial_id' => null,
-                'jam_masuk' => '13:00:00',
+                'jam_masuk' => '12:00:00',
                 'jam_pulang' => '17:00:00',
-                'durasi_jam' => 4.00,
+                'durasi_jam' => 5.00,
                 'earliest_minutes' => 30,
                 'tolerance_minutes' => 30,
                 'is_aktif' => true,
                 'urutan' => 2,
-                'keterangan' => 'Jadwal kerja operasional sesi siang kantor PKBM Pikat.',
-            ],
-            [
-                'nama_shift' => 'Shift KBM Komunitas Pagi (2 Jam)',
-                'kode_shift' => 'kbm_komunitas_pagi',
-                'jenis_shift' => 'kbm',
-                'kategori_tutorial_id' => $katKomunitas2?->id,
-                'jam_masuk' => '08:00:00',
-                'jam_pulang' => '10:00:00',
-                'durasi_jam' => $katKomunitas2?->durasi_jam ?? 2.00,
-                'earliest_minutes' => 30,
-                'tolerance_minutes' => 30,
-                'is_aktif' => true,
-                'urutan' => 3,
-                'keterangan' => 'Sesi KBM Tutorial Tatap Muka Komunitas durasi 2 jam tatap muka.',
-            ],
-            [
-                'nama_shift' => 'Shift KBM Distance Learning Siang (1.5 Jam)',
-                'kode_shift' => 'kbm_dl_siang',
-                'jenis_shift' => 'kbm',
-                'kategori_tutorial_id' => $katDl15?->id,
-                'jam_masuk' => '13:00:00',
-                'jam_pulang' => '14:30:00',
-                'durasi_jam' => $katDl15?->durasi_jam ?? 1.50,
-                'earliest_minutes' => 30,
-                'tolerance_minutes' => 30,
-                'is_aktif' => true,
-                'urutan' => 4,
-                'keterangan' => 'Sesi KBM Tutorial Online (Distance Learning) durasi 1.5 jam daring.',
+                'keterangan' => 'Jadwal alternatif sesi siang mahasiswa magang/PKL jika diperlukan.',
             ],
         ];
 
@@ -81,5 +49,10 @@ class JadwalKerjaSeeder extends Seeder
                 $shift
             );
         }
+
+        // Bersihkan shift KBM lama jika tidak memiliki riwayat presensi
+        JadwalKerja::whereIn('kode_shift', ['kbm_komunitas_pagi', 'kbm_dl_siang'])
+            ->whereDoesntHave('presensis')
+            ->delete();
     }
 }

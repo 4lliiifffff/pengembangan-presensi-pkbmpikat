@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Shift & Jam Presensi - Admin')
+@section('title', 'Shift & Jam Kerja Magang - Admin')
 
 @section('content')
 
@@ -9,15 +9,28 @@
         <div class="laporanHeader">
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
-                    <div class="laporanHeaderLabel">KEBIJAKAN JAM KERJA &amp; SK</div>
-                    <h1 class="laporanHeaderTitle">Shift &amp; Jam Presensi</h1>
-                    <div class="laporanHeaderSub">Master jam masuk, jam pulang, toleransi keterlambatan, dan jam kerja kantor</div>
-                    <p class="laporanHeaderDesc">Kelola konfigurasi shift kerja resmi untuk karyawan, mahasiswa magang/PKL, dan tutor mengajar.</p>
+                    <div class="laporanHeaderLabel">KEBIJAKAN JAM PIKET OPERASIONAL</div>
+                    <h1 class="laporanHeaderTitle">Shift &amp; Jam Kerja Magang (PKL)</h1>
+                    <div class="laporanHeaderSub">Master jam piket, jam kepulangan, dan toleransi keterlambatan mahasiswa magang/PKL</div>
+                    <p class="laporanHeaderDesc">Kelola konfigurasi jadwal shift operasional resmi untuk mahasiswa magang/PKL di lingkungan kantor PKBM Pikat.</p>
                 </div>
                 <div class="laporanHeaderActions header-actions-group">
                     <a href="{{ route('admin.jadwal-kerja.create') }}" class="profileBtnPrimary">
-                        <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Shift Baru
+                        <ion-icon name="add-circle-outline" class="icon-sm"></ion-icon> Tambah Shift Magang
                     </a>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Notice / Information Box ── --}}
+        <div class="mb-4 p-4 rounded-xl border-base bg-card-alt flex items-start gap-3">
+            <div class="text-primary text-xl mt-0.5">
+                <ion-icon name="information-circle"></ion-icon>
+            </div>
+            <div class="text-sm">
+                <div class="font-bold text-dark">Informasi Penting Pengaturan Shift:</div>
+                <div class="text-muted mt-1 leading-relaxed">
+                    Pengaturan shift ini <strong>khusus mengatur jam operasional piket Mahasiswa Magang/PKL</strong>. Untuk jadwal mengajar <strong>Tutor</strong> dan jam belajar <strong>Murid</strong>, dikelola secara independen dan dinamis melalui menu <a href="{{ route('admin.jadwal-sesi-kbm.index') }}" class="text-primary font-bold hover:underline">Jadwal Sesi KBM</a>.
                 </div>
             </div>
         </div>
@@ -26,7 +39,7 @@
         <div class="kpi-grid mb-4">
             <div class="kpi-card emerald">
                 <div class="kpi-top">
-                    <div class="kpi-label">Total Jadwal Shift</div>
+                    <div class="kpi-label">Total Shift Magang</div>
                     <div class="kpi-icon-wrap">
                         <ion-icon name="time-outline"></ion-icon>
                     </div>
@@ -46,33 +59,20 @@
                 </div>
                 <div>
                     <div class="kpi-val">{{ $stats['active'] }} Shift</div>
-                    <div class="kpi-sub">Dapat dipilih saat absensi</div>
+                    <div class="kpi-sub">Dapat digunakan saat absensi</div>
                 </div>
             </div>
 
             <div class="kpi-card cyan">
                 <div class="kpi-top">
-                    <div class="kpi-label">Shift Umum</div>
+                    <div class="kpi-label">Rata-rata Durasi</div>
                     <div class="kpi-icon-wrap">
-                        <ion-icon name="business-outline"></ion-icon>
+                        <ion-icon name="hourglass-outline"></ion-icon>
                     </div>
                 </div>
                 <div>
-                    <div class="kpi-val">{{ $stats['umum'] }} Shift</div>
-                    <div class="kpi-sub">Staf, Karyawan &amp; Magang</div>
-                </div>
-            </div>
-
-            <div class="kpi-card purple">
-                <div class="kpi-top">
-                    <div class="kpi-label">Shift KBM Tutor</div>
-                    <div class="kpi-icon-wrap">
-                        <ion-icon name="school-outline"></ion-icon>
-                    </div>
-                </div>
-                <div>
-                    <div class="kpi-val">{{ $stats['kbm'] }} Shift</div>
-                    <div class="kpi-sub">Terintegrasi Kategori SK</div>
+                    <div class="kpi-val">{{ $stats['avg_duration'] }} Jam</div>
+                    <div class="kpi-sub">Durasi piket per hari</div>
                 </div>
             </div>
         </div>
@@ -83,8 +83,8 @@
                 <div class="filterMobileSummary">
                     <span class="filterMobileIcon"><ion-icon name="filter-outline"></ion-icon></span>
                     <div class="filterMobileTexts">
-                        <span class="filterMobileTitle">Parameter &amp; Filter Jadwal Shift</span>
-                        <span class="filterMobileSub">{{ request('search') ? 'Cari: ' . request('search') : (request('jenis_shift') ? 'Peruntukan: ' . ucfirst(request('jenis_shift')) : 'Semua Shift') }}</span>
+                        <span class="filterMobileTitle">Filter Jadwal Shift</span>
+                        <span class="filterMobileSub">{{ request('search') ? 'Cari: ' . request('search') : 'Semua Shift Magang' }}</span>
                     </div>
                 </div>
                 <button type="button" class="btnToggleFilterMobile" aria-expanded="false">
@@ -101,23 +101,11 @@
                     </div>
 
                     <div class="filterField">
-                        <label class="filterFieldLabel">Jenis Peruntukan</label>
-                        <select name="jenis_shift" class="filterSelect" onchange="this.form.submit()">
-                            <option value="">Semua Jenis Shift</option>
-                            <option value="umum" {{ request('jenis_shift') === 'umum' ? 'selected' : '' }}>Umum (Staf &amp;
-                                Magang)</option>
-                            <option value="kbm" {{ request('jenis_shift') === 'kbm' ? 'selected' : '' }}>KBM Tutor
-                                (Pembelajaran)</option>
-                        </select>
-                    </div>
-
-                    <div class="filterField">
                         <label class="filterFieldLabel">Status Shift</label>
                         <select name="status" class="filterSelect" onchange="this.form.submit()">
                             <option value="">Semua Status</option>
                             <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Aktif</option>
-                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Non-Aktif
-                            </option>
+                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Non-Aktif</option>
                         </select>
                     </div>
 
@@ -125,7 +113,7 @@
                         <button type="submit" class="profileBtnPrimary">
                             <ion-icon name="filter-outline"></ion-icon> Cari
                         </button>
-                        @if(request()->hasAny(['search', 'jenis_shift', 'status']))
+                        @if(request()->hasAny(['search', 'status']))
                             <a href="{{ route('admin.jadwal-kerja.index') }}" class="btnOutline" title="Reset Filter">
                                 <ion-icon name="refresh-outline"></ion-icon> Reset
                             </a>
@@ -144,7 +132,6 @@
                             <tr class="table-head-row">
                                 <th class="table-col-num">#</th>
                                 <th class="p-3">Nama &amp; Kode Shift</th>
-                                <th class="p-3">Jenis &amp; Kategori SK</th>
                                 <th class="p-3 text-center">Jam Kerja &amp; Durasi</th>
                                 <th class="p-3 text-center">Batas Awal &amp; Toleransi</th>
                                 <th class="p-3 text-center">Status</th>
@@ -154,24 +141,12 @@
                         <tbody>
                             @forelse($shifts as $shift)
                                 <tr class="table-body-row">
-                                    <td class="p-3 text-center font-bold text-muted">{{ $shift->urutan ?: $loop->iteration }}
-                                    </td>
+                                    <td class="p-3 text-center font-bold text-muted">{{ $shift->urutan ?: $loop->iteration }}</td>
                                     <td class="p-3">
                                         <div class="font-bold text-dark">{{ $shift->nama_shift }}</div>
-                                        <div class="text-xs text-muted">Kode: <code
-                                                class="badge-code font-bold">{{ $shift->kode_shift }}</code> &bull;
-                                            {{ $shift->presensis_count + $shift->presensi_karyawans_count }} sesi</div>
-                                    </td>
-                                    <td class="p-3">
-                                        <span
-                                            class="app-badge {{ $shift->jenis_shift === 'kbm' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }}">
-                                            {{ $shift->jenis_label }}
-                                        </span>
-                                        @if($shift->kategoriTutorial)
-                                            <div class="text-xs text-primary font-semibold mt-1">
-                                                <ion-icon name="ribbon-outline"></ion-icon>
-                                                {{ $shift->kategoriTutorial->nama_kategori }}
-                                            </div>
+                                        <div class="text-xs text-muted">Kode: <code class="badge-code font-bold">{{ $shift->kode_shift }}</code> &bull; {{ $shift->presensi_karyawans_count }} sesi hadir</div>
+                                        @if($shift->keterangan)
+                                            <div class="text-xs text-muted mt-1 italic">{{ $shift->keterangan }}</div>
                                         @endif
                                     </td>
                                     <td class="p-3 text-center">
@@ -182,16 +157,13 @@
                                     </td>
                                     <td class="p-3 text-center">
                                         <div class="text-xs font-bold text-dark">Buka: {{ $shift->batas_awal_masuk }} WIB</div>
-                                        <div class="text-xs text-warning font-bold">Toleransi:
-                                            {{ $shift->batas_toleransi_masuk }} WIB</div>
+                                        <div class="text-xs text-warning font-bold">Toleransi: {{ $shift->batas_toleransi_masuk }} WIB</div>
                                     </td>
                                     <td class="p-3 text-center">
-                                        <form method="POST" action="{{ route('admin.jadwal-kerja.toggleStatus', $shift) }}"
-                                            class="d-inline">
+                                        <form method="POST" action="{{ route('admin.jadwal-kerja.toggleStatus', $shift) }}" class="d-inline">
                                             @csrf
                                             @method('PATCH')
-                                            <button type="submit" title="Klik untuk ubah status"
-                                                class="border-none bg-none cursor-pointer p-0">
+                                            <button type="submit" title="Klik untuk ubah status" class="border-none bg-none cursor-pointer p-0">
                                                 @if($shift->is_aktif)
                                                     <span class="app-badge badge-status-aktif">Aktif</span>
                                                 @else
@@ -213,8 +185,7 @@
                                                     data-confirm-btn="Ya, Hapus" class="d-inline m-0">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" title="Hapus Shift"
-                                                        class="smallBtn delete cursor-pointer btn-table-action">
+                                                    <button type="submit" title="Hapus Shift" class="smallBtn delete cursor-pointer btn-table-action">
                                                         <ion-icon name="trash-outline"></ion-icon> Hapus
                                                     </button>
                                                 </form>
@@ -224,14 +195,13 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="table-empty-cell">
+                                    <td colspan="6" class="table-empty-cell">
                                         <div class="tableEmptyState">
                                             <div class="tableEmptyIconWrap">
                                                 <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
                                             </div>
-                                            <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift</div>
-                                            <div class="tableEmptyDesc">Klik tombol "Tambah Shift Baru" untuk menambahkan jadwal
-                                                kerja atau sesi KBM.</div>
+                                            <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift Magang</div>
+                                            <div class="tableEmptyDesc">Klik tombol "Tambah Shift Magang" untuk menambahkan jadwal jam piket magang baru.</div>
                                         </div>
                                     </td>
                                 </tr>
@@ -256,12 +226,11 @@
                             <h3 class="dmc-title">{{ $shift->nama_shift }}</h3>
                             <div class="dmc-subtitle">
                                 Kode: <code class="text-xs font-bold rounded-sm badge-code">{{ $shift->kode_shift }}</code>
-                                &bull; {{ $shift->presensis_count + $shift->presensi_karyawans_count }} sesi
+                                &bull; {{ $shift->presensi_karyawans_count }} sesi hadir
                             </div>
                         </div>
                         <div class="flex-col gap-1 flex-items-end">
-                            <form method="POST" action="{{ route('admin.jadwal-kerja.toggleStatus', $shift) }}"
-                                class="d-inline m-0">
+                            <form method="POST" action="{{ route('admin.jadwal-kerja.toggleStatus', $shift) }}" class="d-inline m-0">
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit" class="bg-none border-none cursor-pointer p-0" title="Ubah status">
@@ -277,25 +246,9 @@
 
                     <div class="dmc-grid">
                         <div class="dmc-field">
-                            <div class="dmc-label">Jenis &amp; Kategori</div>
-                            <div class="dmc-value">
-                                <span
-                                    class="app-badge {{ $shift->jenis_shift === 'kbm' ? 'badge-layanan-dl' : 'badge-layanan-komunitas' }}">
-                                    {{ $shift->jenis_label }}
-                                </span>
-                                @if($shift->kategoriTutorial)
-                                    <div class="text-xs text-primary font-bold mt-1">
-                                        <ion-icon name="ribbon-outline"></ion-icon> {{ $shift->kategoriTutorial->nama_kategori }}
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="dmc-field">
                             <div class="dmc-label">Jam Operasional</div>
                             <div class="dmc-value">
-                                <span class="font-bold text-dark text-sm">{{ $shift->jam_masuk_formatted }} -
-                                    {{ $shift->jam_pulang_formatted }} WIB</span>
+                                <span class="font-bold text-dark text-sm">{{ $shift->jam_masuk_formatted }} - {{ $shift->jam_pulang_formatted }} WIB</span>
                                 <div class="text-xs text-muted font-semibold">Durasi: {{ $shift->durasi_jam }} Jam</div>
                             </div>
                         </div>
@@ -346,9 +299,8 @@
                     <div class="tableEmptyIconWrap">
                         <ion-icon name="time-outline" class="tableEmptyIcon"></ion-icon>
                     </div>
-                    <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift</div>
-                    <div class="tableEmptyDesc">Klik tombol "Tambah Shift Baru" untuk menambahkan jadwal kerja atau sesi KBM.
-                    </div>
+                    <div class="tableEmptyTitle">Belum Ada Data Jadwal Shift Magang</div>
+                    <div class="tableEmptyDesc">Klik tombol "Tambah Shift Magang" untuk menambahkan jadwal jam piket magang baru.</div>
                 </div>
             @endforelse
 

@@ -260,4 +260,35 @@ class MagangRoleAndPresensiTest extends TestCase
         $responsePdf->assertStatus(200);
         $this->assertTrue(str_contains($responsePdf->headers->get('content-type') ?? '', 'application/pdf'));
     }
+
+    public function test_admin_can_delete_magang_and_its_presensi(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $magangUser = User::factory()->create(['role' => 'magang']);
+        $magang = Magang::create([
+            'user_id' => $magangUser->id,
+            'nama_lengkap' => 'Magang Dihapus',
+            'asal_instansi' => 'Kampus A',
+            'tgl_mulai' => '2026-09-01',
+            'tgl_selesai' => '2026-11-30',
+            'status' => 'aktif',
+        ]);
+
+        PresensiKaryawan::create([
+            'user_id' => $magangUser->id,
+            'tgl_presensi' => '2026-09-02',
+            'jam_mulai' => '09:00:00',
+            'status' => 'hadir',
+        ]);
+
+        $this->actingAs($admin);
+
+        $response = $this->delete(route('admin.magang.destroy', $magangUser));
+        $response->assertRedirect(route('admin.magang.index'));
+        $response->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('users', ['id' => $magangUser->id]);
+        $this->assertDatabaseMissing('magang', ['id' => $magang->id]);
+        $this->assertDatabaseMissing('presensi_karyawan', ['user_id' => $magangUser->id]);
+    }
 }

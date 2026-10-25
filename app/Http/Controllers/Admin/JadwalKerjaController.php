@@ -17,7 +17,7 @@ class JadwalKerjaController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = JadwalKerja::query()->with('kategoriTutorial')->withCount(['presensis', 'presensiKaryawans']);
+        $query = JadwalKerja::query()->withCount(['presensis', 'presensiKaryawans']);
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -26,10 +26,6 @@ class JadwalKerjaController extends Controller
                     ->orWhere('kode_shift', 'like', "%{$search}%")
                     ->orWhere('keterangan', 'like', "%{$search}%");
             });
-        }
-
-        if ($request->filled('jenis_shift')) {
-            $query->where('jenis_shift', $request->input('jenis_shift'));
         }
 
         if ($request->filled('status')) {
@@ -44,8 +40,7 @@ class JadwalKerjaController extends Controller
         $stats = [
             'total' => JadwalKerja::count(),
             'active' => JadwalKerja::where('is_aktif', true)->count(),
-            'umum' => JadwalKerja::where('jenis_shift', 'umum')->count(),
-            'kbm' => JadwalKerja::where('jenis_shift', 'kbm')->count(),
+            'avg_duration' => round((float) (JadwalKerja::avg('durasi_jam') ?? 6.0), 1),
         ];
 
         return view('admin.jadwal_kerja.index', compact('shifts', 'stats'));
@@ -56,9 +51,7 @@ class JadwalKerjaController extends Controller
      */
     public function create(): View
     {
-        $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
-
-        return view('admin.jadwal_kerja.create', compact('kategoriTutorials'));
+        return view('admin.jadwal_kerja.create');
     }
 
     /**
@@ -69,8 +62,8 @@ class JadwalKerjaController extends Controller
         $validated = $request->validate([
             'nama_shift' => ['required', 'string', 'max:100'],
             'kode_shift' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jadwal_kerja,kode_shift'],
-            'jenis_shift' => ['required', 'string', 'in:umum,kbm'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
+            'jenis_shift' => ['nullable', 'string', 'in:umum,kbm'],
+            'kategori_tutorial_id' => ['nullable'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i'],
             'durasi_jam' => ['nullable', 'numeric', 'min:0.5', 'max:24'],
@@ -91,8 +84,8 @@ class JadwalKerjaController extends Controller
 
         $validated['is_aktif'] = $request->boolean('is_aktif', true);
         $validated['urutan'] = $validated['urutan'] ?? 0;
+        $validated['jenis_shift'] = $validated['jenis_shift'] ?? 'umum';
 
-        // Auto-calculate durasi_jam jika tidak diisi manual atau jika ada link ke kategori_tutorials
         if (! empty($validated['kategori_tutorial_id'])) {
             $kat = KategoriTutorial::find($validated['kategori_tutorial_id']);
             if ($kat) {
@@ -119,9 +112,7 @@ class JadwalKerjaController extends Controller
      */
     public function edit(JadwalKerja $jadwalKerja): View
     {
-        $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->orderBy('nama_kategori')->get();
-
-        return view('admin.jadwal_kerja.edit', compact('jadwalKerja', 'kategoriTutorials'));
+        return view('admin.jadwal_kerja.edit', compact('jadwalKerja'));
     }
 
     /**
@@ -132,8 +123,8 @@ class JadwalKerjaController extends Controller
         $validated = $request->validate([
             'nama_shift' => ['required', 'string', 'max:100'],
             'kode_shift' => ['required', 'string', 'max:50', 'alpha_dash', 'unique:jadwal_kerja,kode_shift,'.$jadwalKerja->id],
-            'jenis_shift' => ['required', 'string', 'in:umum,kbm'],
-            'kategori_tutorial_id' => ['nullable', 'exists:kategori_tutorial,id'],
+            'jenis_shift' => ['nullable', 'string', 'in:umum,kbm'],
+            'kategori_tutorial_id' => ['nullable'],
             'jam_masuk' => ['required', 'date_format:H:i'],
             'jam_pulang' => ['required', 'date_format:H:i'],
             'durasi_jam' => ['nullable', 'numeric', 'min:0.5', 'max:24'],
@@ -146,6 +137,7 @@ class JadwalKerjaController extends Controller
 
         $validated['is_aktif'] = $request->boolean('is_aktif');
         $validated['urutan'] = $validated['urutan'] ?? $jadwalKerja->urutan;
+        $validated['jenis_shift'] = $validated['jenis_shift'] ?? $jadwalKerja->jenis_shift ?? 'umum';
 
         if (! empty($validated['kategori_tutorial_id'])) {
             $kat = KategoriTutorial::find($validated['kategori_tutorial_id']);

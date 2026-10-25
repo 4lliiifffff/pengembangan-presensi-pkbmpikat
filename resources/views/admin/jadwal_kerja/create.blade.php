@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Tambah Jadwal & Shift Kerja - Admin')
+@section('title', 'Tambah Shift Kerja Magang - Admin')
 
 @section('content')
 
@@ -10,9 +10,8 @@
             <div class="laporanHeaderCard">
                 <div class="laporanHeaderInfo">
                     <div class="laporanHeaderLabel">TAMBAH MASTER DATA</div>
-                    <h1 class="laporanHeaderTitle">Tambah Jadwal &amp; Shift Baru</h1>
-                    <div class="laporanHeaderSub">Tentukan jam masuk, jam pulang, toleransi keterlambatan, dan integrasi KBM
-                    </div>
+                    <h1 class="laporanHeaderTitle">Tambah Jadwal &amp; Shift Kerja Magang</h1>
+                    <div class="laporanHeaderSub">Tentukan jam masuk, jam pulang, dan toleransi keterlambatan piket mahasiswa magang/PKL</div>
                 </div>
                 <div class="laporanHeaderActions">
                     <a href="{{ route('admin.jadwal-kerja.index') }}" class="btnOutline">
@@ -41,64 +40,32 @@
                 <div class="form-grid-responsive">
                     {{-- Nama Shift --}}
                     <div class="form-field-wrapper">
-                        <label class="filterFieldLabel">Nama Shift <span class="text-danger">*</span></label>
+                        <label class="filterFieldLabel">Nama Shift Magang <span class="text-danger">*</span></label>
                         <input type="text" name="nama_shift" id="inputNamaShift" value="{{ old('nama_shift') }}"
-                            placeholder="Contoh: Shift Pagi Operasional"
+                            placeholder="Contoh: Shift Reguler Magang (09:00 - 15:00)"
                             class="profileInput @error('nama_shift') border-danger @enderror" required>
-                        <span class="field-help-text">Nama shift yang akan tampil di pilihan jadwal.</span>
+                        <span class="field-help-text">Nama shift yang akan tampil pada sistem presensi magang.</span>
                     </div>
 
                     {{-- Kode Shift --}}
                     <div class="form-field-wrapper">
                         <label class="filterFieldLabel">Kode Shift Unik <span class="text-danger">*</span></label>
                         <input type="text" name="kode_shift" id="inputKodeShift" value="{{ old('kode_shift') }}"
-                            placeholder="Contoh: shift_pagi_reguler"
+                            placeholder="Contoh: magang_pagi"
                             class="profileInput @error('kode_shift') border-danger @enderror" required>
-                        <span class="field-help-text">Hanya huruf, angka, dash (-), dan underscore (_).</span>
-                    </div>
-
-                    {{-- Jenis Shift --}}
-                    <div class="form-field-wrapper">
-                        <label class="filterFieldLabel">Jenis Peruntukan Shift <span class="text-danger">*</span></label>
-                        <select name="jenis_shift" id="selectJenisShift" onchange="handleJenisShiftChange()"
-                            class="filterSelect @error('jenis_shift') border-danger @enderror" required>
-                            <option value="umum" {{ old('jenis_shift', 'umum') === 'umum' ? 'selected' : '' }}>Umum (Karyawan,
-                                Admin, &amp; Magang)</option>
-                            <option value="kbm" {{ old('jenis_shift') === 'kbm' ? 'selected' : '' }}>KBM Tutor (Pembelajaran
-                                &amp; Mengajar)</option>
-                        </select>
-                    </div>
-
-                    {{-- Relasi Kategori Tutorial SK --}}
-                    <div class="form-field-wrapper {{ old('jenis_shift', 'umum') === 'kbm' ? '' : 'd-none' }}"
-                        id="boxKategoriTutorial">
-                        <label class="filterFieldLabel">Integrasi Kategori SK Tutorial</label>
-                        <select name="kategori_tutorial_id" id="selectKategoriTutorial"
-                            onchange="handleKategoriTutorialChange()" class="filterSelect">
-                            <option value="">-- Tanpa Kategori Khusus (Manual) --</option>
-                            @foreach($kategoriTutorials as $kat)
-                                <option value="{{ $kat->id }}" data-durasi="{{ $kat->durasi_jam }}" {{ old('kategori_tutorial_id') == $kat->id ? 'selected' : '' }}>
-                                    {{ $kat->nama_kategori }} &bull; {{ $kat->durasi_jam }}J ({{ $kat->formatted_nominal_honor }})
-                                </option>
-                            @endforeach
-                        </select>
-                        <div id="kategoriSelectedPreview" class="kategori-selected-preview mt-2 d-none">
-                            <ion-icon name="ribbon-outline"></ion-icon>
-                            <span id="kategoriSelectedText"></span>
-                        </div>
-                        <span class="field-help-text">Memilih kategori akan otomatis mengunci durasi jam acuan SK.</span>
+                        <span class="field-help-text">Hanya huruf kecil, angka, dash (-), dan underscore (_).</span>
                     </div>
                 </div>
 
                 {{-- Jam Kerja & Durasi Card --}}
                 <div class="p-3 bg-card-alt rounded-xl border-base my-4">
                     <div class="text-xs font-bold uppercase tracking-wider text-muted mb-3">
-                        <ion-icon name="time-outline"></ion-icon> Waktu Operasional &amp; Durasi
+                        <ion-icon name="time-outline"></ion-icon> Waktu Operasional &amp; Durasi Piket
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div class="form-field-wrapper">
                             <label class="filterFieldLabel">Jam Masuk (WIB) <span class="text-danger">*</span></label>
-                            <input type="time" name="jam_masuk" id="inputJamMasuk" value="{{ old('jam_masuk', '08:00') }}"
+                            <input type="time" name="jam_masuk" id="inputJamMasuk" value="{{ old('jam_masuk', '09:00') }}"
                                 onchange="calculateDuration()"
                                 class="profileInput @error('jam_masuk') border-danger @enderror" required>
                         </div>
@@ -106,14 +73,14 @@
                         <div class="form-field-wrapper">
                             <label class="filterFieldLabel">Jam Pulang (WIB) <span class="text-danger">*</span></label>
                             <input type="time" name="jam_pulang" id="inputJamPulang"
-                                value="{{ old('jam_pulang', '16:00') }}" onchange="calculateDuration()"
+                                value="{{ old('jam_pulang', '15:00') }}" onchange="calculateDuration()"
                                 class="profileInput @error('jam_pulang') border-danger @enderror" required>
                         </div>
 
                         <div class="form-field-wrapper">
-                            <label class="filterFieldLabel">Durasi Kerja (Jam)</label>
+                            <label class="filterFieldLabel">Durasi Piket (Jam)</label>
                             <input type="number" step="0.25" min="0.5" max="24" name="durasi_jam" id="inputDurasiJam"
-                                value="{{ old('durasi_jam', '8.00') }}" class="profileInput">
+                                value="{{ old('durasi_jam', '6.00') }}" class="profileInput">
                             <span class="field-help-text" id="durasiHint">Dihitung otomatis dari selisih waktu.</span>
                         </div>
                     </div>
@@ -125,18 +92,15 @@
                         <label class="filterFieldLabel">Batas Awal Absen (Menit) <span class="text-danger">*</span></label>
                         <input type="number" min="0" max="180" name="earliest_minutes"
                             value="{{ old('earliest_minutes', 30) }}" class="profileInput" required>
-                        <span class="field-help-text">Misal 30 menit: Jam 08:00 dapat mulai diabsen dari pukul 07:30
-                            WIB.</span>
+                        <span class="field-help-text">Misal 30 menit: Jam 09:00 dapat mulai diabsen dari pukul 08:30 WIB.</span>
                     </div>
 
                     {{-- Toleransi Keterlambatan --}}
                     <div class="form-field-wrapper">
-                        <label class="filterFieldLabel">Toleransi Keterlambatan (Menit) <span
-                                class="text-danger">*</span></label>
+                        <label class="filterFieldLabel">Toleransi Keterlambatan (Menit) <span class="text-danger">*</span></label>
                         <input type="number" min="0" max="180" name="tolerance_minutes"
                             value="{{ old('tolerance_minutes', 30) }}" class="profileInput" required>
-                        <span class="field-help-text">Misal 30 menit: Absen s.d. jam 08:30 tetap dihitung Tepat
-                            Waktu.</span>
+                        <span class="field-help-text">Misal 30 menit: Absen s.d. jam 09:30 tetap dihitung Tepat Waktu.</span>
                     </div>
 
                     {{-- Urutan --}}
@@ -153,7 +117,7 @@
                             <input type="checkbox" name="is_aktif" value="1" {{ old('is_aktif', 1) ? 'checked' : '' }}>
                             <div>
                                 <div class="font-bold text-dark text-sm">Status Shift Aktif</div>
-                                <div class="field-help-text m-0">Shift ini dapat langsung dipilih saat presensi masuk.</div>
+                                <div class="field-help-text m-0">Shift ini dapat langsung dipilih saat presensi masuk magang.</div>
                             </div>
                         </label>
                     </div>
@@ -163,7 +127,7 @@
                 <div class="form-field-wrapper mt-3">
                     <label class="filterFieldLabel">Keterangan / Catatan Kebijakan (Opsional)</label>
                     <textarea name="keterangan" rows="3"
-                        placeholder="Tambahkan catatan aturan kebijakan shift jika diperlukan..."
+                        placeholder="Tambahkan catatan aturan kebijakan shift magang jika diperlukan..."
                         class="profileInput">{{ old('keterangan') }}</textarea>
                 </div>
 
@@ -172,7 +136,7 @@
                         <ion-icon name="arrow-back-outline"></ion-icon> Batal
                     </a>
                     <button type="submit" class="profileBtnPrimary">
-                        <ion-icon name="save-outline"></ion-icon> Simpan Jadwal Shift
+                        <ion-icon name="save-outline"></ion-icon> Simpan Shift Magang
                     </button>
                 </div>
             </form>
@@ -180,48 +144,10 @@
     </div>
 
     <script>
-        function handleJenisShiftChange() {
-            const jenis = document.getElementById('selectJenisShift').value;
-            const boxKat = document.getElementById('boxKategoriTutorial');
-            if (jenis === 'kbm') {
-                boxKat.classList.remove('d-none');
-            } else {
-                boxKat.classList.add('d-none');
-                document.getElementById('selectKategoriTutorial').value = '';
-            }
-        }
-
-        function handleKategoriTutorialChange() {
-            const sel = document.getElementById('selectKategoriTutorial');
-            const durasiInput = document.getElementById('inputDurasiJam');
-            const previewBox = document.getElementById('kategoriSelectedPreview');
-            const previewText = document.getElementById('kategoriSelectedText');
-            const opt = sel ? sel.selectedOptions[0] : null;
-
-            if (opt && opt.value) {
-                if (durasiInput && opt.dataset.durasi) {
-                    durasiInput.value = parseFloat(opt.dataset.durasi).toFixed(2);
-                    document.getElementById('durasiHint').textContent = 'Durasi dikunci sesuai standar SK Kategori Tutorial (' + opt.dataset.durasi + ' Jam).';
-                }
-                if (previewBox && previewText) {
-                    previewText.textContent = opt.text.trim();
-                    previewBox.classList.remove('d-none');
-                }
-            } else {
-                if (previewBox) {
-                    previewBox.classList.add('d-none');
-                }
-                calculateDuration();
-            }
-        }
-
         function calculateDuration() {
             const masuk = document.getElementById('inputJamMasuk').value;
             const pulang = document.getElementById('inputJamPulang').value;
             const durasiInput = document.getElementById('inputDurasiJam');
-            const selKat = document.getElementById('selectKategoriTutorial');
-
-            if (selKat && selKat.value) return;
 
             if (masuk && pulang) {
                 const [h1, m1] = masuk.split(':').map(Number);
@@ -235,9 +161,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function () {
-            handleJenisShiftChange();
-            handleKategoriTutorialChange();
+            calculateDuration();
         });
     </script>
-
 @endsection
