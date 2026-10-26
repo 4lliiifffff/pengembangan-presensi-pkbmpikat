@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\JenjangPaket;
 use App\Models\kelas as Kelas;
+use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -40,7 +41,13 @@ class KelasController extends Controller
 
         $jenjangPakets = JenjangPaket::ordered()->get();
 
-        return view('admin.kelas.index', compact('kelas', 'jenjangPakets'));
+        $stats = [
+            'total_kelas' => Kelas::count(),
+            'total_siswa' => Siswa::whereNotNull('kelas_id')->count(),
+            'total_jenjang' => JenjangPaket::whereHas('kelas')->count(),
+        ];
+
+        return view('admin.kelas.index', compact('kelas', 'jenjangPakets', 'stats'));
     }
 
     public function create()

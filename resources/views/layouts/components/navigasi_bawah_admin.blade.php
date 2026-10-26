@@ -35,6 +35,7 @@
     @php
         $isAdminDrawerActive = request()->routeIs('admin.karyawan.*') ||
                                request()->routeIs('admin.murid.*') ||
+                               request()->routeIs('admin.kelas.*') ||
                                request()->routeIs('admin.jadwal.*') ||
                                request()->routeIs('admin.jadwal-rutin.*') ||
                                request()->routeIs('admin.jadwal-sesi-kbm.*') ||
@@ -96,6 +97,16 @@
                         <div class="navCardMeta">
                             <div class="navCardTitle">Data Murid</div>
                             <div class="navCardDesc">Murid PKBM & ABK</div>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.kelas.index') }}" class="navDrawerCard {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
+                        <div class="navCardIcon teal">
+                            <ion-icon name="easel-outline"></ion-icon>
+                        </div>
+                        <div class="navCardMeta">
+                            <div class="navCardTitle">Data Kelas</div>
+                            <div class="navCardDesc">Rombel Belajar Siswa</div>
                         </div>
                     </a>
 

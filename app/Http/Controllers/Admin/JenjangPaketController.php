@@ -4,19 +4,45 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JenjangPaket;
+use App\Models\kelas;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class JenjangPaketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jenjangPakets = JenjangPaket::withCount('kelas')
-            ->orderBy('urutan')
+        $search = $request->get('search');
+        $status = $request->get('status');
+
+        $query = JenjangPaket::query()->withCount('kelas');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_jenjang', 'like', "%{$search}%")
+                    ->orWhere('kode', 'like', "%{$search}%")
+                    ->orWhere('tingkat_label', 'like', "%{$search}%")
+                    ->orWhere('keterangan', 'like', "%{$search}%");
+            });
+        }
+
+        if ($status === 'active') {
+            $query->where('is_aktif', true);
+        } elseif ($status === 'inactive') {
+            $query->where('is_aktif', false);
+        }
+
+        $jenjangPakets = $query->orderBy('urutan')
             ->orderBy('nama_jenjang')
             ->get();
 
-        return view('admin.jenjang_paket.index', compact('jenjangPakets'));
+        $stats = [
+            'total' => JenjangPaket::count(),
+            'active' => JenjangPaket::where('is_aktif', true)->count(),
+            'total_kelas' => kelas::whereNotNull('jenjang_paket_id')->count(),
+        ];
+
+        return view('admin.jenjang_paket.index', compact('jenjangPakets', 'stats'));
     }
 
     public function create()
