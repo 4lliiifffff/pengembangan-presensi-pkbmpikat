@@ -31,8 +31,3 @@ class KepalaSekolah extends Model
         return $this->belongsTo(User::class);
     }
 }
-
-// Interoperabilitas backward-compatibility untuk pemanggilan legacy App\Models\Kepala_Sekolah
-if (! class_exists('App\Models\Kepala_Sekolah', false)) {
-    class_alias(KepalaSekolah::class, 'App\Models\Kepala_Sekolah');
-}
