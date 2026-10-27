@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Model PengajuanLupaLapor - Pengajuan Lupa Lapor (Retroactive Attendance Request)
@@ -73,7 +74,7 @@ class PengajuanLupaLapor extends Model
     /**
      * Relasi: Pengajuan dimiliki oleh satu Tutor (BelongsTo).
      */
-    public function tutor()
+    public function tutor(): BelongsTo
     {
         return $this->belongsTo(Tutor::class);
     }
@@ -81,7 +82,7 @@ class PengajuanLupaLapor extends Model
     /**
      * Relasi: Pengajuan terkait dengan satu Murid (BelongsTo).
      */
-    public function murid()
+    public function murid(): BelongsTo
     {
         return $this->belongsTo(Murid::class, 'murid_id');
     }
@@ -89,7 +90,7 @@ class PengajuanLupaLapor extends Model
     /**
      * Alias relasi murid untuk backward compatibility.
      */
-    public function siswa()
+    public function siswa(): BelongsTo
     {
         return $this->murid();
     }

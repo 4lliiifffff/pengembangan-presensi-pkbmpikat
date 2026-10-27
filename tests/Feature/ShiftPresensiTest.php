@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Admin;
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Magang;
 use App\Models\Presensi;
 use App\Models\PresensiKaryawan;
@@ -150,7 +150,7 @@ class ShiftPresensiTest extends TestCase
             'no_hp' => '081234567890',
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'SD']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'SD']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Shift Test',
             'no_absen' => 1,

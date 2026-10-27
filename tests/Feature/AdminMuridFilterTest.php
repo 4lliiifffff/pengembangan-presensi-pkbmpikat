@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Murid;
 use App\Models\Tutor;
 use App\Models\User;

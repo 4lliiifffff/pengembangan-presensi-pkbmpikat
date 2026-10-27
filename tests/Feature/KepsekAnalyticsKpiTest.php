@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -42,7 +42,7 @@ class KepsekAnalyticsKpiTest extends TestCase
             'no_hp' => '081234567892',
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Bintang A', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Bintang A', 'tingkat' => 'SMA']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Analytics',
             'kelas_id' => $kelas->id,

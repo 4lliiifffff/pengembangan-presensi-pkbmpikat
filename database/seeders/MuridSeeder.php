@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Murid;
 use App\Models\Tutor;
 use Illuminate\Database\Seeder;
@@ -25,7 +25,7 @@ class MuridSeeder extends Seeder
         $tutorNova = Tutor::where('nama_lengkap', 'like', '%Nova%')->first()?->id;
 
         // 2. Ambil Map Kelas ID berdasarkan tingkat
-        $kelasMap = kelas::all()->pluck('id', 'tingkat')->toArray();
+        $kelasMap = Kelas::all()->pluck('id', 'tingkat')->toArray();
 
         // 3. Daftar Peserta Didik (Tahun Ajaran 2026/2027)
         $muridList = [

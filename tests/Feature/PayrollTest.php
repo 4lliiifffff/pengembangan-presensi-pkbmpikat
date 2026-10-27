@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -33,7 +33,7 @@ class PayrollTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket' => 'paket_c', 'tingkat' => 10]);
+        $kelas = Kelas::create(['nama_kelas' => 'Paket C - Kelas 10', 'jenjang_paket' => 'paket_c', 'tingkat' => 10]);
 
         // Siswa Reguler
         $siswaA = Siswa::create([

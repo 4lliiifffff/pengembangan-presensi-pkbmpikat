@@ -123,10 +123,8 @@ class Presensi extends Model
 
     /**
      * Relasi: Presensi dimiliki oleh satu Tutor (Many-to-One / BelongsTo).
-     *
-     * @return BelongsTo
      */
-    public function tutor()
+    public function tutor(): BelongsTo
     {
         return $this->belongsTo(Tutor::class);
     }

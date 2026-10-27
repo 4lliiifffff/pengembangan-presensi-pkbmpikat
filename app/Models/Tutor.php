@@ -70,10 +70,8 @@ class Tutor extends Model
      * Relasi: Tutor dimiliki oleh satu User (Many-to-One / BelongsTo).
      * Digunakan untuk mengakses data akun login dari tutor.
      * Contoh: $tutor->user->email
-     *
-     * @return BelongsTo
      */
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
@@ -82,20 +80,16 @@ class Tutor extends Model
      * Relasi: Tutor memiliki banyak record Presensi (One-to-Many / HasMany).
      * Satu tutor bisa punya banyak sesi mengajar yang terekam sebagai presensi.
      * Contoh: $tutor->presensis()->whereDate('tgl_presensi', today())->get()
-     *
-     * @return HasMany
      */
-    public function presensis()
+    public function presensis(): HasMany
     {
         return $this->hasMany(Presensi::class);
     }
 
     /**
      * Relasi: Tutor memiliki banyak pengajuan Lupa Lapor (One-to-Many / HasMany).
-     *
-     * @return HasMany
      */
-    public function pengajuanLupaLapor()
+    public function pengajuanLupaLapor(): HasMany
     {
         return $this->hasMany(PengajuanLupaLapor::class);
     }

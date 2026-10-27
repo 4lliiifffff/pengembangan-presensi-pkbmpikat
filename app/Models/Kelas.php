@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Model Kelas - Data Kelas & Rombongan Belajar
  */
-class kelas extends Model
+class Kelas extends Model
 {
     protected $table = 'kelas';
 
@@ -100,3 +100,9 @@ class kelas extends Model
         return $this->murids();
     }
 }
+
+// Backward compatibility alias untuk kode yang masih memanggil App\Models\kelas
+if (! class_exists('App\Models\kelas', false)) {
+    class_alias(Kelas::class, 'App\Models\kelas');
+}
+

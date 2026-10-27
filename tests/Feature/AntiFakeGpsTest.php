@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
@@ -58,7 +58,7 @@ class AntiFakeGpsTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas AntiFake', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas AntiFake', 'tingkat' => 'SMA']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa AntiFake',
             'tutor_id' => $tutor->id,
@@ -103,7 +103,7 @@ class AntiFakeGpsTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas AntiFake', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas AntiFake', 'tingkat' => 'SMA']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa AntiFake',
             'tutor_id' => $tutor->id,
@@ -149,7 +149,7 @@ class AntiFakeGpsTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas AntiFake', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas AntiFake', 'tingkat' => 'SMA']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa AntiFake',
             'tutor_id' => $tutor->id,

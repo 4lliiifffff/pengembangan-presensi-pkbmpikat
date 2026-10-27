@@ -6,7 +6,7 @@ use App\Models\Jadwal;
 use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
 use App\Models\KategoriTutorial;
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
@@ -53,7 +53,7 @@ class AdminJadwalSesiKbmTest extends TestCase
             'no_hp' => '081234567890',
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Paket B Rombel 1', 'tingkat' => 'SMP']);
+        $kelas = Kelas::create(['nama_kelas' => 'Paket B Rombel 1', 'tingkat' => 'SMP']);
 
         $this->siswa1 = Siswa::create([
             'nama_siswa' => 'Siswa Satu',

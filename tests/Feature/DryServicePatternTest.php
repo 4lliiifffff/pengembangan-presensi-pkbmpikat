@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -66,7 +66,7 @@ class DryServicePatternTest extends TestCase
             'no_hp' => '081234567892',
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Reguler', 'tingkat' => 'SD']);
+        $kelas = Kelas::create(['nama_kelas' => 'Reguler', 'tingkat' => 'SD']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Test',
             'kelas_id' => $kelas->id,
@@ -109,7 +109,7 @@ class DryServicePatternTest extends TestCase
             'no_hp' => '081234567893',
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Reguler', 'tingkat' => 'SD']);
+        $kelas = Kelas::create(['nama_kelas' => 'Reguler', 'tingkat' => 'SD']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Test Izin',
             'kelas_id' => $kelas->id,

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\LokasiPresensi;
 use App\Models\Magang;
 use App\Models\Siswa;
@@ -161,7 +161,7 @@ class LokasiPresensiTest extends TestCase
             'nik' => 'TUTOR01',
             'email' => 'tutor_test@pkbm.test',
         ]);
-        $kelas = kelas::firstOrCreate(['nama_kelas' => 'Paket A Reguler']);
+        $kelas = Kelas::firstOrCreate(['nama_kelas' => 'Paket A Reguler']);
         $siswa = Siswa::create([
             'kelas_id' => $kelas->id,
             'tutor_id' => $tutor->id,

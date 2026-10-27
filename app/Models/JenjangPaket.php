@@ -51,6 +51,6 @@ class JenjangPaket extends Model
      */
     public function kelas(): HasMany
     {
-        return $this->hasMany(kelas::class, 'jenjang_paket_id');
+        return $this->hasMany(Kelas::class, 'jenjang_paket_id');
     }
 }

@@ -6,7 +6,7 @@ namespace App\Services;
 
 use App\Models\Admin;
 use App\Models\JenjangPaket;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Murid;
 use App\Models\Siswa;
 use App\Models\Tutor;

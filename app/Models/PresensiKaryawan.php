@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PresensiKaryawan extends Model
 {
@@ -10,17 +11,17 @@ class PresensiKaryawan extends Model
 
     protected $guarded = ['id'];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function lokasiPresensi()
+    public function lokasiPresensi(): BelongsTo
     {
         return $this->belongsTo(LokasiPresensi::class, 'lokasi_presensi_id');
     }
 
-    public function jadwalKerja()
+    public function jadwalKerja(): BelongsTo
     {
         return $this->belongsTo(JadwalKerja::class, 'jadwal_kerja_id');
     }

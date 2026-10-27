@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\JadwalSesi;
 use App\Models\JenjangPaket;
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\LokasiPresensi;
 use App\Models\Presensi;
 use App\Models\PresensiMandiriSiswa;
@@ -65,7 +65,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -89,7 +89,7 @@ class SiswaRoleAndPresensiTest extends TestCase
     public function test_siswa_can_login_with_sw001_variation_or_no_absen(): void
     {
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::firstOrCreate([
             'no_absen' => '001',
@@ -126,7 +126,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 7'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '7']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 7'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '7']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -156,7 +156,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_a'], ['nama_jenjang' => 'Paket A', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket A - Kelas 1'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '1']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket A - Kelas 1'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '1']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -188,7 +188,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -242,7 +242,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -291,7 +291,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -342,7 +342,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
@@ -417,7 +417,7 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWTEST06B',
         ]);
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
             'no_absen' => 'SW06B',
@@ -476,7 +476,7 @@ class SiswaRoleAndPresensiTest extends TestCase
             'nik' => 'SWLATE01',
         ]);
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 9'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '9']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 9'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '9']);
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,
             'no_absen' => 'SWLATE',
@@ -562,7 +562,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         Siswa::create([
             'user_id' => $siswaUser->id,
@@ -589,7 +589,7 @@ class SiswaRoleAndPresensiTest extends TestCase
     public function test_creating_siswa_automatically_creates_and_links_user_account(): void
     {
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 10'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '10']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW999',
@@ -613,7 +613,7 @@ class SiswaRoleAndPresensiTest extends TestCase
     public function test_updating_and_deleting_siswa_synchronizes_user_account(): void
     {
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW888',
@@ -649,7 +649,7 @@ class SiswaRoleAndPresensiTest extends TestCase
     {
         $admin = User::factory()->create(['role' => 'admin']);
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_a'], ['nama_jenjang' => 'Paket A', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket A - Kelas 5'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '5']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket A - Kelas 5'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '5']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW777',
@@ -680,7 +680,7 @@ class SiswaRoleAndPresensiTest extends TestCase
     public function test_siswa_can_view_jadwal_page_with_calendar_and_sessions(): void
     {
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_c'], ['nama_jenjang' => 'Paket C', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 12'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '12']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket C - Kelas 12'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '12']);
 
         $siswa = Siswa::create([
             'no_absen' => 'SW999',
@@ -736,7 +736,7 @@ class SiswaRoleAndPresensiTest extends TestCase
         ]);
 
         $jp = JenjangPaket::firstOrCreate(['kode' => 'paket_b'], ['nama_jenjang' => 'Paket B', 'status' => 'aktif']);
-        $kls = kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
+        $kls = Kelas::firstOrCreate(['nama_kelas' => 'Paket B - Kelas 8'], ['jenjang_paket_id' => $jp->id, 'tingkat' => '8']);
 
         $siswa = Siswa::create([
             'user_id' => $siswaUser->id,

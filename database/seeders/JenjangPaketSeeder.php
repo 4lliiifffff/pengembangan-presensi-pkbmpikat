@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\JenjangPaket;
-use App\Models\kelas;
+use App\Models\Kelas;
 use Illuminate\Database\Seeder;
 
 class JenjangPaketSeeder extends Seeder
@@ -59,7 +59,7 @@ class JenjangPaketSeeder extends Seeder
         $obsoleteJenjangs = JenjangPaket::whereNotIn('kode', $allowedKodes)->get();
         foreach ($obsoleteJenjangs as $obsolete) {
             if ($paketC) {
-                kelas::where('jenjang_paket_id', $obsolete->id)->update([
+                Kelas::where('jenjang_paket_id', $obsolete->id)->update([
                     'jenjang_paket_id' => $paketC->id,
                 ]);
             }
@@ -88,7 +88,7 @@ class JenjangPaketSeeder extends Seeder
         ];
 
         foreach ($classes as $cls) {
-            kelas::updateOrCreate(
+            Kelas::updateOrCreate(
                 ['nama_kelas' => $cls['nama_kelas']],
                 $cls
             );

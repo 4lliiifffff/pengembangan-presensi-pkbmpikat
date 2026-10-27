@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
@@ -55,7 +55,7 @@ class GeofencingTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'SD']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas A', 'tingkat' => 'SD']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Geofence',
             'tutor_id' => $tutor->id,
@@ -100,7 +100,7 @@ class GeofencingTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas B', 'tingkat' => 'SD']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas B', 'tingkat' => 'SD']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Geofence',
             'tutor_id' => $tutor->id,
@@ -144,7 +144,7 @@ class GeofencingTest extends TestCase
             'email' => $user->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas C', 'tingkat' => 'SMP']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas C', 'tingkat' => 'SMP']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Geofence',
             'tutor_id' => $tutor->id,

@@ -125,7 +125,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('/siswa/{siswa}/reset-password', [MuridController::class, 'resetPassword'])->name('siswa.resetPassword');
     Route::resource('siswa', MuridController::class);
 
-    Route::resource('kelas', KelasController::class);
+    Route::resource('kelas', KelasController::class)->parameters(['kelas' => 'kelas']);
 
     // Unified Schedule Hub Admin: Kalender Sesi KBM, Pola Rutin & Agenda Acara
     Route::get('/jadwal/export/excel', [JadwalController::class, 'exportExcel'])->name('jadwal.exportExcel');

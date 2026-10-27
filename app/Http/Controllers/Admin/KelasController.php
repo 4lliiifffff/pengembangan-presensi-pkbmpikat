@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JenjangPaket;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -81,19 +81,19 @@ class KelasController extends Controller
             ->with('success', 'Data kelas berhasil ditambahkan.');
     }
 
-    public function edit(Kelas $kela)
+    public function edit(Kelas $kelas)
     {
         $jenjangPakets = JenjangPaket::ordered()->get();
 
-        return view('admin.kelas.edit', ['kelas' => $kela, 'jenjangPakets' => $jenjangPakets]);
+        return view('admin.kelas.edit', ['kelas' => $kelas, 'jenjangPakets' => $jenjangPakets]);
     }
 
-    public function show(Kelas $kela)
+    public function show(Kelas $kelas)
     {
-        return redirect()->route('admin.kelas.edit', $kela);
+        return redirect()->route('admin.kelas.edit', $kelas);
     }
 
-    public function update(Request $request, Kelas $kela)
+    public function update(Request $request, Kelas $kelas)
     {
         // Support backward compatibility jika form mengirim jenjang_paket (kode)
         if ($request->filled('jenjang_paket') && ! $request->filled('jenjang_paket_id')) {
@@ -108,29 +108,29 @@ class KelasController extends Controller
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('kelas', 'nama_kelas')->ignore($kela->id),
+                Rule::unique('kelas', 'nama_kelas')->ignore($kelas->id),
             ],
             'jenjang_paket_id' => ['required', 'exists:jenjang_paket,id'],
             'tingkat' => ['nullable', 'string', 'max:50'],
             'keterangan' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $kela->update($validated);
+        $kelas->update($validated);
 
         return redirect()
             ->route('admin.kelas.index')
             ->with('success', 'Data kelas berhasil diperbarui.');
     }
 
-    public function destroy(Kelas $kela)
+    public function destroy(Kelas $kelas)
     {
-        if ($kela->siswas()->exists()) {
+        if ($kelas->siswas()->exists()) {
             return redirect()
                 ->route('admin.kelas.index')
-                ->with('warning', 'Kelas tidak bisa dihapus karena masih dipakai oleh '.$kela->siswas()->count().' data murid.');
+                ->with('warning', 'Kelas tidak bisa dihapus karena masih dipakai oleh '.$kelas->siswas()->count().' data murid.');
         }
 
-        $kela->delete();
+        $kelas->delete();
 
         return redirect()
             ->route('admin.kelas.index')

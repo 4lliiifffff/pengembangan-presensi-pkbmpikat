@@ -42,9 +42,12 @@ class Jadwal extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [
-        'tanggal' => 'date:Y-m-d',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'tanggal' => 'date:Y-m-d',
+        ];
+    }
 
     /**
      * Relasi ke Master Titik Lokasi Presensi Resmi.

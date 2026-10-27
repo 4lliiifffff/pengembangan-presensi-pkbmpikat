@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Murid;
 use App\Models\Tutor;
 use Illuminate\Support\Collection;

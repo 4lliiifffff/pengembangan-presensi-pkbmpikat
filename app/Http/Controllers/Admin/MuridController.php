@@ -6,7 +6,7 @@ use App\Exports\MuridExport;
 use App\Exports\MuridTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\MuridImport;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Murid;
 use App\Services\TutorService;
 use Illuminate\Http\Request;
@@ -64,15 +64,26 @@ class MuridController extends Controller
 
         $murids = $query->paginate(15)->withQueryString();
 
+        $rawStats = Murid::selectRaw('
+            count(*) as total,
+            sum(case when status_murid = "aktif" then 1 else 0 end) as aktif,
+            sum(case when status_murid = "alumni" then 1 else 0 end) as alumni,
+            sum(case when status_murid = "cuti" then 1 else 0 end) as cuti,
+            sum(case when status_murid = "nonaktif" then 1 else 0 end) as nonaktif,
+            sum(case when tutor_id is not null then 1 else 0 end) as ada_pembimbing,
+            sum(case when tutor_id is null then 1 else 0 end) as tanpa_pembimbing,
+            sum(case when status_murid = "aktif" and tutor_id is null then 1 else 0 end) as aktif_tanpa_pembimbing
+        ')->first();
+
         $stats = [
-            'aktif' => Murid::where('status_murid', 'aktif')->count(),
-            'alumni' => Murid::where('status_murid', 'alumni')->count(),
-            'cuti' => Murid::where('status_murid', 'cuti')->count(),
-            'nonaktif' => Murid::where('status_murid', 'nonaktif')->count(),
-            'total' => Murid::count(),
-            'ada_pembimbing' => Murid::whereNotNull('tutor_id')->count(),
-            'tanpa_pembimbing' => Murid::whereNull('tutor_id')->count(),
-            'aktif_tanpa_pembimbing' => Murid::where('status_murid', 'aktif')->whereNull('tutor_id')->count(),
+            'aktif' => (int) ($rawStats->aktif ?? 0),
+            'alumni' => (int) ($rawStats->alumni ?? 0),
+            'cuti' => (int) ($rawStats->cuti ?? 0),
+            'nonaktif' => (int) ($rawStats->nonaktif ?? 0),
+            'total' => (int) ($rawStats->total ?? 0),
+            'ada_pembimbing' => (int) ($rawStats->ada_pembimbing ?? 0),
+            'tanpa_pembimbing' => (int) ($rawStats->tanpa_pembimbing ?? 0),
+            'aktif_tanpa_pembimbing' => (int) ($rawStats->aktif_tanpa_pembimbing ?? 0),
         ];
 
         $tutors = $this->tutorService->getAssignableTutors();

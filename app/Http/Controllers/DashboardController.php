@@ -57,18 +57,26 @@ class DashboardController extends Controller
             'pending_lupa_lapor' => $pendingLupaLapor,
         ];
 
-        // Statistik mingguan (ambil total "hadir" per hari).
-        $weekStart = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        // Statistik mingguan (ambil total "hadir" per hari dengan 1 single query agregasi).
+        $weekStart = Carbon::now('Asia/Jakarta')->startOfWeek(Carbon::MONDAY);
+        $weekEnd = $weekStart->copy()->addDays(6);
+
+        $weeklyCounts = Presensi::whereBetween('tgl_presensi', [$weekStart->toDateString(), $weekEnd->toDateString()])
+            ->whereNotNull('jam_selesai')
+            ->selectRaw('DATE(tgl_presensi) as tanggal, count(*) as total')
+            ->groupByRaw('DATE(tgl_presensi)')
+            ->pluck('total', 'tanggal');
+
         $days = [];
         $max = 0;
+        $dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
         for ($i = 0; $i < 7; $i++) {
             $date = $weekStart->copy()->addDays($i)->toDateString();
-
-            $count = $this->countHadir($date);
+            $count = (int) ($weeklyCounts[$date] ?? 0);
 
             $days[] = [
-                'label' => ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'][$i],
+                'label' => $dayLabels[$i],
                 'isoDay' => $date,
                 'count' => $count,
             ];

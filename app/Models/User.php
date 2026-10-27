@@ -55,10 +55,8 @@ class User extends Authenticatable
     /**
      * Relasi: User memiliki satu profil Admin (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'admin'.
-     *
-     * @return HasOne
      */
-    public function admin()
+    public function admin(): HasOne
     {
         return $this->hasOne(Admin::class);
     }
@@ -67,10 +65,8 @@ class User extends Authenticatable
      * Relasi: User memiliki satu profil Tutor (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'tutor'.
      * Digunakan untuk mengakses detail tutor: $user->tutor->jabatan
-     *
-     * @return HasOne
      */
-    public function tutor()
+    public function tutor(): HasOne
     {
         return $this->hasOne(Tutor::class);
     }
@@ -78,21 +74,22 @@ class User extends Authenticatable
     /**
      * Relasi: User memiliki satu profil Kepala Sekolah (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'kepala_sekolah'.
-     *
-     * @return HasOne
      */
-    public function kepala_sekolah()
+    public function kepala_sekolah(): HasOne
     {
-        return $this->hasOne(Kepala_Sekolah::class);
+        return $this->hasOne(KepalaSekolah::class);
+    }
+
+    public function kepalaSekolah(): HasOne
+    {
+        return $this->hasOne(KepalaSekolah::class);
     }
 
     /**
      * Relasi: User memiliki satu profil Mahasiswa Magang (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'magang'.
-     *
-     * @return HasOne
      */
-    public function magang()
+    public function magang(): HasOne
     {
         return $this->hasOne(Magang::class);
     }
@@ -100,20 +97,16 @@ class User extends Authenticatable
     /**
      * Relasi: User memiliki satu profil Murid (One-to-One / HasOne).
      * Hanya berlaku jika user memiliki role = 'murid' (atau 'siswa' legacy).
-     *
-     * @return HasOne
      */
-    public function murid()
+    public function murid(): HasOne
     {
         return $this->hasOne(Murid::class, 'user_id');
     }
 
     /**
      * Alias relasi murid untuk backward compatibility.
-     *
-     * @return HasOne
      */
-    public function siswa()
+    public function siswa(): HasOne
     {
         return $this->murid();
     }
@@ -205,7 +198,7 @@ class User extends Authenticatable
     /**
      * Relasi ke Push Subscription perangkat pengguna.
      */
-    public function pushSubscriptions()
+    public function pushSubscriptions(): HasMany
     {
         return $this->hasMany(PushSubscription::class, 'user_id');
     }

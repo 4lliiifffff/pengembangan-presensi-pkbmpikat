@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\JadwalSesi;
 use App\Models\JenjangPaket;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\LokasiPresensi;
 use App\Models\PengajuanIzinSakit;
 use App\Models\Presensi;

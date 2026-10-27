@@ -2,7 +2,7 @@
 
 **Tanggal Pembaruan:** 01 Oktober 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Dokumentasi Resmi:** Tersedia dokumen formal Software Requirements Specification (SRS) berstandar IEEE pada `docs/srs_sistem_informasi_presensi_pkbmpikat.md`  
+**Dokumentasi Resmi:** Tersedia dokumen formal Software Requirements Specification (SRS) berstandar IEEE pada `docs/SRS/srs_sistem_informasi_presensi_pkbmpikat.md`  
 **Status Proyek:** Fase 1-6 (Keamanan, Multi-Moda, Multi-Geofence, Payroll SK, Standardisasi Seeder Jenjang Paket A/B/C Kelas 1-12, UI Toast Global, Searchable Select, Web Push, SIMPIKAT SSO, & SRS IEEE)  
 **Repositori Remote:** `https://github.com/4lliiifffff/pengembangan-presensi-pkbmpikat.git` (Branch: `main`)  
 

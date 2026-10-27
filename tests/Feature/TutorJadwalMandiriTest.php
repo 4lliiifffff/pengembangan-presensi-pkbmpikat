@@ -6,7 +6,7 @@ use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
 use App\Models\JenjangPaket;
 use App\Models\KategoriTutorial;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;

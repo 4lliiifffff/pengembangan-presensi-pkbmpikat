@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Admin;
-use App\Models\kelas;
-use App\Models\Kepala_Sekolah;
+use App\Models\Kelas;
+use App\Models\KepalaSekolah;
 use App\Models\Magang;
 use App\Models\Murid;
 use App\Models\Siswa;
@@ -336,9 +336,9 @@ class AuthWebController extends Controller
         // Pastikan relasi profil murid/siswa tersedia
         if (in_array($role, ['murid', 'siswa'], true)) {
             if (! $user->murid && ! $user->siswa) {
-                $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
-                if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
-                    $k = kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'tingkat' => '1']);
+                $kelasId = class_exists(Kelas::class) ? Kelas::first()?->id : null;
+                if (! $kelasId && class_exists(Kelas::class) && Schema::hasTable('kelas')) {
+                    $k = Kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'tingkat' => '1']);
                     $kelasId = $k->id;
                 }
                 if (class_exists(Murid::class) && Schema::hasTable((new Murid)->getTable())) {
@@ -393,8 +393,8 @@ class AuthWebController extends Controller
                     'role' => 'kepala_sekolah',
                     'is_active' => 1,
                 ]);
-                if (class_exists(Kepala_Sekolah::class) && (Schema::hasTable((new Kepala_Sekolah)->getTable()) || Schema::hasTable('kepala__sekolahs'))) {
-                    Kepala_Sekolah::firstOrCreate(['user_id' => $user->id], [
+                if (class_exists(KepalaSekolah::class) && (Schema::hasTable((new KepalaSekolah)->getTable()) || Schema::hasTable('kepala__sekolahs'))) {
+                    KepalaSekolah::firstOrCreate(['user_id' => $user->id], [
                         'nik' => $user->nik,
                         'nama_lengkap' => $user->nama_lengkap,
                         'email' => $user->email,
@@ -454,9 +454,9 @@ class AuthWebController extends Controller
                     'no_hp' => '081234567001',
                     'is_active' => 1,
                 ]);
-                $kelasId = class_exists(kelas::class) ? kelas::first()?->id : null;
-                if (! $kelasId && class_exists(kelas::class) && Schema::hasTable('kelas')) {
-                    $k = kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'tingkat' => '1']);
+                $kelasId = class_exists(Kelas::class) ? Kelas::first()?->id : null;
+                if (! $kelasId && class_exists(Kelas::class) && Schema::hasTable('kelas')) {
+                    $k = Kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'tingkat' => '1']);
                     $kelasId = $k->id;
                 }
                 if (class_exists(Murid::class) && Schema::hasTable((new Murid)->getTable())) {

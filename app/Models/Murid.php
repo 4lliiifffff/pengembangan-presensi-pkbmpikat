@@ -198,7 +198,7 @@ class Murid extends Model
      */
     public function relKelas(): BelongsTo
     {
-        return $this->belongsTo(kelas::class, 'kelas_id');
+        return $this->belongsTo(Kelas::class, 'kelas_id');
     }
 
     /**
@@ -216,7 +216,7 @@ class Murid extends Model
     {
         return $this->hasOneThrough(
             JenjangPaket::class,
-            kelas::class,
+            Kelas::class,
             'id',               // Foreign key di tabel kelas (kelas.id)
             'id',               // Foreign key di tabel jenjang_pakets (jenjang_pakets.id)
             'kelas_id',         // Local key di tabel murid (murid.kelas_id)

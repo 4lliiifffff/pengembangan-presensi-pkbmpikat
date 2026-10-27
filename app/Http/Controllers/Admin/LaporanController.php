@@ -7,7 +7,7 @@ use App\Exports\PresensiTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Imports\PresensiImport;
 use App\Models\JenjangPaket;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\LokasiPresensi;
 use App\Models\Siswa;
 use App\Models\Tutor;

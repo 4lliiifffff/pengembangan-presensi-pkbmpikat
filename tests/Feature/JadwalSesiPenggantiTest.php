@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\JadwalSesi;
 use App\Models\KategoriTutorial;
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\Tutor;
 use App\Models\User;
@@ -44,7 +44,7 @@ class JadwalSesiPenggantiTest extends TestCase
             'no_hp' => '081234567890',
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Paket C Rombel 1', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Paket C Rombel 1', 'tingkat' => 'SMA']);
 
         $this->siswa = Siswa::create([
             'nama_siswa' => 'Budi Siswa Test',
@@ -282,7 +282,7 @@ class JadwalSesiPenggantiTest extends TestCase
 
     public function test_tutor_can_store_jadwal_for_multiple_murid_single_session(): void
     {
-        $kelas = kelas::first();
+        $kelas = Kelas::first();
         $siswa2 = Siswa::create([
             'nama_siswa' => 'Siti Siswa Test',
             'no_absen' => '02',
@@ -321,7 +321,7 @@ class JadwalSesiPenggantiTest extends TestCase
 
     public function test_tutor_can_store_jadwal_for_multiple_murid_recurring_weekly(): void
     {
-        $kelas = kelas::first();
+        $kelas = Kelas::first();
         $siswa2 = Siswa::create([
             'nama_siswa' => 'Dewi Siswa Test',
             'no_absen' => '03',

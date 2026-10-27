@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\Presensi;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -35,7 +35,7 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'jenjang_paket' => 'paket_a', 'tingkat' => 1]);
+        $kelas = Kelas::create(['nama_kelas' => 'Paket A - Kelas 1', 'jenjang_paket' => 'paket_a', 'tingkat' => 1]);
         $siswa = Siswa::create([
             'no_absen' => 'TEST903',
             'nama_siswa' => 'Budi Santoso MultiModa',
@@ -78,8 +78,8 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelasA = kelas::create(['nama_kelas' => 'Paket A (Setara SD)']);
-        $kelasC = kelas::create(['nama_kelas' => 'Paket C (Setara SMA)']);
+        $kelasA = Kelas::create(['nama_kelas' => 'Paket A (Setara SD)']);
+        $kelasC = Kelas::create(['nama_kelas' => 'Paket C (Setara SMA)']);
 
         $siswaA = Siswa::create([
             'no_absen' => 'TEST_A',
@@ -126,8 +126,8 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelasA = kelas::create(['nama_kelas' => 'Paket A (Setara SD)']);
-        $kelasB = kelas::create(['nama_kelas' => 'Paket B (Setara SMP)']);
+        $kelasA = Kelas::create(['nama_kelas' => 'Paket A (Setara SD)']);
+        $kelasB = Kelas::create(['nama_kelas' => 'Paket B (Setara SMP)']);
 
         $siswaA = Siswa::create([
             'no_absen' => 'TEST_REG_A',
@@ -179,8 +179,8 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelasB1 = kelas::create(['nama_kelas' => 'Paket B Kelas 7']);
-        $kelasB2 = kelas::create(['nama_kelas' => 'Paket B Kelas 8']);
+        $kelasB1 = Kelas::create(['nama_kelas' => 'Paket B Kelas 7']);
+        $kelasB2 = Kelas::create(['nama_kelas' => 'Paket B Kelas 8']);
 
         $siswaB1 = Siswa::create([
             'no_absen' => 'TEST_B1',
@@ -230,8 +230,8 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelasB7 = kelas::create(['nama_kelas' => 'Paket B - Kelas 7']);
-        $kelasB8 = kelas::create(['nama_kelas' => 'Paket B - Kelas 8']);
+        $kelasB7 = Kelas::create(['nama_kelas' => 'Paket B - Kelas 7']);
+        $kelasB8 = Kelas::create(['nama_kelas' => 'Paket B - Kelas 8']);
 
         $siswa1 = Siswa::create([
             'no_absen' => 'AUTO_B7',
@@ -283,7 +283,7 @@ class PresensiMultiModaTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelasC10 = kelas::create(['nama_kelas' => 'Paket C - Kelas 10']);
+        $kelasC10 = Kelas::create(['nama_kelas' => 'Paket C - Kelas 10']);
 
         $siswa1 = Siswa::create([
             'no_absen' => 'SINGLE_C1',

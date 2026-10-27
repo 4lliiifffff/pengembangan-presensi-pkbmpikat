@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\JenjangPaket;
-use App\Models\kelas as Kelas;
+use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;

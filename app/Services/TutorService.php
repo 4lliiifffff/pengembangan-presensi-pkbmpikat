@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Models\Kepala_Sekolah;
+use App\Models\KepalaSekolah;
 use App\Models\Tutor;
 use App\Models\User;
 use Illuminate\Support\Collection;
@@ -46,7 +46,7 @@ class TutorService
             Tutor::create($attrs);
         };
 
-        Kepala_Sekolah::query()->orderBy('nama_lengkap')->each(function (Kepala_Sekolah $kepsek) use ($ensureTutor) {
+        KepalaSekolah::query()->orderBy('nama_lengkap')->each(function (KepalaSekolah $kepsek) use ($ensureTutor) {
             if (! $kepsek->user_id) {
                 return;
             }

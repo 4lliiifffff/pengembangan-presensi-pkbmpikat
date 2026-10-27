@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\JenjangPaket;
-use App\Models\kelas;
+use App\Models\Kelas;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -39,7 +39,7 @@ class JenjangPaketController extends Controller
         $stats = [
             'total' => JenjangPaket::count(),
             'active' => JenjangPaket::where('is_aktif', true)->count(),
-            'total_kelas' => kelas::whereNotNull('jenjang_paket_id')->count(),
+            'total_kelas' => Kelas::whereNotNull('jenjang_paket_id')->count(),
         ];
 
         return view('admin.jenjang_paket.index', compact('jenjangPakets', 'stats'));

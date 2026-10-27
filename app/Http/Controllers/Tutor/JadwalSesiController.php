@@ -12,7 +12,7 @@ use App\Models\JadwalKerja;
 use App\Models\JadwalRutin;
 use App\Models\JadwalSesi;
 use App\Models\KategoriTutorial;
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\LokasiPresensi;
 use App\Models\Siswa;
 use App\Services\JadwalRutinService;
@@ -130,7 +130,7 @@ class JadwalSesiController extends Controller
             ->get();
         $murids = $siswas;
         $tutorKelasIds = $siswas->pluck('kelas_id')->filter()->unique();
-        $kelasList = kelas::whereIn('id', $tutorKelasIds)->with('jenjangPaket')->orderBy('nama_kelas')->get();
+        $kelasList = Kelas::whereIn('id', $tutorKelasIds)->with('jenjangPaket')->orderBy('nama_kelas')->get();
         $kategoriTutorials = KategoriTutorial::active()->orderBy('urutan')->get();
         $lokasiPresensis = LokasiPresensi::active()->orderBy('nama_lokasi')->get();
 

@@ -46,7 +46,7 @@ class MagangController extends Controller
 
         $total = User::where('role', 'magang')->count();
         $aktif = User::where('role', 'magang')->where('is_active', 1)->count();
-        $nonaktif = User::where('role', 'magang')->where('is_active', 0)->count();
+        $nonaktif = $total - $aktif;
 
         return view('admin.magang.index', compact('magangs', 'total', 'aktif', 'nonaktif', 'search', 'status'));
     }

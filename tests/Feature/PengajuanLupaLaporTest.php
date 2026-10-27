@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\PengajuanLupaLapor;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -24,7 +24,7 @@ class PengajuanLupaLaporTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Paket A (Setara SD)', 'tingkat' => 'SD']);
+        $kelas = Kelas::create(['nama_kelas' => 'Paket A (Setara SD)', 'tingkat' => 'SD']);
 
         $siswa = Siswa::create([
             'no_absen' => 'TEST901',
@@ -62,7 +62,7 @@ class PengajuanLupaLaporTest extends TestCase
             'email' => $userTutor->email,
         ]);
 
-        $kelas = kelas::create(['nama_kelas' => 'Kelas Paket C', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas Paket C', 'tingkat' => 'SMA']);
 
         $siswa = Siswa::create([
             'no_absen' => 'TEST902',

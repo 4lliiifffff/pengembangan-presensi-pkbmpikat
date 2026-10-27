@@ -2,10 +2,37 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 /**
- * Class KepalaSekolah - Standarisasi nama model CamelCase PSR untuk entitas Kepala Sekolah.
+ * Model KepalaSekolah - Data Profil Detail Kepala Sekolah
+ *
+ * Standarisasi PSR-1 / PSR-12 (PascalCase/StudlyCaps) untuk entitas Kepala Sekolah.
  */
-class KepalaSekolah extends Kepala_Sekolah
+class KepalaSekolah extends Model
 {
     protected $table = 'kepala_sekolah';
+
+    protected $fillable = [
+        'user_id',
+        'nik',
+        'nama_lengkap',
+        'email',
+        'no_hp',
+        'foto',
+    ];
+
+    /**
+     * Relasi ke akun User
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+
+// Interoperabilitas backward-compatibility untuk pemanggilan legacy App\Models\Kepala_Sekolah
+if (! class_exists('App\Models\Kepala_Sekolah', false)) {
+    class_alias(KepalaSekolah::class, 'App\Models\Kepala_Sekolah');
 }

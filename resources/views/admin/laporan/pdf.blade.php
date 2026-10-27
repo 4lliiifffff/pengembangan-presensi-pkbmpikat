@@ -420,8 +420,8 @@
                 <div>Bandung, {{ $tanggalCetak->translatedFormat('d F Y') }}</div>
                 <div class="font-bold">Kepala Sekolah PKBM Pikat</div>
                 <div class="sign-space"></div>
-                <div class="font-bold">{{ \App\Models\Kepala_Sekolah::first()?->nama_lengkap ?? (\App\Models\User::where('role', 'kepala_sekolah')->first()?->nama_lengkap ?? 'Kepala Sekolah PKBM Pikat') }}</div>
-                <div class="text-muted">{{ \App\Models\Kepala_Sekolah::first()?->nik ? 'NIK/NIP: ' . \App\Models\Kepala_Sekolah::first()?->nik : 'Kepala Sekolah' }}</div>
+                <div class="font-bold">{{ \App\Models\KepalaSekolah::first()?->nama_lengkap ?? (\App\Models\User::where('role', 'kepala_sekolah')->first()?->nama_lengkap ?? 'Kepala Sekolah PKBM Pikat') }}</div>
+                <div class="text-muted">{{ \App\Models\KepalaSekolah::first()?->nik ? 'NIK/NIP: ' . \App\Models\KepalaSekolah::first()?->nik : 'Kepala Sekolah' }}</div>
             </td>
         </tr>
     </table>

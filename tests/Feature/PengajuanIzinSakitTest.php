@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\kelas;
+use App\Models\Kelas;
 use App\Models\PengajuanIzinSakit;
 use App\Models\Siswa;
 use App\Models\Tutor;
@@ -69,7 +69,7 @@ class PengajuanIzinSakitTest extends TestCase
             'email' => $tutorUser->email,
             'no_hp' => '081234567890',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas Test', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas Test', 'tingkat' => 'SMA']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Siswa Test',
             'tutor_id' => $tutor->id,
@@ -160,7 +160,7 @@ class PengajuanIzinSakitTest extends TestCase
             'email' => 'budi@test.com',
             'no_hp' => '081234567891',
         ]);
-        $kelas = kelas::create(['nama_kelas' => 'Kelas Admin Izin', 'tingkat' => 'SMA']);
+        $kelas = Kelas::create(['nama_kelas' => 'Kelas Admin Izin', 'tingkat' => 'SMA']);
         $siswa = Siswa::create([
             'nama_siswa' => 'Murid Budi',
             'tutor_id' => $tutor->id,

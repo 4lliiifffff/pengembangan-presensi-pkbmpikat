@@ -2,31 +2,31 @@
 
 namespace App\Http\Controllers\Kepsek\Concerns;
 
-use App\Models\Kepala_Sekolah;
+use App\Models\KepalaSekolah;
 use Illuminate\Support\Facades\Schema;
 
 trait ResolvesKepsek
 {
-    protected function resolveKepsek(): ?Kepala_Sekolah
+    protected function resolveKepsek(): ?KepalaSekolah
     {
         $user = auth()->user();
         if (! $user) {
             return null;
         }
 
-        $kepsek = Kepala_Sekolah::where('user_id', $user->id)->first();
+        $kepsek = KepalaSekolah::where('user_id', $user->id)->first();
         if ($kepsek) {
             return $kepsek;
         }
 
         $nik = (string) ($user->nik ?? '');
         $email = (string) ($user->email ?? '');
-        $tableName = (new Kepala_Sekolah)->getTable();
+        $tableName = (new KepalaSekolah)->getTable();
         $hasNik = Schema::hasColumn($tableName, 'nik');
         $hasEmail = Schema::hasColumn($tableName, 'email');
 
         if (($hasNik && $nik !== '') || ($hasEmail && $email !== '')) {
-            $kepsek = Kepala_Sekolah::query()
+            $kepsek = KepalaSekolah::query()
                 ->where(fn ($q) => $hasNik && $nik !== '' ? $q->where('nik', $nik) : $q)
                 ->where(fn ($q) => $hasEmail && $email !== '' ? $q->orWhere('email', $email) : $q)
                 ->first();
@@ -58,6 +58,6 @@ trait ResolvesKepsek
             $payload['nik'] = $nik ?: ('KEPSEK-'.$user->id);
         }
 
-        return Kepala_Sekolah::create($payload);
+        return KepalaSekolah::create($payload);
     }
 }

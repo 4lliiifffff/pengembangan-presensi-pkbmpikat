@@ -2,7 +2,7 @@
 
 **Tanggal Pembaruan:** 27 September 2026  
 **Versi Framework:** Laravel 13.31.0 (PHP 8.5.1)  
-**Dokumentasi Resmi:** Tersedia dokumen formal Software Requirements Specification (SRS) berstandar IEEE pada `docs/srs_sistem_informasi_presensi_pkbmpikat.md`  
+**Dokumentasi Resmi:** Tersedia dokumen formal Software Requirements Specification (SRS) berstandar IEEE pada `docs/SRS/srs_sistem_informasi_presensi_pkbmpikat.md`  
 **Status Proyek:** Fase 1, 2, 3, 4, 5 & 6 (Keamanan, Multi-Moda, Multi-Geofence Radius, Payroll SK Dinamis, Web Push Real-Time, Standardisasi UI/UX Halaman Presensi Multi-Peran, Manajemen Kelas/Paket Relasional, Penjadwalan Sesi Pengganti, Integrasi Autentikasi Lintas Sistem SIMPIKAT, & SRS IEEE)  
 
 ---

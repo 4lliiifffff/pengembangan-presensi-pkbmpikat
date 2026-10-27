@@ -2,25 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
-class Kepala_Sekolah extends Model
+/**
+ * Class Kepala_Sekolah (Legacy Compatibility Alias)
+ *
+ * @deprecated Gunakan App\Models\KepalaSekolah sesuai standar PSR-1 / PSR-12.
+ */
+class Kepala_Sekolah extends KepalaSekolah
 {
-    protected $table = 'kepala_sekolah';
-
-    // buat mass assigment
-    protected $fillable =
-        [
-            'user_id',
-            'nik',
-            'nama_lengkap',
-            'email',
-            'no_hp',
-            'foto',
-        ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
+    // Mewarisi seluruh logika dari model KepalaSekolah
 }

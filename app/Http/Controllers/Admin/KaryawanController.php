@@ -22,7 +22,7 @@ class KaryawanController extends Controller
         $status = $request->query('status', 'semua');
         $role = $request->query('role', 'semua');
 
-        $karyawanQuery = User::with(['murid.relKelas.jenjangPaket', 'siswa.relKelas.jenjangPaket']);
+        $karyawanQuery = User::with(['murid.relKelas.jenjangPaket']);
 
         if ($role && $role !== 'semua') {
             if ($role === 'murid' || $role === 'siswa') {
@@ -47,18 +47,21 @@ class KaryawanController extends Controller
 
         $karyawan = $karyawanQuery->latest('id')->paginate(15)->withQueryString();
 
-        // Hitung statistik untuk badge dan tab peran
-        $allUsers = User::all();
-        $total = $allUsers->count();
-        $aktif = $allUsers->where('is_active', 1)->count();
-        $nonaktif = $allUsers->where('is_active', 0)->count();
+        // Hitung statistik untuk badge dan tab peran secara efisien di level database
+        $total = User::count();
+        $aktif = User::where('is_active', 1)->count();
+        $nonaktif = $total - $aktif;
 
-        $tutorCount = $allUsers->where('role', 'tutor')->count();
-        $muridCount = $allUsers->whereIn('role', ['murid', 'siswa'])->count();
+        $roleCounts = User::selectRaw('role, count(*) as count')
+            ->groupBy('role')
+            ->pluck('count', 'role');
+
+        $tutorCount = (int) ($roleCounts['tutor'] ?? 0);
+        $muridCount = (int) (($roleCounts['murid'] ?? 0) + ($roleCounts['siswa'] ?? 0));
         $siswaCount = $muridCount;
-        $magangCount = $allUsers->where('role', 'magang')->count();
-        $adminCount = $allUsers->where('role', 'admin')->count();
-        $kepsekCount = $allUsers->where('role', 'kepala_sekolah')->count();
+        $magangCount = (int) ($roleCounts['magang'] ?? 0);
+        $adminCount = (int) ($roleCounts['admin'] ?? 0);
+        $kepsekCount = (int) ($roleCounts['kepala_sekolah'] ?? 0);
 
         return view('admin.karyawan.index', compact(
             'karyawan',
