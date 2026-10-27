@@ -154,3 +154,8 @@ class PresensiMandiriMurid extends Model
         return asset('storage/'.ltrim($this->foto_pulang, '/'));
     }
 }
+
+// Interoperabilitas backward-compatibility untuk pemanggilan legacy App\Models\PresensiMandiriSiswa
+if (! class_exists('App\Models\PresensiMandiriSiswa', false)) {
+    class_alias(PresensiMandiriMurid::class, 'App\Models\PresensiMandiriSiswa');
+}
